@@ -1,0 +1,218 @@
+query DemoUserCatalog {
+  userProfiles(tenantSlug: "demo") {
+    externalUserId
+    fullName
+    companyName
+    jobTitle
+    email
+    isEmailMasked
+  }
+}
+
+query DemoContextViewer {
+  userContext(input: { tenantSlug: "demo", externalUserId: "123" }) {
+    snapshotId
+    externalUserId
+    fullName
+    companyName
+    summary
+    overallConfidence
+    generatedAtUtc
+    isStale
+    sourceSummary {
+      accountName
+      externalAccountId
+      domain
+      activePlanName
+      subscriptionStatus
+      monthlyRecurringRevenue
+      openOpportunities
+      openSupportTickets
+      pricingPageVisits30d
+      activeDays30
+      emailReplies30d
+      highlights {
+        label
+        value
+        explanation
+      }
+      recentTimeline {
+        category
+        description
+        occurredAtUtc
+      }
+      rawSummaryJson
+    }
+    history {
+      snapshotVersion
+      summary
+      overallConfidence
+      generatedAtUtc
+      isStale
+      factCount
+    }
+    facts {
+      attributeKey
+      valueJson
+      confidence
+      observedAtUtc
+      freshUntilUtc
+      explanation
+      provenanceJson
+    }
+  }
+}
+
+query DemoSemanticCatalog {
+  dataSources(tenantSlug: "demo") {
+    id
+    name
+    kind
+    description
+    connectionConfigJson
+  }
+  semanticAttributes(tenantSlug: "demo") {
+    id
+    key
+    displayName
+    dataType
+    isSystem
+  }
+  selectors(tenantSlug: "demo") {
+    id
+    name
+    status
+    mappingKind
+    defaultConfidence
+    freshnessWindowMinutes
+    priority
+    expressionJson
+    explanationTemplate
+    validationSchemaJson
+    dataSource {
+      name
+      kind
+    }
+    targetAttributeDefinition {
+      key
+      displayName
+    }
+  }
+}
+
+mutation PreviewPreferredChannelSelector {
+  previewSelector(
+    input: {
+      tenantSlug: "demo"
+      externalUserId: "123"
+      draftSelector: {
+        id: null
+        tenantSlug: "demo"
+        dataSourceId: "REPLACE_WITH_CONTACT_SIGNAL_SOURCE_ID"
+        targetAttributeDefinitionId: "REPLACE_WITH_PREFERRED_CHANNEL_ATTRIBUTE_ID"
+        name: "Preferred Channel from Contact Preference"
+        description: "Preview direct mapping from customer_ops_db contact signals."
+        mappingKind: DIRECT_FIELD_MAPPING
+        expressionJson: "{ \"transforms\": [{ \"path\": \"preferred_channel\", \"type\": \"lower\" }], \"rule\": { \"valuePath\": \"preferred_channel\" } }"
+        explanationTemplate: "Preferred channel resolved from the contact record as {{sourceValue}}."
+        validationSchemaJson: "{ \"requiredPaths\": [\"preferred_channel\"] }"
+        defaultConfidence: 0.96
+        freshnessWindowMinutes: 1440
+        priority: 10
+        scheduleIntervalMinutes: 120
+      }
+    }
+  ) {
+    isSuccess
+    selectorName
+    rawSourceDataJson
+    normalizedSourceDataJson
+    validationErrors
+    valueJson
+    confidence
+    explanation
+    provenanceJson
+    pipelineTraceJson
+  }
+}
+
+mutation QueueUser123Recompute {
+  queueContextRecompute(
+    input: {
+      tenantSlug: "demo"
+      externalUserId: "123"
+      triggeredBy: "admin@contextlayer.local"
+    }
+  ) {
+    correlationId
+    executionCount
+  }
+}
+
+query DemoSalesContextPackage {
+  salesContextPackage(
+    input: {
+      tenantSlug: "demo"
+      externalUserId: "123"
+      salesObjective: "Book a 20-minute discovery call for enterprise rollout in the next seven days."
+    }
+  ) {
+    fullName
+    companyName
+    salesObjective
+    summary
+    overallConfidence
+    isStale
+    humanReviewRecommended
+    missingInformation
+    weakSignalMessages
+    facts {
+      citationId
+      displayName
+      valueJson
+      confidence
+      isFresh
+      isLowConfidence
+      explanation
+    }
+    contextPackageJson
+  }
+}
+
+query DemoPromptTemplates {
+  promptTemplates(tenantSlug: "demo") {
+    id
+    name
+    version
+    systemPrompt
+    developerPrompt
+    userPromptTemplate
+    outputSchemaJson
+    guardrailsJson
+  }
+}
+
+mutation DemoAgentRun {
+  createAgentRun(
+    input: {
+      tenantSlug: "demo"
+      externalUserId: "123"
+      promptTemplateId: "REPLACE_WITH_PROMPT_TEMPLATE_ID"
+      providerName: "mock"
+      modelName: "gpt-5.5"
+      salesObjective: "Create an enterprise outreach strategy that turns current usage momentum into a discovery call next week."
+    }
+  ) {
+    agentRunId
+    status
+    providerName
+    modelName
+    confidence
+    humanReviewRecommended
+    contextPackageJson
+    outputJson
+    provenanceJson
+    validationErrorsJson
+    failureReason
+  }
+}

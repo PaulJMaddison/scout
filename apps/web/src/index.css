@@ -1,0 +1,79 @@
+@import '@fontsource-variable/manrope';
+@import '@fontsource-variable/space-grotesk';
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Manrope Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Space Grotesk Variable', 'Manrope Variable', sans-serif;
+
+  --color-ink-950: #17130f;
+  --color-ink-900: #231c15;
+  --color-ink-700: #5f5447;
+  --color-ink-500: #857765;
+  --color-ink-300: #b8aa97;
+
+  --color-ivory-25: #fffdf8;
+  --color-ivory-50: #f8f1e7;
+  --color-ivory-100: #f1e8db;
+  --color-ivory-200: #e3d8c7;
+
+  --color-copper-300: #d98d58;
+  --color-copper-400: #c87a46;
+  --color-copper-500: #af5c2b;
+  --color-copper-700: #7d3d1d;
+
+  --color-sage-300: #aab79e;
+  --color-sage-500: #73856b;
+  --color-sage-700: #55634f;
+  --color-sage-800: #42503d;
+
+  --color-gold-300: #e5c981;
+  --color-gold-500: #c89b3d;
+
+  --color-rosewood-500: #a56053;
+  --color-rosewood-600: #8d4a3f;
+  --color-rosewood-800: #63362f;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(200, 122, 70, 0.15), transparent 36%),
+    radial-gradient(circle at top right, rgba(115, 133, 107, 0.16), transparent 32%),
+    linear-gradient(180deg, #f7efe5 0%, #efe4d4 100%);
+  color: var(--color-ink-950);
+  font-family: var(--font-sans);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+::selection {
+  background: rgba(175, 92, 43, 0.18);
+  color: var(--color-ink-950);
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background: rgba(35, 28, 21, 0.22);
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}

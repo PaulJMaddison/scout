@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ContextLayer.Api/ContextLayer.Api.csproj" />
+    <Project Path="src/ContextLayer.Application/ContextLayer.Application.csproj" />
+    <Project Path="src/ContextLayer.Domain/ContextLayer.Domain.csproj" />
+    <Project Path="src/ContextLayer.Infrastructure/ContextLayer.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ContextLayer.IntegrationTests/ContextLayer.IntegrationTests.csproj" />
+    <Project Path="tests/ContextLayer.UnitTests/ContextLayer.UnitTests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,131 @@
+services:
+  postgres:
+    image: postgres:17.5-alpine
+    container_name: contextlayer-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      CUSTOMER_OPS_DB: ${CUSTOMER_OPS_DB:-customer_ops_db}
+      CONTEXT_LAYER_DB: ${CONTEXT_LAYER_DB:-context_layer_db}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - contextlayer-postgres:/var/lib/postgresql/data
+      - ./deploy/docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.126.0
+    container_name: contextlayer-otel-collector
+    restart: unless-stopped
+    command: ["--config=/etc/otelcol-contrib/config.yml"]
+    volumes:
+      - ./deploy/otel-collector/config.yml:/etc/otelcol-contrib/config.yml:ro
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "9464:9464"
+
+  prometheus:
+    image: prom/prometheus:v3.3.1
+    container_name: contextlayer-prometheus
+    restart: unless-stopped
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-lifecycle"
+    volumes:
+      - ./deploy/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - contextlayer-prometheus:/prometheus
+    ports:
+      - "9090:9090"
+    depends_on:
+      - otel-collector
+
+  tempo:
+    image: grafana/tempo:2.7.2
+    container_name: contextlayer-tempo
+    restart: unless-stopped
+    command: ["-config.file=/etc/tempo/tempo.yml"]
+    volumes:
+      - ./deploy/tempo/tempo.yml:/etc/tempo/tempo.yml:ro
+      - contextlayer-tempo:/var/tempo
+    ports:
+      - "3200:3200"
+
+  grafana:
+    image: grafana/grafana:11.6.0
+    container_name: contextlayer-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./deploy/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./deploy/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./deploy/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - contextlayer-grafana:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+      - tempo
+
+  api:
+    build:
+      context: .
+      dockerfile: src/ContextLayer.Api/Dockerfile
+    container_name: contextlayer-api
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ConnectionStrings__ContextLayer: Host=postgres;Port=5432;Database=${CONTEXT_LAYER_DB:-context_layer_db};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}
+      ConnectionStrings__CustomerOps: Host=postgres;Port=5432;Database=${CUSTOMER_OPS_DB:-customer_ops_db};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}
+      Telemetry__OtlpEndpoint: ${Telemetry__OtlpEndpoint:-http://otel-collector:4317}
+      Cors__AllowedOrigins__0: http://localhost:5173
+      Cors__AllowedOrigins__1: http://127.0.0.1:5173
+      Cors__AllowedOrigins__2: http://localhost:8080
+      Cors__AllowedOrigins__3: http://127.0.0.1:8080
+      Auth__Issuer: ${Auth__Issuer:-ContextLayer}
+      Auth__Audience: ${Auth__Audience:-ContextLayer.Console}
+      Auth__SigningKey: ${Auth__SigningKey:-context-layer-dev-signing-key-change-me}
+      Auth__AccessTokenMinutes: ${Auth__AccessTokenMinutes:-120}
+      Llm__DefaultProvider: ${Llm__DefaultProvider:-mock}
+      Llm__DefaultModel: ${Llm__DefaultModel:-gpt-5.5}
+      Llm__MaxAttempts: ${Llm__MaxAttempts:-2}
+      Llm__LowConfidenceThreshold: ${Llm__LowConfidenceThreshold:-0.75}
+      Llm__MinimumStrongFacts: ${Llm__MinimumStrongFacts:-3}
+    ports:
+      - "5198:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      otel-collector:
+        condition: service_started
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_API_BASE_URL: ""
+        VITE_GRAPHQL_ENDPOINT: /graphql
+        VITE_DEMO_FALLBACK: "false"
+    container_name: contextlayer-web
+    restart: unless-stopped
+    ports:
+      - "5173:8080"
+    depends_on:
+      - api
+
+volumes:
+  contextlayer-postgres:
+  contextlayer-prometheus:
+  contextlayer-tempo:
+  contextlayer-grafana:
