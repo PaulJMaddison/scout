@@ -54,6 +54,8 @@ That is the commercial value of the middleware:
 
 ## Screenshot Gallery
 
+These screenshots are captured from the current `v1.0.0` UI running locally in the default SQLite demo mode. They use the seeded `demo` tenant and the Northstar Logistics `User 123` walkthrough.
+
 | Executive demo | Overview |
 | --- | --- |
 | ![Executive demo landing](docs/images/demo-mode-landing.png) | ![Overview dashboard](docs/images/dashboard-overview.png) |
@@ -136,37 +138,95 @@ The data is internally consistent on purpose. For example:
 - open support issues can weaken confidence or increase review flags
 - billing and opportunity signals affect budget readiness and urgency
 
-## Local Startup
+## Fresh Laptop Quick Start
+
+The default demo path is designed for a clean Windows or macOS/Linux laptop. You do not need Docker, PostgreSQL, a global .NET SDK, or a global Node.js install for the standard local demo.
+
+The setup scripts will download repo-local runtimes when needed:
+
+- `.dotnet/` for the .NET 10 SDK
+- `.node/` for Node.js and npm
+- `.demo-data/` for the two SQLite demo databases
+- `.demo-runtime/` for process IDs, logs, and temporary bootstrap files
+
+Those folders are ignored by Git and can be recreated at any time.
+
+### 1. Clone the repository
+
+```powershell
+git clone https://github.com/PaulJMaddison/universalcontextlayer.git
+cd universalcontextlayer
+```
+
+```bash
+git clone https://github.com/PaulJMaddison/universalcontextlayer.git
+cd universalcontextlayer
+```
+
+### 2. Set up and seed the demo
 
 ### Windows
 
 ```powershell
 ./scripts/setup-demo.ps1
-./scripts/start-demo.ps1
 ```
 
 ### macOS / Linux
 
 ```bash
 sh ./scripts/setup-demo.sh
+```
+
+The setup command:
+
+1. checks for compatible local tooling
+2. downloads repo-local .NET 10 and Node.js if needed
+3. creates `.env` and `apps/web/.env.local` if missing
+4. creates the local SQLite database directory
+5. provisions the operational source database
+6. provisions the semantic context database
+7. seeds the commercial demo data
+8. restores backend tools and dependencies
+9. installs frontend dependencies
+10. prints URLs, credentials, and sample users
+
+### 3. Start the product
+
+```powershell
+./scripts/start-demo.ps1
+```
+
+```bash
 sh ./scripts/start-demo.sh
 ```
 
-The setup scripts are idempotent where possible. They:
+The start command:
 
-1. install a repo-local .NET 10 SDK automatically when a compatible SDK is not already available
-2. install a repo-local Node.js runtime automatically when a compatible Node/npm toolchain is not already available
-3. copy `.env.example` to `.env` when needed
-4. copy `apps/web/.env.example` to `apps/web/.env.local` when needed
-5. prepare the local SQLite demo database paths
-6. provision the two demo databases
-7. apply migrations or create the local fallback databases
-8. seed operational and semantic demo data
-9. restore backend tools and dependencies
-10. install frontend dependencies
-11. print the live URLs and credentials
+- reseeds the demo if needed
+- starts the ASP.NET Core API on `http://127.0.0.1:5198`
+- verifies the health endpoint
+- verifies login with the seeded admin account
+- verifies GraphQL can resolve `User 123`
+- starts the Vite web app on `http://127.0.0.1:5173`
 
-This means a fresh clone no longer depends on a preinstalled .NET SDK or Node.js toolchain for the default local SQLite path.
+### 4. Open the browser
+
+Open:
+
+- [http://127.0.0.1:5173](http://127.0.0.1:5173)
+
+Or use the helper:
+
+```powershell
+./scripts/open-demo-browser.ps1
+```
+
+Demo login:
+
+- `demo` / `admin@contextlayer.local` / `DemoAdmin123!`
+- `demo` / `rep@contextlayer.local` / `DemoSales123!`
+
+## Local Database Modes
 
 ### Default local mode
 
@@ -197,6 +257,8 @@ That mode provisions:
 - `context_layer_db`
 
 and brings up the optional observability services as part of the Docker stack.
+
+Use Docker/PostgreSQL when you want to show the same product shape against named PostgreSQL databases. Use the default SQLite path when you want the least friction on a fresh demo laptop.
 
 ## Verified Local URLs
 
@@ -230,7 +292,7 @@ Optional observability services are available when the Docker stack is active:
 
 Start with the seeded admin account.
 
-1. Open `/demo`
+1. Open `Executive Demo` or `/demo`
    Lead with the story: operational systems remain in place, Context Layer creates semantic meaning, AI consumes the grounded package.
 2. Step through `Legacy Signals`, `Semantic Timeline`, `AI Interaction Timeline`, and `Rollout and ROI`
    Use these pages as the narrative spine for decision-makers who need to understand business value, technical rollout, and governance.
@@ -364,19 +426,42 @@ sh ./scripts/reset-demo.sh
 Useful reset options:
 
 - `-SkipRecreate` or `--skip-recreate` to stop without reseeding
-- `-KeepVolumes` or `--keep-volumes` to preserve database volumes when Docker is active
+- `-KeepVolumes` or `--keep-volumes` to preserve Docker volumes and local `.demo-data` database files
+
+What reset removes by default:
+
+- running API and web demo processes tracked in `.demo-runtime`
+- local SQLite database files in `.demo-data`
+- Docker containers and volumes when Docker is available
+
+Then it runs setup again and reseeds the demo.
 
 ## Testing
 
-Backend:
+The setup scripts install repo-local .NET and Node where needed. On a fresh Windows machine, run setup first, then use the repo-local .NET binary for backend tests:
 
 ```powershell
-dotnet test ContextLayer.slnx
+./scripts/setup-demo.ps1
+./.dotnet/dotnet.exe test tests/ContextLayer.UnitTests/ContextLayer.UnitTests.csproj --no-restore
+./.dotnet/dotnet.exe test tests/ContextLayer.IntegrationTests/ContextLayer.IntegrationTests.csproj --no-restore
 ```
 
-Frontend:
+Frontend checks can then be run from the repository root. If Node.js was installed repo-locally by the setup script, add it to the current terminal first:
 
 ```powershell
+$nodePath = ./scripts/ensure-node.ps1 -RepoRoot $PWD
+$env:PATH = "$nodePath;$env:PATH"
+npm run lint --prefix apps/web
+npm test --prefix apps/web
+npm run test:e2e --prefix apps/web
+npm run build --prefix apps/web
+```
+
+On macOS/Linux:
+
+```bash
+NODE_PATH_DIR="$(sh ./scripts/ensure-node.sh "$PWD")"
+export PATH="$NODE_PATH_DIR:$PATH"
 npm run lint --prefix apps/web
 npm test --prefix apps/web
 npm run test:e2e --prefix apps/web
