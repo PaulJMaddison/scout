@@ -3,7 +3,7 @@ import type { ComponentPropsWithoutRef, PropsWithChildren, ReactNode } from 'rea
 import { cn } from '@/lib/utils'
 
 const buttonStyles = cva(
-  'inline-flex items-center justify-center rounded-full px-4 py-2.5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-copper-500/40 disabled:cursor-not-allowed disabled:opacity-50',
+  'inline-flex max-w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold leading-5 whitespace-normal text-center transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-copper-500/40 disabled:cursor-not-allowed disabled:opacity-50',
   {
     variants: {
       variant: {
@@ -41,7 +41,8 @@ export function Card({
   return (
     <section
       className={cn(
-        'rounded-[28px] border border-ink-900/8 bg-ivory-50/88 p-6 shadow-[0_18px_45px_rgba(24,18,15,0.08)] backdrop-blur',
+        'rounded-[24px] border border-ink-900/8 bg-ivory-50/88 p-5 shadow-[0_18px_45px_rgba(24,18,15,0.08)] backdrop-blur sm:rounded-[28px] sm:p-6',
+        'min-w-0 overflow-hidden',
         className,
       )}
     >
@@ -64,12 +65,12 @@ export function Panel({
 }>) {
   return (
     <Card className={className}>
-      <header className="mb-5 flex items-start justify-between gap-4">
-        <div>
+      <header className="mb-4 flex flex-wrap items-start justify-between gap-4 sm:mb-5">
+        <div className="min-w-0 flex-1">
           {eyebrow ? <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sage-700">{eyebrow}</p> : null}
-          <h2 className="mt-2 font-display text-xl text-ink-950">{title}</h2>
+          <h2 className="mt-2 break-words font-display text-lg leading-tight text-ink-950 sm:text-xl">{title}</h2>
         </div>
-        {action}
+        {action ? <div className="max-w-full shrink-0">{action}</div> : null}
       </header>
       {children}
     </Card>
@@ -96,6 +97,7 @@ export function Badge({
     <span
       className={cn(
         'inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold',
+        'max-w-full break-words whitespace-normal leading-5 text-left',
         toneClasses[tone],
         className,
       )}
@@ -130,7 +132,7 @@ export function Field({
 }
 
 const inputBase =
-  'w-full rounded-2xl border border-ink-900/10 bg-ivory-25 px-4 py-3 text-sm text-ink-950 shadow-inner shadow-white/40 outline-none transition placeholder:text-ink-500 focus:border-copper-400 focus:ring-4 focus:ring-copper-400/12'
+  'min-w-0 w-full rounded-2xl border border-ink-900/10 bg-ivory-25 px-4 py-3 text-sm text-ink-950 shadow-inner shadow-white/40 outline-none transition placeholder:text-ink-500 focus:border-copper-400 focus:ring-4 focus:ring-copper-400/12'
 
 export function Input(props: ComponentPropsWithoutRef<'input'>) {
   return <input className={cn(inputBase, props.className)} {...props} />
@@ -162,12 +164,12 @@ export function PageHeader({
 }) {
   return (
     <div className="flex flex-col gap-6 2xl:flex-row 2xl:items-end 2xl:justify-between">
-      <div className="max-w-3xl">
+      <div className="max-w-3xl min-w-0">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sage-700">{eyebrow}</p>
-        <h1 className="mt-3 font-display text-4xl tracking-tight text-ink-950">{title}</h1>
-        <p className="mt-3 text-base leading-7 text-ink-700">{description}</p>
+        <h1 className="mt-3 break-words font-display text-[clamp(2.4rem,4vw,4rem)] leading-[0.98] tracking-tight text-ink-950">{title}</h1>
+        <p className="mt-3 max-w-3xl text-sm leading-7 text-ink-700 sm:text-base">{description}</p>
       </div>
-      {actions ? <div className="flex flex-wrap items-center gap-3">{actions}</div> : null}
+      {actions ? <div className="flex max-w-full flex-wrap items-center gap-3">{actions}</div> : null}
     </div>
   )
 }
@@ -194,8 +196,8 @@ export function MetricCard({
       <div className={cn('absolute inset-x-0 top-0 h-24 bg-gradient-to-b', tones[accent])} />
       <div className="relative">
         <p className="text-sm font-medium text-ink-600">{label}</p>
-        <p className="mt-6 font-display text-4xl text-ink-950">{value}</p>
-        <p className="mt-3 text-sm text-ink-600">{footnote}</p>
+        <p className="mt-5 font-display text-[clamp(2rem,4vw,3rem)] leading-none text-ink-950">{value}</p>
+        <p className="mt-3 text-sm leading-6 text-ink-600">{footnote}</p>
       </div>
     </Card>
   )

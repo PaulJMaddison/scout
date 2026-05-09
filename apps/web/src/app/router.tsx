@@ -7,7 +7,6 @@ import {
   lazyRouteComponent,
   redirect,
 } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { AppShell } from '@/components/shell/app-shell'
 import { authStore } from '@/lib/auth'
 
@@ -39,12 +38,7 @@ function requireRole(context: RouterContext, redirectUrl: string, allowedRoles: 
 }
 
 function RootLayout() {
-  return (
-    <>
-      <Outlet />
-      <TanStackRouterDevtools position="bottom-right" />
-    </>
-  )
+  return <Outlet />
 }
 
 const rootRoute = createRootRouteWithContext<RouterContext>()({
@@ -90,6 +84,42 @@ const demoRoute = createRoute({
   component: lazyRouteComponent(() => import('@/features/demo/demo-mode-page'), 'DemoModePage'),
 })
 
+const storySourceSignalsRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/story/source-signals',
+  component: lazyRouteComponent(
+    () => import('@/features/demo/story-source-signals-page'),
+    'StorySourceSignalsPage',
+  ),
+})
+
+const storyContextLayerRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/story/context-layer',
+  component: lazyRouteComponent(
+    () => import('@/features/demo/story-context-layer-page'),
+    'StoryContextLayerPage',
+  ),
+})
+
+const storyAiWorkflowRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/story/ai-workflow',
+  component: lazyRouteComponent(
+    () => import('@/features/demo/story-ai-workflow-page'),
+    'StoryAiWorkflowPage',
+  ),
+})
+
+const storyOutcomesRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/story/outcomes',
+  component: lazyRouteComponent(
+    () => import('@/features/demo/story-outcomes-page'),
+    'StoryOutcomesPage',
+  ),
+})
+
 const dataSourcesRoute = createRoute({
   getParentRoute: () => appRoute,
   path: '/data-sources',
@@ -123,6 +153,18 @@ const semanticRoute = createRoute({
   component: lazyRouteComponent(
     () => import('@/features/semantic/semantic-schema-page'),
     'SemanticSchemaPage',
+  ),
+})
+
+const bootstrapStudioRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/bootstrap-studio',
+  beforeLoad: ({ context, location }) => {
+    requireRole(context, location.href, ['tenant_admin'])
+  },
+  component: lazyRouteComponent(
+    () => import('@/features/bootstrap/bootstrap-studio-page'),
+    'BootstrapStudioPage',
   ),
 })
 
@@ -167,10 +209,15 @@ const routeTree = rootRoute.addChildren([
   loginRoute,
   appRoute.addChildren([
     demoRoute,
+    storySourceSignalsRoute,
+    storyContextLayerRoute,
+    storyAiWorkflowRoute,
+    storyOutcomesRoute,
     overviewRoute,
     dataSourcesRoute,
     selectorsRoute,
     semanticRoute,
+    bootstrapStudioRoute,
     customersRoute,
     customerRoute,
     playgroundRoute,

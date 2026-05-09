@@ -2,9 +2,21 @@
 set -eu
 
 START_CONTAINERS=0
-if [ "${1:-}" = "--start-containers" ]; then
-  START_CONTAINERS=1
-fi
+USE_DOCKER=0
+for arg in "$@"; do
+  case "$arg" in
+    --start-containers)
+      START_CONTAINERS=1
+      ;;
+    --use-docker)
+      USE_DOCKER=1
+      ;;
+    *)
+      echo "Unknown argument: $arg" >&2
+      exit 1
+      ;;
+  esac
+done
 
 SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 REPO_ROOT="$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)"
@@ -13,11 +25,10 @@ ROOT_ENV_EXAMPLE_PATH="$REPO_ROOT/.env.example"
 WEB_ENV_PATH="$REPO_ROOT/apps/web/.env.local"
 DEMO_DATA_DIR="$REPO_ROOT/.demo-data"
 
-if [ -x "$REPO_ROOT/.dotnet/dotnet" ]; then
-  DOTNET_CMD="$REPO_ROOT/.dotnet/dotnet"
-else
-  DOTNET_CMD="dotnet"
-fi
+DOTNET_CMD="$(sh "$SCRIPT_DIR/ensure-dotnet.sh" "$REPO_ROOT")"
+NODE_BIN_DIR="$(sh "$SCRIPT_DIR/ensure-node.sh" "$REPO_ROOT")"
+PATH="$NODE_BIN_DIR:$PATH"
+export PATH
 
 assert_command() {
   if ! command -v "$1" >/dev/null 2>&1; then
@@ -66,7 +77,11 @@ ensure_file_from_example "$ROOT_ENV_PATH" "$ROOT_ENV_EXAMPLE_PATH"
 set_web_env
 
 MODE="sqlite"
-if docker_available; then
+if [ "$USE_DOCKER" -eq 1 ]; then
+  if ! docker_available; then
+    echo "Docker mode was requested, but Docker is not available on this machine." >&2
+    exit 1
+  fi
   MODE="docker"
 fi
 
@@ -76,7 +91,7 @@ run_repo_command "\"$DOTNET_CMD\" tool restore"
 run_repo_command "\"$DOTNET_CMD\" restore ContextLayer.slnx"
 
 if [ "$MODE" = "docker" ]; then
-  echo "Docker is available. Bootstrapping PostgreSQL-backed demo infrastructure."
+  echo "Docker mode was requested. Bootstrapping PostgreSQL-backed demo infrastructure."
   run_repo_command "docker compose up -d postgres otel-collector prometheus tempo grafana"
 
   postgres_ready=0
@@ -103,7 +118,7 @@ if [ "$MODE" = "docker" ]; then
     run_repo_command "docker compose up -d api web"
   fi
 else
-  echo "Docker is not available. Bootstrapping the local two-database demo using SQLite files."
+  echo "Bootstrapping the default local two-database demo using SQLite files."
   run_repo_command "Database__Provider=Sqlite ConnectionStrings__ContextLayer='Data Source=$DEMO_DATA_DIR/context_layer_demo.db' ConnectionStrings__CustomerOps='Data Source=$DEMO_DATA_DIR/customer_ops_demo.db' Telemetry__OtlpEndpoint='' \"$DOTNET_CMD\" run --project src/ContextLayer.Api -- bootstrap-demo"
 fi
 
@@ -116,6 +131,9 @@ Mode: $MODE
 
 Start locally:
   sh ./scripts/start-demo.sh
+
+Optional PostgreSQL package mode:
+  sh ./scripts/setup-demo.sh --use-docker
 
 Web app:           http://127.0.0.1:5173
 API base:          http://127.0.0.1:5198

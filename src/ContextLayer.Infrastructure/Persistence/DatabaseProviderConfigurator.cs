@@ -1,3 +1,4 @@
+using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
@@ -13,7 +14,7 @@ internal static class DatabaseProviderConfigurator
         var connectionString =
             configuration.GetConnectionString("ContextLayer")
             ?? configuration["CONTEXT_LAYER_CONNECTION_STRING"]
-            ?? "Host=localhost;Port=5432;Database=context_layer_db;Username=postgres;Password=postgres";
+            ?? GetDefaultContextLayerConnectionString();
 
         Configure(optionsBuilder, ResolveProvider(configuration, connectionString), connectionString);
     }
@@ -23,7 +24,7 @@ internal static class DatabaseProviderConfigurator
         var connectionString =
             configuration.GetConnectionString("CustomerOps")
             ?? configuration["CUSTOMER_OPS_CONNECTION_STRING"]
-            ?? "Host=localhost;Port=5432;Database=customer_ops_db;Username=postgres;Password=postgres";
+            ?? GetDefaultCustomerOpsConnectionString();
 
         Configure(optionsBuilder, ResolveProvider(configuration, connectionString), connectionString);
     }
@@ -61,6 +62,12 @@ internal static class DatabaseProviderConfigurator
         return LooksLikeSqlite(connectionString) ? SqliteProviderName : PostgresProviderName;
     }
 
+    public static string GetDefaultContextLayerConnectionString() =>
+        $"Data Source={GetDefaultDemoDataPath("context_layer_demo.db")}";
+
+    public static string GetDefaultCustomerOpsConnectionString() =>
+        $"Data Source={GetDefaultDemoDataPath("customer_ops_demo.db")}";
+
     private static void Configure(DbContextOptionsBuilder optionsBuilder, string? providerName, string connectionString)
     {
         var resolvedProvider = ResolveProvider(providerName, connectionString);
@@ -85,5 +92,12 @@ internal static class DatabaseProviderConfigurator
             || value.Contains("Filename=", StringComparison.OrdinalIgnoreCase)
             || value.EndsWith(".db", StringComparison.OrdinalIgnoreCase)
             || value.EndsWith(".sqlite", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string GetDefaultDemoDataPath(string fileName)
+    {
+        var demoDataDirectory = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), ".demo-data"));
+        Directory.CreateDirectory(demoDataDirectory);
+        return Path.Combine(demoDataDirectory, fileName);
     }
 }

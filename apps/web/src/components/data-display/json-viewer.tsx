@@ -5,7 +5,7 @@ import { copyText, prettyJson } from '@/lib/utils'
 export function JsonViewer({
   value,
   title,
-  height = 'h-64',
+  height = 'h-56 sm:h-64',
 }: {
   value: unknown
   title?: string
@@ -30,7 +30,7 @@ export function JsonViewer({
           Copy
         </Button>
       </div>
-      <pre className={`${height} overflow-auto px-4 py-4 text-xs leading-6 text-ivory-100`}>
+      <pre className={`${height} overflow-auto whitespace-pre-wrap break-words px-4 py-4 text-xs leading-6 text-ivory-100`}>
         <code>{rendered}</code>
       </pre>
     </div>

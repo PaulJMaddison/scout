@@ -1,5 +1,7 @@
 [CmdletBinding()]
-param()
+param(
+    [switch]$UseDocker
+)
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
@@ -14,20 +16,6 @@ $webErrorLogPath = Join-Path $demoRuntimeDirectory 'web-error.log'
 $apiPidPath = Join-Path $demoRuntimeDirectory 'api.pid'
 $webPidPath = Join-Path $demoRuntimeDirectory 'web.pid'
 $webWorkingDirectory = Join-Path $repoRoot 'apps\web'
-
-function Get-DotnetCommand {
-    $localDotnet = Join-Path $repoRoot '.dotnet\dotnet.exe'
-    if (Test-Path $localDotnet) {
-        return $localDotnet
-    }
-
-    $globalDotnet = Get-Command dotnet -ErrorAction SilentlyContinue
-    if ($globalDotnet) {
-        return $globalDotnet.Source
-    }
-
-    throw "A compatible .NET SDK was not found. Expected '$localDotnet' or 'dotnet' in PATH."
-}
 
 function Test-DockerAvailable {
     $docker = Get-Command docker -ErrorAction SilentlyContinue
@@ -146,9 +134,15 @@ function Wait-ForUrl {
     throw "Timed out waiting for $Url"
 }
 
-$dotnetCommand = Get-DotnetCommand
+$dotnetCommand = & (Join-Path $PSScriptRoot 'ensure-dotnet.ps1') -RepoRoot $repoRoot
+$nodeInstallDirectory = & (Join-Path $PSScriptRoot 'ensure-node.ps1') -RepoRoot $repoRoot
+$env:PATH = "$nodeInstallDirectory;$env:PATH"
 $dockerAvailable = Test-DockerAvailable
-$demoMode = if ($dockerAvailable) { 'docker' } else { 'sqlite' }
+if ($UseDocker -and -not $dockerAvailable) {
+    throw 'Docker mode was requested, but Docker is not available on this machine.'
+}
+
+$demoMode = if ($UseDocker) { 'docker' } else { 'sqlite' }
 
 if (-not (Test-Path $demoRuntimeDirectory)) {
     New-Item -ItemType Directory -Path $demoRuntimeDirectory | Out-Null
@@ -261,6 +255,7 @@ if (-not $graphqlResponse.data.userContext) {
 
 $webScript = @"
 Set-Location '$webWorkingDirectory'
+`$env:PATH = '$($nodeInstallDirectory.Replace("'", "''"))' + [System.IO.Path]::PathSeparator + `$env:PATH
 `$env:BROWSER = 'none'
 npm.cmd run dev -- --host 127.0.0.1 --port 5173 --strictPort
 "@

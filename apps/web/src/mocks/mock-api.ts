@@ -26,6 +26,7 @@ import type {
   SelectorValidationResult,
   SemanticAttributeDefinition,
   UpsertDataSourceInput,
+  UpsertPromptTemplateInput,
   UpsertSelectorDefinitionInput,
   UpsertSemanticAttributeInput,
   UserProfile,
@@ -46,6 +47,7 @@ type OperationName =
   | 'GetSalesContextPackage'
   | 'UpsertDataSource'
   | 'UpsertSemanticAttribute'
+  | 'UpsertPromptTemplate'
   | 'UpsertSelector'
   | 'PublishSelector'
   | 'PreviewSelector'
@@ -304,6 +306,12 @@ export async function mockGraphqlRequest<T>(
           variables?.input as UpsertSemanticAttributeInput,
         ),
       } as T
+    case 'UpsertPromptTemplate':
+      return {
+        upsertPromptTemplate: upsertPromptTemplate(
+          variables?.input as UpsertPromptTemplateInput,
+        ),
+      } as T
     case 'UpsertSelector':
       return { upsertSelector: upsertSelector(variables?.input as UpsertSelectorDefinitionInput) } as T
     case 'PublishSelector':
@@ -539,6 +547,51 @@ function upsertSemanticAttribute(input: UpsertSemanticAttributeInput) {
   }
   mockState.semanticAttributes.push(created)
   appendAudit('semantic-attribute.created', 'SemanticAttributeDefinition', created.id, null, created)
+  return created
+}
+
+function upsertPromptTemplate(input: UpsertPromptTemplateInput) {
+  const now = isoNow()
+  const existingIndex = input.id
+    ? mockState.promptTemplates.findIndex((item) => item.id === input.id)
+    : -1
+
+  if (existingIndex >= 0) {
+    const current = mockState.promptTemplates[existingIndex]
+    const updated: PromptTemplate = {
+      ...current,
+      name: input.name,
+      description: input.description,
+      systemPrompt: input.systemPrompt,
+      developerPrompt: input.developerPrompt,
+      userPromptTemplate: input.userPromptTemplate,
+      outputSchemaJson: input.outputSchemaJson,
+      guardrailsJson: input.guardrailsJson,
+      version: current.version + 1,
+      updatedAtUtc: now,
+    }
+    mockState.promptTemplates[existingIndex] = updated
+    appendAudit('prompt-template.updated', 'PromptTemplate', updated.id, current, updated)
+    return updated
+  }
+
+  const created: PromptTemplate = {
+    id: crypto.randomUUID(),
+    tenantId: mockState.tenantId,
+    name: input.name,
+    description: input.description,
+    systemPrompt: input.systemPrompt,
+    developerPrompt: input.developerPrompt,
+    userPromptTemplate: input.userPromptTemplate,
+    outputSchemaJson: input.outputSchemaJson,
+    guardrailsJson: input.guardrailsJson,
+    version: 1,
+    isActive: true,
+    createdAtUtc: now,
+    updatedAtUtc: now,
+  }
+  mockState.promptTemplates.unshift(created)
+  appendAudit('prompt-template.created', 'PromptTemplate', created.id, null, created)
   return created
 }
 

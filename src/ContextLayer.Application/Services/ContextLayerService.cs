@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using ContextLayer.Application.Abstractions;
 using ContextLayer.Application.Contracts;
 using ContextLayer.Domain.Entities;
@@ -1032,5 +1033,12 @@ public sealed class ContextLayerService(
         return $"{local[0]}***{domain}";
     }
 
-    private static string Serialize<T>(T instance) => JsonSerializer.Serialize(instance);
+    private static readonly JsonSerializerOptions AuditSerializerOptions = new()
+    {
+        ReferenceHandler = ReferenceHandler.IgnoreCycles,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+        WriteIndented = false
+    };
+
+    private static string Serialize<T>(T instance) => JsonSerializer.Serialize(instance, AuditSerializerOptions);
 }

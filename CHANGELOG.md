@@ -4,6 +4,30 @@ All notable changes to this project will be documented in this file.
 
 The format is inspired by Keep a Changelog and this project follows semantic versioning.
 
+## [1.0.0] - 2026-05-10
+
+### Added
+
+- Production-ready local demo flow with dual-database operational and semantic context separation.
+- Default SQLite laptop install path with repo-local .NET 10 and Node.js bootstrap so the demo can run without Docker, PostgreSQL, or preinstalled developer tooling.
+- Optional Docker/PostgreSQL mode for production-like package demos and observability.
+- Executive walkthrough pages covering legacy source signals, semantic timelines, AI interaction timelines, rollout, ROI, and governance.
+- Bootstrap Studio for Codex or Claude assisted source-system analysis, prompt generation, blueprint upload, and import into Context Layer.
+- Responsive regression coverage for login, mobile, and core product routes.
+
+### Changed
+
+- Promoted the project to `1.0.0` as the first complete commercial demo release.
+- Reframed local setup around a zero-friction SQLite quick start while preserving the two-database architecture and PostgreSQL path.
+- Refined the login experience so laptop and desktop viewports fit without scrolling, while mobile remains naturally scrollable.
+- Improved the customer profile People panel, provenance panels, JSON viewers, and app shell responsiveness.
+- Refreshed README screenshots from the live running app.
+
+### Fixed
+
+- Fixed prompt-template audit serialization cycles during Bootstrap Studio imports.
+- Fixed clipped profile rows, overflowing code panels, taskbar-unsafe demo browser sizing, and repeated responsive layout regressions.
+
 ## [0.1.1] - 2026-05-09
 
 ### Added

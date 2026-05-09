@@ -9,6 +9,7 @@ import { formatDateTime } from '@/lib/utils'
 export function AuditLogPage() {
   const { session } = useAuthSession()
   const [search, setSearch] = useState('')
+  const [visibleCount, setVisibleCount] = useState(30)
   const tenantSlug = session?.tenantSlug ?? 'demo'
 
   const auditQuery = useQuery({
@@ -27,6 +28,7 @@ export function AuditLogPage() {
         .includes(term),
     )
   }, [auditQuery.data, deferredSearch])
+  const visibleEvents = filteredEvents.slice(0, visibleCount)
 
   if (!session) {
     return null
@@ -45,22 +47,25 @@ export function AuditLogPage() {
           <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-ink-500" />
           <Input
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) => {
+              setSearch(event.target.value)
+              setVisibleCount(30)
+            }}
             className="pl-11"
             placeholder="Search action, actor, entity, or id"
           />
         </div>
 
         <div className="grid gap-3">
-          {filteredEvents.map((event) => (
+          {visibleEvents.map((event) => (
             <Card key={event.id} className="bg-ivory-25">
               <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
+                <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-semibold text-ink-950">{event.action}</p>
+                    <p className="break-words font-semibold text-ink-950">{event.action}</p>
                     <Badge tone="neutral">{event.entityType}</Badge>
                   </div>
-                  <p className="mt-2 text-sm text-ink-700">
+                  <p className="mt-2 break-all text-sm text-ink-700">
                     Actor: {event.actor} · Entity: {event.entityId}
                   </p>
                 </div>
@@ -71,6 +76,18 @@ export function AuditLogPage() {
             </Card>
           ))}
         </div>
+
+        {visibleCount < filteredEvents.length ? (
+          <div className="mt-5 flex justify-center">
+            <button
+              type="button"
+              className="rounded-full border border-ink-900/10 bg-ivory-50 px-4 py-2 text-sm font-semibold text-ink-900 transition hover:bg-ivory-100"
+              onClick={() => setVisibleCount((current) => current + 30)}
+            >
+              Show more events
+            </button>
+          </div>
+        ) : null}
       </Panel>
     </div>
   )

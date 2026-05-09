@@ -233,7 +233,7 @@ export function SelectorBuilderPage() {
         }
       />
 
-      <div className="grid gap-4 xl:grid-cols-[280px_minmax(0,1fr)_360px] 2xl:grid-cols-[320px_minmax(0,1fr)_420px]">
+      <div className="grid gap-4 xl:grid-cols-[280px_minmax(0,1fr)] 2xl:grid-cols-[280px_minmax(0,1fr)_360px]">
         <Panel
           eyebrow="Selector catalog"
           title="Existing selectors"
@@ -286,8 +286,8 @@ export function SelectorBuilderPage() {
                   className="rounded-[24px] border border-ink-900/8 bg-ivory-25 px-4 py-4 text-left transition hover:border-copper-300"
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="font-semibold text-ink-950">{selector.name}</p>
+                    <div className="min-w-0">
+                      <p className="break-words font-semibold text-ink-950">{selector.name}</p>
                       <p className="mt-1 text-sm text-ink-600">
                         {selector.targetAttributeDefinition?.displayName}
                       </p>
@@ -635,7 +635,7 @@ export function SelectorBuilderPage() {
           </form>
         </Panel>
 
-        <div className="grid gap-4">
+        <div className="grid min-w-0 gap-4 xl:col-span-2 2xl:col-span-1">
           <Panel
             eyebrow="Runtime preview"
             title="Validation and transformed output"
@@ -698,10 +698,10 @@ export function SelectorBuilderPage() {
               ) : null}
 
               <div className="grid gap-4">
-                <JsonViewer value={compiledInput} title="Compiled selector input" height="h-64" />
-                <JsonViewer value={previewMutation.data?.rawSourceDataJson ?? '{}'} title="Raw source payload" height="h-56" />
-                <JsonViewer value={previewMutation.data?.normalizedSourceDataJson ?? '{}'} title="Normalized source payload" height="h-56" />
-                <JsonViewer value={previewMutation.data?.pipelineTraceJson ?? validateMutation.data?.pipelineTraceJson ?? '[]'} title="Pipeline trace" height="h-72" />
+                <JsonViewer value={compiledInput} title="Compiled selector input" height="h-56 sm:h-64" />
+                <JsonViewer value={previewMutation.data?.rawSourceDataJson ?? '{}'} title="Raw source payload" height="h-48 sm:h-56" />
+                <JsonViewer value={previewMutation.data?.normalizedSourceDataJson ?? '{}'} title="Normalized source payload" height="h-48 sm:h-56" />
+                <JsonViewer value={previewMutation.data?.pipelineTraceJson ?? validateMutation.data?.pipelineTraceJson ?? '[]'} title="Pipeline trace" height="h-64 sm:h-72" />
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">

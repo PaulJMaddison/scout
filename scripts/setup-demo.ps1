@@ -1,5 +1,6 @@
 [CmdletBinding()]
 param(
+    [switch]$UseDocker,
     [switch]$StartContainers
 )
 
@@ -17,20 +18,6 @@ function Assert-Command {
     if (-not (Get-Command $Name -ErrorAction SilentlyContinue)) {
         throw "Required command '$Name' was not found in PATH."
     }
-}
-
-function Get-DotnetCommand {
-    $localDotnet = Join-Path $repoRoot '.dotnet\dotnet.exe'
-    if (Test-Path $localDotnet) {
-        return $localDotnet
-    }
-
-    $globalDotnet = Get-Command dotnet -ErrorAction SilentlyContinue
-    if ($globalDotnet) {
-        return $globalDotnet.Source
-    }
-
-    throw "A compatible .NET SDK was not found. Expected '$localDotnet' or 'dotnet' in PATH."
 }
 
 function Ensure-FileFromExample {
@@ -122,7 +109,9 @@ function Get-LocalDemoEnvironment {
     }
 }
 
-$dotnetCommand = Get-DotnetCommand
+$dotnetCommand = & (Join-Path $PSScriptRoot 'ensure-dotnet.ps1') -RepoRoot $repoRoot
+$nodeInstallDirectory = & (Join-Path $PSScriptRoot 'ensure-node.ps1') -RepoRoot $repoRoot
+$env:PATH = "$nodeInstallDirectory;$env:PATH"
 Assert-Command -Name 'node'
 Assert-Command -Name 'npm.cmd'
 
@@ -130,7 +119,11 @@ Ensure-FileFromExample -TargetPath $rootEnvPath -ExamplePath $rootEnvExamplePath
 Set-WebEnvFile
 
 $dockerAvailable = Test-DockerAvailable
-$demoMode = if ($dockerAvailable) { 'docker' } else { 'sqlite' }
+if ($UseDocker -and -not $dockerAvailable) {
+    throw 'Docker mode was requested, but Docker is not available on this machine.'
+}
+
+$demoMode = if ($UseDocker) { 'docker' } else { 'sqlite' }
 
 if ($demoMode -eq 'sqlite' -and -not (Test-Path $demoDataDirectory)) {
     New-Item -ItemType Directory -Path $demoDataDirectory | Out-Null
@@ -140,7 +133,7 @@ Invoke-RepoCommand -DisplayCommand 'dotnet tool restore' -Action { & $dotnetComm
 Invoke-RepoCommand -DisplayCommand 'dotnet restore ContextLayer.slnx' -Action { & $dotnetCommand restore ContextLayer.slnx }
 
 if ($demoMode -eq 'docker') {
-    Write-Host 'Docker is available. Bootstrapping PostgreSQL-backed demo infrastructure.' -ForegroundColor Green
+    Write-Host 'Docker mode was requested. Bootstrapping PostgreSQL-backed demo infrastructure.' -ForegroundColor Green
     Invoke-RepoCommand -DisplayCommand 'docker compose up -d postgres otel-collector prometheus tempo grafana' -Action {
         docker compose up -d postgres otel-collector prometheus tempo grafana
     }
@@ -178,7 +171,7 @@ if ($demoMode -eq 'docker') {
     }
 }
 else {
-    Write-Host 'Docker is not available. Bootstrapping the local two-database demo using SQLite files for this machine.' -ForegroundColor Yellow
+    Write-Host 'Bootstrapping the default local two-database demo using SQLite files for this machine.' -ForegroundColor Yellow
     $localDemoEnvironment = Get-LocalDemoEnvironment
     Invoke-WithEnvironment -Variables $localDemoEnvironment -DisplayCommand 'dotnet run --project src/ContextLayer.Api -- bootstrap-demo' -Action {
         & $dotnetCommand run --project src/ContextLayer.Api -- bootstrap-demo
@@ -193,6 +186,9 @@ Write-Host "Mode: $demoMode" -ForegroundColor Yellow
 Write-Host ''
 Write-Host 'Start locally:' -ForegroundColor Yellow
 Write-Host '  .\scripts\start-demo.ps1'
+Write-Host ''
+Write-Host 'Optional PostgreSQL package mode:' -ForegroundColor Yellow
+Write-Host '  .\scripts\setup-demo.ps1 -UseDocker'
 Write-Host ''
 if ($demoMode -eq 'docker') {
     Write-Host 'Optional packaged containers:' -ForegroundColor Yellow

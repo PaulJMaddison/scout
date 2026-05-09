@@ -15,7 +15,7 @@ public sealed class CustomerOpsDbContextFactory : IDesignTimeDbContextFactory<Cu
         var connectionString =
             Environment.GetEnvironmentVariable("ConnectionStrings__CustomerOps")
             ?? Environment.GetEnvironmentVariable("CUSTOMER_OPS_CONNECTION_STRING")
-            ?? "Host=localhost;Port=5432;Database=customer_ops_db;Username=postgres;Password=postgres";
+            ?? DatabaseProviderConfigurator.GetDefaultCustomerOpsConnectionString();
 
         var optionsBuilder = new DbContextOptionsBuilder<CustomerOpsDbContext>();
         DatabaseProviderConfigurator.Configure(optionsBuilder, providerName, connectionString);

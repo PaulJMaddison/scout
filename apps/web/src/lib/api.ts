@@ -26,6 +26,7 @@ import type {
   SelectorValidationResult,
   SemanticAttributeDefinition,
   UpsertDataSourceInput,
+  UpsertPromptTemplateInput,
   UpsertSelectorDefinitionInput,
   UpsertSemanticAttributeInput,
   UserProfile,
@@ -645,6 +646,33 @@ export const api = {
       { input },
     )
     return data.upsertSemanticAttribute
+  },
+
+  async upsertPromptTemplate(input: UpsertPromptTemplateInput) {
+    const data = await graphqlRequest<{ upsertPromptTemplate: PromptTemplate }>(
+      'UpsertPromptTemplate',
+      `
+        mutation UpsertPromptTemplate($input: UpsertPromptTemplateInput!) {
+          upsertPromptTemplate(input: $input) {
+            id
+            tenantId
+            name
+            description
+            systemPrompt
+            developerPrompt
+            userPromptTemplate
+            outputSchemaJson
+            guardrailsJson
+            version
+            isActive
+            createdAtUtc
+            updatedAtUtc
+          }
+        }
+      `,
+      { input },
+    )
+    return data.upsertPromptTemplate
   },
 
   async upsertSelector(input: UpsertSelectorDefinitionInput) {

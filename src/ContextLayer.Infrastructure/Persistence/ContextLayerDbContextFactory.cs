@@ -15,7 +15,7 @@ public sealed class ContextLayerDbContextFactory : IDesignTimeDbContextFactory<C
         var connectionString =
             Environment.GetEnvironmentVariable("ConnectionStrings__ContextLayer")
             ?? Environment.GetEnvironmentVariable("CONTEXT_LAYER_CONNECTION_STRING")
-            ?? "Host=localhost;Port=5432;Database=context_layer_db;Username=postgres;Password=postgres";
+            ?? DatabaseProviderConfigurator.GetDefaultContextLayerConnectionString();
 
         var optionsBuilder = new DbContextOptionsBuilder<ContextLayerDbContext>();
         DatabaseProviderConfigurator.Configure(optionsBuilder, providerName, connectionString);

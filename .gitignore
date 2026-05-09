@@ -8,6 +8,7 @@ obj/
 .env.local
 .env.*.local
 .dotnet/
+.node/
 .dotnet-install.ps1
 *.user
 *.suo
@@ -18,6 +19,7 @@ test-results/
 coverage/
 .demo-data/
 .demo-runtime/
+.demo/
 npm-debug.log*
 yarn-error.log*
 pnpm-debug.log*

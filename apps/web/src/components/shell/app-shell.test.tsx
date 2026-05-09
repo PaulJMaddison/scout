@@ -36,9 +36,10 @@ describe('AppShell', () => {
   it('hides admin-only navigation for sales reps', () => {
     render(<AppShell />)
 
-    expect(screen.getByRole('link', { name: 'Overview' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Customer Context' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Agent Playground' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '1. Why UCL' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '360 Customer Profile' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Grounded AI Playground' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Operational Overview' })).toBeInTheDocument()
     expect(screen.queryByText('Data Sources')).not.toBeInTheDocument()
     expect(screen.queryByText('Selector Builder')).not.toBeInTheDocument()
     expect(screen.queryByText('Audit Log')).not.toBeInTheDocument()

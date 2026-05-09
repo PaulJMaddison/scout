@@ -1,6 +1,19 @@
 #!/usr/bin/env sh
 set -eu
 
+USE_DOCKER=0
+for arg in "$@"; do
+  case "$arg" in
+    --use-docker)
+      USE_DOCKER=1
+      ;;
+    *)
+      echo "Unknown argument: $arg" >&2
+      exit 1
+      ;;
+  esac
+done
+
 SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 REPO_ROOT="$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)"
 DEMO_DATA_DIR="$REPO_ROOT/.demo-data"
@@ -12,11 +25,10 @@ API_ERR_LOG="$DEMO_RUNTIME_DIR/api-error.log"
 WEB_LOG="$DEMO_RUNTIME_DIR/web.log"
 WEB_ERR_LOG="$DEMO_RUNTIME_DIR/web-error.log"
 
-if [ -x "$REPO_ROOT/.dotnet/dotnet" ]; then
-  DOTNET_CMD="$REPO_ROOT/.dotnet/dotnet"
-else
-  DOTNET_CMD="dotnet"
-fi
+DOTNET_CMD="$(sh "$SCRIPT_DIR/ensure-dotnet.sh" "$REPO_ROOT")"
+NODE_BIN_DIR="$(sh "$SCRIPT_DIR/ensure-node.sh" "$REPO_ROOT")"
+PATH="$NODE_BIN_DIR:$PATH"
+export PATH
 
 docker_available() {
   if ! command -v docker >/dev/null 2>&1; then
@@ -61,7 +73,11 @@ stop_tracked_process "$API_PID_FILE"
 stop_tracked_process "$WEB_PID_FILE"
 
 MODE="sqlite"
-if docker_available; then
+if [ "$USE_DOCKER" -eq 1 ]; then
+  if ! docker_available; then
+    echo "Docker mode was requested, but Docker is not available on this machine." >&2
+    exit 1
+  fi
   MODE="docker"
 fi
 
@@ -94,7 +110,7 @@ wait_for_url "http://127.0.0.1:5198/health"
 
 (
   cd "$REPO_ROOT/apps/web"
-  nohup sh -lc "BROWSER=none npm run dev -- --host 127.0.0.1 --port 5173" >"$WEB_LOG" 2>"$WEB_ERR_LOG" &
+  nohup sh -lc "PATH='$NODE_BIN_DIR':\$PATH BROWSER=none npm run dev -- --host 127.0.0.1 --port 5173" >"$WEB_LOG" 2>"$WEB_ERR_LOG" &
   echo $! >"$WEB_PID_FILE"
 )
 

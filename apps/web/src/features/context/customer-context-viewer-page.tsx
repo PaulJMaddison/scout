@@ -1,6 +1,6 @@
 import { useDeferredValue, useMemo, useState } from 'react'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useLocation, useNavigate } from '@tanstack/react-router'
+import { useNavigate, useParams } from '@tanstack/react-router'
 import { CalendarClock, CircleDashed, RefreshCcw, Waypoints } from 'lucide-react'
 import { JsonViewer } from '@/components/data-display/json-viewer'
 import { Badge, Button, Card, EmptyState, Input, PageHeader, Panel } from '@/components/ui/primitives'
@@ -83,21 +83,23 @@ function sourceSystemLabel(category: string) {
 
 export function CustomerContextViewerPage() {
   const { session } = useAuthSession()
-  const location = useLocation()
   const navigate = useNavigate()
+  const routeParams = useParams({ strict: false })
   const [search, setSearch] = useState('')
   const [selectedFactId, setSelectedFactId] = useState<string | null>(null)
   const tenantSlug = session?.tenantSlug ?? 'demo'
   const actorEmail = session?.email ?? 'demo-admin@contextlayer.local'
+  const routeExternalUserId =
+    typeof routeParams.externalUserId === 'string' ? routeParams.externalUserId : undefined
 
   const usersQuery = useQuery({
     queryKey: ['userProfiles', tenantSlug],
     queryFn: () => api.getUserProfiles(tenantSlug),
     enabled: Boolean(session),
+    placeholderData: (previousData) => previousData,
   })
 
-  const selectedExternalUserId =
-    location.pathname.split('/')[2] || usersQuery.data?.[0]?.externalUserId || '123'
+  const selectedExternalUserId = routeExternalUserId ?? usersQuery.data?.[0]?.externalUserId ?? '123'
 
   const contextQuery = useQuery({
     queryKey: ['userContext', tenantSlug, selectedExternalUserId],
@@ -107,12 +109,14 @@ export function CustomerContextViewerPage() {
         externalUserId: selectedExternalUserId,
       }),
     enabled: Boolean(session && selectedExternalUserId),
+    placeholderData: (previousData) => previousData,
   })
 
   const executionsQuery = useQuery({
     queryKey: ['selectorExecutions', tenantSlug, selectedExternalUserId],
     queryFn: () => api.getSelectorExecutions(tenantSlug, selectedExternalUserId),
     enabled: Boolean(session && selectedExternalUserId),
+    placeholderData: (previousData) => previousData,
   })
 
   const recomputeMutation = useMutation({
@@ -151,6 +155,8 @@ export function CustomerContextViewerPage() {
     ? safeJsonParse<Array<Record<string, unknown>>>(selectedFact.provenanceJson, [])
     : []
   const rawSourceSummary = safeJsonParse(contextQuery.data?.sourceSummary?.rawSummaryJson ?? '{}', {})
+  const contextProfile = contextQuery.data ?? null
+  const isProfileLoading = contextQuery.isPending && !contextProfile
 
   if (!session) {
     return null
@@ -170,7 +176,7 @@ export function CustomerContextViewerPage() {
         }
       />
 
-      <div className="grid gap-4 xl:grid-cols-[320px_1fr_380px]">
+      <div className="grid gap-4 xl:grid-cols-[320px_minmax(0,1fr)] 2xl:grid-cols-[340px_minmax(0,1fr)_360px]">
         <Panel eyebrow="People" title="Profiles">
           <div className="grid gap-4">
             <Input
@@ -183,19 +189,26 @@ export function CustomerContextViewerPage() {
                 <button
                   key={user.id}
                   type="button"
-                  onClick={() => void navigate({ to: `/customers/${user.externalUserId}` })}
-                  className="rounded-[24px] border border-ink-900/8 bg-ivory-25 px-4 py-4 text-left transition hover:border-copper-300"
+                  onClick={() =>
+                    void navigate({
+                      to: '/customers/$externalUserId',
+                      params: { externalUserId: user.externalUserId },
+                    })
+                  }
+                  className="min-w-0 rounded-[20px] border border-ink-900/8 bg-ivory-25 px-4 py-4 text-left transition hover:border-copper-300"
                 >
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="font-semibold text-ink-950">{user.fullName}</p>
-                      <p className="mt-1 text-sm text-ink-600">{user.companyName}</p>
+                  <div className="grid min-w-0 gap-2">
+                    <div className="flex min-w-0 flex-wrap items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="truncate font-semibold text-ink-950">{user.fullName}</p>
+                        <p className="mt-1 truncate text-sm text-ink-600">{user.companyName}</p>
+                      </div>
+                      <Badge tone="neutral" className="shrink-0">User {user.externalUserId}</Badge>
                     </div>
-                    <Badge tone="neutral">User {user.externalUserId}</Badge>
-                  </div>
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <p className="text-sm text-ink-700">{user.email}</p>
-                    {user.isEmailMasked ? <Badge tone="warning">Masked</Badge> : null}
+                    <div className="flex min-w-0 flex-wrap items-center gap-2">
+                      <p className="min-w-0 break-all text-sm leading-6 text-ink-700">{user.email}</p>
+                      {user.isEmailMasked ? <Badge tone="warning">Masked</Badge> : null}
+                    </div>
                   </div>
                   <p className="mt-3 text-xs uppercase tracking-[0.18em] text-ink-500">
                     Seen {formatRelativeMinutes(user.lastSeenAtUtc)}
@@ -206,28 +219,28 @@ export function CustomerContextViewerPage() {
           </div>
         </Panel>
 
-        <div className="grid gap-4">
-          {contextQuery.data ? (
+        <div className="grid min-w-0 gap-4">
+          {contextProfile ? (
             <>
               <Panel
                 eyebrow="360 profile"
-                title={`${contextQuery.data.fullName} · ${contextQuery.data.companyName}`}
+                title={`${contextProfile.fullName} · ${contextProfile.companyName}`}
                 action={
                   <div className="flex items-center gap-2">
-                    <Badge tone={contextQuery.data.isStale ? 'warning' : 'success'}>
-                      {contextQuery.data.isStale ? 'Stale' : 'Fresh'}
+                    <Badge tone={contextProfile.isStale ? 'warning' : 'success'}>
+                      {contextProfile.isStale ? 'Stale' : 'Fresh'}
                     </Badge>
-                    <Badge tone="accent">{formatConfidence(contextQuery.data.overallConfidence)}</Badge>
+                    <Badge tone="accent">{formatConfidence(contextProfile.overallConfidence)}</Badge>
                   </div>
                 }
               >
                 <div className="rounded-[24px] bg-ink-950 px-5 py-5 text-ivory-50">
                   <p className="text-xs uppercase tracking-[0.18em] text-copper-300">Readable agent summary</p>
-                  <p className="mt-3 text-lg leading-8">{contextQuery.data.summary}</p>
+                  <p className="mt-3 text-lg leading-8">{contextProfile.summary}</p>
                 </div>
 
                 <div className="mt-5 grid gap-3 md:grid-cols-2">
-                  {contextQuery.data.facts.map((fact) => (
+                  {contextProfile.facts.map((fact) => (
                     <button
                       key={fact.id}
                       type="button"
@@ -257,10 +270,10 @@ export function CustomerContextViewerPage() {
               </Panel>
 
               <Panel eyebrow="Operational source" title="customer_ops_db summary">
-                {contextQuery.data.sourceSummary ? (
+                {contextProfile.sourceSummary ? (
                   <div className="grid gap-4">
                     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                      {contextQuery.data.sourceSummary.highlights.map((highlight) => (
+                      {contextProfile.sourceSummary.highlights.map((highlight) => (
                         <Card key={highlight.label} className="bg-ivory-25">
                           <p className="text-xs uppercase tracking-[0.18em] text-sage-700">
                             {highlight.label}
@@ -274,16 +287,14 @@ export function CustomerContextViewerPage() {
                     <Card className="bg-ivory-25">
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
-                          <p className="font-semibold text-ink-950">
-                            {contextQuery.data.sourceSummary.accountName}
-                          </p>
+                          <p className="font-semibold text-ink-950">{contextProfile.sourceSummary.accountName}</p>
                           <p className="mt-1 text-sm text-ink-600">
-                            {contextQuery.data.sourceSummary.externalAccountId} · {contextQuery.data.sourceSummary.domain}
+                            {contextProfile.sourceSummary.externalAccountId} · {contextProfile.sourceSummary.domain}
                           </p>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                          <Badge tone="neutral">{contextQuery.data.sourceSummary.activePlanName}</Badge>
-                          <Badge tone="accent">{contextQuery.data.sourceSummary.subscriptionStatus}</Badge>
+                          <Badge tone="neutral">{contextProfile.sourceSummary.activePlanName}</Badge>
+                          <Badge tone="accent">{contextProfile.sourceSummary.subscriptionStatus}</Badge>
                         </div>
                       </div>
                     </Card>
@@ -297,10 +308,10 @@ export function CustomerContextViewerPage() {
               </Panel>
 
               <Panel eyebrow="Cross-system timeline" title="How UCL turns source events into business meaning">
-                {contextQuery.data.sourceSummary?.recentTimeline?.length ? (
+                {contextProfile.sourceSummary?.recentTimeline?.length ? (
                   <div className="relative grid gap-4 pl-8">
                     <div className="absolute bottom-2 left-3 top-3 w-px bg-copper-200" />
-                    {contextQuery.data.sourceSummary.recentTimeline.map((event, index) => {
+                    {contextProfile.sourceSummary.recentTimeline.map((event, index) => {
                       const lift = describeTimelineLift(event.category, event.description)
                       return (
                         <div key={`${event.occurredAtUtc}-${index}`} className="relative">
@@ -366,6 +377,17 @@ export function CustomerContextViewerPage() {
                 </div>
               </Panel>
             </>
+          ) : isProfileLoading ? (
+            <Panel eyebrow="360 profile" title="Loading the featured customer story">
+              <div className="grid gap-3">
+                <Card className="bg-ivory-25">
+                  <p className="font-semibold text-ink-950">Resolving the unified customer profile</p>
+                  <p className="mt-2 text-sm leading-7 text-ink-700">
+                    Context Layer is pulling the current semantic snapshot, operational summary, and selector history for this customer.
+                  </p>
+                </Card>
+              </div>
+            </Panel>
           ) : (
             <EmptyState
               title="No context profile yet"
@@ -374,11 +396,11 @@ export function CustomerContextViewerPage() {
           )}
         </div>
 
-        <div className="grid gap-4">
+        <div className="grid min-w-0 gap-4 xl:col-span-2 2xl:col-span-1">
           <Panel eyebrow="Snapshot history" title="Historical context snapshots">
-            {contextQuery.data?.history?.length ? (
+            {contextProfile?.history?.length ? (
               <div className="grid gap-3">
-                {contextQuery.data.history.map((snapshot) => (
+                {contextProfile.history.map((snapshot) => (
                   <Card key={snapshot.snapshotId} className="bg-ivory-25">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
@@ -428,10 +450,10 @@ export function CustomerContextViewerPage() {
             <JsonViewer
               value={{
                 sourceSummary: rawSourceSummary,
-                summary: contextQuery.data?.summary,
-                confidence: contextQuery.data?.overallConfidence,
+                summary: contextProfile?.summary,
+                confidence: contextProfile?.overallConfidence,
                 facts:
-                  contextQuery.data?.facts.map((fact: ContextFactResult) => ({
+                  contextProfile?.facts.map((fact: ContextFactResult) => ({
                     attributeKey: fact.attributeKey,
                     value: safeJsonParse(fact.valueJson, fact.valueJson),
                     confidence: fact.confidence,

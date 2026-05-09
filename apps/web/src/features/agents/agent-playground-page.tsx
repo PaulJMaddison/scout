@@ -149,7 +149,7 @@ export function AgentPlaygroundPage() {
         }
       />
 
-      <div className="grid gap-4 2xl:grid-cols-[360px_minmax(0,1fr)_1.1fr]">
+      <div className="grid gap-4 xl:grid-cols-[320px_minmax(0,1fr)] 2xl:grid-cols-[320px_minmax(0,0.95fr)_minmax(0,1.05fr)]">
         <Panel eyebrow="Controls" title="Generation inputs">
           <div className="grid gap-5">
             <Field label="Customer">
@@ -217,7 +217,7 @@ export function AgentPlaygroundPage() {
           </div>
         </Panel>
 
-        <div className="grid gap-4">
+        <div className="grid gap-4 xl:col-span-1">
           <Panel
             eyebrow="Grounded package"
             title={contextPackageQuery.data?.fullName ?? 'Context package'}
@@ -325,7 +325,7 @@ export function AgentPlaygroundPage() {
                 <JsonViewer
                   value={safeJsonParse(contextPackageQuery.data.contextPackageJson, {})}
                   title="Context package JSON sent to the model"
-                  height="h-[420px]"
+                  height="h-72 lg:h-80 2xl:h-[420px]"
                 />
               </div>
             ) : (
@@ -338,7 +338,7 @@ export function AgentPlaygroundPage() {
           </Panel>
         </div>
 
-        <div className="grid gap-4">
+        <div className="grid gap-4 xl:col-span-2 2xl:col-span-1">
           <Panel
             eyebrow="Generated recommendation"
             title="Sales support output"
@@ -531,7 +531,7 @@ export function AgentPlaygroundPage() {
                   </Card>
                 )}
 
-                <JsonViewer value={parsedOutput} title="Structured model output" height="h-[320px]" />
+                <JsonViewer value={parsedOutput} title="Structured model output" height="h-64 lg:h-72 2xl:h-[320px]" />
               </div>
             ) : (
               <Card className="bg-ivory-25">

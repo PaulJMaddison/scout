@@ -9,7 +9,7 @@ test('sales rep can generate a grounded outreach recommendation', async ({ page 
 
   await expect(page).toHaveURL(/\/demo/)
 
-  await page.getByRole('link', { name: 'Agent Playground' }).click()
+  await page.goto('/agent-playground')
   await expect(page.getByRole('heading', { level: 1, name: 'Agent playground' })).toBeVisible()
 
   await page.getByRole('button', { name: 'Generate recommendation' }).click()

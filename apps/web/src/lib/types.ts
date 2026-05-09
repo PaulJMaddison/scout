@@ -337,6 +337,18 @@ export interface PromptTemplate {
   updatedAtUtc: string
 }
 
+export interface UpsertPromptTemplateInput {
+  id?: string | null
+  tenantSlug: string
+  name: string
+  description: string
+  systemPrompt: string
+  developerPrompt: string
+  userPromptTemplate: string
+  outputSchemaJson: string
+  guardrailsJson: string
+}
+
 export interface AgentRun {
   id: string
   tenantId: string

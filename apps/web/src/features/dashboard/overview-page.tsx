@@ -198,12 +198,12 @@ export function OverviewPage() {
                     className="rounded-[24px] border border-ink-900/8 bg-ivory-25 px-4 py-4"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
+                      <div className="flex min-w-0 items-center gap-3">
                         <div className="flex size-11 items-center justify-center rounded-2xl bg-sage-500/12 text-sage-800">
                           <ServerCog className="size-5" />
                         </div>
-                        <div>
-                          <p className="font-semibold text-ink-950">{worker.workerName}</p>
+                        <div className="min-w-0">
+                          <p className="break-words font-semibold text-ink-950">{worker.workerName}</p>
                           <p className="text-sm text-ink-600">{worker.message}</p>
                         </div>
                       </div>
@@ -327,8 +327,8 @@ export function OverviewPage() {
                 className="rounded-[24px] border border-ink-900/8 bg-ivory-25 px-4 py-4"
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <p className="font-semibold text-ink-950">{execution.selectorDefinition?.name}</p>
+                  <div className="min-w-0">
+                    <p className="break-words font-semibold text-ink-950">{execution.selectorDefinition?.name}</p>
                     <p className="mt-1 text-sm text-ink-600">
                       {execution.userProfile?.fullName} · {execution.selectorDefinition?.targetAttributeDefinition?.displayName}
                     </p>
@@ -365,8 +365,8 @@ export function OverviewPage() {
                         <ScrollText className="size-4" />
                       )}
                     </div>
-                    <div>
-                      <p className="font-semibold text-ink-950">{event.action}</p>
+                    <div className="min-w-0">
+                      <p className="break-words font-semibold text-ink-950">{event.action}</p>
                       <p className="text-sm text-ink-600">
                         {event.entityType} · {event.actor}
                       </p>

@@ -6,14 +6,19 @@ import {
   DatabaseZap,
   Flag,
   FileSearch,
+  FileUp,
   LayoutDashboard,
   Menu,
   ScrollText,
   Shapes,
+  Sparkles,
+  TrendingUp,
+  Waypoints,
   WandSparkles,
   X,
 } from 'lucide-react'
 import { Badge, Button } from '@/components/ui/primitives'
+import { executiveStorySteps } from '@/features/demo/executive-demo-data'
 import { useAuthSession } from '@/lib/auth'
 import { apiModeStore } from '@/lib/api'
 import type { AuthenticatedOperator } from '@/lib/types'
@@ -29,16 +34,65 @@ interface NavigationItem {
   roles: OperatorRole[]
 }
 
-const navigation: NavigationItem[] = [
-  { to: '/demo', label: 'Executive Demo', icon: Flag, roles: ['tenant_admin', 'sales_rep'] },
-  { to: '/overview', label: 'Overview', icon: LayoutDashboard, roles: ['tenant_admin', 'sales_rep'] },
-  { to: '/data-sources', label: 'Data Sources', icon: DatabaseZap, roles: ['tenant_admin'] },
-  { to: '/selectors', label: 'Selector Builder', icon: Shapes, roles: ['tenant_admin'] },
-  { to: '/semantic-schema', label: 'Schema Registry', icon: FileSearch, roles: ['tenant_admin'] },
-  { to: '/customers', label: 'Customer Context', icon: AppWindow, roles: ['tenant_admin', 'sales_rep'] },
-  { to: '/agent-playground', label: 'Agent Playground', icon: WandSparkles, roles: ['tenant_admin', 'sales_rep'] },
-  { to: '/audit', label: 'Audit Log', icon: ScrollText, roles: ['tenant_admin'] },
+interface NavigationSection {
+  title: string
+  items: NavigationItem[]
+}
+
+const navigationSections: NavigationSection[] = [
+  {
+    title: 'Executive Walkthrough',
+    items: [
+      { to: '/demo', label: executiveStorySteps[0].label, icon: Flag, roles: ['tenant_admin', 'sales_rep'] },
+      {
+        to: '/story/source-signals',
+        label: executiveStorySteps[1].label,
+        icon: DatabaseZap,
+        roles: ['tenant_admin', 'sales_rep'],
+      },
+      {
+        to: '/story/context-layer',
+        label: executiveStorySteps[2].label,
+        icon: Waypoints,
+        roles: ['tenant_admin', 'sales_rep'],
+      },
+      {
+        to: '/story/ai-workflow',
+        label: executiveStorySteps[3].label,
+        icon: Sparkles,
+        roles: ['tenant_admin', 'sales_rep'],
+      },
+      {
+        to: '/story/outcomes',
+        label: executiveStorySteps[4].label,
+        icon: TrendingUp,
+        roles: ['tenant_admin', 'sales_rep'],
+      },
+    ],
+  },
+  {
+    title: 'Product Proof',
+    items: [
+      { to: '/customers', label: '360 Customer Profile', icon: AppWindow, roles: ['tenant_admin', 'sales_rep'] },
+      { to: '/agent-playground', label: 'Grounded AI Playground', icon: WandSparkles, roles: ['tenant_admin', 'sales_rep'] },
+      { to: '/overview', label: 'Operational Overview', icon: LayoutDashboard, roles: ['tenant_admin', 'sales_rep'] },
+    ],
+  },
+  {
+    title: 'Admin Console',
+    items: [
+      { to: '/data-sources', label: 'Data Sources', icon: DatabaseZap, roles: ['tenant_admin'] },
+      { to: '/selectors', label: 'Selector Builder', icon: Shapes, roles: ['tenant_admin'] },
+      { to: '/semantic-schema', label: 'Schema Registry', icon: FileSearch, roles: ['tenant_admin'] },
+      { to: '/bootstrap-studio', label: 'Bootstrap Studio', icon: FileUp, roles: ['tenant_admin'] },
+      { to: '/audit', label: 'Audit Log', icon: ScrollText, roles: ['tenant_admin'] },
+    ],
+  },
 ]
+
+function isNavigationItemActive(pathname: string, itemPath: string) {
+  return pathname === itemPath || pathname.startsWith(`${itemPath}/`)
+}
 
 export function AppShell() {
   const [mobileOpen, setMobileOpen] = useState(false)
@@ -51,12 +105,22 @@ export function AppShell() {
     apiModeStore.getSnapshot,
   )
   const currentRole = session?.role ?? 'sales_rep'
-  const visibleNavigation = useMemo(
-    () => navigation.filter((item) => item.roles.includes(currentRole)),
+  const visibleSections = useMemo(
+    () =>
+      navigationSections
+        .map((section) => ({
+          ...section,
+          items: section.items.filter((item) => item.roles.includes(currentRole)),
+        }))
+        .filter((section) => section.items.length > 0),
     [currentRole],
   )
+  const visibleNavigation = useMemo(
+    () => visibleSections.flatMap((section) => section.items),
+    [visibleSections],
+  )
   const activeLabel = useMemo(() => {
-    return visibleNavigation.find((item) => location.pathname.startsWith(item.to))?.label ?? 'Console'
+    return visibleNavigation.find((item) => isNavigationItemActive(location.pathname, item.to))?.label ?? 'Console'
   }, [location.pathname, visibleNavigation])
 
   if (!session) {
@@ -64,11 +128,11 @@ export function AppShell() {
   }
 
   return (
-    <div className="min-h-screen bg-transparent">
-      <div className="mx-auto flex min-h-screen max-w-[1800px] gap-4 px-4 py-4 lg:px-6">
+    <div className="min-h-[100dvh] bg-transparent">
+      <div className="console-shell mx-auto flex min-h-[100dvh] max-w-[1800px] gap-3 px-3 py-3 sm:gap-4 sm:px-4 sm:py-4 lg:px-6">
         <aside
           className={cn(
-            'fixed inset-y-4 left-4 z-40 w-[290px] rounded-[32px] border border-ink-900/8 bg-ink-950 px-5 py-5 shadow-[0_24px_60px_rgba(24,18,15,0.28)] transition lg:static lg:translate-x-0',
+            'console-sidebar fixed inset-y-3 left-3 z-40 flex w-[min(22rem,calc(100vw-1.5rem))] flex-col overflow-hidden rounded-[28px] border border-ink-900/8 bg-ink-950 px-4 py-4 shadow-[0_24px_60px_rgba(24,18,15,0.28)] transition sm:inset-y-4 sm:left-4 sm:w-[290px] sm:rounded-[32px] sm:px-5 sm:py-5 lg:static lg:max-h-[calc(100dvh-2rem)] lg:translate-x-0',
             mobileOpen ? 'translate-x-0' : '-translate-x-[120%]',
           )}
         >
@@ -101,28 +165,39 @@ export function AppShell() {
             </div>
           </div>
 
-          <nav className="mt-8 grid gap-2">
-            {visibleNavigation.map((item) => {
-              const Icon = item.icon
-              const active = location.pathname.startsWith(item.to)
-              return (
-                <Link
-                  key={item.to}
-                  to={item.to}
-                  className={cn(
-                    'flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition',
-                    active
-                      ? 'bg-copper-500 text-ivory-50 shadow-[0_18px_45px_rgba(175,92,43,0.28)]'
-                      : 'text-ivory-200 hover:bg-white/8',
-                  )}
-                  onClick={() => setMobileOpen(false)}
-                >
-                  <Icon className="size-4" />
-                  {item.label}
-                </Link>
-              )
-            })}
-          </nav>
+          <div className="mt-8 min-h-0 flex-1 overflow-y-auto pr-1">
+            <nav className="grid gap-6">
+              {visibleSections.map((section) => (
+                <div key={section.title} className="grid gap-2">
+                  <p className="px-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-ivory-300/58">
+                    {section.title}
+                  </p>
+                  <div className="grid gap-2">
+                    {section.items.map((item) => {
+                      const Icon = item.icon
+                      const active = isNavigationItemActive(location.pathname, item.to)
+                      return (
+                        <Link
+                          key={item.to}
+                          to={item.to}
+                          className={cn(
+                            'flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition',
+                            active
+                              ? 'bg-copper-500 text-ivory-50 shadow-[0_18px_45px_rgba(175,92,43,0.28)]'
+                              : 'text-ivory-200 hover:bg-white/8',
+                          )}
+                          onClick={() => setMobileOpen(false)}
+                        >
+                          <Icon className="size-4 shrink-0" />
+                          <span className="min-w-0 break-words">{item.label}</span>
+                        </Link>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
+            </nav>
+          </div>
 
           <div className="mt-auto pt-8">
             <Button
@@ -139,9 +214,9 @@ export function AppShell() {
           </div>
         </aside>
 
-        <div className="flex min-h-[calc(100vh-2rem)] flex-1 flex-col overflow-hidden rounded-[34px] border border-ink-900/8 bg-ivory-100/84 shadow-[0_24px_60px_rgba(24,18,15,0.12)] backdrop-blur">
-          <header className="flex items-center justify-between border-b border-ink-900/8 px-5 py-4 lg:px-8">
-            <div className="flex items-center gap-3">
+        <div className="console-main-shell flex min-h-[calc(100dvh-1.5rem)] min-w-0 flex-1 flex-col overflow-hidden rounded-[28px] border border-ink-900/8 bg-ivory-100/84 shadow-[0_24px_60px_rgba(24,18,15,0.12)] backdrop-blur sm:min-h-[calc(100dvh-2rem)] sm:rounded-[34px] lg:max-h-[calc(100dvh-2rem)]">
+          <header className="console-shell-header flex flex-wrap items-center justify-between gap-4 border-b border-ink-900/8 px-4 py-4 sm:px-5 lg:px-8">
+            <div className="flex min-w-0 items-center gap-3">
               <button
                 type="button"
                 className="rounded-full border border-ink-900/10 bg-ivory-50 p-2 text-ink-900 lg:hidden"
@@ -150,14 +225,14 @@ export function AppShell() {
               >
                 <Menu className="size-5" />
               </button>
-              <div>
+              <div className="min-w-0">
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sage-700">
                   {session.tenantSlug}
                 </p>
-                <h2 className="mt-1 font-display text-xl text-ink-950">{activeLabel}</h2>
+                <h2 className="mt-1 truncate font-display text-xl text-ink-950">{activeLabel}</h2>
               </div>
             </div>
-            <div className="hidden items-center gap-3 sm:flex">
+            <div className="hidden shrink-0 items-center gap-3 sm:flex">
               <Badge tone="neutral">
                 <Activity className="mr-2 size-3.5" />
                 Profiles grounded in provenance
@@ -165,7 +240,7 @@ export function AppShell() {
             </div>
           </header>
 
-          <main className="flex-1 overflow-y-auto px-5 py-6 lg:px-8 lg:py-8">
+          <main className="console-shell-main min-w-0 flex-1 overflow-x-hidden overflow-y-auto px-4 py-5 sm:px-5 sm:py-6 lg:px-8 lg:py-8">
             <Outlet />
           </main>
         </div>

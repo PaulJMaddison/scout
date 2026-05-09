@@ -2,7 +2,7 @@
 
 Context Layer is a commercial demo of a universal semantic middleware layer for AI-enabled sales workflows.
 
-Release: `0.1.1`  
+Release: `1.0.0`  
 License: [MIT](LICENSE)  
 Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)  
 Security: [SECURITY.md](SECURITY.md)
@@ -41,14 +41,16 @@ That is the commercial value of the middleware:
 ## What You Can Show In The Demo
 
 - an executive-friendly landing experience at `/demo`
+- a five-step walkthrough for business and technical decision-makers
 - a cross-system event timeline that shows how raw operational signals become semantic meaning
-- an AI-assisted onboarding section showing how tools like Codex or Claude can draft the discovery report, semantic blueprint, and selector candidates that feed UCL
+- Bootstrap Studio showing how tools like Codex or Claude can analyse source systems, generate a `ContextLayerBlueprint`, and import governed selectors, attributes, data sources, and prompt templates
 - a data source view that reinforces the operational system boundary
 - a selector builder showing how raw fields become semantic attributes
 - a schema registry for the canonical business vocabulary
 - a customer context viewer where `User 123` becomes a 360 commercial profile
 - an AI playground that generates a grounded outreach strategy, personalized email, and follow-up recommendations
 - an audit log showing that reads, recomputes, and AI-visible data access are traceable
+- a responsive admin experience verified across laptop, desktop, and mobile viewports
 
 ## Screenshot Gallery
 
@@ -152,30 +154,49 @@ sh ./scripts/start-demo.sh
 
 The setup scripts are idempotent where possible. They:
 
-1. verify Docker, .NET, Node, and npm
-2. copy `.env.example` to `.env` when needed
-3. copy `apps/web/.env.example` to `apps/web/.env.local` when needed
-4. choose the best local database path
-5. provision the two demo databases
-6. apply migrations or create the local fallback databases
-7. seed operational and semantic demo data
-8. restore backend tools and dependencies
-9. install frontend dependencies
-10. print the live URLs and credentials
+1. install a repo-local .NET 10 SDK automatically when a compatible SDK is not already available
+2. install a repo-local Node.js runtime automatically when a compatible Node/npm toolchain is not already available
+3. copy `.env.example` to `.env` when needed
+4. copy `apps/web/.env.example` to `apps/web/.env.local` when needed
+5. prepare the local SQLite demo database paths
+6. provision the two demo databases
+7. apply migrations or create the local fallback databases
+8. seed operational and semantic demo data
+9. restore backend tools and dependencies
+10. install frontend dependencies
+11. print the live URLs and credentials
 
-### PostgreSQL vs local fallback
+This means a fresh clone no longer depends on a preinstalled .NET SDK or Node.js toolchain for the default local SQLite path.
 
-When Docker is available, the scripts provision PostgreSQL and create:
+### Default local mode
 
-- `customer_ops_db`
-- `context_layer_db`
-
-When Docker is not available, the demo still keeps the same commercial split using two local databases:
+By default, the scripts use two local SQLite databases so the demo downloads and runs on almost any laptop without requiring Docker or a database server:
 
 - `.demo-data/customer_ops_demo.db`
 - `.demo-data/context_layer_demo.db`
 
-The product behavior stays the same: operational data remains separate from semantic context data.
+The product behavior stays the same: operational data remains separate from semantic context data, and the context layer still reads from the operational store and writes governed semantic facts into its own database.
+
+### Optional PostgreSQL package mode
+
+If you want the full Docker-backed package for demos or observability, you can still opt into PostgreSQL explicitly:
+
+```powershell
+./scripts/setup-demo.ps1 -UseDocker
+./scripts/start-demo.ps1 -UseDocker
+```
+
+```bash
+sh ./scripts/setup-demo.sh --use-docker
+sh ./scripts/start-demo.sh --use-docker
+```
+
+That mode provisions:
+
+- `customer_ops_db`
+- `context_layer_db`
+
+and brings up the optional observability services as part of the Docker stack.
 
 ## Verified Local URLs
 
@@ -210,14 +231,18 @@ Optional observability services are available when the Docker stack is active:
 Start with the seeded admin account.
 
 1. Open `/demo`
-   Lead with the story: operational systems remain in place, Context Layer creates semantic meaning, AI consumes the grounded package. Use the cross-system timeline, the ROI panel, and the AI-assisted onboarding section on this page as the narrative anchor.
-2. Open `Customer Context` for `User 123`
+   Lead with the story: operational systems remain in place, Context Layer creates semantic meaning, AI consumes the grounded package.
+2. Step through `Legacy Signals`, `Semantic Timeline`, `AI Interaction Timeline`, and `Rollout and ROI`
+   Use these pages as the narrative spine for decision-makers who need to understand business value, technical rollout, and governance.
+3. Open `Customer Context` for `User 123`
    Show the readable summary, semantic facts, confidence badges, snapshot history, and the UCL interpretation timeline.
-3. Open `Selector Builder`
+4. Open `Bootstrap Studio`
+   Show how Codex or Claude can analyse customer schemas, CRM samples, KPI notes, and support exports to produce a governed import blueprint.
+5. Open `Selector Builder`
    Preview `Preferred Channel from Contact Preference` to show how admin-authored logic turns raw source data into a canonical attribute.
-4. Open `Agent Playground`
+6. Open `Agent Playground`
    Generate the grounded outreach strategy and show the cited facts driving the recommendation.
-5. Open `Audit Log`
+7. Open `Audit Log`
    Close with governance: reads, recomputes, and AI activity are traceable.
 
 ## How The Product Works End To End
@@ -240,6 +265,28 @@ Start with the seeded admin account.
 This repository is released under the [MIT License](LICENSE). That means other teams can use, study, modify, and extend the project freely, including for commercial evaluation and internal product development.
 
 If you build on top of Context Layer, please keep the license notice intact and document any meaningful architectural changes for future contributors.
+
+## Paid Enterprise Options
+
+The core product in this repository is MIT-licensed and open source. Paid enterprise options are intended for teams that want commercial support, managed deployment, or faster rollout into production environments.
+
+- `Managed SaaS`
+  Fully managed hosting for teams that want the semantic layer live quickly without owning the infrastructure, upgrade path, monitoring, backup posture, and day-to-day operations.
+- `Private cloud / single-tenant deployment`
+  Enterprise deployment in a customer-controlled cloud or VPC with stronger isolation, regional hosting choices, identity integration, and governance controls.
+- `On-prem / hybrid deployment`
+  A commercial option for companies with legacy databases, regulated workloads, or network constraints that make a shared hosted model impractical.
+- `Connector and selector accelerator`
+  Paid delivery for custom connectors, source mappings, selector packs, semantic schema design, and production-ready context models for a specific customer estate.
+- `AI rollout advisory`
+  Workshops and implementation support covering prompt orchestration, governance, business KPI alignment, and how to wire the semantic layer into real product workflows.
+- `Enterprise support and SLA`
+  Named support, onboarding, troubleshooting help, release guidance, and response expectations for business-critical deployments.
+
+### Commercial Contact
+
+- `Email:` [paul.maddison.delimeg@gmail.com](mailto:paul.maddison.delimeg@gmail.com)
+- `Phone:` [+44 7742 031553](tel:+447742031553)
 
 ## Example GraphQL Queries
 
@@ -342,6 +389,7 @@ The automated coverage includes:
 - integration tests for dual-database connectivity, selector execution, context snapshot generation, GraphQL context lookup, and grounded AI output
 - frontend component tests
 - frontend end-to-end flows for selector preview and outreach recommendation generation
+- responsive layout coverage for login, core admin routes, and mobile walkthrough surfaces
 
 ## Honest Demo Note
 
