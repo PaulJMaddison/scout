@@ -30,7 +30,7 @@ interface NavigationItem {
 }
 
 const navigation: NavigationItem[] = [
-  { to: '/demo', label: 'CEO Demo', icon: Flag, roles: ['tenant_admin', 'sales_rep'] },
+  { to: '/demo', label: 'Executive Demo', icon: Flag, roles: ['tenant_admin', 'sales_rep'] },
   { to: '/overview', label: 'Overview', icon: LayoutDashboard, roles: ['tenant_admin', 'sales_rep'] },
   { to: '/data-sources', label: 'Data Sources', icon: DatabaseZap, roles: ['tenant_admin'] },
   { to: '/selectors', label: 'Selector Builder', icon: Shapes, roles: ['tenant_admin'] },

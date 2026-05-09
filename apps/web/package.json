@@ -1,7 +1,7 @@
 {
   "name": "universal-context-layer-web",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Frontend experience for the Universal Context Layer commercial demo.",
   "license": "MIT",
   "author": "Paul Maddison and contributors",

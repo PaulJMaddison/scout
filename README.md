@@ -2,7 +2,7 @@
 
 Context Layer is a commercial demo of a universal semantic middleware layer for AI-enabled sales workflows.
 
-Release: `0.1.0`  
+Release: `0.1.1`  
 License: [MIT](LICENSE)  
 Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)  
 Security: [SECURITY.md](SECURITY.md)
@@ -14,6 +14,12 @@ It is built to make one point obvious in a few clicks:
 - raw IDs and disconnected tables are a poor interface for AI
 - a reusable semantic context layer turns fragmented operational signals into grounded business meaning
 - AI features become more useful because they receive structured profiles with confidence, freshness, and provenance instead of vague identifiers
+
+It is meant to work for commercial and technical decision-makers alike:
+
+- business leaders can see the revenue and workflow impact
+- CTOs can see the integration, governance, and rollout story
+- platform teams can see how legacy systems stay in place while AI gets a cleaner contract
 
 ## Why This Demo Matters
 
@@ -34,8 +40,9 @@ That is the commercial value of the middleware:
 
 ## What You Can Show In The Demo
 
-- a CEO-friendly landing experience at `/demo`
+- an executive-friendly landing experience at `/demo`
 - a cross-system event timeline that shows how raw operational signals become semantic meaning
+- an AI-assisted onboarding section showing how tools like Codex or Claude can draft the discovery report, semantic blueprint, and selector candidates that feed UCL
 - a data source view that reinforces the operational system boundary
 - a selector builder showing how raw fields become semantic attributes
 - a schema registry for the canonical business vocabulary
@@ -45,9 +52,9 @@ That is the commercial value of the middleware:
 
 ## Screenshot Gallery
 
-| Demo mode | Overview |
+| Executive demo | Overview |
 | --- | --- |
-| ![CEO demo landing](docs/images/demo-mode-landing.png) | ![Overview dashboard](docs/images/dashboard-overview.png) |
+| ![Executive demo landing](docs/images/demo-mode-landing.png) | ![Overview dashboard](docs/images/dashboard-overview.png) |
 
 | Data sources | Selector builder |
 | --- | --- |
@@ -56,6 +63,10 @@ That is the commercial value of the middleware:
 | Schema registry | Customer context viewer |
 | --- | --- |
 | ![Semantic schema registry](docs/images/semantic-schema-registry.png) | ![Customer context viewer](docs/images/customer-context-viewer.png) |
+
+| UCL event timeline | AI-assisted onboarding |
+| --- | --- |
+| ![Cross-system context timeline](docs/images/ucl-timeline.png) | ![AI-assisted onboarding blueprint](docs/images/ai-bootstrap-onboarding.png) |
 
 | AI playground | Audit log |
 | --- | --- |
@@ -199,7 +210,7 @@ Optional observability services are available when the Docker stack is active:
 Start with the seeded admin account.
 
 1. Open `/demo`
-   Lead with the story: operational systems remain in place, Context Layer creates semantic meaning, AI consumes the grounded package. Use the cross-system timeline and the ROI panel on this page as the narrative anchor.
+   Lead with the story: operational systems remain in place, Context Layer creates semantic meaning, AI consumes the grounded package. Use the cross-system timeline, the ROI panel, and the AI-assisted onboarding section on this page as the narrative anchor.
 2. Open `Customer Context` for `User 123`
    Show the readable summary, semantic facts, confidence badges, snapshot history, and the UCL interpretation timeline.
 3. Open `Selector Builder`
