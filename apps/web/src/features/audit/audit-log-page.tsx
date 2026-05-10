@@ -38,8 +38,8 @@ export function AuditLogPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Change intelligence"
-        title="Audit log"
-        description="Review mutations, recomputes, publishes, and agent activity across the workspace. This view is optimized for operational traceability rather than raw event volume."
+        title="Prove what changed, who saw it, and why AI used it"
+        description="Review selector publishes, recomputes, context lookups, and agent activity so every AI-visible data point remains traceable."
       />
 
       <Panel eyebrow="Event stream" title="Recent audit events">

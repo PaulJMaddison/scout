@@ -110,8 +110,8 @@ export function DataSourcesPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Connector estate"
-        title="Data source management"
-        description="Configure the systems feeding selectors, preview connector payload shape, and keep raw inputs legible before they enter the semantic layer."
+        title="Connect existing systems without replacing them"
+        description="Register CRM, warehouse, product, support, and billing sources so selectors can turn their raw payloads into governed business context."
         actions={
           <Button
             type="button"

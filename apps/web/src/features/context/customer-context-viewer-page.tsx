@@ -166,8 +166,8 @@ export function CustomerContextViewerPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Customer intelligence"
-        title="Customer context viewer"
-        description="Inspect a person-level context package with confidence, provenance, and execution history so humans and agents can work from the same grounded profile."
+        title="Turn a raw user record into a 360 degree AI-ready profile"
+        description="Inspect the semantic facts, confidence, provenance, source timeline, and snapshot history that let humans and agents work from the same grounded customer context."
         actions={
           <Button type="button" onClick={() => recomputeMutation.mutate()} disabled={recomputeMutation.isPending}>
             <RefreshCcw className="mr-2 size-4" />

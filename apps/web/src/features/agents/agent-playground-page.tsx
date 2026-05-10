@@ -135,8 +135,8 @@ export function AgentPlaygroundPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Rep copilot"
-        title="Agent playground"
-        description="Build a grounded context package for a real sales objective, then generate a strategy, an email draft, and follow-up recommendations that stay tied to cited facts."
+        title="Generate sales recommendations grounded in real customer context"
+        description="Build the context package for a sales objective, then produce a strategy, email draft, and follow-up plan that cite the exact facts behind the advice."
         actions={
           <Button
             type="button"

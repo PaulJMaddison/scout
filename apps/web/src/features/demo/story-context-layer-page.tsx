@@ -18,8 +18,8 @@ export function StoryContextLayerPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Step 3 of 5"
-        title="How Context Layer turns signals into business meaning"
-        description="This is the semantic lift. Each raw event is interpreted by governed selector logic and resolved into canonical facts that the rest of the product can trust."
+        title="Turn fragmented events into reusable business meaning"
+        description="This is the semantic lift: governed selectors interpret raw events and resolve them into canonical facts that every product workflow and AI agent can trust."
         actions={
           <Link to={executiveStorySteps[3].to}>
             <Button>

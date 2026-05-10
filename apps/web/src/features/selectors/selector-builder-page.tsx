@@ -186,8 +186,8 @@ export function SelectorBuilderPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Semantic mapping studio"
-        title="Selector builder"
-        description="Define the mapping logic that turns raw operational fields into business-aware context facts. Preview the output, validate shape, and publish with explainability intact."
+        title="Map raw fields into business meaning AI can use"
+        description="Define selector logic that converts operational data into canonical context facts, then preview, validate, and publish it with confidence and provenance intact."
         actions={
           <>
             <Button

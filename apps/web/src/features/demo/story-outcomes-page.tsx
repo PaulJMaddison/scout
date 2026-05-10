@@ -46,8 +46,8 @@ export function StoryOutcomesPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Step 5 of 5"
-        title="Why this matters commercially and technically"
-        description="This is the closing page for the walkthrough. It ties the semantic layer to product value, rollout realism, and the governance posture buyers need before they trust AI with customer-facing workflows."
+        title="Connect the context layer to rollout, governance, and ROI"
+        description="This closing page ties the semantic layer to product value, adoption realism, and the governance posture buyers need before trusting AI with customer-facing workflows."
       />
 
       <section className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">

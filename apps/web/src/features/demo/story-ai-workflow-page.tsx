@@ -11,8 +11,8 @@ export function StoryAiWorkflowPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Step 4 of 5"
-        title="How AI uses the context over time"
-        description="This is the core value demonstration. At each point in the customer journey, the model receives grounded business context, produces a recommendation, and the product can explain why that recommendation was made."
+        title="Show how AI advice improves when every interaction has context"
+        description="At each point in the customer journey, the model receives grounded business context, produces a recommendation, and the product explains why that recommendation was made."
         actions={
           <Link to={executiveStorySteps[4].to}>
             <Button>

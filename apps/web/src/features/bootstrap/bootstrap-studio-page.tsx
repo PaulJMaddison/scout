@@ -253,8 +253,8 @@ export function BootstrapStudioPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="AI-assisted onboarding"
-        title="Bootstrap studio"
-        description="Use Codex or Claude to analyse existing schemas, CRM exports, usage logs, and KPI notes, then import the resulting ContextLayerBlueprint directly into this workspace."
+        title="Use Codex or Claude to draft your first context layer"
+        description="Give an AI tool your schemas, CRM exports, usage logs, and KPI notes, then import its ContextLayerBlueprint so teams can review and govern the generated model."
         actions={
           <>
             <Button

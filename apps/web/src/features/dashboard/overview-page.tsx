@@ -128,8 +128,8 @@ export function OverviewPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Workspace pulse"
-        title="Semantic operations at a glance"
-        description="Keep an eye on selector quality, connector freshness, and the context packages your agents are actually consuming."
+        title="See whether your data is ready to power trusted AI workflows"
+        description="This dashboard shows connector freshness, selector quality, privacy posture, and the exact context packages your agents are consuming."
         actions={
           <>
             <Link to="/demo">

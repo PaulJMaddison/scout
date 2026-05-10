@@ -97,8 +97,8 @@ export function SemanticSchemaPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Canonical model"
-        title="Semantic schema registry"
-        description="Define the business attributes your selectors are allowed to populate. Treat this as the contract that keeps context consistent across workflows."
+        title="Create the shared business vocabulary for AI"
+        description="Define the canonical attributes selectors are allowed to populate so every workflow uses the same trusted meaning for customers, risk, intent, and opportunity."
         actions={
           <Button
             type="button"

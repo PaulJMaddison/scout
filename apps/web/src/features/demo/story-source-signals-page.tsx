@@ -21,8 +21,8 @@ export function StorySourceSignalsPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Step 2 of 5"
-        title="What the legacy estate already knows"
-        description="This page is the problem statement. These are real operational signals that already exist, but they are fragmented across systems and too raw for AI to use safely on their own."
+        title="Show the valuable signals already trapped in existing systems"
+        description="This page shows the problem: CRM, billing, support, usage, and web events already contain customer intelligence, but they are fragmented and too raw for AI to use safely."
         actions={
           <Link to={executiveStorySteps[2].to}>
             <Button>
