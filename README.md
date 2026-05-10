@@ -2,7 +2,7 @@
 
 Context Layer turns existing CRM, product, billing, support, and warehouse data into AI-ready business context that product teams and sales teams can use safely.
 
-Release: `1.0.0`  
+Release: `1.1.0`  
 License: [MIT](LICENSE)  
 Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)  
 Security: [SECURITY.md](SECURITY.md)
@@ -54,7 +54,7 @@ That is the commercial value of the middleware:
 
 ## Screenshot Gallery
 
-These screenshots are captured from the current `v1.0.0` UI running locally in the default SQLite demo mode. They use the seeded `demo` tenant and the Northstar Logistics `User 123` walkthrough.
+These screenshots are captured from the current `v1.1.0` UI running locally in the default SQLite demo mode. They use the seeded `demo` tenant and the Northstar Logistics `User 123` walkthrough.
 
 | Executive demo | Overview |
 | --- | --- |

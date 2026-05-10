@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The format is inspired by Keep a Changelog and this project follows semantic versioning.
 
+## [1.1.0] - 2026-05-10
+
+### Added
+
+- Outcome-led page positioning across the product so every screen explains what it does for the user before showing configuration, data, or controls.
+- More detailed fresh-laptop setup documentation for the default SQLite demo path, repo-local .NET and Node bootstrap, restart, reset, and verification commands.
+
+### Changed
+
+- Rewrote the landing hero to clearly state that Context Layer turns existing business data into AI-ready context.
+- Updated dashboard, data source, selector builder, schema registry, customer context, AI playground, audit, bootstrap, and walkthrough page headers to lead with user value.
+- Refreshed README screenshots from the latest running SQLite-backed UI.
+
+### Removed
+
+- Removed GitHub Actions workflows so the repository does not consume paid GitHub Actions minutes.
+
 ## [1.0.0] - 2026-05-10
 
 ### Added
