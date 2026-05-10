@@ -1,6 +1,6 @@
 # Context Layer
 
-Context Layer is a commercial demo of a universal semantic middleware layer for AI-enabled sales workflows.
+Context Layer turns existing CRM, product, billing, support, and warehouse data into AI-ready business context that product teams and sales teams can use safely.
 
 Release: `1.0.0`  
 License: [MIT](LICENSE)  

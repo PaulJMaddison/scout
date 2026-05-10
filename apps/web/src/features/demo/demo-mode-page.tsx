@@ -20,8 +20,8 @@ export function DemoModePage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Step 1 of 5"
-        title="Why Universal Context Layer exists"
-        description="This walkthrough is built for commercial and technical decision makers. It starts with fragmented customer data, shows how Context Layer creates reusable business meaning, and then proves how AI gets better when it works from grounded context instead of raw records."
+        title="Use the data you already have to make AI commercially useful"
+        description="Context Layer turns fragmented CRM, product, billing, support, and warehouse data into a governed semantic layer that AI tools can use for better recommendations, safer actions, and clearer business outcomes."
         actions={
           <Link to={executiveStorySteps[1].to}>
             <Button>
@@ -46,8 +46,8 @@ export function DemoModePage() {
             <div className="grid gap-4">
               <p className="text-xs uppercase tracking-[0.22em] text-copper-300">Executive framing</p>
               <h2 className="max-w-4xl font-display text-5xl leading-[1.02] text-ivory-50">
-                Most companies already have the customer data they need.
-                What they usually do not have is a trusted context layer above it.
+                Your existing systems already contain the signals AI needs.
+                Context Layer turns them into meaning AI can use.
               </h2>
               <p className="max-w-3xl text-base leading-8 text-ivory-200">
                 Universal Context Layer reads the operational estate exactly where it already lives, converts
