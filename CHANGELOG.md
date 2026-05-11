@@ -6,6 +6,14 @@ The format is inspired by Keep a Changelog and this project follows semantic ver
 
 ## [Unreleased]
 
+## [2.1.1] - 2026-05-11
+
+### Security
+
+- Pinned the released TanStack frontend dependencies to exact known-installed versions after a reported npm supply-chain advisory affecting later `@tanstack/*` package versions.
+- Kept the locked web app on `@tanstack/react-query` `5.100.9`, `@tanstack/react-query-devtools` `5.100.9`, `@tanstack/react-router` `1.169.2`, and `@tanstack/react-router-devtools` `1.166.13`.
+- Documented that release builds should use `npm ci` with the committed lockfile rather than floating dependency ranges during active supply-chain incidents.
+
 ## [2.1.0] - 2026-05-11
 
 ### Added
