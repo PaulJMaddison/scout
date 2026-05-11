@@ -32,3 +32,9 @@ If you discover that sensitive material has been committed by mistake, report it
 ## Supported versions
 
 The latest published release branch or default branch should be considered the supported line for security fixes unless noted otherwise in the repository.
+
+## Dependency supply-chain hygiene
+
+Use `npm ci` with the committed lockfile for frontend installs, especially during active npm supply-chain incidents. Do not replace lockfile installs with floating `npm install` updates during a live advisory unless the update is part of a reviewed security patch.
+
+For the May 2026 TanStack scoped-package advisory, the released web app pins the TanStack packages to known-installed versions and the lockfile must not contain `@tanstack/setup`, `router_init.js`, or git-resolved TanStack optional dependencies.
