@@ -55,7 +55,9 @@ internal sealed class SelectorExecutionEngine(
                     failedTrace.ToJsonString());
             }
 
-            var ruleResult = EvaluateRule(selector, normalized);
+            var ruleResult = NormalizeRuleResult(
+                EvaluateRule(selector, normalized),
+                runtimeContext.TargetAttributeDefinition);
             var confidence = ScoreConfidence(selector, ParseJsonObject(selector.ExpressionJson, "ExpressionJson"), fetchResult.ObservedAtUtc);
             var freshUntilUtc = fetchResult.ObservedAtUtc.AddMinutes(selector.FreshnessWindowMinutes);
             var explanation = RenderTemplate(selector.ExplanationTemplate, ruleResult.TemplateTokens);
@@ -442,7 +444,11 @@ internal sealed class SelectorExecutionEngine(
         {
             Locale = CultureInfo.InvariantCulture
         };
-        var computed = Convert.ToDecimal(dataTable.Compute(resolvedExpression, string.Empty), CultureInfo.InvariantCulture);
+        var computedRaw = Convert.ToDecimal(dataTable.Compute(resolvedExpression, string.Empty), CultureInfo.InvariantCulture);
+        var minimum = rule["minimum"]?.GetValue<decimal?>() ?? 0m;
+        var maximum = rule["maximum"]?.GetValue<decimal?>() ?? decimal.MaxValue;
+        var computed = Math.Clamp(computedRaw, minimum, maximum);
+        tokens["rawFormulaValue"] = computedRaw.ToString(CultureInfo.InvariantCulture);
         tokens["formulaValue"] = computed.ToString(CultureInfo.InvariantCulture);
         return new RuleEvaluationResult(
             JsonSerializer.Serialize(computed),
@@ -453,9 +459,48 @@ internal sealed class SelectorExecutionEngine(
                 type = "formulaMetric",
                 expression,
                 resolvedExpression,
+                computedRaw,
                 computed,
+                minimum,
+                maximum = maximum == decimal.MaxValue ? (decimal?)null : maximum,
                 variables = breakdown
             }));
+    }
+
+    private static RuleEvaluationResult NormalizeRuleResult(
+        RuleEvaluationResult result,
+        SemanticAttributeDefinition targetAttribute)
+    {
+        if (targetAttribute.DataType != SemanticDataType.Percentage || result.ValueType != FactValueType.Number)
+        {
+            return result;
+        }
+
+        using var document = JsonDocument.Parse(result.ValueJson);
+        if (document.RootElement.ValueKind != JsonValueKind.Number)
+        {
+            return result;
+        }
+
+        var rawValue = document.RootElement.GetDecimal();
+        var clampedValue = Math.Clamp(rawValue, 0m, 100m);
+        if (rawValue == clampedValue)
+        {
+            return result;
+        }
+
+        var tokens = new Dictionary<string, string>(result.TemplateTokens, StringComparer.OrdinalIgnoreCase)
+        {
+            ["rawValue"] = rawValue.ToString(CultureInfo.InvariantCulture),
+            ["normalizedValue"] = clampedValue.ToString(CultureInfo.InvariantCulture),
+            ["formulaValue"] = clampedValue.ToString(CultureInfo.InvariantCulture)
+        };
+
+        return result with
+        {
+            ValueJson = JsonSerializer.Serialize(clampedValue),
+            TemplateTokens = tokens
+        };
     }
 
     private decimal ScoreConfidence(SelectorDefinition selector, JsonObject expression, DateTime observedAtUtc)

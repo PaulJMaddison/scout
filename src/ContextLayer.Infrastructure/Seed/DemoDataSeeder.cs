@@ -979,6 +979,7 @@ public static class DemoDataSeeder
                     rule = new
                     {
                         expression = "20 + seat_utilization_score + adoption_bonus + automation_bonus + revenue_bonus",
+                        maximum = 95m,
                         variables = new object[]
                         {
                             new { name = "seat_utilization_score", sourcePath = "seat_utilization_ratio", multiplier = 40m },
@@ -989,7 +990,7 @@ public static class DemoDataSeeder
                     },
                     confidence = new { baseConfidence = 0.9m, stalePenaltyPerHour = 0.0008m, minimum = 0.6m }
                 }),
-                "Expansion potential combined seat utilization {{seat_utilization_score}}, adoption bonus {{adoption_bonus}}, automation bonus {{automation_bonus}}, and revenue bonus {{revenue_bonus}}.",
+                "Expansion potential is capped at {{formulaValue}} after combining seat utilization {{seat_utilization_score}}, adoption bonus {{adoption_bonus}}, automation bonus {{automation_bonus}}, and revenue bonus {{revenue_bonus}}.",
                 Serialize(new
                 {
                     requiredPaths = new[]

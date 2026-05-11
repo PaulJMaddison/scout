@@ -45,11 +45,36 @@ function Test-DockerAvailable {
     }
 }
 
+function Stop-RepoProcessByPattern {
+    param(
+        [Parameter(Mandatory = $true)][string]$Name,
+        [Parameter(Mandatory = $true)][string]$Pattern
+    )
+
+    $escapedPattern = [Regex]::Escape($Pattern)
+    $processes = Get-CimInstance Win32_Process -Filter "Name = '$Name'" |
+        Where-Object { $_.CommandLine -match $escapedPattern }
+
+    foreach ($process in $processes) {
+        try {
+            Stop-Process -Id $process.ProcessId -Force -ErrorAction Stop
+        }
+        catch {
+        }
+    }
+}
+
 if (Test-Path $demoRuntimeDirectory) {
     Stop-TrackedProcess -PidFile (Join-Path $demoRuntimeDirectory 'api.pid')
     Stop-TrackedProcess -PidFile (Join-Path $demoRuntimeDirectory 'web.pid')
     Remove-Item -LiteralPath $demoRuntimeDirectory -Recurse -Force -ErrorAction SilentlyContinue
 }
+
+Stop-RepoProcessByPattern -Name 'node.exe' -Pattern (Join-Path $repoRoot 'apps\web')
+Stop-RepoProcessByPattern -Name 'dotnet.exe' -Pattern (Join-Path $repoRoot 'src\ContextLayer.Api')
+Stop-RepoProcessByPattern -Name 'dotnet.exe' -Pattern 'ContextLayer.Api'
+Stop-RepoProcessByPattern -Name 'ContextLayer.Api.exe' -Pattern 'ContextLayer.Api'
+Start-Sleep -Milliseconds 500
 
 if (Test-DockerAvailable) {
     Push-Location $repoRoot

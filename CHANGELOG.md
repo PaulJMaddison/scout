@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is inspired by Keep a Changelog and this project follows semantic versioning.
 
+## [Unreleased]
+
+### Fixed
+
+- Capped percentage selector outputs so formula-based semantic attributes cannot display impossible values above 100%.
+- Updated the expansion potential demo selector and Bootstrap Studio blueprint to use a realistic capped score.
+- Hardened the Windows reset script so it stops repo API processes before deleting SQLite demo databases.
+
 ## [1.1.0] - 2026-05-10
 
 ### Added

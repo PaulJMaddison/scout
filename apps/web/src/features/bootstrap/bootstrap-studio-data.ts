@@ -399,6 +399,7 @@ export const sampleBlueprint: ContextLayerBlueprint = {
       expression: {
         rule: {
           expression: '20 + seat_utilization_score + adoption_bonus + automation_bonus + revenue_bonus',
+          maximum: 95,
           variables: [
             { name: 'seat_utilization_score', sourcePath: 'seat_utilization_ratio', multiplier: 40 },
             { name: 'adoption_bonus', sourcePath: 'feature_adoption_score', threshold: 75, trueValue: 18, falseValue: 6 },
@@ -409,7 +410,7 @@ export const sampleBlueprint: ContextLayerBlueprint = {
         confidence: { baseConfidence: 0.9, stalePenaltyPerHour: 0.0008, minimum: 0.6 },
       },
       explanationTemplate:
-        'Expansion potential combined seat utilization {{seat_utilization_score}}, adoption bonus {{adoption_bonus}}, automation bonus {{automation_bonus}}, and revenue bonus {{revenue_bonus}}.',
+        'Expansion potential is capped at {{formulaValue}} after combining seat utilization {{seat_utilization_score}}, adoption bonus {{adoption_bonus}}, automation bonus {{automation_bonus}}, and revenue bonus {{revenue_bonus}}.',
       validationSchema: {
         requiredPaths: [
           'seat_utilization_ratio',
