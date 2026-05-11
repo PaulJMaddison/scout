@@ -5,6 +5,7 @@ using ContextLayer.Api.Onboarding;
 using ContextLayer.Domain.Entities;
 using ContextLayer.Infrastructure.Auth;
 using HotChocolate.Authorization;
+using Microsoft.AspNetCore.Http;
 
 namespace ContextLayer.Api.GraphQL;
 
@@ -134,9 +135,13 @@ public sealed class Mutation
     [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst, RoleNames.SalesUser, RoleNames.ApiClient })]
     public Task<QueueRecomputeResult> QueueContextRecompute(
         QueueContextRecomputeInput input,
+        [Service] IHttpContextAccessor httpContextAccessor,
         [Service] IContextLayerService service,
         CancellationToken cancellationToken)
-        => service.QueueContextRecomputeAsync(input, cancellationToken);
+    {
+        GraphQlScopeGuard.RequireApiClientScope(httpContextAccessor, ApiScopes.ContextWrite);
+        return service.QueueContextRecomputeAsync(input, cancellationToken);
+    }
 
     [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst })]
     public Task<SelectorExecutionPreviewResult> PreviewSelector(

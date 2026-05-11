@@ -276,7 +276,7 @@ public sealed class GraphQlAuthorizationIntegrationTests
             tenantSlug = "demo",
             workspaceSlug = "default",
             displayName = "Lifecycle Test Client",
-            scopes = new[] { "context.read", "context.recompute" }
+            scopes = new[] { "context:read", "context:write" }
         });
 
         Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
@@ -299,7 +299,7 @@ public sealed class GraphQlAuthorizationIntegrationTests
             grantType = "client_credentials",
             clientId,
             clientSecret = apiKey,
-            scope = "context.read"
+            scope = "context:read"
         });
 
         Assert.Equal(HttpStatusCode.OK, tokenResponse.StatusCode);
@@ -330,9 +330,72 @@ public sealed class GraphQlAuthorizationIntegrationTests
             grantType = "client_credentials",
             clientId,
             clientSecret = apiKey,
-            scope = "context.read"
+            scope = "context:read"
         });
         Assert.Equal(HttpStatusCode.Unauthorized, revokedTokenResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task GraphQl_ApiClientScopes_DenyWriteMutation_WhenTokenOnlyHasReadScope()
+    {
+        await using var factory = new ContextLayerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        AuthenticateAs(client, "tenant_admin", "admin@contextlayer.local", "Dana Mercer");
+
+        var createResponse = await client.PostAsJsonAsync("/api/auth/api-clients", new
+        {
+            tenantSlug = "demo",
+            workspaceSlug = "default",
+            displayName = "GraphQL read-only client",
+            scopes = new[] { "context:read" }
+        });
+        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+        var createPayload = JsonNode.Parse(await createResponse.Content.ReadAsStringAsync())!.AsObject();
+        var clientId = createPayload["clientId"]!.GetValue<string>();
+        var apiKey = createPayload["apiKey"]!.GetValue<string>();
+
+        client.DefaultRequestHeaders.Authorization = null;
+        var tokenResponse = await client.PostAsJsonAsync("/api/auth/token", new
+        {
+            grantType = "client_credentials",
+            clientId,
+            clientSecret = apiKey,
+            scope = "context:read"
+        });
+        Assert.Equal(HttpStatusCode.OK, tokenResponse.StatusCode);
+        var tokenPayload = JsonNode.Parse(await tokenResponse.Content.ReadAsStringAsync())!.AsObject();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenPayload["accessToken"]!.GetValue<string>());
+
+        var readResponse = await client.PostAsJsonAsync("/graphql", new
+        {
+            query = """
+                query ReadContext {
+                  connectorCatalogue {
+                    connectorType
+                  }
+                }
+                """
+        });
+        Assert.Equal(HttpStatusCode.OK, readResponse.StatusCode);
+        var readPayload = JsonNode.Parse(await readResponse.Content.ReadAsStringAsync())!.AsObject();
+        Assert.Contains(readPayload["data"]?["connectorCatalogue"]?.AsArray() ?? [], item =>
+            item?["connectorType"]?.GetValue<string>() == "csvUpload");
+
+        var writeResponse = await client.PostAsJsonAsync("/graphql", new
+        {
+            query = """
+                mutation QueueContext {
+                  queueContextRecompute(input: { tenantSlug: "demo", externalUserId: "user-123", triggeredBy: "scope-test" }) {
+                    correlationId
+                  }
+                }
+                """
+        });
+        Assert.Equal(HttpStatusCode.OK, writeResponse.StatusCode);
+        var writePayload = JsonNode.Parse(await writeResponse.Content.ReadAsStringAsync())!.AsObject();
+        var error = writePayload["errors"]!.AsArray().Single()!.AsObject();
+        Assert.Equal("AUTHORIZATION_DENIED", error["extensions"]?["code"]?.GetValue<string>());
+        Assert.Equal(403, error["extensions"]?["httpStatus"]?.GetValue<int>());
     }
 
     [Fact]

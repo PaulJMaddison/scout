@@ -4,6 +4,7 @@ using ContextLayer.Domain.Entities;
 using ContextLayer.Domain.Enums;
 using ContextLayer.Infrastructure.Auth;
 using HotChocolate.Authorization;
+using Microsoft.AspNetCore.Http;
 
 namespace ContextLayer.Api.GraphQL;
 
@@ -18,9 +19,13 @@ public sealed class Query
     [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst, RoleNames.SalesUser, RoleNames.ReadOnly, RoleNames.ApiClient })]
     public Task<IReadOnlyList<UserProfileResult>> UserProfiles(
         string tenantSlug,
+        [Service] IHttpContextAccessor httpContextAccessor,
         [Service] IContextLayerService service,
         CancellationToken cancellationToken)
-        => service.GetUserProfilesAsync(tenantSlug, cancellationToken);
+    {
+        GraphQlScopeGuard.RequireApiClientScope(httpContextAccessor, ApiScopes.ContextRead);
+        return service.GetUserProfilesAsync(tenantSlug, cancellationToken);
+    }
 
     [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst, RoleNames.ReadOnly })]
     public Task<IReadOnlyList<DataSource>> DataSources(
@@ -37,9 +42,13 @@ public sealed class Query
 
     [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst, RoleNames.SalesUser, RoleNames.ReadOnly, RoleNames.ApiClient })]
     public Task<IReadOnlyList<ConnectorCatalogueEntryResult>> ConnectorCatalogue(
+        [Service] IHttpContextAccessor httpContextAccessor,
         [Service] IContextLayerService service,
         CancellationToken cancellationToken)
-        => service.GetConnectorCatalogueAsync(cancellationToken);
+    {
+        GraphQlScopeGuard.RequireApiClientScope(httpContextAccessor, ApiScopes.ContextRead);
+        return service.GetConnectorCatalogueAsync(cancellationToken);
+    }
 
     [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.ReadOnly })]
     public Task<LicenceStatusResult> LicenceStatus(
@@ -65,9 +74,13 @@ public sealed class Query
     public Task<IReadOnlyList<SelectorExecution>> SelectorExecutions(
         string tenantSlug,
         string? externalUserId,
+        [Service] IHttpContextAccessor httpContextAccessor,
         [Service] IContextLayerService service,
         CancellationToken cancellationToken)
-        => service.GetSelectorExecutionsAsync(tenantSlug, externalUserId, cancellationToken);
+    {
+        GraphQlScopeGuard.RequireApiClientScope(httpContextAccessor, ApiScopes.ContextRead);
+        return service.GetSelectorExecutionsAsync(tenantSlug, externalUserId, cancellationToken);
+    }
 
     [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst, RoleNames.SalesUser, RoleNames.ReadOnly })]
     public Task<IReadOnlyList<PromptTemplate>> PromptTemplates(
@@ -176,14 +189,22 @@ public sealed class Query
     [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst, RoleNames.SalesUser, RoleNames.ReadOnly, RoleNames.ApiClient })]
     public Task<ContextProfileResult?> UserContext(
         UserContextLookupInput input,
+        [Service] IHttpContextAccessor httpContextAccessor,
         [Service] IContextLayerService service,
         CancellationToken cancellationToken)
-        => service.GetUserContextAsync(input, cancellationToken);
+    {
+        GraphQlScopeGuard.RequireApiClientScope(httpContextAccessor, ApiScopes.ContextRead);
+        return service.GetUserContextAsync(input, cancellationToken);
+    }
 
     [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.Analyst, RoleNames.SalesUser, RoleNames.ApiClient })]
     public Task<SalesContextPackageResult?> SalesContextPackage(
         SalesContextPackageInput input,
+        [Service] IHttpContextAccessor httpContextAccessor,
         [Service] IContextLayerService service,
         CancellationToken cancellationToken)
-        => service.GetSalesContextPackageAsync(input, cancellationToken);
+    {
+        GraphQlScopeGuard.RequireApiClientScope(httpContextAccessor, ApiScopes.ContextRead);
+        return service.GetSalesContextPackageAsync(input, cancellationToken);
+    }
 }

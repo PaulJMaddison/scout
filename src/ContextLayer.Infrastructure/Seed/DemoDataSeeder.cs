@@ -649,7 +649,7 @@ public static class DemoDataSeeder
                 tenant.Slug == "demo" ? "svc-demo-admin" : "svc-summit-admin",
                 tenant.Slug == "demo" ? "Demo Service Client" : "Summit Service Client",
                 passwordHashingService.HashPassword(tenant.Slug == "demo" ? "SvcSecret123!" : "SummitSvcSecret123!"),
-                Serialize(new[] { "context.read", "context.recompute", "connectors.read" }),
+                Serialize(new[] { "context:read", "context:write", "selectors:write", "events:ingest", "audit:read" }),
                 utcNow));
             onboardingStates.AddRange(new[]
             {

@@ -93,10 +93,40 @@ public static class VersionedRestEndpointRouteBuilderExtensions
                 Roles = string.Join(',', RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst, RoleNames.ApiClient)
             })
             .RequireApiClientScope(ApiScopes.ContextWrite);
+        var selectorWriter = v1.MapGroup(string.Empty)
+            .RequireAuthorization(new AuthorizeAttribute
+            {
+                Roles = string.Join(',', RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst, RoleNames.ApiClient)
+            })
+            .RequireApiClientScope(ApiScopes.SelectorsWrite);
+        var eventIngestor = v1.MapGroup(string.Empty)
+            .RequireAuthorization(new AuthorizeAttribute
+            {
+                Roles = string.Join(',', RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst, RoleNames.ApiClient)
+            })
+            .RequireApiClientScope(ApiScopes.EventsIngest);
+        var auditReader = v1.MapGroup(string.Empty)
+            .RequireAuthorization(new AuthorizeAttribute
+            {
+                Roles = string.Join(',', RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst, RoleNames.ReadOnly, RoleNames.ApiClient)
+            })
+            .RequireApiClientScope(ApiScopes.AuditRead);
+        var billingReader = v1.MapGroup(string.Empty)
+            .RequireAuthorization(new AuthorizeAttribute
+            {
+                Roles = string.Join(',', RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.ApiClient)
+            })
+            .RequireApiClientScope(ApiScopes.BillingRead);
+        var blueprintWriter = v1.MapGroup(string.Empty)
+            .RequireAuthorization(new AuthorizeAttribute
+            {
+                Roles = string.Join(',', RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.ApiClient)
+            })
+            .RequireApiClientScope(ApiScopes.BlueprintsWrite);
         var admin = v1.MapGroup(string.Empty)
             .RequireAuthorization(new AuthorizeAttribute
             {
-                Roles = string.Join(',', RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin)
+                Roles = string.Join(',', RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.ApiClient)
             })
             .RequireApiClientScope(ApiScopes.AdminManage);
 
@@ -184,7 +214,7 @@ public static class VersionedRestEndpointRouteBuilderExtensions
             }))
             .WithName("V1QueueContextRecompute");
 
-        writer.MapPost("/selectors/preview", async (
+        selectorWriter.MapPost("/selectors/preview", async (
                 V1SelectorPreviewRequest request,
                 string? tenantSlug,
                 IContextLayerService service,
@@ -202,7 +232,7 @@ public static class VersionedRestEndpointRouteBuilderExtensions
             }))
             .WithName("V1PreviewSelector");
 
-        writer.MapPost("/selectors/validate", async (
+        selectorWriter.MapPost("/selectors/validate", async (
                 V1SelectorValidateRequest request,
                 string? tenantSlug,
                 IContextLayerService service,
@@ -247,7 +277,7 @@ public static class VersionedRestEndpointRouteBuilderExtensions
             }))
             .WithName("V1ListSemanticAttributes");
 
-        reader.MapGet("/audit-events", async (
+        auditReader.MapGet("/audit-events", async (
                 string? tenantSlug,
                 string? action,
                 string? entityType,
@@ -380,7 +410,7 @@ public static class VersionedRestEndpointRouteBuilderExtensions
             }))
             .WithName("V1ListGovernancePolicies");
 
-        admin.MapGet("/billing/usage", async (
+        billingReader.MapGet("/billing/usage", async (
                 string? tenantSlug,
                 IUsageMeteringService usageMeteringService,
                 ICurrentActorService actorService,
@@ -392,7 +422,7 @@ public static class VersionedRestEndpointRouteBuilderExtensions
             }))
             .WithName("V1GetBillingUsage");
 
-        writer.MapPost("/events/source-system", async (
+        eventIngestor.MapPost("/events/source-system", async (
                 HttpRequest httpRequest,
                 string? tenantSlug,
                 IContextLayerService service,
@@ -446,7 +476,7 @@ public static class VersionedRestEndpointRouteBuilderExtensions
             }))
             .WithName("V1CreateApiClient");
 
-        admin.MapPost("/blueprints/upload", async (
+        blueprintWriter.MapPost("/blueprints/upload", async (
                 UploadBlueprintInput request,
                 string? tenantSlug,
                 IBlueprintImportService service,
@@ -461,7 +491,7 @@ public static class VersionedRestEndpointRouteBuilderExtensions
             }))
             .WithName("V1UploadBlueprint");
 
-        admin.MapPost("/blueprints/validate", async (
+        blueprintWriter.MapPost("/blueprints/validate", async (
                 BlueprintImportInput request,
                 string? tenantSlug,
                 IBlueprintImportService service,
@@ -474,7 +504,7 @@ public static class VersionedRestEndpointRouteBuilderExtensions
             }))
             .WithName("V1ValidateBlueprint");
 
-        admin.MapPost("/blueprints/preview", async (
+        blueprintWriter.MapPost("/blueprints/preview", async (
                 BlueprintImportInput request,
                 string? tenantSlug,
                 IBlueprintImportService service,
@@ -487,7 +517,7 @@ public static class VersionedRestEndpointRouteBuilderExtensions
             }))
             .WithName("V1PreviewBlueprint");
 
-        admin.MapPost("/blueprints/import", async (
+        blueprintWriter.MapPost("/blueprints/import", async (
                 BlueprintImportInput request,
                 string? tenantSlug,
                 IBlueprintImportService service,
@@ -562,18 +592,23 @@ public static class VersionedRestEndpointRouteBuilderExtensions
     private static string ResolveTenantSlug(ICurrentActorService actorService, string? requestedTenantSlug)
     {
         var actor = actorService.GetCurrentActor();
-        if (!string.IsNullOrWhiteSpace(requestedTenantSlug) && actor.IsPlatformOwner)
+        if (string.IsNullOrWhiteSpace(requestedTenantSlug))
         {
-            return requestedTenantSlug.Trim().ToLowerInvariant();
+            return actor.TenantSlug;
         }
 
-        if (!string.IsNullOrWhiteSpace(requestedTenantSlug)
-            && string.Equals(actor.TenantSlug, requestedTenantSlug.Trim(), StringComparison.OrdinalIgnoreCase))
+        var normalizedRequestedTenantSlug = requestedTenantSlug.Trim().ToLowerInvariant();
+        if (actor.IsSystem || actor.IsPlatformOwner)
         {
-            return requestedTenantSlug.Trim().ToLowerInvariant();
+            return normalizedRequestedTenantSlug;
         }
 
-        return actor.TenantSlug;
+        if (string.Equals(actor.TenantSlug, normalizedRequestedTenantSlug, StringComparison.OrdinalIgnoreCase))
+        {
+            return normalizedRequestedTenantSlug;
+        }
+
+        throw new UnauthorizedAccessException("Cross-tenant access is not permitted.");
     }
 
     private static string ResolveRequestedTenantSlug(ICurrentActorService actorService, string? requestedTenantSlug)

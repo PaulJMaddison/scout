@@ -23,6 +23,10 @@ public sealed class GraphQlErrorFilter : IErrorFilter
                 .SetExtension("limit", limitExceededException.Limit)
                 .SetExtension("currentUsage", limitExceededException.CurrentUsage)
                 .SetExtension("requestedQuantity", limitExceededException.RequestedQuantity),
+            UnauthorizedAccessException unauthorizedAccessException => error
+                .WithMessage(unauthorizedAccessException.Message)
+                .WithCode("AUTHORIZATION_DENIED")
+                .SetExtension("httpStatus", 403),
             InvalidOperationException invalidOperationException => error
                 .WithMessage(invalidOperationException.Message)
                 .WithCode("INVALID_OPERATION"),

@@ -10,7 +10,7 @@ The endpoint is designed for SaaS integrations where CRM, support, billing, ware
 
 ## Authentication And Signature
 
-Use an API client created through `/api/v1/api-clients`. Send:
+Use an API client created through `/api/v1/api-clients` with the `events:ingest` scope. Send:
 
 ```http
 X-API-Client-Id: <clientId>
@@ -25,7 +25,9 @@ Signature input is:
 {timestamp}.{raw-request-body}
 ```
 
-Calculate HMAC-SHA256 with the one-time API key value as the secret. Timestamps must be within five minutes of the API server clock. The API key is never stored in plaintext; only the transient request value is used for signature validation.
+The current open-core endpoint validates the HMAC-SHA256 signature with the one-time API key value because the API key is already a non-stored secret. For production deployments, create a dedicated webhook-only API client with only `events:ingest`, rotate it separately from read/write clients, and revoke it without affecting context consumers. Private enterprise extensions may replace this public model with a separate webhook signing-secret store and rotation workflow.
+
+Timestamps must be within five minutes of the API server clock. The API key is never stored in plaintext; only the transient request value is used for signature validation.
 
 ## Event Contract
 
@@ -96,6 +98,39 @@ Customer created:
 }
 ```
 
+Customer updated:
+
+```json
+{
+  "eventId": "crm_customer_10001_update_2",
+  "workspaceSlug": "primary",
+  "sourceSystem": "crm",
+  "eventType": "customer.updated",
+  "externalUserId": "123",
+  "externalAccountId": "acct-123",
+  "payload": {
+    "lifecycleStage": "Customer",
+    "owner": "Jordan Kim"
+  }
+}
+```
+
+Account updated:
+
+```json
+{
+  "eventId": "crm_account_acct_123_update_5",
+  "workspaceSlug": "primary",
+  "sourceSystem": "crm",
+  "eventType": "account.updated",
+  "externalAccountId": "acct-123",
+  "payload": {
+    "health": "Green",
+    "renewalDate": "2026-09-30"
+  }
+}
+```
+
 Opportunity stage changed:
 
 ```json
@@ -113,6 +148,41 @@ Opportunity stage changed:
 }
 ```
 
+Product usage updated:
+
+```json
+{
+  "eventId": "product_usage_user_123_20260511",
+  "workspaceSlug": "primary",
+  "sourceSystem": "product",
+  "eventType": "product_usage.updated",
+  "externalUserId": "123",
+  "externalAccountId": "acct-123",
+  "payload": {
+    "activeDays30": 24,
+    "featureEvents7": 58
+  }
+}
+```
+
+Support ticket created:
+
+```json
+{
+  "eventId": "support_ticket_4451_created",
+  "workspaceSlug": "primary",
+  "sourceSystem": "support",
+  "eventType": "support_ticket.created",
+  "externalUserId": "123",
+  "externalAccountId": "acct-123",
+  "payload": {
+    "ticketId": "4451",
+    "priority": "High",
+    "category": "Onboarding"
+  }
+}
+```
+
 Billing payment failed:
 
 ```json
@@ -125,6 +195,57 @@ Billing payment failed:
     "invoiceId": "inv-9001",
     "amountDue": 1200,
     "currency": "USD"
+  }
+}
+```
+
+Email engaged:
+
+```json
+{
+  "eventId": "marketing_email_881_opened",
+  "workspaceSlug": "primary",
+  "sourceSystem": "marketing",
+  "eventType": "email.engaged",
+  "externalUserId": "123",
+  "externalAccountId": "acct-123",
+  "payload": {
+    "campaignId": "onboarding-nudge",
+    "engagement": "opened"
+  }
+}
+```
+
+Lifecycle converted:
+
+```json
+{
+  "eventId": "lifecycle_user_123_converted",
+  "workspaceSlug": "primary",
+  "sourceSystem": "lifecycle",
+  "eventType": "lifecycle.converted",
+  "externalUserId": "123",
+  "externalAccountId": "acct-123",
+  "payload": {
+    "fromStage": "Trial",
+    "toStage": "Paid"
+  }
+}
+```
+
+Source record deleted:
+
+```json
+{
+  "eventId": "crm_contact_123_deleted",
+  "workspaceSlug": "primary",
+  "sourceSystem": "crm",
+  "eventType": "source_record.deleted",
+  "externalUserId": "123",
+  "externalAccountId": "acct-123",
+  "payload": {
+    "object": "Contact",
+    "sourceRecordId": "123"
   }
 }
 ```

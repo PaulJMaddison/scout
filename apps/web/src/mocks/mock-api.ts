@@ -596,7 +596,7 @@ export async function mockGraphqlRequest<T>(
           clientId: `ucl_demo_${crypto.randomUUID().replaceAll('-', '').slice(0, 16)}`,
           displayName: (variables?.input as { displayName?: string } | undefined)?.displayName ?? 'Demo client',
           apiKey: `ucl_live_${crypto.randomUUID().replaceAll('-', '')}`,
-          scopes: (variables?.input as { scopes?: string[] } | undefined)?.scopes ?? ['context.read'],
+          scopes: (variables?.input as { scopes?: string[] } | undefined)?.scopes ?? ['context:read'],
           createdAtUtc: isoNow(),
         },
       } as T
