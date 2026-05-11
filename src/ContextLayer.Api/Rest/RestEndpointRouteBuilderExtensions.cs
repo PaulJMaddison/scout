@@ -1,0 +1,155 @@
+using ContextLayer.Application.Contracts;
+using ContextLayer.Application.Services;
+using ContextLayer.Infrastructure.Auth;
+using FluentValidation;
+
+namespace ContextLayer.Api.Rest;
+
+public static class RestEndpointRouteBuilderExtensions
+{
+    public static IEndpointRouteBuilder MapContextLayerRestApi(this IEndpointRouteBuilder endpoints)
+    {
+        var restGroup = endpoints.MapGroup("/api/rest")
+            .RequireAuthorization();
+
+        var tenantAdminGroup = restGroup.MapGroup(string.Empty)
+            .RequireAuthorization(policy => policy.RequireRole(RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin));
+
+        var readerGroup = restGroup.MapGroup(string.Empty)
+            .RequireAuthorization(policy => policy.RequireRole(RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst, RoleNames.SalesUser, RoleNames.ReadOnly, RoleNames.ApiClient));
+
+        readerGroup.MapGet("/tenants/{tenantSlug}/users/{externalUserId}/context",
+            async (string tenantSlug, string externalUserId, IContextLayerService service, CancellationToken cancellationToken) =>
+                await ExecuteAsync(() => service.GetUserContextAsync(new UserContextLookupInput(tenantSlug, externalUserId), cancellationToken)));
+
+        readerGroup.MapGet("/tenants/{tenantSlug}/users/{externalUserId}/facts",
+            async (string tenantSlug, string externalUserId, IContextLayerService service, CancellationToken cancellationToken) =>
+            {
+                var context = await service.GetUserContextAsync(new UserContextLookupInput(tenantSlug, externalUserId), cancellationToken);
+                return context is null
+                    ? Results.NotFound()
+                    : Results.Ok(context.Facts);
+            });
+
+        readerGroup.MapPost("/tenants/{tenantSlug}/users/{externalUserId}/sales-context-package",
+            async (string tenantSlug, string externalUserId, SalesContextPackageRequest request, IContextLayerService service, CancellationToken cancellationToken) =>
+                await ExecuteAsync(() => service.GetSalesContextPackageAsync(
+                    new SalesContextPackageInput(tenantSlug, externalUserId, request.SalesObjective),
+                    cancellationToken)));
+
+        readerGroup.MapGet("/tenants/{tenantSlug}/audit-events",
+            async (string tenantSlug, IContextLayerService service, CancellationToken cancellationToken) =>
+                await ExecuteAsync(async () => await service.GetAuditEventsAsync(tenantSlug, cancellationToken)));
+
+        tenantAdminGroup.MapGet("/tenants/{tenantSlug}/saas/overview",
+            async (string tenantSlug, IContextLayerService service, CancellationToken cancellationToken) =>
+                await ExecuteRequiredAsync(() => service.GetSaasArchitectureOverviewAsync(tenantSlug, cancellationToken)));
+
+        readerGroup.MapPost("/tenants/{tenantSlug}/users/{externalUserId}/recompute",
+            async (string tenantSlug, string externalUserId, RecomputeUserContextRequest request, IContextLayerService service, CancellationToken cancellationToken) =>
+                await ExecuteAcceptedAsync(() => service.QueueContextRecomputeAsync(
+                    new QueueContextRecomputeInput(tenantSlug, externalUserId, request.TriggeredBy),
+                    cancellationToken)));
+
+        tenantAdminGroup.MapGet("/connectors/plugins",
+            async (IContextLayerService service, CancellationToken cancellationToken) =>
+                Results.Ok(await service.GetConnectorPluginsAsync(cancellationToken)));
+
+        tenantAdminGroup.MapPost("/connectors/register",
+            async (RegisterConnectorInput input, IContextLayerService service, CancellationToken cancellationToken) =>
+                await ExecuteRequiredAsync(() => service.RegisterConnectorAsync(input, cancellationToken)));
+
+        tenantAdminGroup.MapPost("/connectors/validate",
+            async (ValidateConnectorConfigurationInput input, IContextLayerService service, CancellationToken cancellationToken) =>
+                await ExecuteRequiredAsync(() => service.ValidateConnectorConfigurationAsync(input, cancellationToken)));
+
+        tenantAdminGroup.MapPost("/connectors/health",
+            async (CheckConnectorHealthInput input, IContextLayerService service, CancellationToken cancellationToken) =>
+                await ExecuteRequiredAsync(() => service.CheckConnectorHealthAsync(input, cancellationToken)));
+
+        tenantAdminGroup.MapPost("/blueprints/upload",
+            async (UploadBlueprintInput input, IBlueprintImportService service, CancellationToken cancellationToken) =>
+                await ExecuteRequiredAsync(() => service.UploadAsync(input, cancellationToken)));
+
+        tenantAdminGroup.MapPost("/blueprints/validate",
+            async (BlueprintImportInput input, IBlueprintImportService service, CancellationToken cancellationToken) =>
+                await ExecuteRequiredAsync(() => service.ValidateAsync(input, cancellationToken)));
+
+        tenantAdminGroup.MapPost("/blueprints/preview",
+            async (BlueprintImportInput input, IBlueprintImportService service, CancellationToken cancellationToken) =>
+                await ExecuteRequiredAsync(() => service.PreviewAsync(input, cancellationToken)));
+
+        tenantAdminGroup.MapPost("/blueprints/import",
+            async (BlueprintImportInput input, IBlueprintImportService service, CancellationToken cancellationToken) =>
+                await ExecuteRequiredAsync(() => service.ImportAsync(input, cancellationToken)));
+
+        tenantAdminGroup.MapPost("/selectors/preview",
+            async (PreviewSelectorInput input, IContextLayerService service, CancellationToken cancellationToken) =>
+                await ExecuteRequiredAsync(() => service.PreviewSelectorAsync(input, cancellationToken)));
+
+        tenantAdminGroup.MapPost("/selectors/validate",
+            async (ValidateSelectorInput input, IContextLayerService service, CancellationToken cancellationToken) =>
+                await ExecuteRequiredAsync(() => service.ValidateSelectorAsync(input, cancellationToken)));
+
+        return endpoints;
+    }
+
+    private static async Task<IResult> ExecuteAsync<TResponse>(Func<Task<TResponse?>> action)
+    {
+        try
+        {
+            var result = await action();
+            return result is null ? Results.NotFound() : Results.Ok(result);
+        }
+        catch (ValidationException exception)
+        {
+            return Results.ValidationProblem(ToDictionary(exception));
+        }
+        catch (InvalidOperationException exception)
+        {
+            return Results.Problem(exception.Message, statusCode: StatusCodes.Status400BadRequest);
+        }
+    }
+
+    private static async Task<IResult> ExecuteRequiredAsync<TResponse>(Func<Task<TResponse>> action)
+    {
+        try
+        {
+            return Results.Ok(await action());
+        }
+        catch (ValidationException exception)
+        {
+            return Results.ValidationProblem(ToDictionary(exception));
+        }
+        catch (InvalidOperationException exception)
+        {
+            return Results.Problem(exception.Message, statusCode: StatusCodes.Status400BadRequest);
+        }
+    }
+
+    private static async Task<IResult> ExecuteAcceptedAsync<TResponse>(Func<Task<TResponse>> action)
+    {
+        try
+        {
+            var result = await action();
+            return Results.Accepted(value: result);
+        }
+        catch (ValidationException exception)
+        {
+            return Results.ValidationProblem(ToDictionary(exception));
+        }
+        catch (InvalidOperationException exception)
+        {
+            return Results.Problem(exception.Message, statusCode: StatusCodes.Status400BadRequest);
+        }
+    }
+
+    private static Dictionary<string, string[]> ToDictionary(ValidationException exception)
+    {
+        return exception.Errors
+            .GroupBy(error => string.IsNullOrWhiteSpace(error.PropertyName) ? "request" : error.PropertyName)
+            .ToDictionary(
+                group => group.Key,
+                group => group.Select(error => error.ErrorMessage).ToArray());
+    }
+}

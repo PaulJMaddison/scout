@@ -9,6 +9,7 @@ using ContextLayer.Application.Abstractions;
 using ContextLayer.Domain.Entities;
 using ContextLayer.Domain.Enums;
 using ContextLayer.Infrastructure.Persistence;
+using ContextLayer.Infrastructure.Connectors;
 using ContextLayer.Infrastructure.Selectors;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -48,7 +49,7 @@ public sealed class DualDatabaseDemoIntegrationTests
 
         var clock = new TestClock(new DateTime(2026, 05, 09, 12, 0, 0, DateTimeKind.Utc));
         var tenant = Tenant.Create("demo", "Demo", clock.UtcNow);
-        var userProfile = UserProfile.Create(tenant.Id, "123", "Avery Stone", "avery@example.com", "Northstar Logistics", "VP Revenue Operations", "enterprise", clock.UtcNow, clock.UtcNow);
+        var userProfile = UserProfile.Create(tenant.Id, "123", "Avery Stone", "avery@example.com", "Larkspur Logistics Group", "VP Revenue Operations", "enterprise", clock.UtcNow, clock.UtcNow);
         var attribute = SemanticAttributeDefinition.Create(tenant.Id, "planInterest", "Plan Interest", "Commercial intent", SemanticDataType.Enum, "\"enterprise\"", true, clock.UtcNow);
         var dataSource = DataSource.Create(
             tenant.Id,
@@ -136,10 +137,15 @@ public sealed class DualDatabaseDemoIntegrationTests
         var services = new ServiceCollection();
         services.AddLogging();
         services.AddSingleton<IClock>(clock);
-        services.AddScoped<ISelectorSourceConnector>(_ => new SqlTableSourceConnector(contextDbContext, customerOpsDbContext));
-        services.AddScoped<ISelectorSourceConnector, MockSignalSourceConnector>(_ => new MockSignalSourceConnector(contextDbContext));
-        services.AddScoped<ISelectorSourceConnector, MockPayloadSourceConnector>();
-        services.AddScoped<ISelectorSourceConnector, ApiPayloadSourceConnector>();
+        services.AddScoped(_ => contextDbContext);
+        services.AddScoped(_ => customerOpsDbContext);
+        services.AddDataProtection();
+        services.AddHttpClient("context-layer-connectors");
+        services.AddScoped<IConnectorPlugin, MockConnectorPlugin>();
+        services.AddScoped<IConnectorPlugin, RestApiConnectorPlugin>();
+        services.AddScoped<IConnectorPlugin>(_ => new SqlConnectorPlugin(contextDbContext, customerOpsDbContext));
+        services.AddScoped<IConnectorRegistry, ConnectorRegistry>();
+        services.AddScoped<IConnectorCredentialStore, ProtectedConnectorCredentialStore>();
         services.AddScoped<ISelectorExecutionEngine, SelectorExecutionEngine>();
         var provider = services.BuildServiceProvider();
         var engine = provider.GetRequiredService<ISelectorExecutionEngine>();
@@ -179,7 +185,7 @@ public sealed class DualDatabaseDemoIntegrationTests
             """);
 
         Assert.Equal("123", payload["data"]?["userContext"]?["externalUserId"]?.GetValue<string>());
-        Assert.Equal("Northstar Logistics", payload["data"]?["userContext"]?["sourceSummary"]?["accountName"]?.GetValue<string>());
+        Assert.Equal("Larkspur Logistics Group", payload["data"]?["userContext"]?["sourceSummary"]?["accountName"]?.GetValue<string>());
         Assert.True(payload["data"]?["userContext"]?["history"]?.AsArray().Count > 0);
     }
 
@@ -289,6 +295,12 @@ public sealed class DualDatabaseDemoIntegrationTests
             {
                 config.AddInMemoryCollection(new Dictionary<string, string?>
                 {
+                    ["Platform:Mode"] = "BackendOnly",
+                    ["Platform:EnableRest"] = "true",
+                    ["Platform:EnableGraphQl"] = "true",
+                    ["Platform:EnableOpenApi"] = "true",
+                    ["Bootstrap:ApplyMigrationsOnStartup"] = "true",
+                    ["Bootstrap:SeedDemoData"] = "true",
                     ["Auth:Issuer"] = "ContextLayer.Tests",
                     ["Auth:Audience"] = "ContextLayer.Tests",
                     ["Auth:SigningKey"] = "context-layer-tests-signing-key-1234567890",
@@ -312,6 +324,8 @@ public sealed class DualDatabaseDemoIntegrationTests
                     options.UseSqlite(customerOpsConnection));
                 services.AddScoped<IContextLayerDbContext>(provider => provider.GetRequiredService<ContextLayerDbContext>());
                 services.AddScoped<ICustomerOpsDbContext>(provider => provider.GetRequiredService<CustomerOpsDbContext>());
+
+                TestSeedHelper.SeedDemoData(services);
             });
         }
 

@@ -81,6 +81,234 @@ export interface DataSource {
   updatedAtUtc: string
 }
 
+export type ConnectorCatalogueAvailability = 'OpenCore' | 'Enterprise' | 'SaaSManaged' | 'ComingSoon'
+
+export interface ConnectorCatalogueEntry {
+  connectorType: string
+  displayName: string
+  description: string
+  category: string
+  availability: ConnectorCatalogueAvailability
+  isIncludedInOpenCore: boolean
+  requiresCommercialAgreement: boolean
+  isPlaceholder: boolean
+  isEnabled: boolean
+  supportedDataSourceKinds: string[]
+  capabilities: string[]
+  configurationSchemaJson: string
+  credentialSchemaJson: string
+  healthCheckMode: string
+}
+
+export interface BillingPlanLimit {
+  metric: string
+  displayName: string
+  limit?: number | null
+  window: string
+  enforcement: string
+  notes: string
+  used?: number | null
+  remaining?: number | null
+  isUnlimited: boolean
+}
+
+export interface BillingUsageMetric {
+  metric: string
+  displayName: string
+  quantity: number
+  limit?: number | null
+  remaining?: number | null
+  window: string
+  windowStartUtc: string
+  windowEndUtc: string
+}
+
+export interface BillingUsageOverview {
+  tenantId: string
+  tenantSlug: string
+  tenantName: string
+  plan: 'Free' | 'Pro' | 'Business' | 'Enterprise' | string
+  status: string
+  currentPeriodStartUtc: string
+  currentPeriodEndUtc: string
+  retentionDays: number
+  limits: BillingPlanLimit[]
+  usage: BillingUsageMetric[]
+  providerIntegrationStatus: string
+}
+
+export interface OrganisationSettings {
+  tenantId: string
+  tenantSlug: string
+  tenantName: string
+  isActive: boolean
+  createdAtUtc: string
+  updatedAtUtc: string
+  plan?: string | null
+  subscriptionStatus?: string | null
+  workspaceCount: number
+  userCount: number
+  apiClientCount: number
+}
+
+export interface WorkspaceSummary {
+  id: string
+  slug: string
+  name: string
+  description: string
+  status: string
+  isDefault: boolean
+}
+
+export interface OperatorWorkspaceMembership {
+  workspaceId: string
+  workspaceSlug: string
+  workspaceName: string
+  role: string
+  acceptedAtUtc?: string | null
+}
+
+export interface OperatorAccountSummary {
+  id: string
+  tenantId: string
+  email: string
+  displayName: string
+  role: string
+  isActive: boolean
+  lastLoginAtUtc?: string | null
+  createdAtUtc: string
+  updatedAtUtc: string
+  workspaces: OperatorWorkspaceMembership[]
+}
+
+export interface UpdateOperatorAccountInput {
+  tenantSlug: string
+  operatorAccountId: string
+  displayName: string
+  role: string
+  isActive: boolean
+}
+
+export interface ApiClientSummary {
+  id: string
+  tenantId: string
+  workspaceId?: string | null
+  clientId: string
+  displayName: string
+  status: string
+  scopes: string[]
+  lastUsedAtUtc?: string | null
+  rotatedAtUtc?: string | null
+  revokedAtUtc?: string | null
+}
+
+export interface CreateApiClientInput {
+  tenantSlug: string
+  workspaceSlug?: string | null
+  displayName: string
+  scopes: string[]
+}
+
+export interface ApiClientCreatedResult extends ApiClientSummary {
+  apiKey: string
+  createdAtUtc: string
+}
+
+export interface ApiClientRotatedResult {
+  id: string
+  clientId: string
+  apiKey: string
+  rotatedAtUtc: string
+}
+
+export interface SourceSystemEventHistory {
+  id: string
+  tenantId: string
+  workspaceId?: string | null
+  eventId: string
+  sourceSystem: string
+  eventType: string
+  status: string
+  externalUserId?: string | null
+  externalAccountId?: string | null
+  userProfileId?: string | null
+  dataSourceId?: string | null
+  matchedSelectorCount: number
+  processingSummary: string
+  errorMessage?: string | null
+  deadLetterReason?: string | null
+  correlationId: string
+  receivedAtUtc: string
+  observedAtUtc: string
+  processedAtUtc?: string | null
+  deadLetteredAtUtc?: string | null
+  payloadJson: string
+}
+
+export interface BlueprintImportHistory {
+  id: string
+  tenantId: string
+  workspaceId?: string | null
+  workspaceSlug?: string | null
+  name: string
+  status: string
+  uploadedBy: string
+  validationIssueCount: number
+  previewChangeCount: number
+  importSummaryJson: string
+  uploadedAtUtc: string
+  validatedAtUtc?: string | null
+  importedAtUtc?: string | null
+}
+
+export interface GovernancePolicy {
+  id: string
+  tenantId: string
+  blueprintImportId?: string | null
+  policyType: string
+  key: string
+  displayName: string
+  description: string
+  status: string
+  definitionJson: string
+  createdAtUtc: string
+  updatedAtUtc: string
+}
+
+export interface LicenceEntitlement {
+  key: string
+  value: string
+}
+
+export interface LicenceStatus {
+  mode: string
+  status: string
+  plan: string
+  licenceKeyFingerprint: string
+  licensedTo: string
+  source: string
+  issuedAtUtc?: string | null
+  expiresAtUtc?: string | null
+  lastCheckedAtUtc?: string | null
+  isValid: boolean
+  isExpired: boolean
+  isInOfflineGracePeriod: boolean
+  offlineGracePeriodDays: number
+  controlPlaneBaseUrl: string
+  updateChannel: string
+  usageReportingEnabled: boolean
+  entitlements: LicenceEntitlement[]
+  warnings: string[]
+}
+
+export interface PagedResponse<T> {
+  items: T[]
+  page: number
+  pageSize: number
+  totalCount: number
+  hasMore: boolean
+}
+
 export interface SemanticAttributeDefinition {
   id: string
   tenantId: string
@@ -455,6 +683,94 @@ export interface OperationalSummary {
   }
 }
 
+export interface SubmitOnboardingInput {
+  organisationName: string
+  tenantSlug: string
+  primaryWorkspaceName: string
+  adminDisplayName: string
+  adminEmail: string
+  adminPassword: string
+  intendedUseCase: string
+  sourceSystems: string[]
+  dataCategories: string[]
+  aiUseCases: string[]
+  piiSensitivityLevel: 'low' | 'moderate' | 'high' | 'regulated'
+  preferredDeploymentMode: 'local-demo' | 'self-hosted' | 'managed-saas' | 'private-cloud'
+}
+
+export interface OnboardingNextStepResult {
+  title: string
+  description: string
+  action: string
+}
+
+export interface OnboardingResult {
+  onboardingApplicationId: string
+  tenantId: string
+  tenantSlug: string
+  workspaceId: string
+  workspaceSlug: string
+  adminOperatorAccountId: string
+  createdSemanticAttributes: string[]
+  createdSelectors: string[]
+  createdDataSources: string[]
+  nextSteps: OnboardingNextStepResult[]
+}
+
+export interface UploadBlueprintInput {
+  tenantSlug: string
+  workspaceSlug?: string | null
+  name?: string | null
+  blueprintJson: string
+}
+
+export interface BlueprintImportInput {
+  tenantSlug: string
+  importId?: string | null
+  blueprintJson?: string | null
+}
+
+export interface BlueprintValidationIssueResult {
+  path: string
+  message: string
+  severity: string
+  line?: number | null
+  bytePositionInLine?: number | null
+}
+
+export interface BlueprintChangeResult {
+  entityType: string
+  name: string
+  action: string
+  path: string
+}
+
+export interface BlueprintImportSummaryResult {
+  dataSources: number
+  semanticAttributes: number
+  selectors: number
+  promptTemplates: number
+  piiRules: number
+  auditPolicies: number
+}
+
+export interface BlueprintImportResult {
+  importId?: string | null
+  status: string
+  isValid: boolean
+  blueprintName: string
+  blueprintSchemaJson: string
+  issues: BlueprintValidationIssueResult[]
+  preview: BlueprintChangeResult[]
+  createdDataSources: string[]
+  createdSemanticAttributes: string[]
+  createdSelectors: string[]
+  createdPromptTemplates: string[]
+  createdPiiRules: string[]
+  createdAuditPolicies: string[]
+  summary: BlueprintImportSummaryResult
+}
+
 export interface UpsertDataSourceInput {
   id?: string | null
   tenantSlug: string
@@ -543,10 +859,12 @@ export interface CreateAgentRunInput {
 export interface AuthenticatedOperator {
   tenantId: string
   tenantSlug: string
+  workspaceId?: string | null
+  workspaceSlug?: string | null
   operatorAccountId: string
   email: string
   displayName: string
-  role: 'tenant_admin' | 'sales_rep'
+  role: 'platform_owner' | 'tenant_admin' | 'integration_admin' | 'analyst' | 'sales_rep' | 'read_only' | 'api_client'
 }
 
 export interface AuthSession extends AuthenticatedOperator {

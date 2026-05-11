@@ -35,6 +35,48 @@ public sealed class UpsertDataSourceInputValidator : AbstractValidator<UpsertDat
     }
 }
 
+public sealed class RegisterConnectorInputValidator : AbstractValidator<RegisterConnectorInput>
+{
+    public RegisterConnectorInputValidator()
+    {
+        RuleFor(x => x.TenantSlug).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.Description).MaximumLength(2_000);
+        RuleFor(x => x.ConnectorType).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.ConfigurationJson)
+            .Must(value => UpsertDataSourceInputValidator.IsValidJson(value))
+            .WithMessage("ConfigurationJson must be valid JSON.");
+        RuleFor(x => x.CredentialsJson)
+            .Must(value => string.IsNullOrWhiteSpace(value) || UpsertDataSourceInputValidator.IsValidJson(value))
+            .WithMessage("CredentialsJson must be valid JSON when supplied.");
+    }
+}
+
+public sealed class ValidateConnectorConfigurationInputValidator : AbstractValidator<ValidateConnectorConfigurationInput>
+{
+    public ValidateConnectorConfigurationInputValidator()
+    {
+        RuleFor(x => x.ConnectorType).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.ConfigurationJson)
+            .Must(value => UpsertDataSourceInputValidator.IsValidJson(value))
+            .WithMessage("ConfigurationJson must be valid JSON.");
+        RuleFor(x => x.CredentialsJson)
+            .Must(value => string.IsNullOrWhiteSpace(value) || UpsertDataSourceInputValidator.IsValidJson(value))
+            .WithMessage("CredentialsJson must be valid JSON when supplied.");
+    }
+}
+
+public sealed class CheckConnectorHealthInputValidator : AbstractValidator<CheckConnectorHealthInput>
+{
+    public CheckConnectorHealthInputValidator()
+    {
+        RuleFor(x => x.TenantSlug).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.DataSourceId).NotEmpty();
+        RuleFor(x => x.ExternalUserId).MaximumLength(200);
+        RuleFor(x => x.Mode).MaximumLength(100);
+    }
+}
+
 public sealed class UpsertSemanticAttributeInputValidator : AbstractValidator<UpsertSemanticAttributeInput>
 {
     public UpsertSemanticAttributeInputValidator()
@@ -145,6 +187,24 @@ public sealed class RunScheduledRecomputeInputValidator : AbstractValidator<RunS
     }
 }
 
+public sealed class SourceSystemEventInputValidator : AbstractValidator<SourceSystemEventInput>
+{
+    public SourceSystemEventInputValidator()
+    {
+        RuleFor(x => x.TenantSlug).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.WorkspaceSlug).MaximumLength(100);
+        RuleFor(x => x.EventId).NotEmpty().MaximumLength(160);
+        RuleFor(x => x.SourceSystem).NotEmpty().MaximumLength(120);
+        RuleFor(x => x.EventType).NotEmpty().MaximumLength(160);
+        RuleFor(x => x.ExternalUserId).MaximumLength(200);
+        RuleFor(x => x.ExternalAccountId).MaximumLength(200);
+        RuleFor(x => x.PayloadJson)
+            .NotEmpty()
+            .Must(value => UpsertDataSourceInputValidator.IsValidJson(value))
+            .WithMessage("PayloadJson must be valid JSON.");
+    }
+}
+
 public sealed class UpsertPromptTemplateInputValidator : AbstractValidator<UpsertPromptTemplateInput>
 {
     public UpsertPromptTemplateInputValidator()
@@ -174,5 +234,38 @@ public sealed class CreateAgentRunInputValidator : AbstractValidator<CreateAgent
         RuleFor(x => x.ModelName).NotEmpty().MaximumLength(200);
         RuleFor(x => x.SalesObjective).NotEmpty().MaximumLength(2_000);
         RuleFor(x => x.ProviderName).MaximumLength(200);
+    }
+}
+
+public sealed class SubmitOnboardingInputValidator : AbstractValidator<SubmitOnboardingInput>
+{
+    private static readonly string[] AllowedPiiSensitivityLevels = ["low", "moderate", "high", "regulated"];
+    private static readonly string[] AllowedDeploymentModes = ["local-demo", "self-hosted", "managed-saas", "private-cloud"];
+
+    public SubmitOnboardingInputValidator()
+    {
+        RuleFor(x => x.OrganisationName).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.TenantSlug)
+            .NotEmpty()
+            .MaximumLength(100)
+            .Matches("^[a-z0-9][a-z0-9-]{1,98}[a-z0-9]$")
+            .WithMessage("TenantSlug must be lowercase letters, numbers, and hyphens.");
+        RuleFor(x => x.PrimaryWorkspaceName).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.AdminDisplayName).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.AdminEmail).NotEmpty().EmailAddress().MaximumLength(320);
+        RuleFor(x => x.AdminPassword).NotEmpty().MinimumLength(12).MaximumLength(200);
+        RuleFor(x => x.IntendedUseCase).NotEmpty().MaximumLength(2_000);
+        RuleFor(x => x.SourceSystems).NotEmpty().Must(x => x.Count <= 20);
+        RuleForEach(x => x.SourceSystems).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.DataCategories).NotEmpty().Must(x => x.Count <= 20);
+        RuleForEach(x => x.DataCategories).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.AiUseCases).NotEmpty().Must(x => x.Count <= 20);
+        RuleForEach(x => x.AiUseCases).NotEmpty().MaximumLength(160);
+        RuleFor(x => x.PiiSensitivityLevel)
+            .Must(value => AllowedPiiSensitivityLevels.Contains(value.Trim().ToLowerInvariant()))
+            .WithMessage("PiiSensitivityLevel must be low, moderate, high, or regulated.");
+        RuleFor(x => x.PreferredDeploymentMode)
+            .Must(value => AllowedDeploymentModes.Contains(value.Trim().ToLowerInvariant()))
+            .WithMessage("PreferredDeploymentMode must be local-demo, self-hosted, managed-saas, or private-cloud.");
     }
 }

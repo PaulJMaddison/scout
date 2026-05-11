@@ -131,7 +131,7 @@ public sealed class GraphQlAuthorizationIntegrationTests
         var firstUser = payload["data"]?["userProfiles"]?[0];
         Assert.NotNull(firstUser);
         Assert.True(firstUser!["isEmailMasked"]!.GetValue<bool>());
-        Assert.Equal("a***@northstarlogistics.io", firstUser["email"]!.GetValue<string>());
+        Assert.Equal("a***@larkspur-logistics.example", firstUser["email"]!.GetValue<string>());
     }
 
     [Fact]
@@ -158,6 +158,290 @@ public sealed class GraphQlAuthorizationIntegrationTests
 
         var opsPayload = JsonNode.Parse(await opsResponse.Content.ReadAsStringAsync())!.AsObject();
         Assert.Equal("demo", opsPayload["tenant"]!.GetValue<string>());
+
+        var saasPayload = await ExecuteGraphQlAsync(client, """
+            query SaaSOverview {
+              saasArchitectureOverview(tenantSlug: "demo") {
+                tenantSlug
+                subscription {
+                  plan
+                  status
+                }
+                workspaces {
+                  slug
+                  memberCount
+                  connectorCount
+                  onboardingCompletedSteps
+                  onboardingTotalSteps
+                }
+                apiClients {
+                  clientId
+                  scopes
+                }
+                usage {
+                  metric
+                  quantity
+                }
+              }
+            }
+            """);
+
+        var overview = saasPayload["data"]?["saasArchitectureOverview"];
+        Assert.NotNull(overview);
+        Assert.Equal("demo", overview!["tenantSlug"]!.GetValue<string>());
+        Assert.Equal("Pro", overview["subscription"]!["plan"]!.GetValue<string>());
+        Assert.True(overview["workspaces"]!.AsArray()[0]!["connectorCount"]!.GetValue<int>() > 0);
+        Assert.Contains(overview["apiClients"]!.AsArray(), clientNode =>
+            clientNode?["clientId"]?.GetValue<string>() == "svc-demo-admin");
+    }
+
+    [Fact]
+    public async Task TenantAdmin_CanRegisterConnector_AndCheckHealth()
+    {
+        await using var factory = new ContextLayerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        AuthenticateAs(client, "tenant_admin", "admin@contextlayer.local", "Dana Mercer");
+
+        var registerResponse = await client.PostAsJsonAsync("/graphql", new
+        {
+            operationName = "RegisterConnector",
+            query = """
+                mutation RegisterConnector($input: RegisterConnectorInput!) {
+                  registerConnector(input: $input) {
+                    dataSourceId
+                    connectorType
+                    status
+                    sanitizedConfigurationJson
+                  }
+                }
+                """,
+            variables = new
+            {
+                input = new
+                {
+                    tenantSlug = "demo",
+                    name = "CRM Mock Connector",
+                    description = "GraphQL registration test.",
+                    kind = "CRM",
+                    connectorType = "mock",
+                    configurationJson = """{"records":[{"externalUserId":"123","observedAtUtc":"2026-05-11T12:00:00Z","payload":{"crm":{"preferredChannel":"email"}}}]}"""
+                }
+            }
+        });
+
+        Assert.Equal(HttpStatusCode.OK, registerResponse.StatusCode);
+        var registerPayload = JsonNode.Parse(await registerResponse.Content.ReadAsStringAsync())!.AsObject();
+        var dataSourceId = registerPayload["data"]?["registerConnector"]?["dataSourceId"]?.GetValue<string>();
+        Assert.False(string.IsNullOrWhiteSpace(dataSourceId));
+        Assert.Equal("mock", registerPayload["data"]?["registerConnector"]?["connectorType"]?.GetValue<string>());
+
+        var healthResponse = await client.PostAsJsonAsync("/graphql", new
+        {
+            operationName = "CheckConnectorHealth",
+            query = """
+                mutation CheckConnectorHealth($input: CheckConnectorHealthInput!) {
+                  checkConnectorHealth(input: $input) {
+                    dataSourceId
+                    connectorType
+                    isHealthy
+                    status
+                    messages
+                  }
+                }
+                """,
+            variables = new
+            {
+                input = new
+                {
+                    tenantSlug = "demo",
+                    dataSourceId
+                }
+            }
+        });
+
+        Assert.Equal(HttpStatusCode.OK, healthResponse.StatusCode);
+        var healthPayload = JsonNode.Parse(await healthResponse.Content.ReadAsStringAsync())!.AsObject();
+        Assert.True(healthPayload["data"]?["checkConnectorHealth"]?["isHealthy"]?.GetValue<bool>());
+    }
+
+    [Fact]
+    public async Task ApiClientLifecycle_HashesKey_TracksLastUsed_AndRevokesAccess()
+    {
+        await using var factory = new ContextLayerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        AuthenticateAs(client, "tenant_admin", "admin@contextlayer.local", "Dana Mercer");
+
+        var createResponse = await client.PostAsJsonAsync("/api/auth/api-clients", new
+        {
+            tenantSlug = "demo",
+            workspaceSlug = "default",
+            displayName = "Lifecycle Test Client",
+            scopes = new[] { "context.read", "context.recompute" }
+        });
+
+        Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
+        var createPayload = JsonNode.Parse(await createResponse.Content.ReadAsStringAsync())!.AsObject();
+        var clientId = createPayload["clientId"]!.GetValue<string>();
+        var apiKey = createPayload["apiKey"]!.GetValue<string>();
+        Assert.StartsWith("ucl_live_", apiKey, StringComparison.Ordinal);
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<ContextLayerDbContext>();
+            var storedClient = await dbContext.ApiClients.SingleAsync(x => x.ClientId == clientId);
+            Assert.NotEqual(apiKey, storedClient.SecretHash);
+            Assert.StartsWith("pbkdf2-sha256$", storedClient.SecretHash, StringComparison.Ordinal);
+        }
+
+        client.DefaultRequestHeaders.Authorization = null;
+        var tokenResponse = await client.PostAsJsonAsync("/api/auth/token", new
+        {
+            grantType = "client_credentials",
+            clientId,
+            clientSecret = apiKey,
+            scope = "context.read"
+        });
+
+        Assert.Equal(HttpStatusCode.OK, tokenResponse.StatusCode);
+
+        await using (var scope = factory.Services.CreateAsyncScope())
+        {
+            var dbContext = scope.ServiceProvider.GetRequiredService<ContextLayerDbContext>();
+            var storedClient = await dbContext.ApiClients.SingleAsync(x => x.ClientId == clientId);
+            Assert.NotNull(storedClient.LastUsedAtUtc);
+            Assert.Contains(await dbContext.AuditEvents.ToListAsync(), audit => audit.Action == "auth.token.issued" && audit.EntityId == storedClient.Id.ToString("D"));
+        }
+
+        AuthenticateAs(client, "tenant_admin", "admin@contextlayer.local", "Dana Mercer");
+        var listResponse = await client.GetAsync("/api/auth/api-clients?tenantSlug=demo");
+        Assert.Equal(HttpStatusCode.OK, listResponse.StatusCode);
+        var listPayload = JsonNode.Parse(await listResponse.Content.ReadAsStringAsync())!.AsArray();
+        Assert.Contains(listPayload, item => item?["clientId"]?.GetValue<string>() == clientId && item?["apiKey"] is null);
+
+        var revokeResponse = await client.PostAsJsonAsync($"/api/auth/api-clients/{clientId}/revoke", new
+        {
+            tenantSlug = "demo"
+        });
+        Assert.Equal(HttpStatusCode.NoContent, revokeResponse.StatusCode);
+
+        client.DefaultRequestHeaders.Authorization = null;
+        var revokedTokenResponse = await client.PostAsJsonAsync("/api/auth/token", new
+        {
+            grantType = "client_credentials",
+            clientId,
+            clientSecret = apiKey,
+            scope = "context.read"
+        });
+        Assert.Equal(HttpStatusCode.Unauthorized, revokedTokenResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task TenantScopedUser_CannotReadAnotherTenant_AndDenialIsAudited()
+    {
+        await using var factory = new ContextLayerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        AuthenticateAs(client, "tenant_admin", "admin@contextlayer.local", "Dana Mercer");
+
+        var response = await client.PostAsJsonAsync("/graphql", new
+        {
+            query = """
+                query CrossTenantAttempt {
+                  userProfiles(tenantSlug: "summit") {
+                    externalUserId
+                  }
+                }
+                """
+        });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var payload = JsonNode.Parse(await response.Content.ReadAsStringAsync())!.AsObject();
+        Assert.NotNull(payload["errors"]);
+        Assert.Null(payload["data"]?["userProfiles"]);
+
+        await using var scope = factory.Services.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ContextLayerDbContext>();
+        Assert.Contains(await dbContext.AuditEvents.ToListAsync(), audit =>
+            audit.Action == "auth.permission.denied"
+            && audit.MetadataJson.Contains("cross-tenant-access", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task AdminConsole_GraphQlAndRest_DoNotLeakOtherTenants()
+    {
+        await using var factory = new ContextLayerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        AuthenticateAs(client, "tenant_admin", "admin@contextlayer.local", "Dana Mercer");
+
+        var ownTenantResponse = await client.GetAsync("/api/v1/admin/organisation?tenantSlug=demo");
+        Assert.Equal(HttpStatusCode.OK, ownTenantResponse.StatusCode);
+        var ownTenant = JsonNode.Parse(await ownTenantResponse.Content.ReadAsStringAsync())!.AsObject();
+        Assert.Equal("demo", ownTenant["tenantSlug"]!.GetValue<string>());
+
+        var otherTenantResponse = await client.GetAsync("/api/v1/admin/organisation?tenantSlug=summit");
+        Assert.NotEqual(HttpStatusCode.OK, otherTenantResponse.StatusCode);
+        var otherTenantBody = await otherTenantResponse.Content.ReadAsStringAsync();
+        Assert.DoesNotContain("Summit", otherTenantBody, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("admin@summit.contextlayer.local", otherTenantBody, StringComparison.OrdinalIgnoreCase);
+
+        var graphQlResponse = await client.PostAsJsonAsync("/graphql", new
+        {
+            query = """
+                query CrossTenantAdminAttempt {
+                  operatorAccounts(tenantSlug: "summit") {
+                    email
+                    role
+                  }
+                }
+                """
+        });
+
+        Assert.Equal(HttpStatusCode.OK, graphQlResponse.StatusCode);
+        var graphQlPayload = JsonNode.Parse(await graphQlResponse.Content.ReadAsStringAsync())!.AsObject();
+        Assert.NotNull(graphQlPayload["errors"]);
+        Assert.Null(graphQlPayload["data"]?["operatorAccounts"]);
+        Assert.DoesNotContain("admin@summit.contextlayer.local", graphQlPayload.ToJsonString(), StringComparison.OrdinalIgnoreCase);
+
+        await using var scope = factory.Services.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ContextLayerDbContext>();
+        Assert.Contains(await dbContext.AuditEvents.ToListAsync(), audit =>
+            audit.Action == "auth.permission.denied"
+            && audit.MetadataJson.Contains("cross-tenant-access", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task TenantAdmin_CannotGrantPlatformOwner_FromAdminConsole()
+    {
+        await using var factory = new ContextLayerWebApplicationFactory();
+        using var client = factory.CreateClient();
+        AuthenticateAs(client, "tenant_admin", "admin@contextlayer.local", "Dana Mercer");
+
+        var usersResponse = await client.GetAsync("/api/v1/admin/users?tenantSlug=demo&pageSize=25");
+        Assert.Equal(HttpStatusCode.OK, usersResponse.StatusCode);
+        var usersPayload = JsonNode.Parse(await usersResponse.Content.ReadAsStringAsync())!.AsObject();
+        var integrationAdmin = usersPayload["items"]!
+            .AsArray()
+            .Single(item => item?["email"]?.GetValue<string>() == "integrations@contextlayer.local")!
+            .AsObject();
+        var userId = integrationAdmin["id"]!.GetValue<Guid>();
+
+        var promoteResponse = await client.PatchAsJsonAsync($"/api/v1/admin/users/{userId}?tenantSlug=demo", new
+        {
+            displayName = "Riley Chen",
+            role = "PlatformOwner",
+            isActive = true
+        });
+
+        Assert.Equal(HttpStatusCode.Forbidden, promoteResponse.StatusCode);
+        var promoteBody = await promoteResponse.Content.ReadAsStringAsync();
+        Assert.Contains("Only platform owners can grant", promoteBody, StringComparison.OrdinalIgnoreCase);
+
+        await using var scope = factory.Services.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ContextLayerDbContext>();
+        var account = await dbContext.OperatorAccounts.SingleAsync(x => x.Id == userId);
+        Assert.Equal(ContextLayer.Domain.Enums.OperatorRole.IntegrationAdmin, account.Role);
+        Assert.Contains(await dbContext.AuditEvents.ToListAsync(), audit =>
+            audit.Action == "auth.permission.denied"
+            && audit.MetadataJson.Contains("platform-owner-escalation", StringComparison.Ordinal));
     }
 
     private static void AuthenticateAs(HttpClient client, string role, string email, string displayName)
@@ -193,7 +477,16 @@ public sealed class GraphQlAuthorizationIntegrationTests
             throw new HttpRequestException($"GraphQL request failed with {(int)response.StatusCode}: {content}");
         }
 
-        return JsonNode.Parse(content)!.AsObject();
+        var payload = JsonNode.Parse(content)!.AsObject();
+        if (payload["errors"] is JsonArray errors)
+        {
+            var messages = errors
+                .Select(error => error?["message"]?.GetValue<string>())
+                .Where(message => !string.IsNullOrWhiteSpace(message));
+            throw new InvalidOperationException("GraphQL errors: " + string.Join(" | ", messages));
+        }
+
+        return payload;
     }
 
     private sealed class ContextLayerWebApplicationFactory : WebApplicationFactory<Program>
@@ -208,6 +501,12 @@ public sealed class GraphQlAuthorizationIntegrationTests
             {
                 config.AddInMemoryCollection(new Dictionary<string, string?>
                 {
+                    ["Platform:Mode"] = "BackendOnly",
+                    ["Platform:EnableRest"] = "true",
+                    ["Platform:EnableGraphQl"] = "true",
+                    ["Platform:EnableOpenApi"] = "true",
+                    ["Bootstrap:ApplyMigrationsOnStartup"] = "true",
+                    ["Bootstrap:SeedDemoData"] = "true",
                     ["Auth:Issuer"] = "ContextLayer.Tests",
                     ["Auth:Audience"] = "ContextLayer.Tests",
                     ["Auth:SigningKey"] = "context-layer-tests-signing-key-1234567890",
@@ -233,6 +532,8 @@ public sealed class GraphQlAuthorizationIntegrationTests
                     provider.GetRequiredService<ContextLayerDbContext>());
                 services.AddScoped<ContextLayer.Application.Abstractions.ICustomerOpsDbContext>(provider =>
                     provider.GetRequiredService<CustomerOpsDbContext>());
+
+                TestSeedHelper.SeedDemoData(services);
             });
         }
     }

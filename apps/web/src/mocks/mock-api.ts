@@ -4,13 +4,20 @@ import type {
   AuthenticatedOperator,
   AuditEvent,
   BackgroundWorkerStatus,
+  BillingUsageOverview,
+  BlueprintImportInput,
+  BlueprintImportResult,
+  ConnectorCatalogueEntry,
   ContextFactResult,
   ContextProfileResult,
   CreateAgentRunInput,
   DataSource,
   GroundedContextFactResult,
+  LicenceStatus,
   LoginRequest,
+  OnboardingResult,
   OperationalSummary,
+  PagedResponse,
   PromptTemplate,
   PublishSelectorDefinitionInput,
   QueueContextRecomputeInput,
@@ -25,6 +32,8 @@ import type {
   SelectorExecutionPreviewResult,
   SelectorValidationResult,
   SemanticAttributeDefinition,
+  SubmitOnboardingInput,
+  UploadBlueprintInput,
   UpsertDataSourceInput,
   UpsertPromptTemplateInput,
   UpsertSelectorDefinitionInput,
@@ -33,6 +42,7 @@ import type {
 } from '@/lib/types'
 import { authStore } from '@/lib/auth'
 import { prettyJson, safeJsonParse } from '@/lib/utils'
+import { sampleBlueprint } from '@/features/bootstrap/bootstrap-studio-data'
 
 type OperationName =
   | 'GetUserProfiles'
@@ -43,6 +53,17 @@ type OperationName =
   | 'GetPromptTemplates'
   | 'GetAgentRuns'
   | 'GetAuditEvents'
+  | 'GetOrganisationSettings'
+  | 'GetWorkspaces'
+  | 'GetOperatorAccounts'
+  | 'UpdateOperatorAccount'
+  | 'GetApiClients'
+  | 'CreateApiClient'
+  | 'RotateApiClient'
+  | 'RevokeApiClient'
+  | 'GetSourceSystemEvents'
+  | 'GetBlueprintImports'
+  | 'GetGovernancePolicies'
   | 'GetUserContext'
   | 'GetSalesContextPackage'
   | 'UpsertDataSource'
@@ -133,6 +154,7 @@ interface MockSelectorRule {
 }
 
 const isoNow = () => new Date().toISOString()
+const isoDaysAgo = (days: number) => new Date(Date.now() - days * 86_400_000).toISOString()
 
 const mappingKindLabels: Record<SelectorDefinition['mappingKind'], string> = {
   DIRECT_FIELD_MAPPING: 'Direct field mapping',
@@ -172,6 +194,61 @@ const mockOperatorAccounts: MockOperatorAccount[] = [
       role: 'sales_rep',
     },
   },
+]
+
+const connectorCatalogue: ConnectorCatalogueEntry[] = [
+  connectorCatalogueEntry('sqlDatabase', 'SQL Database', 'Database', 'OpenCore', false, [
+    'Generic SQL connector for local demo databases and PostgreSQL deployments.',
+    'Opens configured database connections for health checks.',
+  ]),
+  connectorCatalogueEntry('restApi', 'REST API', 'API', 'OpenCore', false, [
+    'Generic REST connector for JSON source payloads.',
+    'Supports static responses for safe demos and previews.',
+  ]),
+  connectorCatalogueEntry('csvUpload', 'CSV upload', 'File', 'OpenCore', false, [
+    'Demo-safe parsed rows for CSV and spreadsheet onboarding.',
+    'Production file storage belongs behind a separate extension point.',
+  ]),
+  connectorCatalogueEntry('mockCrm', 'Mock CRM', 'Demo', 'OpenCore', false, [
+    'Fictional CRM records for selectors and context snapshots.',
+    'Safe local implementation included.',
+  ]),
+  connectorCatalogueEntry('mockBilling', 'Mock Billing', 'Demo', 'OpenCore', false, [
+    'Fictional plan, invoice, and payment-risk records.',
+    'Safe local implementation included.',
+  ]),
+  connectorCatalogueEntry('mockSupport', 'Mock Support', 'Demo', 'OpenCore', false, [
+    'Fictional support tickets and satisfaction signals.',
+    'Safe local implementation included.',
+  ]),
+  connectorCatalogueEntry('salesforce', 'Salesforce placeholder', 'CRM', 'SaaSManaged', true, [
+    'Catalogue metadata only.',
+    'No Salesforce implementation ships in the public repo.',
+  ]),
+  connectorCatalogueEntry('hubspot', 'HubSpot placeholder', 'CRM', 'SaaSManaged', true, [
+    'Catalogue metadata only.',
+    'No HubSpot implementation ships in the public repo.',
+  ]),
+  connectorCatalogueEntry('dynamics', 'Dynamics placeholder', 'CRM', 'Enterprise', true, [
+    'Catalogue metadata only.',
+    'No Dynamics implementation ships in the public repo.',
+  ]),
+  connectorCatalogueEntry('snowflake', 'Snowflake placeholder', 'Warehouse', 'Enterprise', true, [
+    'Catalogue metadata only.',
+    'No Snowflake implementation ships in the public repo.',
+  ]),
+  connectorCatalogueEntry('bigquery', 'BigQuery placeholder', 'Warehouse', 'Enterprise', true, [
+    'Catalogue metadata only.',
+    'No BigQuery implementation ships in the public repo.',
+  ]),
+  connectorCatalogueEntry('zendesk', 'Zendesk placeholder', 'Support', 'SaaSManaged', true, [
+    'Catalogue metadata only.',
+    'No Zendesk implementation ships in the public repo.',
+  ]),
+  connectorCatalogueEntry('netsuite', 'NetSuite placeholder', 'ERP', 'ComingSoon', true, [
+    'Catalogue metadata only.',
+    'No NetSuite implementation ships in the public repo.',
+  ]),
 ]
 
 export async function mockLogin(input: LoginRequest) {
@@ -251,6 +328,176 @@ export async function mockGetOperationalSummary() {
   } satisfies OperationalSummary
 }
 
+export async function mockSubmitOnboarding(input: SubmitOnboardingInput) {
+  await new Promise((resolve) => window.setTimeout(resolve, 520))
+  const tenantSlug = input.tenantSlug.trim().toLowerCase()
+  const workspaceSlug = slugify(input.primaryWorkspaceName)
+  const createdSemanticAttributes = [
+    'customerIdentity',
+    'aiReadinessSummary',
+    ...(input.dataCategories.some((category) => /crm/i.test(category)) ? ['accountHealth', 'buyingIntent'] : []),
+    ...(input.dataCategories.some((category) => /product|usage/i.test(category)) ? ['productUsageMaturity'] : []),
+    ...(input.dataCategories.some((category) => /support/i.test(category)) ? ['supportRisk'] : []),
+    ...(input.dataCategories.some((category) => /billing/i.test(category)) ? ['billingReadiness'] : []),
+    ...(input.dataCategories.some((category) => /marketing/i.test(category)) ? ['marketingEngagement'] : []),
+    ...(input.dataCategories.some((category) => /warehouse|sql|spreadsheet/i.test(category)) ? ['sourceCoverage'] : []),
+  ]
+  const uniqueAttributes = [...new Set(createdSemanticAttributes)]
+
+  return {
+    onboardingApplicationId: crypto.randomUUID(),
+    tenantId: crypto.randomUUID(),
+    tenantSlug,
+    workspaceId: crypto.randomUUID(),
+    workspaceSlug,
+    adminOperatorAccountId: crypto.randomUUID(),
+    createdSemanticAttributes: uniqueAttributes,
+    createdSelectors: uniqueAttributes.map((attribute) => `Starter ${humanizeKey(attribute)} selector`),
+    createdDataSources: input.sourceSystems.map((system) => `${system} starter source`),
+    nextSteps: [
+      {
+        title: 'Review semantic schema',
+        description: 'Inspect the starter attributes and tune names before teams rely on them.',
+        action: '/semantic-schema',
+      },
+      {
+        title: 'Connect real systems',
+        description: 'Replace mock starter sources with safe connector registrations.',
+        action: '/data-sources',
+      },
+      {
+        title: 'Validate selectors',
+        description: 'Preview generated mappings against sample records before publishing production selectors.',
+        action: '/selectors',
+      },
+      {
+        title: 'Generate trusted context',
+        description: 'Use the workspace to generate the first AI-ready context snapshot and package.',
+        action: `/customers?workspace=${workspaceSlug}`,
+      },
+      {
+        title: 'Plan deployment',
+        description: deploymentGuidance(input.preferredDeploymentMode),
+        action: '/commercial',
+      },
+    ],
+  } satisfies OnboardingResult
+}
+
+export async function mockGetConnectorCatalogue(): Promise<PagedResponse<ConnectorCatalogueEntry>> {
+  await new Promise((resolve) => window.setTimeout(resolve, 120))
+  return {
+    items: connectorCatalogue,
+    page: 1,
+    pageSize: 100,
+    totalCount: connectorCatalogue.length,
+    hasMore: false,
+  }
+}
+
+export async function mockGetLicenceStatus(): Promise<LicenceStatus> {
+  await new Promise((resolve) => window.setTimeout(resolve, 120))
+  return {
+    mode: 'Community',
+    status: 'Community',
+    plan: 'Community',
+    licenceKeyFingerprint: 'demo-preview',
+    licensedTo: 'Universal Context Layer local demo',
+    source: '.demo-data/ucl-demo.licence.json',
+    issuedAtUtc: isoDaysAgo(1),
+    expiresAtUtc: new Date(Date.now() + 730 * 24 * 60 * 60 * 1000).toISOString(),
+    lastCheckedAtUtc: new Date().toISOString(),
+    isValid: true,
+    isExpired: false,
+    isInOfflineGracePeriod: false,
+    offlineGracePeriodDays: 30,
+    controlPlaneBaseUrl: '',
+    updateChannel: 'stable',
+    usageReportingEnabled: false,
+    entitlements: [
+      { key: 'open-core', value: 'enabled' },
+      { key: 'local-demo', value: 'enabled' },
+      { key: 'self-hosted-admin-console', value: 'enabled' },
+      { key: 'enterprise-connectors', value: 'not-in-public-repo' },
+    ],
+    warnings: [],
+  }
+}
+
+export async function mockGetBillingUsage(tenantSlug = 'demo'): Promise<BillingUsageOverview> {
+  await new Promise((resolve) => window.setTimeout(resolve, 140))
+  const now = new Date()
+  const periodStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1))
+  const periodEnd = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1))
+  const limits = [
+    ['Workspaces', 'Workspaces', 3, 1, 'active'],
+    ['Users', 'Users', 25, 6, 'active'],
+    ['ApiClients', 'API clients', 5, 1, 'active'],
+    ['Selectors', 'Selectors', 50, mockState.selectors.length, 'active'],
+    ['ContextLookups', 'Context lookups', 25_000, 1840, 'monthly'],
+    ['Recomputations', 'Recomputations', 2_500, 42, 'monthly'],
+    ['SourceEvents', 'Source events', 25_000, 9700, 'monthly'],
+    ['BlueprintImports', 'Blueprint imports', 10, 1, 'monthly'],
+    ['RetentionDays', 'Retention days', 90, 90, 'retention'],
+  ] as const
+
+  return {
+    tenantId: 'tenant-demo',
+    tenantSlug,
+    tenantName: tenantSlug === 'demo' ? 'Demo Sales Workspace' : `${tenantSlug} Workspace`,
+    plan: 'Pro',
+    status: 'Active',
+    currentPeriodStartUtc: periodStart.toISOString(),
+    currentPeriodEndUtc: periodEnd.toISOString(),
+    retentionDays: 90,
+    limits: limits.map(([metric, displayName, limit, used, window]) => ({
+      metric,
+      displayName,
+      limit,
+      window,
+      enforcement: metric === 'RetentionDays' ? 'policy' : 'hard',
+      notes: `${displayName} allowance for the local fictional demo.`,
+      used,
+      remaining: Math.max(0, limit - used),
+      isUnlimited: false,
+    })),
+    usage: limits
+      .filter(([metric]) => ['ContextLookups', 'Recomputations', 'SourceEvents', 'BlueprintImports'].includes(metric))
+      .map(([metric, displayName, limit, used, window]) => ({
+        metric,
+        displayName,
+        quantity: used,
+        limit,
+        remaining: Math.max(0, limit - used),
+        window,
+        windowStartUtc: periodStart.toISOString(),
+        windowEndUtc: periodEnd.toISOString(),
+      })),
+    providerIntegrationStatus: 'NotConnected',
+  }
+}
+
+export async function mockUploadBlueprint(input: UploadBlueprintInput): Promise<BlueprintImportResult> {
+  await new Promise((resolve) => window.setTimeout(resolve, 160))
+  return blueprintResult('Uploaded', input.blueprintJson, false)
+}
+
+export async function mockValidateBlueprint(input: BlueprintImportInput): Promise<BlueprintImportResult> {
+  await new Promise((resolve) => window.setTimeout(resolve, 180))
+  return blueprintResult('Validated', input.blueprintJson ?? prettyJson(sampleBlueprint), false)
+}
+
+export async function mockPreviewBlueprint(input: BlueprintImportInput): Promise<BlueprintImportResult> {
+  await new Promise((resolve) => window.setTimeout(resolve, 180))
+  return blueprintResult('PreviewReady', input.blueprintJson ?? prettyJson(sampleBlueprint), false)
+}
+
+export async function mockImportBlueprint(input: BlueprintImportInput): Promise<BlueprintImportResult> {
+  await new Promise((resolve) => window.setTimeout(resolve, 420))
+  const result = blueprintResult('Imported', input.blueprintJson ?? prettyJson(sampleBlueprint), true)
+  return result
+}
+
 export async function mockGraphqlRequest<T>(
   operationName: OperationName,
   variables: Record<string, unknown> | undefined,
@@ -284,6 +531,92 @@ export async function mockGraphqlRequest<T>(
       } as T
     case 'GetAuditEvents':
       return { auditEvents: listAuditEvents(assertTenant(variables)) } as T
+    case 'GetOrganisationSettings':
+      return {
+        organisationSettings: {
+          tenantId: mockState.tenantId,
+          tenantSlug: mockState.tenantSlug,
+          tenantName: 'Demo Sales Workspace',
+          isActive: true,
+          createdAtUtc: isoDaysAgo(30),
+          updatedAtUtc: isoNow(),
+          plan: 'Pro',
+          subscriptionStatus: 'Active',
+          workspaceCount: 1,
+          userCount: mockOperatorAccounts.length,
+          apiClientCount: 0,
+        },
+      } as T
+    case 'GetWorkspaces':
+      return {
+        workspaces: [
+          {
+            id: crypto.randomUUID(),
+            slug: 'default',
+            name: 'Default workspace',
+            description: 'Seeded workspace for the fictional local demo tenant.',
+            status: 'Active',
+            isDefault: true,
+          },
+        ],
+      } as T
+    case 'GetOperatorAccounts':
+      return {
+        operatorAccounts: mockOperatorAccounts.map((account) => ({
+          id: account.operator.operatorAccountId,
+          tenantId: account.operator.tenantId,
+          email: account.operator.email,
+          displayName: account.operator.displayName,
+          role: account.operator.role === 'tenant_admin' ? 'TenantAdmin' : 'SalesUser',
+          isActive: true,
+          lastLoginAtUtc: isoDaysAgo(1),
+          createdAtUtc: isoDaysAgo(30),
+          updatedAtUtc: isoDaysAgo(1),
+          workspaces: [
+            {
+              workspaceId: crypto.randomUUID(),
+              workspaceSlug: 'default',
+              workspaceName: 'Default workspace',
+              role: account.operator.role === 'tenant_admin' ? 'Owner' : 'Member',
+              acceptedAtUtc: isoDaysAgo(30),
+            },
+          ],
+        })),
+      } as T
+    case 'UpdateOperatorAccount':
+      return { updateOperatorAccount: variables?.input } as T
+    case 'GetApiClients':
+      return { apiClients: [] } as T
+    case 'CreateApiClient':
+      return {
+        createApiClient: {
+          id: crypto.randomUUID(),
+          tenantId: mockState.tenantId,
+          workspaceId: null,
+          clientId: `ucl_demo_${crypto.randomUUID().replaceAll('-', '').slice(0, 16)}`,
+          displayName: (variables?.input as { displayName?: string } | undefined)?.displayName ?? 'Demo client',
+          apiKey: `ucl_live_${crypto.randomUUID().replaceAll('-', '')}`,
+          scopes: (variables?.input as { scopes?: string[] } | undefined)?.scopes ?? ['context.read'],
+          createdAtUtc: isoNow(),
+        },
+      } as T
+    case 'RotateApiClient':
+      return {
+        rotateApiClient: {
+          id: crypto.randomUUID(),
+          clientId: variables?.clientId,
+          apiKey: `ucl_live_${crypto.randomUUID().replaceAll('-', '')}`,
+          rotatedAtUtc: isoNow(),
+        },
+      } as T
+    case 'RevokeApiClient':
+      return { revokeApiClient: true } as T
+    case 'GetSourceSystemEvents':
+      return { sourceSystemEvents: [] } as T
+    case 'GetBlueprintImports':
+      return { blueprintImports: [] } as T
+    case 'GetGovernancePolicies':
+      return { governancePolicies: [] } as T
     case 'GetUserContext':
       return {
         userContext: getUserContext(
@@ -1751,11 +2084,11 @@ function createSeedState(): MockState {
     {
       id: crypto.randomUUID(),
       tenantId,
-      name: 'HubSpot CRM',
-      description: 'CRM contact and deal properties.',
+      name: 'CRM Signals API',
+      description: 'CRM-style contact and deal properties served through a generic API contract.',
       kind: 'CRM',
       status: 'ACTIVE',
-      connectionConfigJson: prettyJson({ connectorType: 'mockSignal', provider: 'hubspot', mode: 'demo' }),
+      connectionConfigJson: prettyJson({ connectorType: 'mockSignal', provider: 'crmApi', mode: 'demo' }),
       lastSuccessfulSyncAtUtc: at(1),
       createdAtUtc: at(96),
       updatedAtUtc: at(1),
@@ -1767,7 +2100,7 @@ function createSeedState(): MockState {
       description: 'Signal stream aggregated from product activity.',
       kind: 'PRODUCT_USAGE',
       status: 'ACTIVE',
-      connectionConfigJson: prettyJson({ connectorType: 'mockSignal', provider: 'segment', mode: 'demo' }),
+      connectionConfigJson: prettyJson({ connectorType: 'mockSignal', provider: 'telemetryStream', mode: 'demo' }),
       lastSuccessfulSyncAtUtc: at(1),
       createdAtUtc: at(96),
       updatedAtUtc: at(1),
@@ -1779,7 +2112,7 @@ function createSeedState(): MockState {
       description: 'Warehouse model with demand, support, and health metrics.',
       kind: 'SQL_METRIC',
       status: 'ACTIVE',
-      connectionConfigJson: prettyJson({ connectorType: 'mockSignal', provider: 'postgres', mode: 'demo' }),
+      connectionConfigJson: prettyJson({ connectorType: 'mockSignal', provider: 'warehouseSql', mode: 'demo' }),
       lastSuccessfulSyncAtUtc: at(1),
       createdAtUtc: at(96),
       updatedAtUtc: at(1),
@@ -1795,9 +2128,9 @@ function createSeedState(): MockState {
   ]
 
   const users: UserProfile[] = [
-    createUser(tenantId, '123', 'Avery Stone', 'avery.stone@northstarlogistics.io', 'Northstar Logistics', 'VP Revenue Operations', 'enterprise', at),
-    createUser(tenantId, '241', 'Priya Nwosu', 'priya@halcyonretail.com', 'Halcyon Retail', 'Director of Sales Ops', 'growth', at),
-    createUser(tenantId, '812', 'Marco Chen', 'marco@firstmilelabs.com', 'First Mile Labs', 'Head of Commercial', 'starter', at),
+    createUser(tenantId, '123', 'Avery Stone', 'avery.stone@larkspur-logistics.example', 'Larkspur Logistics Group', 'VP Revenue Operations', 'enterprise', at),
+    createUser(tenantId, '241', 'Priya Nwosu', 'priya@meadow-retail.example', 'Meadow Retail Collective', 'Director of Sales Ops', 'growth', at),
+    createUser(tenantId, '812', 'Marco Chen', 'marco@hearthline-labs.example', 'Hearthline Labs', 'Head of Commercial', 'starter', at),
   ]
 
   const selectors: SelectorDefinition[] = [
@@ -1857,7 +2190,7 @@ function createSeedState(): MockState {
       developerPrompt:
         'Act like a senior enterprise sales strategist reviewing CRM, warehouse, and usage intelligence. If any fact is low confidence, stale, or missing, say so clearly, lower your confidence, and recommend human review. Return JSON only.',
       userPromptTemplate:
-        "Generate sales support output for {{user.fullName}} at {{user.companyName}}. The sales objective is '{{salesObjective}}'. Produce an outreach strategy, a personalized email draft, and follow-up recommendations grounded in the context package.",
+        "Generate sales support output for {{user.fullName}} at {{user.companyName}}. The sales objective is '{{salesObjective}}'. Produce an outreach strategy, a personalised email draft, and follow-up recommendations grounded in the context package.",
       outputSchemaJson: prettyJson({
         type: 'object',
         required: [
@@ -1961,6 +2294,155 @@ function maskEmail(email: string) {
   return `${email.slice(0, 1)}***${email.slice(separatorIndex)}`
 }
 
+function slugify(value: string) {
+  const slug = value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+  return slug || 'primary'
+}
+
+function humanizeKey(value: string) {
+  return value
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/^./, (first) => first.toUpperCase())
+}
+
+function deploymentGuidance(mode: SubmitOnboardingInput['preferredDeploymentMode']) {
+  if (mode === 'self-hosted') {
+    return 'Prepare PostgreSQL, signing keys, and your connector secret store for the self-hosted control plane.'
+  }
+  if (mode === 'managed-saas') {
+    return 'Invite your integration admin and move starter sources to managed SaaS connector registrations.'
+  }
+  if (mode === 'private-cloud') {
+    return 'Schedule the private cloud network and identity review before moving credentials into the environment.'
+  }
+  return 'Keep exploring with local demo data, then switch to backend-only or SaaS mode when you are ready.'
+}
+
+function connectorCatalogueEntry(
+  connectorType: string,
+  displayName: string,
+  category: string,
+  availability: ConnectorCatalogueEntry['availability'],
+  isPlaceholder: boolean,
+  descriptionParts: string[],
+): ConnectorCatalogueEntry {
+  return {
+    connectorType,
+    displayName,
+    description: descriptionParts.join(' '),
+    category,
+    availability,
+    isIncludedInOpenCore: availability === 'OpenCore',
+    requiresCommercialAgreement: availability === 'Enterprise' || availability === 'SaaSManaged',
+    isPlaceholder,
+    isEnabled: true,
+    supportedDataSourceKinds:
+      category === 'Warehouse'
+        ? ['SqlMetric', 'ProductUsage']
+        : category === 'File'
+          ? ['Crm', 'SqlMetric', 'ProductUsage', 'EventStream']
+          : ['Crm', 'EventStream'],
+    capabilities: isPlaceholder
+      ? ['catalogueOnly', 'configurationSchema', 'futureHealthCheck', 'futureCredentialStorage']
+      : ['configurationValidation', 'healthCheck', 'preview', 'dryRun', 'eventTriggeredRecompute', 'secureCredentialStorage'],
+    configurationSchemaJson: prettyJson({
+      type: 'object',
+      description: isPlaceholder
+        ? 'Placeholder schema for a future commercial connector. It is intentionally non-executable in the public repo.'
+        : 'Open-core demo/generic connector configuration schema.',
+    }),
+    credentialSchemaJson: prettyJson({
+      type: 'object',
+      description: isPlaceholder
+        ? 'Future credentials would be stored through the connector credential abstraction.'
+        : 'Credentials are optional for safe demo connectors and stored through the connector credential abstraction when present.',
+    }),
+    healthCheckMode: isPlaceholder
+      ? 'Unavailable in open source; safe metadata only.'
+      : 'Local deterministic validation or generic health-check through the plugin abstraction.',
+  }
+}
+
+function blueprintResult(status: string, blueprintJson: string, imported: boolean): BlueprintImportResult {
+  const parsed = safeJsonParse<Record<string, unknown>>(blueprintJson, {})
+  const dataSources = Array.isArray(parsed.dataSources) ? parsed.dataSources : []
+  const attributes = Array.isArray(parsed.semanticAttributes) ? parsed.semanticAttributes : []
+  const selectors = Array.isArray(parsed.selectors) ? parsed.selectors : []
+  const prompts = Array.isArray(parsed.promptTemplates) ? parsed.promptTemplates : []
+  const piiRules = Array.isArray(parsed.piiRules) ? parsed.piiRules : []
+  const auditPolicies = Array.isArray(parsed.auditPolicies) ? parsed.auditPolicies : []
+  const issues =
+    dataSources.length && attributes.length && selectors.length
+      ? []
+      : [{ path: '$', message: 'Blueprint must include dataSources, semanticAttributes, and selectors.', severity: 'error', line: null, bytePositionInLine: null }]
+  const preview = [
+    ...dataSources.map((item, index) => ({
+      entityType: 'DataSource',
+      name: String((item as { name?: unknown }).name ?? `Data source ${index + 1}`),
+      action: 'Create',
+      path: `$.dataSources[${index}]`,
+    })),
+    ...attributes.map((item, index) => ({
+      entityType: 'SemanticAttribute',
+      name: String((item as { key?: unknown }).key ?? `attribute${index + 1}`),
+      action: 'Create',
+      path: `$.semanticAttributes[${index}]`,
+    })),
+    ...selectors.map((item, index) => ({
+      entityType: 'SelectorDefinition',
+      name: String((item as { name?: unknown }).name ?? `Selector ${index + 1}`),
+      action: 'Create',
+      path: `$.selectors[${index}]`,
+    })),
+    ...prompts.map((item, index) => ({
+      entityType: 'PromptTemplate',
+      name: String((item as { name?: unknown }).name ?? `Prompt ${index + 1}`),
+      action: 'Create',
+      path: `$.promptTemplates[${index}]`,
+    })),
+    ...piiRules.map((item, index) => ({
+      entityType: 'PiiRule',
+      name: String((item as { key?: unknown }).key ?? `piiRule${index + 1}`),
+      action: 'Create',
+      path: `$.piiRules[${index}]`,
+    })),
+    ...auditPolicies.map((item, index) => ({
+      entityType: 'AuditPolicy',
+      name: String((item as { key?: unknown }).key ?? `auditPolicy${index + 1}`),
+      action: 'Create',
+      path: `$.auditPolicies[${index}]`,
+    })),
+  ]
+
+  return {
+    importId: crypto.randomUUID(),
+    status: issues.length ? 'Rejected' : status,
+    isValid: issues.length === 0,
+    blueprintName: String(parsed.name ?? 'Context Layer Blueprint'),
+    blueprintSchemaJson: prettyJson({ title: 'ContextLayerBlueprint', type: 'object' }),
+    issues,
+    preview,
+    createdDataSources: imported ? preview.filter((item) => item.entityType === 'DataSource').map((item) => item.name) : [],
+    createdSemanticAttributes: imported ? preview.filter((item) => item.entityType === 'SemanticAttribute').map((item) => item.name) : [],
+    createdSelectors: imported ? preview.filter((item) => item.entityType === 'SelectorDefinition').map((item) => item.name) : [],
+    createdPromptTemplates: imported ? preview.filter((item) => item.entityType === 'PromptTemplate').map((item) => item.name) : [],
+    createdPiiRules: imported ? preview.filter((item) => item.entityType === 'PiiRule').map((item) => item.name) : [],
+    createdAuditPolicies: imported ? preview.filter((item) => item.entityType === 'AuditPolicy').map((item) => item.name) : [],
+    summary: {
+      dataSources: dataSources.length,
+      semanticAttributes: attributes.length,
+      selectors: selectors.length,
+      promptTemplates: prompts.length,
+      piiRules: piiRules.length,
+      auditPolicies: auditPolicies.length,
+    },
+  }
+}
+
 function createSelector(
   tenantId: string,
   dataSource: DataSource,
@@ -2009,27 +2491,27 @@ function seedSignals(
 ) {
   const [crm, usage, warehouse] = dataSources
   const signalRows = [
-    ['123', crm.id, 'crm.preferredChannel', 'email', 'ENUM', at(12), [{ source: 'hubspot', field: 'preferredChannel' }]],
-    ['123', crm.id, 'crm.planInterest', 'enterprise', 'ENUM', at(10), [{ source: 'hubspot', field: 'planInterest' }]],
-    ['123', usage.id, 'usage.activityScore', 91, 'NUMBER', at(2), [{ source: 'segment', field: 'activityScore' }]],
+    ['123', crm.id, 'crm.preferredChannel', 'email', 'ENUM', at(12), [{ source: 'crmApi', field: 'preferredChannel' }]],
+    ['123', crm.id, 'crm.planInterest', 'enterprise', 'ENUM', at(10), [{ source: 'crmApi', field: 'planInterest' }]],
+    ['123', usage.id, 'usage.activityScore', 91, 'NUMBER', at(2), [{ source: 'telemetryStream', field: 'activityScore' }]],
     ['123', warehouse.id, 'warehouse.opportunityStage', 'proposal', 'ENUM', at(2), [{ source: 'warehouse', field: 'opportunityStage' }]],
     ['123', warehouse.id, 'warehouse.planInterest', 'enterprise', 'ENUM', at(2), [{ source: 'warehouse', field: 'planInterest' }]],
     ['123', warehouse.id, 'warehouse.activeDays30', 26, 'NUMBER', at(2), [{ source: 'warehouse', field: 'activeDays30' }]],
     ['123', warehouse.id, 'warehouse.featureEvents7', 58, 'NUMBER', at(2), [{ source: 'warehouse', field: 'featureEvents7' }]],
     ['123', warehouse.id, 'warehouse.supportTickets30', 1, 'NUMBER', at(2), [{ source: 'warehouse', field: 'supportTickets30' }]],
     ['123', warehouse.id, 'warehouse.nps', 42, 'NUMBER', at(2), [{ source: 'warehouse', field: 'nps' }]],
-    ['241', crm.id, 'crm.preferredChannel', 'phone', 'ENUM', at(18), [{ source: 'hubspot', field: 'preferredChannel' }]],
-    ['241', crm.id, 'crm.planInterest', 'growth', 'ENUM', at(18), [{ source: 'hubspot', field: 'planInterest' }]],
-    ['241', usage.id, 'usage.activityScore', 63, 'NUMBER', at(6), [{ source: 'segment', field: 'activityScore' }]],
+    ['241', crm.id, 'crm.preferredChannel', 'phone', 'ENUM', at(18), [{ source: 'crmApi', field: 'preferredChannel' }]],
+    ['241', crm.id, 'crm.planInterest', 'growth', 'ENUM', at(18), [{ source: 'crmApi', field: 'planInterest' }]],
+    ['241', usage.id, 'usage.activityScore', 63, 'NUMBER', at(6), [{ source: 'telemetryStream', field: 'activityScore' }]],
     ['241', warehouse.id, 'warehouse.opportunityStage', 'discovery', 'ENUM', at(6), [{ source: 'warehouse', field: 'opportunityStage' }]],
     ['241', warehouse.id, 'warehouse.planInterest', 'growth', 'ENUM', at(6), [{ source: 'warehouse', field: 'planInterest' }]],
     ['241', warehouse.id, 'warehouse.activeDays30', 16, 'NUMBER', at(6), [{ source: 'warehouse', field: 'activeDays30' }]],
     ['241', warehouse.id, 'warehouse.featureEvents7', 35, 'NUMBER', at(6), [{ source: 'warehouse', field: 'featureEvents7' }]],
     ['241', warehouse.id, 'warehouse.supportTickets30', 3, 'NUMBER', at(6), [{ source: 'warehouse', field: 'supportTickets30' }]],
     ['241', warehouse.id, 'warehouse.nps', 54, 'NUMBER', at(6), [{ source: 'warehouse', field: 'nps' }]],
-    ['812', crm.id, 'crm.preferredChannel', 'email', 'ENUM', at(30), [{ source: 'hubspot', field: 'preferredChannel' }]],
-    ['812', crm.id, 'crm.planInterest', 'starter', 'ENUM', at(30), [{ source: 'hubspot', field: 'planInterest' }]],
-    ['812', usage.id, 'usage.activityScore', 38, 'NUMBER', at(12), [{ source: 'segment', field: 'activityScore' }]],
+    ['812', crm.id, 'crm.preferredChannel', 'email', 'ENUM', at(30), [{ source: 'crmApi', field: 'preferredChannel' }]],
+    ['812', crm.id, 'crm.planInterest', 'starter', 'ENUM', at(30), [{ source: 'crmApi', field: 'planInterest' }]],
+    ['812', usage.id, 'usage.activityScore', 38, 'NUMBER', at(12), [{ source: 'telemetryStream', field: 'activityScore' }]],
     ['812', warehouse.id, 'warehouse.opportunityStage', 'discovery', 'ENUM', at(12), [{ source: 'warehouse', field: 'opportunityStage' }]],
     ['812', warehouse.id, 'warehouse.planInterest', 'starter', 'ENUM', at(12), [{ source: 'warehouse', field: 'planInterest' }]],
     ['812', warehouse.id, 'warehouse.activeDays30', 8, 'NUMBER', at(12), [{ source: 'warehouse', field: 'activeDays30' }]],

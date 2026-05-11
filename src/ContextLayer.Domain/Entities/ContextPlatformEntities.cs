@@ -1,5 +1,6 @@
 using ContextLayer.Domain.Common;
 using ContextLayer.Domain.Enums;
+using ContextLayer.Domain.Saas;
 
 namespace ContextLayer.Domain.Entities;
 
@@ -136,5 +137,182 @@ public sealed class ProvenanceMetadata : AuditedTenantEntity
 
         provenance.SetAuditTimestamps(utcNow);
         return provenance;
+    }
+}
+
+public sealed class ConnectorCredential : AuditedTenantEntity
+{
+    private ConnectorCredential()
+    {
+    }
+
+    public Guid DataSourceId { get; private set; }
+
+    public string ConnectorType { get; private set; } = string.Empty;
+
+    public string SecretKey { get; private set; } = string.Empty;
+
+    public string SecretReference { get; private set; } = string.Empty;
+
+    public string ProtectedValue { get; private set; } = string.Empty;
+
+    public DataSource DataSource { get; private set; } = null!;
+
+    public static ConnectorCredential Create(
+        Guid tenantId,
+        Guid dataSourceId,
+        string connectorType,
+        string secretKey,
+        string secretReference,
+        string protectedValue,
+        DateTime utcNow)
+    {
+        var credential = new ConnectorCredential
+        {
+            TenantId = tenantId,
+            DataSourceId = dataSourceId,
+            ConnectorType = connectorType.Trim(),
+            SecretKey = secretKey.Trim(),
+            SecretReference = secretReference.Trim(),
+            ProtectedValue = protectedValue.Trim()
+        };
+
+        credential.SetAuditTimestamps(utcNow);
+        return credential;
+    }
+
+    public void Rotate(string protectedValue, DateTime utcNow)
+    {
+        ProtectedValue = protectedValue.Trim();
+        SetAuditTimestamps(utcNow);
+    }
+}
+
+public sealed class SourceSystemEvent : AuditedTenantEntity
+{
+    private SourceSystemEvent()
+    {
+    }
+
+    public Guid? WorkspaceId { get; private set; }
+
+    public string EventId { get; private set; } = string.Empty;
+
+    public string SourceSystem { get; private set; } = string.Empty;
+
+    public string EventType { get; private set; } = string.Empty;
+
+    public string? ExternalUserId { get; private set; }
+
+    public string? ExternalAccountId { get; private set; }
+
+    public Guid? UserProfileId { get; private set; }
+
+    public Guid? DataSourceId { get; private set; }
+
+    public SourceSystemEventStatus Status { get; private set; }
+
+    public string PayloadJson { get; private set; } = "{}";
+
+    public string HeadersJson { get; private set; } = "{}";
+
+    public string ProcessingSummary { get; private set; } = string.Empty;
+
+    public string? ErrorMessage { get; private set; }
+
+    public string? DeadLetterReason { get; private set; }
+
+    public int MatchedSelectorCount { get; private set; }
+
+    public string CorrelationId { get; private set; } = string.Empty;
+
+    public DateTime ReceivedAtUtc { get; private set; }
+
+    public DateTime ObservedAtUtc { get; private set; }
+
+    public DateTime? ProcessedAtUtc { get; private set; }
+
+    public DateTime? DeadLetteredAtUtc { get; private set; }
+
+    public Tenant Tenant { get; private set; } = null!;
+
+    public UserProfile? UserProfile { get; private set; }
+
+    public DataSource? DataSource { get; private set; }
+
+    public Workspace? Workspace { get; private set; }
+
+    public static SourceSystemEvent Create(
+        Guid tenantId,
+        Guid? workspaceId,
+        string eventId,
+        string sourceSystem,
+        string eventType,
+        string? externalUserId,
+        string? externalAccountId,
+        Guid? userProfileId,
+        Guid? dataSourceId,
+        string payloadJson,
+        string headersJson,
+        string correlationId,
+        DateTime observedAtUtc,
+        DateTime utcNow)
+    {
+        var sourceEvent = new SourceSystemEvent
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            EventId = eventId.Trim(),
+            SourceSystem = sourceSystem.Trim(),
+            EventType = eventType.Trim(),
+            ExternalUserId = string.IsNullOrWhiteSpace(externalUserId) ? null : externalUserId.Trim(),
+            ExternalAccountId = string.IsNullOrWhiteSpace(externalAccountId) ? null : externalAccountId.Trim(),
+            UserProfileId = userProfileId,
+            DataSourceId = dataSourceId,
+            PayloadJson = string.IsNullOrWhiteSpace(payloadJson) ? "{}" : payloadJson.Trim(),
+            HeadersJson = string.IsNullOrWhiteSpace(headersJson) ? "{}" : headersJson.Trim(),
+            CorrelationId = correlationId.Trim(),
+            ObservedAtUtc = observedAtUtc,
+            ReceivedAtUtc = utcNow,
+            Status = SourceSystemEventStatus.Received
+        };
+
+        sourceEvent.SetAuditTimestamps(utcNow);
+        return sourceEvent;
+    }
+
+    public void MarkIgnored(string summary, DateTime utcNow)
+    {
+        Status = SourceSystemEventStatus.Ignored;
+        ProcessingSummary = summary.Trim();
+        ProcessedAtUtc = utcNow;
+        SetAuditTimestamps(utcNow);
+    }
+
+    public void MarkProcessed(int matchedSelectorCount, string summary, DateTime utcNow)
+    {
+        Status = SourceSystemEventStatus.Processed;
+        MatchedSelectorCount = matchedSelectorCount;
+        ProcessingSummary = summary.Trim();
+        ErrorMessage = null;
+        DeadLetterReason = null;
+        ProcessedAtUtc = utcNow;
+        SetAuditTimestamps(utcNow);
+    }
+
+    public void MarkFailed(string errorMessage, DateTime utcNow)
+    {
+        Status = SourceSystemEventStatus.Failed;
+        ErrorMessage = errorMessage.Trim();
+        ProcessedAtUtc = utcNow;
+        SetAuditTimestamps(utcNow);
+    }
+
+    public void MarkDeadLettered(string reason, DateTime utcNow)
+    {
+        Status = SourceSystemEventStatus.DeadLettered;
+        DeadLetterReason = reason.Trim();
+        DeadLetteredAtUtc = utcNow;
+        SetAuditTimestamps(utcNow);
     }
 }

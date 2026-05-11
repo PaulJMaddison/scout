@@ -9,10 +9,10 @@
     <InvariantGlobalization>true</InvariantGlobalization>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
-    <Version>1.1.0</Version>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
-    <FileVersion>1.1.0.0</FileVersion>
-    <InformationalVersion>1.1.0</InformationalVersion>
+    <Version>2.0.0</Version>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
+    <InformationalVersion>2.0.0</InformationalVersion>
     <Product>Context Layer</Product>
     <Authors>Paul Maddison and contributors</Authors>
     <Company>Universal Context Layer</Company>
@@ -21,7 +21,7 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/PaulJMaddison/universalcontextlayer</PackageProjectUrl>
-    <PackageTags>ai;graphql;dotnet;react;semantic-layer;context-engineering;sales-intelligence</PackageTags>
-    <PackageReleaseNotes>1.1.0 release with outcome-led product messaging across every page, clearer fresh-laptop SQLite setup documentation, refreshed README screenshots, removal of GitHub Actions workflows, and a stronger executive and technical demo narrative.</PackageReleaseNotes>
+    <PackageTags>context-infrastructure;graphql;rest;dotnet;react;semantic-layer;context-engineering;open-core</PackageTags>
+    <PackageReleaseNotes>2.0.0 productisation release with open-core context infrastructure positioning, self-hosted admin console, REST and GraphQL integration APIs, SDK scaffolds, blueprint import, licence foundations, and customer-owned data-plane architecture.</PackageReleaseNotes>
   </PropertyGroup>
 </Project>

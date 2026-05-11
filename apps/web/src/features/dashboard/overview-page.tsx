@@ -98,7 +98,7 @@ export function OverviewPage() {
       {
         label: 'Schema attributes',
         value: String(workspaceQuery.data?.semanticAttributes.length ?? 0),
-        footnote: 'Canonical attributes available to customer context and downstream agents.',
+        footnote: 'Canonical attributes available to customer context and downstream consumers.',
         accent: 'gold' as const,
       },
       {
@@ -128,8 +128,8 @@ export function OverviewPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Workspace pulse"
-        title="See whether your data is ready to power trusted AI workflows"
-        description="This dashboard shows connector freshness, selector quality, privacy posture, and the exact context packages your agents are consuming."
+        title="See whether your context layer is ready for trusted apps, workflows, and AI consumers."
+        description="This dashboard shows connector freshness, selector quality, privacy posture, and the context packages or profiles downstream systems consume."
         actions={
           <>
             <Link to="/demo">
@@ -146,7 +146,7 @@ export function OverviewPage() {
             </Link>
             <Link to="/agent-playground">
               <Button>
-                Open playground
+                Open example consumer
                 <Sparkle className="ml-2 size-4" />
               </Button>
             </Link>
@@ -236,7 +236,7 @@ export function OverviewPage() {
           )}
         </Panel>
 
-        <Panel eyebrow="Compliance posture" title="PII handling and AI visibility">
+        <Panel eyebrow="Compliance posture" title="PII handling and context visibility">
           <div className="grid gap-3">
             <Card className="bg-ivory-25">
               <p className="font-semibold text-ink-950">Field-level masking</p>
@@ -245,15 +245,15 @@ export function OverviewPage() {
               </p>
             </Card>
             <Card className="bg-ivory-25">
-              <p className="font-semibold text-ink-950">AI-visible provenance</p>
+              <p className="font-semibold text-ink-950">Consumer-visible provenance</p>
               <p className="mt-2 text-sm leading-7 text-ink-700">
-                Every fact in the context package includes citation ids, confidence, freshness, source selector, and field-level provenance so the model never sees unsupported claims.
+                Every fact in the context package includes citation ids, confidence, freshness, source selector, and field-level provenance so downstream systems do not receive unsupported claims.
               </p>
             </Card>
             <Card className="bg-ivory-25">
               <p className="font-semibold text-ink-950">Read auditability</p>
               <p className="mt-2 text-sm leading-7 text-ink-700">
-                Context profile reads, sales package reads, and agent run requests are written to the audit trail for tenant-scoped review.
+                Context profile reads, sales package reads, and example agent run requests are written to the audit trail for tenant-scoped review.
               </p>
             </Card>
           </div>
@@ -275,7 +275,7 @@ export function OverviewPage() {
           {contextQuery.data ? (
             <div className="grid gap-5">
               <div className="rounded-[24px] bg-ink-950 px-5 py-5 text-ivory-50">
-                <p className="text-xs uppercase tracking-[0.18em] text-copper-300">Agent-ready summary</p>
+                <p className="text-xs uppercase tracking-[0.18em] text-copper-300">Consumer-ready summary</p>
                 <p className="mt-3 text-lg leading-8">{contextQuery.data.summary}</p>
               </div>
 
@@ -301,7 +301,7 @@ export function OverviewPage() {
           )}
         </Panel>
 
-        <Panel eyebrow="Context payload" title="What the agent actually sees">
+        <Panel eyebrow="Context payload" title="What a consumer actually receives">
           <JsonViewer
             value={{
               summary: contextQuery.data?.summary,

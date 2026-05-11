@@ -1,0 +1,144 @@
+import { Link } from '@tanstack/react-router'
+import { ArrowRight, BarChart3, Headphones, Megaphone, Rocket, ShieldAlert, UsersRound } from 'lucide-react'
+import { Badge, Button, Card, PageHeader, Panel } from '@/components/ui/primitives'
+import { BeforeAfter, Timeline } from '@/features/marketing/marketing-components'
+
+const useCases = [
+  {
+    title: 'Sales recommendations',
+    audience: 'Revenue teams',
+    body: 'Turn CRM, product usage, billing, lifecycle, and support signals into account context that explains who to contact, why now, and which evidence supports the recommendation.',
+    icon: UsersRound,
+  },
+  {
+    title: 'Customer success health',
+    audience: 'CS and account management',
+    body: 'Combine onboarding, adoption, support, billing, and engagement facts into trusted health signals that show whether the account needs help, expansion, or review.',
+    icon: BarChart3,
+  },
+  {
+    title: 'Support prioritisation',
+    audience: 'Support operations',
+    body: 'Put ticket severity in context with account value, renewal risk, product adoption, and relationship state so teams can prioritise with evidence.',
+    icon: Headphones,
+  },
+  {
+    title: 'Product onboarding',
+    audience: 'Product leaders',
+    body: 'Give onboarding flows and in-product assistants structured context about where a customer is blocked, which features they use, and what success looks like.',
+    icon: Rocket,
+  },
+  {
+    title: 'Marketing personalisation',
+    audience: 'Growth and lifecycle',
+    body: 'Use shared semantic attributes such as lifecycle stage, product fit, and preferred channel instead of bespoke joins for each campaign.',
+    icon: Megaphone,
+  },
+  {
+    title: 'Risk and governance',
+    audience: 'Ops and compliance',
+    body: 'Expose freshness, confidence, provenance, masking, and audit trails so AI-assisted workflows can be reviewed and controlled.',
+    icon: ShieldAlert,
+  },
+]
+
+export function UseCasesPage() {
+  return (
+    <div className="grid gap-8">
+      <PageHeader
+        eyebrow="Use cases"
+        title="This page shows how Universal Context Layer turns existing business data into practical outcomes across sales, support, product, marketing, and operations."
+        description="The same semantic layer can serve many teams because selectors turn raw source data into trusted facts once, then expose those facts through context snapshots, APIs, SDKs, and governed packages."
+        actions={
+          <>
+            <Link to="/demo">
+              <Button>
+                See the sales walkthrough
+                <ArrowRight className="size-4" />
+              </Button>
+            </Link>
+            <Link to="/integrations">
+              <Button variant="secondary">How integrations work</Button>
+            </Link>
+          </>
+        }
+      />
+
+      <section className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
+        <Panel eyebrow="Workflow example" title="From raw customer signals to better AI sales recommendations">
+          <Timeline
+            items={[
+              {
+                label: 'Source estate',
+                title: 'Signals already exist across the business',
+                body: 'CRM history, product activity, support tickets, billing state, email engagement, and warehouse roll-ups remain in their current systems.',
+              },
+              {
+                label: 'Selectors',
+                title: 'Raw signals become trusted commercial facts',
+                body: 'Selectors calculate attributes such as conversion probability, support drag, budget readiness, plan interest, and recommended sales motion.',
+              },
+              {
+                label: 'Context package',
+                title: 'The AI agent receives a structured brief',
+                body: 'The package includes allowed facts, confidence, provenance, freshness, masking decisions, and warnings when supporting evidence is weak.',
+              },
+              {
+                label: 'Outcome',
+                title: 'The recommendation is clearer and easier to defend',
+                body: 'Sales teams see why a recommendation exists, which source systems contributed, and whether the data is fresh enough to act on.',
+              },
+            ]}
+          />
+        </Panel>
+
+        <Panel eyebrow="Before and after" title="What changes for teams">
+          <BeforeAfter
+            before={[
+              'Each team builds its own data interpretation in spreadsheets, SQL views, prompts, or product code.',
+              'AI tools are asked to infer business meaning from raw records and inconsistent field names.',
+              'Recommendations are hard to trust because source evidence and freshness are not visible.',
+            ]}
+            after={[
+              'Shared selectors define how raw data becomes canonical facts for every consumer.',
+              'AI agents receive structured context with confidence, provenance, freshness, and masking.',
+              'Business users can inspect the evidence behind recommendations and workflows.',
+            ]}
+          />
+        </Panel>
+      </section>
+
+      <Panel eyebrow="Outcome catalogue" title="Use cases grouped by business outcome, not by technology">
+        <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
+          {useCases.map(({ title, audience, body, icon: Icon }) => (
+            <Card key={title} className="bg-ivory-25">
+              <div className="flex items-start gap-3">
+                <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-copper-500/12 text-copper-800">
+                  <Icon className="size-5" />
+                </div>
+                <div>
+                  <Badge tone="neutral">{audience}</Badge>
+                  <h2 className="mt-4 font-display text-2xl text-ink-950">{title}</h2>
+                  <p className="mt-2 text-sm leading-7 text-ink-700">{body}</p>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </Panel>
+
+      <section className="grid gap-4 lg:grid-cols-3">
+        {[
+          ['CEO view', 'Use existing data to improve sales, retention, support, and customer experience without first funding a broad platform replacement.'],
+          ['CTO view', 'Reduce repeated integration work by giving applications one semantic contract over a mixed operational estate.'],
+          ['Product view', 'Ship AI-assisted features that can explain facts, freshness, provenance, and masking rather than hiding the basis for a recommendation.'],
+        ].map(([title, body]) => (
+          <Card key={title} className="bg-[linear-gradient(180deg,rgba(255,248,240,0.96),rgba(252,246,239,0.96))]">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sage-700">{title}</p>
+            <p className="mt-4 text-sm leading-7 text-ink-700">{body}</p>
+          </Card>
+        ))}
+      </section>
+    </div>
+  )
+}

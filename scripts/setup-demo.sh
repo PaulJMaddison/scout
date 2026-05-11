@@ -53,6 +53,31 @@ VITE_DEMO_FALLBACK=false
 EOF
 }
 
+ensure_demo_licence_file() {
+  licence_path="$DEMO_DATA_DIR/ucl-demo.licence.json"
+  if [ -f "$licence_path" ]; then
+    return
+  fi
+
+  issued_at="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+  expires_at="$(date -u -d "+2 years" +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || date -u -v+2y +"%Y-%m-%dT%H:%M:%SZ")"
+  cat >"$licence_path" <<EOF
+{
+  "licenceKey": "ucl_demo_local_productisation_preview",
+  "plan": "Community",
+  "licensedTo": "Universal Context Layer local demo",
+  "issuedAtUtc": "$issued_at",
+  "expiresAtUtc": "$expires_at",
+  "entitlements": {
+    "open-core": "enabled",
+    "local-demo": "enabled",
+    "self-hosted-admin-console": "enabled",
+    "enterprise-connectors": "not-in-public-repo"
+  }
+}
+EOF
+}
+
 run_repo_command() {
   command_text="$1"
   working_directory="${2:-$REPO_ROOT}"
@@ -86,6 +111,7 @@ if [ "$USE_DOCKER" -eq 1 ]; then
 fi
 
 mkdir -p "$DEMO_DATA_DIR"
+ensure_demo_licence_file
 
 run_repo_command "\"$DOTNET_CMD\" tool restore"
 run_repo_command "\"$DOTNET_CMD\" restore ContextLayer.slnx"
@@ -112,14 +138,14 @@ if [ "$MODE" = "docker" ]; then
 
   run_repo_command "\"$DOTNET_CMD\" tool run dotnet-ef database update --project src/ContextLayer.Infrastructure --startup-project src/ContextLayer.Api --context CustomerOpsDbContext"
   run_repo_command "\"$DOTNET_CMD\" tool run dotnet-ef database update --project src/ContextLayer.Infrastructure --startup-project src/ContextLayer.Api --context ContextLayerDbContext"
-  run_repo_command "\"$DOTNET_CMD\" run --project src/ContextLayer.Api -- bootstrap-demo"
+  run_repo_command "Platform__Mode=Demo Bootstrap__ApplyMigrationsOnStartup=true Bootstrap__SeedDemoData=true \"$DOTNET_CMD\" run --project src/ContextLayer.Api -- bootstrap-demo"
 
   if [ "$START_CONTAINERS" -eq 1 ]; then
     run_repo_command "docker compose up -d api web"
   fi
 else
   echo "Bootstrapping the default local two-database demo using SQLite files."
-  run_repo_command "Database__Provider=Sqlite ConnectionStrings__ContextLayer='Data Source=$DEMO_DATA_DIR/context_layer_demo.db' ConnectionStrings__CustomerOps='Data Source=$DEMO_DATA_DIR/customer_ops_demo.db' Telemetry__OtlpEndpoint='' \"$DOTNET_CMD\" run --project src/ContextLayer.Api -- bootstrap-demo"
+  run_repo_command "Platform__Mode=Demo Bootstrap__ApplyMigrationsOnStartup=true Bootstrap__SeedDemoData=true Database__Provider=Sqlite ConnectionStrings__ContextLayer='Data Source=$DEMO_DATA_DIR/context_layer_demo.db' ConnectionStrings__CustomerOps='Data Source=$DEMO_DATA_DIR/customer_ops_demo.db' Licence__Mode=Community Licence__FilePath='$DEMO_DATA_DIR/ucl-demo.licence.json' Telemetry__OtlpEndpoint='' \"$DOTNET_CMD\" run --project src/ContextLayer.Api -- bootstrap-demo"
 fi
 
 run_repo_command "npm install" "$REPO_ROOT/apps/web"

@@ -10,13 +10,18 @@ test('sales rep can generate a grounded outreach recommendation', async ({ page 
   await expect(page).toHaveURL(/\/demo/)
 
   await page.goto('/agent-playground')
-  await expect(page.getByRole('heading', { level: 1, name: 'Agent playground' })).toBeVisible()
+  await expect(
+    page.getByRole('heading', {
+      level: 1,
+      name: 'Intelligent Sales Support uses UCL context to generate grounded sales recommendations.',
+    }),
+  ).toBeVisible()
 
   await page.getByRole('button', { name: 'Generate recommendation' }).click()
 
   await expect(page.getByText('Why this was recommended')).toBeVisible()
   await expect(page.getByText('FACT-01').first()).toBeVisible()
   await expect(
-    page.getByText(/Northstar Logistics: next step for enterprise planning/i).first(),
+    page.getByText(/Larkspur Logistics Group: next step for enterprise planning/i).first(),
   ).toBeVisible()
 })

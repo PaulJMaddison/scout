@@ -24,7 +24,7 @@ export const executiveStorySteps = [
   { to: '/demo', label: '1. Why UCL' },
   { to: '/story/source-signals', label: '2. Legacy Signals' },
   { to: '/story/context-layer', label: '3. Semantic Timeline' },
-  { to: '/story/ai-workflow', label: '4. AI Interaction Timeline' },
+  { to: '/story/ai-workflow', label: '4. Example Consumer Timeline' },
   { to: '/story/outcomes', label: '5. Rollout and ROI' },
 ] as const
 
@@ -133,11 +133,11 @@ export function getTimelineNarrative(event: OperationalTimelineEventResult) {
 
   if (normalizedCategory.includes('support')) {
     return {
-      semanticLift: 'Keeps risk visible instead of letting AI overreach',
+      semanticLift: 'Keeps risk visible instead of letting consumers overreach',
       businessMeaning:
         normalizedDescription.includes('resolved')
           ? 'Resolved support friction lowers drag and supports a cleaner expansion story.'
-          : 'Open issues stay inside the context package so downstream AI acknowledges risk explicitly.',
+          : 'Open issues stay inside the context package so downstream systems acknowledge risk explicitly.',
       tone: 'warning' as const,
     }
   }
@@ -146,7 +146,7 @@ export function getTimelineNarrative(event: OperationalTimelineEventResult) {
     return {
       semanticLift: 'Reinforces preferred channel and engagement level',
       businessMeaning:
-        'Engagement evidence helps the model recommend contact strategy from actual response behaviour.',
+        'Engagement evidence helps the example consumer recommend contact strategy from actual response behaviour.',
       tone: 'success' as const,
     }
   }
@@ -155,7 +155,7 @@ export function getTimelineNarrative(event: OperationalTimelineEventResult) {
     return {
       semanticLift: 'Shapes budget readiness and expansion potential',
       businessMeaning:
-        'Billing and commercial posture become structured readiness signals that AI can cite safely.',
+        'Billing and commercial posture become structured readiness signals that consumers can cite safely.',
       tone: 'accent' as const,
     }
   }
@@ -163,7 +163,7 @@ export function getTimelineNarrative(event: OperationalTimelineEventResult) {
   return {
     semanticLift: 'Feeds reusable semantic context',
     businessMeaning:
-      'Context Layer turns the raw event into a governed signal that the rest of the product can trust.',
+      'UCL turns the raw event into a governed signal that the rest of the product can trust.',
     tone: 'neutral' as const,
   }
 }
@@ -236,13 +236,13 @@ function buildInteractionTimeline(
           sourceSignal: signalText,
           semanticLift: `Churn risk remains visible at ${churnRisk} and any recommendation must acknowledge friction.`,
           contextNow:
-            'Open support issues stay attached to the same account profile, so AI sees operational risk instead of hallucinating a clean sales motion.',
+            'Open support issues stay attached to the same account profile, so the consumer sees operational risk instead of assuming a clean sales motion.',
           aiAdvice:
             'Pause any overconfident enterprise push, acknowledge the support issue, and keep a human review posture until the account is stable.',
           advisedAction:
             'Frame the next rep touch as a value and implementation conversation rather than a hard commercial close.',
           result:
-            'The product keeps AI honest. The account is still live, but the recommendation is guarded instead of blindly optimistic.',
+            'The product keeps the recommendation honest. The account is still live, but the recommendation is guarded instead of blindly optimistic.',
           citations: ['FACT-02', 'FACT-13'],
           tone: 'warning',
         }
@@ -291,9 +291,9 @@ function buildInteractionTimeline(
           occurredAtUtc: event.occurredAtUtc,
           sourceSystem: getTimelineSourceSystem(event.category),
           sourceSignal: signalText,
-          semanticLift: `Enterprise intent is reinforced, budget readiness reaches ${budgetReadiness}, and the model has a reason to lead with ROI.`,
+          semanticLift: `Enterprise intent is reinforced, budget readiness reaches ${budgetReadiness}, and the consumer has a reason to lead with ROI.`,
           contextNow:
-            'Pricing behaviour becomes a commercial readiness signal that the AI layer can cite directly instead of guessing from generic firmographics.',
+            'Pricing behaviour becomes a commercial readiness signal that the sales support consumer can cite directly instead of guessing from generic firmographics.',
           aiAdvice:
             'Lead with business impact and rollout value, not a product tour. The pricing signal suggests the buyer is already thinking commercially.',
           advisedAction:
@@ -310,13 +310,13 @@ function buildInteractionTimeline(
         occurredAtUtc: event.occurredAtUtc,
         sourceSystem: getTimelineSourceSystem(event.category),
         sourceSignal: signalText,
-        semanticLift: 'This event was normalized into the shared account context.',
+        semanticLift: 'This event was normalised into the shared account context.',
         contextNow:
           'The product can now reuse the same commercial interpretation across workflows instead of rebuilding logic per feature.',
         aiAdvice:
           'Use the latest grounded context package, cite the relevant facts, and avoid inventing details outside the evidence.',
         advisedAction: 'Continue with the grounded outreach sequence.',
-        result: `The model sees ${groundedFacts.length} cited facts instead of a raw user identifier.`,
+        result: `The example consumer sees ${groundedFacts.length} cited facts instead of a raw user identifier.`,
         citations: groundedFacts.slice(0, 2).map((fact) => fact.citationId),
         tone: 'neutral',
       }
@@ -457,10 +457,10 @@ export function useExecutiveDemoData() {
       {
         label: 'Resolved semantic facts',
         value: String(contextQuery.data?.facts.length ?? 0),
-        body: 'Reusable business facts available to product workflows and AI orchestration.',
+        body: 'Reusable business facts available to product workflows, analytics, copilots, and agents.',
       },
       {
-        label: 'AI citations',
+        label: 'Citations',
         value: String(groundedFacts.length),
         body: 'Evidence-backed facts sent to the model with confidence and freshness metadata.',
       },

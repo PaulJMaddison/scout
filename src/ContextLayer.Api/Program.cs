@@ -1,18 +1,26 @@
 using System.Text;
 using System.Threading.RateLimiting;
+using Microsoft.OpenApi;
 using ContextLayer.Api.Auth;
 using ContextLayer.Api.GraphQL;
 using ContextLayer.Api.Middleware;
+using ContextLayer.Api.Rest;
 using ContextLayer.Application.Abstractions;
+using ContextLayer.Application.Contracts;
 using ContextLayer.Application;
+using ContextLayer.Application.Services;
 using ContextLayer.Infrastructure;
 using ContextLayer.Infrastructure.Auth;
+using ContextLayer.Infrastructure.Configuration;
 using ContextLayer.Infrastructure.Persistence;
 using ContextLayer.Infrastructure.Seed;
+using FluentValidation;
 using HotChocolate.AspNetCore.Authorization;
 using HotChocolate.Types;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.CookiePolicy;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -21,9 +29,43 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
+var platformOptions = builder.Configuration.GetSection(PlatformOptions.SectionName).Get<PlatformOptions>() ?? new PlatformOptions();
+var featureFlagOptions = builder.Configuration.GetSection(FeatureFlagOptions.SectionName).Get<FeatureFlagOptions>() ?? new FeatureFlagOptions();
+var bootstrapOptions = builder.Configuration.GetSection(BootstrapOptions.SectionName).Get<BootstrapOptions>() ?? new BootstrapOptions();
+var connectorBootstrapOptions = builder.Configuration.GetSection(ConnectorBootstrapOptions.SectionName).Get<ConnectorBootstrapOptions>() ?? new ConnectorBootstrapOptions();
+var controlPlaneOptions = builder.Configuration.GetSection(ControlPlaneOptions.SectionName).Get<ControlPlaneOptions>() ?? new ControlPlaneOptions();
+var licenceOptions = builder.Configuration.GetSection(LicenceOptions.SectionName).Get<LicenceOptions>() ?? new LicenceOptions();
+var configuredAuthOptions = builder.Configuration.GetSection(AuthOptions.SectionName).Get<AuthOptions>() ?? new AuthOptions();
+var telemetryOptions = builder.Configuration.GetSection(TelemetryOptions.SectionName).Get<TelemetryOptions>() ?? new TelemetryOptions();
+var rateLimitOptions = builder.Configuration.GetSection(RateLimitOptions.SectionName).Get<RateLimitOptions>() ?? new RateLimitOptions();
+var hostedMode = builder.Environment.IsProduction()
+    || string.Equals(platformOptions.Mode, PlatformModes.SaaS, StringComparison.OrdinalIgnoreCase);
+
+if (string.Equals(platformOptions.Mode, PlatformModes.SaaS, StringComparison.OrdinalIgnoreCase))
+{
+    featureFlagOptions.SaaSControlPlane = true;
+    featureFlagOptions.HostedBillingUsage = true;
+}
+
+if (hostedMode
+    && configuredAuthOptions.RequireSecureSigningKey
+    && (string.IsNullOrWhiteSpace(configuredAuthOptions.SigningKey)
+        || configuredAuthOptions.SigningKey.Contains("development-only", StringComparison.OrdinalIgnoreCase)
+        || configuredAuthOptions.SigningKey.Contains("change", StringComparison.OrdinalIgnoreCase)
+        || configuredAuthOptions.SigningKey.Contains("replace", StringComparison.OrdinalIgnoreCase)
+        || configuredAuthOptions.SigningKey.Length < configuredAuthOptions.MinimumSigningKeyLength))
+{
+    throw new InvalidOperationException("Auth:SigningKey must be set to a high-entropy production secret before running in Production or SaaS mode.");
+}
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
-    ?? ["http://localhost:5173", "http://127.0.0.1:5173"];
+    ?? (hostedMode ? [] : ["http://localhost:5173", "http://127.0.0.1:5173"]);
+
+allowedOrigins = allowedOrigins
+    .Where(static origin => !string.IsNullOrWhiteSpace(origin))
+    .Select(static origin => origin.Trim().TrimEnd('/'))
+    .Distinct(StringComparer.OrdinalIgnoreCase)
+    .ToArray();
 
 builder.Services.AddCors(options =>
 {
@@ -37,7 +79,37 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddProblemDetails();
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+builder.Services.Configure<CookiePolicyOptions>(options =>
+{
+    options.Secure = hostedMode ? CookieSecurePolicy.Always : CookieSecurePolicy.SameAsRequest;
+    options.MinimumSameSitePolicy = SameSiteMode.Strict;
+    options.HttpOnly = HttpOnlyPolicy.Always;
+});
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = "ContextLayerAuth";
+        options.DefaultChallengeScheme = "ContextLayerAuth";
+    })
+    .AddPolicyScheme("ContextLayerAuth", "JWT bearer or API key", options =>
+    {
+        options.ForwardDefaultSelector = context =>
+        {
+            var authorization = context.Request.Headers.Authorization.FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(context.Request.Headers[ApiKeyAuthenticationHandler.ApiKeyHeaderName].FirstOrDefault())
+                || (!string.IsNullOrWhiteSpace(authorization) && authorization.StartsWith("ApiKey ", StringComparison.OrdinalIgnoreCase)))
+            {
+                return ApiKeyAuthenticationHandler.SchemeName;
+            }
+
+            return JwtBearerDefaults.AuthenticationScheme;
+        };
+    })
     .AddJwtBearer(options =>
     {
         var authOptions = builder.Configuration.GetSection(AuthOptions.SectionName).Get<AuthOptions>() ?? new AuthOptions();
@@ -52,23 +124,46 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authOptions.SigningKey)),
             ClockSkew = TimeSpan.FromMinutes(1)
         };
-    });
+    })
+    .AddScheme<Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(
+        ApiKeyAuthenticationHandler.SchemeName,
+        options => { });
 builder.Services.AddAuthorization();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT bearer token issued by /api/auth/login or /api/auth/token.",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT"
+    });
+    options.AddSecurityDefinition("ApiKey", new OpenApiSecurityScheme
+    {
+        Description = "Machine client API key. Send X-API-Client-Id and X-API-Key, or Authorization: ApiKey {clientId}:{apiKey}.",
+        Name = ApiKeyAuthenticationHandler.ApiKeyHeaderName,
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey
+    });
+});
 builder.Services.AddRateLimiter(options =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
     options.AddFixedWindowLimiter("auth", policy =>
     {
-        policy.PermitLimit = 5;
-        policy.Window = TimeSpan.FromMinutes(1);
+        policy.PermitLimit = Math.Max(1, rateLimitOptions.AuthPermitLimit);
+        policy.Window = TimeSpan.FromSeconds(Math.Max(1, rateLimitOptions.AuthWindowSeconds));
         policy.QueueLimit = 0;
     });
     options.AddTokenBucketLimiter("graphql", policy =>
     {
-        policy.TokenLimit = 60;
-        policy.TokensPerPeriod = 60;
+        policy.TokenLimit = Math.Max(1, rateLimitOptions.GraphQlTokenLimit);
+        policy.TokensPerPeriod = Math.Max(1, rateLimitOptions.GraphQlTokensPerPeriod);
         policy.QueueLimit = 0;
-        policy.ReplenishmentPeriod = TimeSpan.FromMinutes(1);
+        policy.ReplenishmentPeriod = TimeSpan.FromSeconds(Math.Max(1, rateLimitOptions.GraphQlReplenishmentSeconds));
         policy.AutoReplenishment = true;
     });
 });
@@ -91,7 +186,15 @@ builder.Services
 
 builder.Services
     .AddOpenTelemetry()
-    .ConfigureResource(resource => resource.AddService("ContextLayer.Api"))
+    .ConfigureResource(resource => resource.AddService(
+        serviceName: string.IsNullOrWhiteSpace(telemetryOptions.ServiceName) ? "ContextLayer.Api" : telemetryOptions.ServiceName,
+        serviceNamespace: string.IsNullOrWhiteSpace(telemetryOptions.ServiceNamespace) ? "UniversalContextLayer" : telemetryOptions.ServiceNamespace)
+        .AddAttributes(new Dictionary<string, object>
+        {
+            ["deployment.environment"] = string.IsNullOrWhiteSpace(telemetryOptions.DeploymentEnvironment)
+                ? builder.Environment.EnvironmentName
+                : telemetryOptions.DeploymentEnvironment
+        }))
     .WithTracing(tracing =>
     {
         tracing
@@ -99,7 +202,8 @@ builder.Services
             .AddHttpClientInstrumentation()
             .AddSource("ContextLayer.Ai");
 
-        var otlpEndpoint = builder.Configuration["Telemetry:OtlpEndpoint"];
+        var otlpEndpoint = builder.Configuration["Telemetry:OtlpEndpoint"]
+            ?? builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"];
         if (!string.IsNullOrWhiteSpace(otlpEndpoint))
         {
             tracing.AddOtlpExporter(options => options.Endpoint = new Uri(otlpEndpoint));
@@ -113,7 +217,8 @@ builder.Services
             .AddRuntimeInstrumentation()
             .AddMeter("ContextLayer.BackgroundJobs");
 
-        var otlpEndpoint = builder.Configuration["Telemetry:OtlpEndpoint"];
+        var otlpEndpoint = builder.Configuration["Telemetry:OtlpEndpoint"]
+            ?? builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"];
         if (!string.IsNullOrWhiteSpace(otlpEndpoint))
         {
             metrics.AddOtlpExporter(options => options.Endpoint = new Uri(otlpEndpoint));
@@ -121,21 +226,59 @@ builder.Services
     });
 
 var app = builder.Build();
-var bootstrapOnly = args.Any(static arg =>
+var migrateOnly = args.Any(static arg =>
+    string.Equals(arg, "bootstrap", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(arg, "init", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(arg, "migrate", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(arg, "migrate-database", StringComparison.OrdinalIgnoreCase));
+var seedDemoOnly = args.Any(static arg =>
     string.Equals(arg, "bootstrap-demo", StringComparison.OrdinalIgnoreCase)
     || string.Equals(arg, "seed-demo", StringComparison.OrdinalIgnoreCase));
+var bootstrapOnly = migrateOnly || seedDemoOnly;
+
+if ((seedDemoOnly || bootstrapOptions.SeedDemoData)
+    && hostedMode
+    && !string.Equals(platformOptions.Mode, PlatformModes.LocalDemo, StringComparison.OrdinalIgnoreCase)
+    && !string.Equals(platformOptions.Mode, "Demo", StringComparison.OrdinalIgnoreCase))
+{
+    throw new InvalidOperationException("Demo seeding is only available in LocalDemo/Demo mode. Hosted SaaS deployments must run migrations without seed data.");
+}
+
+var resolvedBootstrapOptions = new BootstrapOptions
+{
+    ApplyMigrationsOnStartup = bootstrapOptions.ApplyMigrationsOnStartup,
+    SeedDemoData = seedDemoOnly || bootstrapOptions.SeedDemoData
+};
 
 app.UseExceptionHandler();
+app.UseForwardedHeaders();
+if (hostedMode)
+{
+    app.UseHsts();
+}
+
+app.UseCookiePolicy();
 app.UseMiddleware<RequestContextMiddleware>();
-await DemoDataSeeder.SeedAsync(app.Services);
+await ApplicationBootstrapper.InitializeAsync(app.Services, resolvedBootstrapOptions, connectorBootstrapOptions);
 if (bootstrapOnly)
 {
     return;
 }
 
+if (platformOptions.EnableOpenApi && platformOptions.EnableRest)
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Universal Context Layer REST API v1");
+        options.RoutePrefix = "swagger";
+    });
+}
+
 app.UseCors("WebApp");
 app.UseRateLimiter();
 app.UseAuthentication();
+app.UseMiddleware<PermissionDeniedAuditMiddleware>();
 app.UseAuthorization();
 
 var authGroup = app.MapGroup("/api/auth");
@@ -153,6 +296,8 @@ authGroup.MapPost("/login", async (
                 new AuthenticatedOperatorResponse(
                     result.Operator.TenantId,
                     result.Operator.TenantSlug,
+                    result.Operator.WorkspaceId,
+                    result.Operator.WorkspaceSlug,
                     result.Operator.OperatorAccountId,
                     result.Operator.Email,
                     result.Operator.DisplayName,
@@ -161,6 +306,57 @@ authGroup.MapPost("/login", async (
         catch (InvalidOperationException)
         {
             return Results.Unauthorized();
+        }
+    })
+    .AllowAnonymous()
+    .RequireRateLimiting("auth");
+
+authGroup.MapPost("/token", async (
+        HttpRequest httpRequest,
+        MachineClientAuthenticationService authenticationService,
+        CancellationToken cancellationToken) =>
+    {
+        MachineTokenRequest request;
+        try
+        {
+            request = await ReadMachineTokenRequestAsync(httpRequest, cancellationToken);
+        }
+        catch (InvalidOperationException exception)
+        {
+            return Results.Problem(
+                title: "Invalid token request",
+                detail: exception.Message,
+                statusCode: StatusCodes.Status400BadRequest);
+        }
+
+        if (!string.Equals(request.GrantType, "client_credentials", StringComparison.Ordinal))
+        {
+            return Results.Problem(
+                title: "Unsupported grant type",
+                detail: "Only the OAuth 2.0 client_credentials flow is supported.",
+                statusCode: StatusCodes.Status400BadRequest);
+        }
+
+        try
+        {
+            var result = await authenticationService.AuthenticateAsync(
+                request.ClientId,
+                request.ClientSecret,
+                request.Scope,
+                cancellationToken);
+            var expiresIn = Math.Max(1, (int)Math.Ceiling((result.ExpiresAtUtc - DateTime.UtcNow).TotalSeconds));
+            return Results.Ok(new MachineTokenResponse(
+                result.AccessToken,
+                "Bearer",
+                expiresIn,
+                string.Join(' ', result.GrantedScopes)));
+        }
+        catch (InvalidOperationException exception)
+        {
+            return Results.Problem(
+                title: "Invalid client credentials",
+                detail: exception.Message,
+                statusCode: StatusCodes.Status401Unauthorized);
         }
     })
     .AllowAnonymous()
@@ -177,14 +373,153 @@ authGroup.MapGet("/me", [Microsoft.AspNetCore.Authorization.Authorize] async (
             : Results.Ok(new AuthenticatedOperatorResponse(
                 currentOperator.TenantId,
                 currentOperator.TenantSlug,
+                currentOperator.WorkspaceId,
+                currentOperator.WorkspaceSlug,
                 currentOperator.OperatorAccountId,
                 currentOperator.Email,
                 currentOperator.DisplayName,
                 currentOperator.Role));
     });
 
+var apiClientsGroup = authGroup.MapGroup("/api-clients")
+    .RequireAuthorization(new AuthorizeAttribute
+    {
+        Roles = string.Join(',', RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin)
+    });
+apiClientsGroup.MapGet("/", async (
+        string tenantSlug,
+        ApiClientKeyService apiClientKeyService,
+        CancellationToken cancellationToken) =>
+    {
+        try
+        {
+            var clients = await apiClientKeyService.ListAsync(tenantSlug, cancellationToken);
+            return Results.Ok(clients.Select(client => new ApiClientSummaryResponse(
+                client.Id,
+                client.TenantId,
+                client.WorkspaceId,
+                client.ClientId,
+                client.DisplayName,
+                client.Status,
+                client.Scopes,
+                client.LastUsedAtUtc,
+                client.RotatedAtUtc,
+                client.RevokedAtUtc)));
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Results.Forbid();
+        }
+        catch (InvalidOperationException exception)
+        {
+            return Results.Problem(exception.Message, statusCode: StatusCodes.Status400BadRequest);
+        }
+    });
+apiClientsGroup.MapPost("/", async (
+        CreateApiClientRequest request,
+        ApiClientKeyService apiClientKeyService,
+        CancellationToken cancellationToken) =>
+    {
+        try
+        {
+            var result = await apiClientKeyService.CreateAsync(
+                request.TenantSlug,
+                request.WorkspaceSlug,
+                request.DisplayName,
+                request.Scopes,
+                cancellationToken);
+            return Results.Created($"/api/auth/api-clients/{result.ClientId}", new ApiClientCreatedResponse(
+                result.Id,
+                result.TenantId,
+                result.WorkspaceId,
+                result.ClientId,
+                result.DisplayName,
+                result.ApiKey,
+                result.Scopes,
+                result.CreatedAtUtc));
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Results.Forbid();
+        }
+        catch (InvalidOperationException exception)
+        {
+            return Results.Problem(exception.Message, statusCode: StatusCodes.Status400BadRequest);
+        }
+    });
+apiClientsGroup.MapPost("/{clientId}/rotate", async (
+        string clientId,
+        RotateApiClientRequest request,
+        ApiClientKeyService apiClientKeyService,
+        CancellationToken cancellationToken) =>
+    {
+        try
+        {
+            var result = await apiClientKeyService.RotateAsync(request.TenantSlug, clientId, cancellationToken);
+            return Results.Ok(new ApiClientRotatedResponse(
+                result.Id,
+                result.ClientId,
+                result.ApiKey,
+                result.RotatedAtUtc));
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Results.Forbid();
+        }
+        catch (InvalidOperationException exception)
+        {
+            return Results.Problem(exception.Message, statusCode: StatusCodes.Status400BadRequest);
+        }
+    });
+apiClientsGroup.MapPost("/{clientId}/revoke", async (
+        string clientId,
+        RotateApiClientRequest request,
+        ApiClientKeyService apiClientKeyService,
+        CancellationToken cancellationToken) =>
+    {
+        try
+        {
+            await apiClientKeyService.RevokeAsync(request.TenantSlug, clientId, cancellationToken);
+            return Results.NoContent();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Results.Forbid();
+        }
+        catch (InvalidOperationException exception)
+        {
+            return Results.Problem(exception.Message, statusCode: StatusCodes.Status400BadRequest);
+        }
+    });
+
+app.MapPost("/api/onboarding", async (
+        SubmitOnboardingInput request,
+        IOnboardingService onboardingService,
+        CancellationToken cancellationToken) =>
+    {
+        try
+        {
+            var result = await onboardingService.SubmitAsync(request, cancellationToken);
+            return Results.Created($"/api/onboarding/{result.OnboardingApplicationId}", result);
+        }
+        catch (ValidationException exception)
+        {
+            return Results.ValidationProblem(ToValidationErrors(exception));
+        }
+        catch (InvalidOperationException exception)
+        {
+            return Results.Problem(
+                title: "Onboarding could not be completed",
+                detail: exception.Message,
+                statusCode: StatusCodes.Status400BadRequest);
+        }
+    })
+    .AllowAnonymous()
+    .RequireRateLimiting("auth")
+    .WithName("SubmitOnboarding");
+
 var opsGroup = app.MapGroup("/api/ops")
-    .RequireAuthorization(new AuthorizeAttribute { Roles = RoleNames.TenantAdmin });
+    .RequireAuthorization(new AuthorizeAttribute { Roles = string.Join(',', RoleNames.PlatformOwner, RoleNames.TenantAdmin) });
 opsGroup.MapGet("/summary", async (
         ContextLayerDbContext dbContext,
         ICurrentActorService currentActorService,
@@ -225,7 +560,32 @@ opsGroup.MapGet("/summary", async (
         });
     });
 
-app.MapGet("/", () => Results.Redirect("/graphql"));
+if (platformOptions.EnableRest)
+{
+    app.MapContextLayerRestApi();
+    app.MapContextLayerV1RestApi();
+}
+
+app.MapGet("/", () =>
+{
+    if (platformOptions.EnableOpenApi && platformOptions.EnableRest)
+    {
+        return Results.Redirect("/swagger");
+    }
+
+    if (platformOptions.EnableGraphQl)
+    {
+        return Results.Redirect("/graphql");
+    }
+
+    return Results.Ok(new
+    {
+        service = "ContextLayer.Api",
+        mode = platformOptions.Mode,
+        rest = platformOptions.EnableRest,
+        graphql = platformOptions.EnableGraphQl
+    });
+});
 app.MapGet("/health", async (ContextLayerDbContext contextLayerDbContext, CustomerOpsDbContext customerOpsDbContext, CancellationToken cancellationToken) =>
 {
     var contextLayerReady = await contextLayerDbContext.Database.CanConnectAsync(cancellationToken);
@@ -247,6 +607,32 @@ app.MapGet("/health/live", () => Results.Ok(new
     status = "ok",
     service = "ContextLayer.Api"
 }));
+app.MapGet("/api/platform/config", () => Results.Ok(new
+{
+    service = "ContextLayer.Api",
+    mode = platformOptions.Mode,
+    features = featureFlagOptions.EnabledFlags(),
+    controlPlane = new
+    {
+        enabled = controlPlaneOptions.Enabled,
+        baseUrl = controlPlaneOptions.BaseUrl,
+        updateChannel = controlPlaneOptions.UpdateChannel,
+        usageReportingEnabled = controlPlaneOptions.UsageReportingEnabled,
+        offlineGracePeriodDays = controlPlaneOptions.OfflineGracePeriodDays
+    },
+    licence = new
+    {
+        mode = licenceOptions.Mode,
+        requireValidLicence = licenceOptions.RequireValidLicence,
+        offlineGracePeriodDays = licenceOptions.OfflineGracePeriodDays
+    },
+    endpoints = new
+    {
+        graphql = platformOptions.EnableGraphQl,
+        rest = platformOptions.EnableRest,
+        openApi = platformOptions.EnableOpenApi
+    }
+}));
 app.MapGet("/health/ready", async (ContextLayerDbContext contextLayerDbContext, CustomerOpsDbContext customerOpsDbContext, CancellationToken cancellationToken) =>
 {
     var contextLayerReady = await contextLayerDbContext.Database.CanConnectAsync(cancellationToken);
@@ -267,8 +653,34 @@ app.MapGet("/health/ready", async (ContextLayerDbContext contextLayerDbContext, 
             detail: "The API cannot reach one or more configured PostgreSQL databases.",
             statusCode: StatusCodes.Status503ServiceUnavailable);
 });
-app.MapGraphQL("/graphql").RequireAuthorization().RequireRateLimiting("graphql");
+if (platformOptions.EnableGraphQl)
+{
+    app.MapGraphQL("/graphql").RequireAuthorization().RequireRateLimiting("graphql");
+}
 
 app.Run();
+
+static async Task<MachineTokenRequest> ReadMachineTokenRequestAsync(HttpRequest httpRequest, CancellationToken cancellationToken)
+{
+    if (httpRequest.HasFormContentType)
+    {
+        var form = await httpRequest.ReadFormAsync(cancellationToken);
+        return new MachineTokenRequest(
+            form["grant_type"].ToString(),
+            form["client_id"].ToString(),
+            form["client_secret"].ToString(),
+            form["scope"].ToString());
+    }
+
+    var request = await httpRequest.ReadFromJsonAsync<MachineTokenRequest>(cancellationToken: cancellationToken);
+    return request ?? throw new InvalidOperationException("A machine token request body is required.");
+}
+
+static Dictionary<string, string[]> ToValidationErrors(ValidationException exception)
+    => exception.Errors
+        .GroupBy(error => error.PropertyName)
+        .ToDictionary(
+            group => group.Key,
+            group => group.Select(error => error.ErrorMessage).ToArray());
 
 public partial class Program;

@@ -11,8 +11,8 @@ export function StoryAiWorkflowPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Step 4 of 5"
-        title="Show how AI advice improves when every interaction has context"
-        description="At each point in the customer journey, the model receives grounded business context, produces a recommendation, and the product explains why that recommendation was made."
+        title="Show one example consumer using governed context."
+        description="In this sales support example, a model receives grounded business context, produces a recommendation, and the product explains why that recommendation was made. Other consumers can use the same context layer."
         actions={
           <Link to={executiveStorySteps[4].to}>
             <Button>
@@ -24,7 +24,7 @@ export function StoryAiWorkflowPage() {
       />
 
       <section className="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
-        <Panel eyebrow="Interaction rule" title="The model is never left to infer business meaning alone">
+        <Panel eyebrow="Interaction rule" title="The example model is never left to infer business meaning alone">
           <div className="grid gap-4">
             <Card className="bg-ink-950 text-ivory-50">
               <div className="flex items-start gap-3">
@@ -32,7 +32,7 @@ export function StoryAiWorkflowPage() {
                 <div>
                   <p className="font-display text-3xl">Grounded context in, explainable action out.</p>
                   <p className="mt-3 text-sm leading-7 text-ivory-200">
-                    The recommendation engine works from a structured context package with {salesPackageQuery.data?.facts.length ?? 0} cited facts, confidence metadata, and freshness rules. That changes the quality of the product interaction completely.
+                    This recommendation engine works from a structured context package with {salesPackageQuery.data?.facts.length ?? 0} cited facts, confidence metadata, and freshness rules. UCL creates the context; the sales assistant is just one consumer.
                   </p>
                 </div>
               </div>
@@ -76,7 +76,7 @@ export function StoryAiWorkflowPage() {
           </div>
         </Panel>
 
-        <Panel eyebrow="Live proof" title="Current AI output for the featured account">
+        <Panel eyebrow="Live proof" title="Current output from Intelligent Sales Support">
           <div className="grid gap-3">
             <Card className="bg-ivory-25">
               <div className="flex items-start gap-3">
@@ -150,7 +150,7 @@ export function StoryAiWorkflowPage() {
                     <p className="mt-2 text-sm leading-7 text-ink-700">{beat.contextNow}</p>
                   </div>
                   <div>
-                    <p className="text-xs uppercase tracking-[0.18em] text-sage-700">AI advice</p>
+                    <p className="text-xs uppercase tracking-[0.18em] text-sage-700">Example consumer advice</p>
                     <p className="mt-2 text-sm leading-7 text-ink-700">{beat.aiAdvice}</p>
                     <p className="mt-3 rounded-[20px] bg-copper-500/10 px-3 py-3 text-sm leading-7 text-copper-900">
                       Recommended action: {beat.advisedAction}

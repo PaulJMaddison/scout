@@ -134,9 +134,9 @@ export function AgentPlaygroundPage() {
   return (
     <div className="grid gap-8">
       <PageHeader
-        eyebrow="Rep copilot"
-        title="Generate sales recommendations grounded in real customer context"
-        description="Build the context package for a sales objective, then produce a strategy, email draft, and follow-up plan that cite the exact facts behind the advice."
+        eyebrow="Example consumer"
+        title="Intelligent Sales Support uses UCL context to generate grounded sales recommendations."
+        description="This playground is one consumer of the context layer. Build a context package for a sales objective, then produce a strategy, email draft, and follow-up plan that cite the exact facts behind the advice."
         actions={
           <Button
             type="button"
@@ -199,7 +199,7 @@ export function AgentPlaygroundPage() {
                 <div>
                   <p className="font-display text-2xl">Guardrails in effect</p>
                   <p className="mt-2 text-sm leading-7 text-ivory-200">
-                    The model only sees the grounded package below, must cite facts, and should recommend human review whenever the evidence gets thin.
+                    The selected model only sees the governed package below, must cite facts, and should recommend human review whenever the evidence gets thin. UCL supplies the context; the customer can bring the AI.
                   </p>
                 </div>
               </div>
@@ -324,7 +324,7 @@ export function AgentPlaygroundPage() {
 
                 <JsonViewer
                   value={safeJsonParse(contextPackageQuery.data.contextPackageJson, {})}
-                  title="Context package JSON sent to the model"
+                  title="Context package JSON sent to this consumer"
                   height="h-72 lg:h-80 2xl:h-[420px]"
                 />
               </div>
@@ -399,7 +399,7 @@ export function AgentPlaygroundPage() {
                   <div className="flex items-center gap-3">
                     <Mail className="size-5 text-sage-700" />
                     <div>
-                      <p className="font-display text-2xl text-ink-950">Personalized email draft</p>
+                        <p className="font-display text-2xl text-ink-950">Personalised email draft</p>
                       <p className="text-sm text-ink-600">
                         Tailored to the selected objective and grounded facts.
                       </p>
@@ -536,7 +536,7 @@ export function AgentPlaygroundPage() {
             ) : (
               <Card className="bg-ivory-25">
                 <p className="text-sm leading-7 text-ink-700">
-                  Generate a recommendation to inspect how the grounded package translates into a strategy, an email draft, and follow-up guidance.
+                  Generate a recommendation to inspect how this example consumer uses the grounded package to produce a strategy, an email draft, and follow-up guidance.
                 </p>
               </Card>
             )}

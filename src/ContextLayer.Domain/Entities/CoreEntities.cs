@@ -1,5 +1,6 @@
 using ContextLayer.Domain.Common;
 using ContextLayer.Domain.Enums;
+using ContextLayer.Domain.Saas;
 
 namespace ContextLayer.Domain.Entities;
 
@@ -30,6 +31,14 @@ public sealed class Tenant : Entity
     public ICollection<SelectorDefinition> SelectorDefinitions { get; } = new List<SelectorDefinition>();
 
     public ICollection<PromptTemplate> PromptTemplates { get; } = new List<PromptTemplate>();
+
+    public ICollection<Workspace> Workspaces { get; } = new List<Workspace>();
+
+    public ICollection<TenantSubscription> Subscriptions { get; } = new List<TenantSubscription>();
+
+    public ICollection<ApiClient> ApiClients { get; } = new List<ApiClient>();
+
+    public ICollection<BillingUsageRecord> BillingUsageRecords { get; } = new List<BillingUsageRecord>();
 
     public static Tenant Create(string slug, string name, DateTime utcNow)
     {
@@ -130,6 +139,8 @@ public sealed class OperatorAccount : AuditedTenantEntity
 
     public Tenant Tenant { get; private set; } = null!;
 
+    public ICollection<WorkspaceMember> WorkspaceMemberships { get; } = new List<WorkspaceMember>();
+
     public static OperatorAccount Create(
         Guid tenantId,
         string email,
@@ -199,6 +210,8 @@ public sealed class DataSource : AuditedTenantEntity
     public Tenant Tenant { get; private set; } = null!;
 
     public ICollection<SelectorDefinition> SelectorDefinitions { get; } = new List<SelectorDefinition>();
+
+    public ICollection<ConnectorInstallation> ConnectorInstallations { get; } = new List<ConnectorInstallation>();
 
     public static DataSource Create(
         Guid tenantId,
@@ -566,6 +579,8 @@ public sealed class ContextSnapshot : AuditedTenantEntity
     public ICollection<ContextFact> Facts { get; } = new List<ContextFact>();
 
     public ICollection<AgentRun> AgentRuns { get; } = new List<AgentRun>();
+
+    public ICollection<ContextPackage> ContextPackages { get; } = new List<ContextPackage>();
 
     public static ContextSnapshot Create(
         Guid tenantId,

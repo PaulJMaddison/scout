@@ -38,7 +38,7 @@ describe('AppShell', () => {
 
     expect(screen.getByRole('link', { name: '1. Why UCL' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '360 Customer Profile' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Grounded AI Playground' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Example Sales Support' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Operational Overview' })).toBeInTheDocument()
     expect(screen.queryByText('Data Sources')).not.toBeInTheDocument()
     expect(screen.queryByText('Selector Builder')).not.toBeInTheDocument()

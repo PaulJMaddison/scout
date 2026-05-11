@@ -1,5 +1,6 @@
 using ContextLayer.Application.Abstractions;
 using ContextLayer.Domain.Entities;
+using ContextLayer.Domain.Saas;
 using Microsoft.EntityFrameworkCore;
 
 namespace ContextLayer.Infrastructure.Persistence;
@@ -35,7 +36,41 @@ public sealed class ContextLayerDbContext(DbContextOptions<ContextLayerDbContext
 
     public DbSet<ProvenanceMetadata> ProvenanceMetadata => Set<ProvenanceMetadata>();
 
+    public DbSet<ConnectorCredential> ConnectorCredentials => Set<ConnectorCredential>();
+
+    public DbSet<SourceSystemEvent> SourceSystemEvents => Set<SourceSystemEvent>();
+
     public DbSet<UserSignal> UserSignals => Set<UserSignal>();
+
+    public DbSet<Workspace> Workspaces => Set<Workspace>();
+
+    public DbSet<WorkspaceMember> WorkspaceMembers => Set<WorkspaceMember>();
+
+    public DbSet<TenantSubscription> TenantSubscriptions => Set<TenantSubscription>();
+
+    public DbSet<BillingPlan> BillingPlans => Set<BillingPlan>();
+
+    public DbSet<BillingPlanLimit> BillingPlanLimits => Set<BillingPlanLimit>();
+
+    public DbSet<ApiClient> ApiClients => Set<ApiClient>();
+
+    public DbSet<ConnectorInstallation> ConnectorInstallations => Set<ConnectorInstallation>();
+
+    public DbSet<ConnectorCatalogueEntry> ConnectorCatalogueEntries => Set<ConnectorCatalogueEntry>();
+
+    public DbSet<ContextPackage> ContextPackages => Set<ContextPackage>();
+
+    public DbSet<BillingUsageRecord> BillingUsageRecords => Set<BillingUsageRecord>();
+
+    public DbSet<OnboardingState> OnboardingStates => Set<OnboardingState>();
+
+    public DbSet<OnboardingApplication> OnboardingApplications => Set<OnboardingApplication>();
+
+    public DbSet<BlueprintImport> BlueprintImports => Set<BlueprintImport>();
+
+    public DbSet<PiiRule> PiiRules => Set<PiiRule>();
+
+    public DbSet<AuditPolicy> AuditPolicies => Set<AuditPolicy>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

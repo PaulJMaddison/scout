@@ -1,7 +1,9 @@
 const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim()
 const apiBaseUrl =
-  configuredApiBaseUrl === undefined || configuredApiBaseUrl.length === 0
-    ? 'http://localhost:5198'
+  configuredApiBaseUrl === undefined
+    ? import.meta.env.DEV
+      ? 'http://localhost:5198'
+      : ''
     : configuredApiBaseUrl
 const configuredGraphqlEndpoint = import.meta.env.VITE_GRAPHQL_ENDPOINT?.trim()
 const env = {

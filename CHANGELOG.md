@@ -6,11 +6,55 @@ The format is inspired by Keep a Changelog and this project follows semantic ver
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-05-11
+
+### Added
+
+- Repositioned Universal Context Layer as open-core context infrastructure rather than primarily an AI app.
+- Added marketing pages for the platform, use cases, integrations, open-core model, pricing/deployment, docs, demo, and FAQ.
+- Added a self-hosted customer admin console covering organisation settings, workspace settings, users and roles, API clients, usage and limits, connector catalogue, webhook events, blueprint imports, data governance, audit export, and licence/update status.
+- Added SaaS-control-plane foundations for tenants, workspaces, users, subscriptions, API clients, connectors, selector definitions, context packages, audit events, billing usage, onboarding, feature flags, and hosted-mode configuration.
+- Added customer-owned data-plane architecture documentation and configuration for optional control-plane connection settings, local licence files, offline grace periods, and community mode.
+- Added production-minded JWT authentication, API client authentication, API key hashing, rotation, revocation, and last-used tracking.
+- Added versioned REST API v1 endpoints with tenant/workspace scoping, API key auth, pagination, filtering, correlation IDs, consistent error responses, and OpenAPI metadata.
+- Added webhook/source-system event ingestion with signatures, idempotency, event history, selector trigger matching, recompute job creation, dead-letter handling, and audit events.
+- Added connector marketplace skeleton with open-core connectors, demo-safe mock connectors, enterprise/vendor placeholders, health-check and credential abstractions, and clear public repo boundaries.
+- Added AI-assisted blueprint JSON import with schema, validation, preview, apply, REST/GraphQL endpoints, audit events, and Bootstrap Studio UI.
+- Added billing and usage metering foundations with Free, Pro, Business, and Enterprise plan metadata without a live payment-provider integration.
+- Added TypeScript and .NET SDK scaffolds for context consumers.
+- Added PostgreSQL hosted-mode, Docker, Render deployment guidance, backup/restore documentation, support bundle guidance, and local SQLite setup preservation.
+- Added maintainer guardrails for the open core boundary across the README, contributing guide, security guidance, roadmap, and boundary-specific documentation.
+- Added public enterprise extension contracts and safe default implementations so future private enterprise packages can plug into the open source core without forking it.
+- Added explicit documentation for the expected public, enterprise, and optional future cloud repository split.
+
+### Changed
+
+- Updated README, docs, and website copy to explain that UCL creates governed context for customer-owned systems, reports, workflows, copilots, agents, and apps.
+- Clarified that the AI sales playground is one example consumer, not the required product architecture.
+- Documented the split between a future hosted control plane and the self-hosted customer data plane, including what data must stay local.
+- Clarified the commercial model so the public repository reads as a credible open source core rather than a stripped-down teaser.
+- Reworked connector wording and examples to stay generic in the public repo rather than implying that premium commercial connectors ship here today.
+- Replaced real-looking demo organisations and domains with clearly fictional names and reserved example domains.
+- Updated public package and app descriptions so they describe the project as an open source core, demo, and admin console rather than a commercial-only demo.
+
+### Removed
+
+- Removed an internal strategy document that did not belong in the public repository.
+- Removed stale v1.2 release notes because the productisation scope is now released as v2.0.0.
+
+### Security
+
+- Added tenant and workspace scoping checks across admin, GraphQL, REST, API-client, and event-ingestion flows.
+- Added permission-denied audit coverage for blocked role changes and cross-tenant access attempts.
+- Preserved the rule that raw customer operational data, connector credentials, context facts, and prompt packages do not need to leave the customer data plane.
+- Tightened public-repo hygiene by standardising development-only signing key placeholders, extending ignore rules for likely private artefacts, and reinforcing guidance against committing secrets, customer data, or paid enterprise implementation code.
+
 ### Fixed
 
 - Capped percentage selector outputs so formula-based semantic attributes cannot display impossible values above 100%.
 - Updated the expansion potential demo selector and Bootstrap Studio blueprint to use a realistic capped score.
 - Hardened the Windows reset script so it stops repo API processes before deleting SQLite demo databases.
+- Hardened REST admin tenant resolution so cross-tenant admin reads are rejected instead of silently falling back to the actor tenant.
 
 ## [1.1.0] - 2026-05-10
 

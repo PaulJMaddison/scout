@@ -159,3 +159,121 @@ public sealed record SelectorValidationResult(
 public sealed record ScheduledRecomputeDispatchResult(
     int QueuedUserCount,
     int SkippedUserCount);
+
+public sealed record SaasWorkspaceSummaryResult(
+    Guid Id,
+    string Slug,
+    string Name,
+    string Status,
+    bool IsDefault,
+    int MemberCount,
+    int ConnectorCount,
+    int OnboardingCompletedSteps,
+    int OnboardingTotalSteps);
+
+public sealed record SaasSubscriptionSummaryResult(
+    string Plan,
+    string Status,
+    string BillingCustomerReference,
+    DateTime StartedAtUtc,
+    DateTime? TrialEndsAtUtc,
+    DateTime? CurrentPeriodEndsAtUtc,
+    string EntitlementsJson);
+
+public sealed record SaasApiClientSummaryResult(
+    Guid Id,
+    Guid? WorkspaceId,
+    string ClientId,
+    string DisplayName,
+    string Status,
+    IReadOnlyList<string> Scopes,
+    DateTime? LastUsedAtUtc);
+
+public sealed record SaasUsageSummaryResult(
+    string Metric,
+    long Quantity,
+    DateTime WindowStartUtc,
+    DateTime WindowEndUtc);
+
+public sealed record SaasArchitectureOverviewResult(
+    Guid TenantId,
+    string TenantSlug,
+    string TenantName,
+    string Mode,
+    IReadOnlyList<string> EnabledFeatureFlags,
+    SaasSubscriptionSummaryResult? Subscription,
+    IReadOnlyList<SaasWorkspaceSummaryResult> Workspaces,
+    IReadOnlyList<SaasApiClientSummaryResult> ApiClients,
+    IReadOnlyList<SaasUsageSummaryResult> Usage);
+
+public sealed record OrganisationSettingsResult(
+    Guid TenantId,
+    string TenantSlug,
+    string TenantName,
+    bool IsActive,
+    DateTime CreatedAtUtc,
+    DateTime UpdatedAtUtc,
+    string? Plan,
+    string? SubscriptionStatus,
+    int WorkspaceCount,
+    int UserCount,
+    int ApiClientCount);
+
+public sealed record OperatorWorkspaceMembershipResult(
+    Guid WorkspaceId,
+    string WorkspaceSlug,
+    string WorkspaceName,
+    string Role,
+    DateTime? AcceptedAtUtc);
+
+public sealed record OperatorAccountSummaryResult(
+    Guid Id,
+    Guid TenantId,
+    string Email,
+    string DisplayName,
+    string Role,
+    bool IsActive,
+    DateTime? LastLoginAtUtc,
+    DateTime CreatedAtUtc,
+    DateTime UpdatedAtUtc,
+    IReadOnlyList<OperatorWorkspaceMembershipResult> Workspaces);
+
+public sealed record UpdateOperatorAccountInput(
+    string TenantSlug,
+    Guid OperatorAccountId,
+    string DisplayName,
+    string Role,
+    bool IsActive);
+
+public sealed record BlueprintImportHistoryResult(
+    Guid Id,
+    Guid TenantId,
+    Guid? WorkspaceId,
+    string? WorkspaceSlug,
+    string Name,
+    string Status,
+    string UploadedBy,
+    int ValidationIssueCount,
+    int PreviewChangeCount,
+    string ImportSummaryJson,
+    DateTime UploadedAtUtc,
+    DateTime? ValidatedAtUtc,
+    DateTime? ImportedAtUtc);
+
+public sealed record GovernancePolicyResult(
+    Guid Id,
+    Guid TenantId,
+    Guid? BlueprintImportId,
+    string PolicyType,
+    string Key,
+    string DisplayName,
+    string Description,
+    string Status,
+    string DefinitionJson,
+    DateTime CreatedAtUtc,
+    DateTime UpdatedAtUtc);
+
+public sealed record AuditEventExportResult(
+    string FileName,
+    string ContentType,
+    string Content);

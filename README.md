@@ -1,25 +1,52 @@
-# Context Layer
+# Universal Context Layer
 
-Context Layer turns existing CRM, product, billing, support, and warehouse data into AI-ready business context that product teams and sales teams can use safely.
+Universal Context Layer turns existing business data into trusted context that any AI tool, workflow, or product can use.
 
-Release: `1.1.0`  
-License: [MIT](LICENSE)  
-Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)  
+Release: `2.0.0`
+License: [MIT](LICENSE)
+Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
 Security: [SECURITY.md](SECURITY.md)
 
-It is built to make one point obvious in a few clicks:
+UCL is context infrastructure for AI-enabled products, workflows, and agents. It does not replace your CRM, ERP, support desk, warehouse, product database, billing system, spreadsheets, or legacy databases. It sits beside those systems and creates the missing semantic layer above them.
+
+It is built to make a few points obvious in a few clicks:
 
 - companies already have valuable customer data spread across legacy CRM, usage, billing, support, and web systems
-- most teams cannot replatform those systems before they want to ship AI features
-- raw IDs and disconnected tables are a poor interface for AI
-- a reusable semantic context layer turns fragmented operational signals into grounded business meaning
-- AI features become more useful because they receive structured profiles with confidence, freshness, and provenance instead of vague identifiers
+- most teams cannot replatform those systems before they need better automation, reporting, product workflows, or AI features
+- raw IDs, stale tables, and disconnected records are a poor interface for software that needs business meaning
+- a reusable semantic context layer turns fragmented operational signals into trusted facts
+- context facts carry confidence, freshness, provenance, masking status, and audit history
+- downstream consumers can bring their own AI tools, models, agents, copilots, internal products, reporting tools, or workflow automation
 
-It is meant to work for commercial and technical decision-makers alike:
+It is meant to work for business and technical decision-makers alike:
 
 - business leaders can see the revenue and workflow impact
-- CTOs can see the integration, governance, and rollout story
-- platform teams can see how legacy systems stay in place while AI gets a cleaner contract
+- CEOs and product leaders can see how existing data becomes useful across several customer workflows
+- CTOs can see the integration, governance, API, and rollout story
+- integration teams can see how source systems stay in place while downstream consumers get a cleaner contract
+
+## UCL does not need to own your AI
+
+UCL is not another AI app. It is the layer that makes a company's own AI apps, internal workflows, reporting tools, and product experiences more useful.
+
+Customers can bring their own AI stack. That might be an internal copilot, a CRM AI feature, a workflow automation service, a model-hosting platform, a third party agent, or a product feature that does not use AI at all. UCL supplies governed business context: semantic facts with evidence, confidence, freshness, provenance, masking, and auditability.
+
+Possible consumers include:
+
+- internal copilots
+- CRM AI features
+- support automation
+- customer success tools
+- product onboarding
+- marketing personalisation
+- reporting and decision systems
+- workflow automation
+- third party AI agents
+- internal business applications
+
+The AI sales playground in this repository is one example consumer of the context layer. It is useful for showing how grounded context improves a sales support workflow, but it is not the required product architecture. The same context layer can power support, onboarding, reporting, customer success, product automation, marketing personalisation, internal copilots, and non-AI decision systems.
+
+AI fails when it only sees raw IDs, stale tables, or disconnected records. UCL gives downstream systems business meaning, evidence, confidence, and guardrails.
 
 ## Why This Demo Matters
 
@@ -32,11 +59,12 @@ This repo deliberately separates two databases:
 
 The application reads from `customer_ops_db`, applies admin-defined selector logic, and writes canonical semantic facts into `context_layer_db`.
 
-That is the commercial value of the middleware:
+That is the value of the reusable integration and context layer:
 
 - the customer keeps existing operational systems
-- the semantic contract becomes reusable across product features
-- AI gets grounded, explainable inputs instead of brittle point-to-point joins
+- the semantic contract becomes reusable across product features, workflows, analytics, copilots, and agents
+- downstream systems get grounded, explainable inputs instead of brittle point-to-point joins
+- AI is one consumer, not the owner of the architecture
 
 ## What You Can Show In The Demo
 
@@ -45,16 +73,17 @@ That is the commercial value of the middleware:
 - a cross-system event timeline that shows how raw operational signals become semantic meaning
 - Bootstrap Studio showing how tools like Codex or Claude can analyse source systems, generate a `ContextLayerBlueprint`, and import governed selectors, attributes, data sources, and prompt templates
 - a data source view that reinforces the operational system boundary
+- a connector catalogue page that shows open-core connectors and clearly labels enterprise/vendor connectors as placeholders
 - a selector builder showing how raw fields become semantic attributes
 - a schema registry for the canonical business vocabulary
 - a customer context viewer where `User 123` becomes a 360 commercial profile
-- an AI playground that generates a grounded outreach strategy, personalized email, and follow-up recommendations
-- an audit log showing that reads, recomputes, and AI-visible data access are traceable
+- an example consumer called Intelligent Sales Support that generates a grounded outreach strategy, personalised email, and follow-up recommendations
+- an audit log showing that reads, recomputes, and context access are traceable
 - a responsive admin experience verified across laptop, desktop, and mobile viewports
 
 ## Screenshot Gallery
 
-These screenshots are captured from the current `v1.1.0` UI running locally in the default SQLite demo mode. They use the seeded `demo` tenant and the Northstar Logistics `User 123` walkthrough.
+These screenshots are captured from the current repo UI running locally in the default SQLite demo mode. They use the seeded `demo` tenant and the Larkspur Logistics Group `User 123` walkthrough.
 
 | Executive demo | Overview |
 | --- | --- |
@@ -72,9 +101,13 @@ These screenshots are captured from the current `v1.1.0` UI running locally in t
 | --- | --- |
 | ![Cross-system context timeline](docs/images/ucl-timeline.png) | ![AI-assisted onboarding blueprint](docs/images/ai-bootstrap-onboarding.png) |
 
-| AI playground | Audit log |
+| Example consumer: Intelligent Sales Support | Audit log |
 | --- | --- |
-| ![AI sales playground](docs/images/ai-playground.png) | ![Audit log](docs/images/audit-log-or-provenance.png) |
+| ![Intelligent Sales Support example consumer](docs/images/ai-playground.png) | ![Audit log](docs/images/audit-log-or-provenance.png) |
+
+| Admin console: licence and updates |
+| --- |
+| ![Licence and deployment status](docs/images/admin-licence-status.png) |
 
 ## Architecture At A Glance
 
@@ -84,10 +117,70 @@ These screenshots are captured from the current `v1.1.0` UI running locally in t
   ASP.NET Core .NET 10, Hot Chocolate GraphQL, EF Core, FluentValidation, OpenTelemetry
 - Data layer
   Dual-database architecture with operational source data separated from semantic context data
-- AI orchestration
-  Grounded context packages, structured JSON outputs, citation requirements, confidence handling, provenance, audit logging
+- Context consumers
+  GraphQL and REST APIs, TypeScript and .NET SDKs, governed context packages, confidence handling, provenance, masking, audit logging, and SaaS metadata for future delivery channels such as webhooks
+- SaaS readiness
+  Tenant/workspace control plane, persisted API clients, plan and subscription metadata, connector installation records, context package metadata, billing usage records, onboarding state, feature flags, and PostgreSQL migrations
 
-## Seeded Commercial Story
+The SaaS architecture is documented in [docs/saas-architecture.md](docs/saas-architecture.md), the connector marketplace skeleton is documented in [docs/connector-marketplace.md](docs/connector-marketplace.md), and billing/metering foundations are documented in [docs/billing-metering.md](docs/billing-metering.md). The public repo keeps the open-source core, demo, SDKs, REST and GraphQL APIs, and generic extension points working, but does not include paid enterprise connector implementations, payment provider integrations, or customer-specific integration code.
+
+## Control Plane And Customer Data Plane
+
+UCL v2 separates the product into a customer-owned data plane and an optional hosted control-plane relationship.
+
+```mermaid
+flowchart LR
+    subgraph Customer["Customer environment"]
+        Sources["Existing systems: CRM, ERP, support, warehouse, product DB, billing, spreadsheets, legacy SQL"]
+        DataPlane["UCL data plane: connectors, selectors, semantic schema, context snapshots, provenance, APIs"]
+        Consumers["Customer consumers: apps, reports, copilots, agents, workflows"]
+        Sources --> DataPlane
+        DataPlane --> Consumers
+    end
+
+    subgraph Hosted["Optional hosted control plane"]
+        Accounts["accounts, plans, licences"]
+        Downloads["downloads and update channels"]
+        Support["docs and support"]
+        Usage["optional aggregate usage reporting"]
+    end
+
+    Accounts -. licence status .-> DataPlane
+    Downloads -. package metadata .-> DataPlane
+    DataPlane -. optional aggregate metadata .-> Usage
+```
+
+The self-hosted data plane manages source connectors, selector execution, semantic attributes, context snapshots, context facts, provenance, audit logs, GraphQL APIs, REST APIs, API keys, local users, and local roles. Customer operational data can remain in the customer's environment.
+
+The hosted control plane, if used later, should manage accounts, plans, licences, downloads, documentation, support access, update channels, and optional aggregate usage reporting. It should not require raw customer records, context facts, connector credentials, or prompt context packages to leave the customer environment.
+
+The split architecture is documented in [docs/control-plane-data-plane.md](docs/control-plane-data-plane.md).
+
+## Runtime Modes And Feature Flags
+
+The backend supports three explicit modes:
+
+- `LocalDemo`
+  Default local mode. Uses SQLite, fictional seed data, and the React demo.
+- `BackendOnly`
+  API-first mode for GraphQL, REST, SDK, and service-client work without relying on the React demo.
+- `SaaS`
+  Hosted control-plane-compatible mode for PostgreSQL deployments. In the public repo this enables foundational SaaS metadata, feature flags, and hosted deployment posture only; it does not include a paid hosted control-plane implementation.
+
+Key flags live under `FeatureFlags`:
+
+- `DemoExperience`
+- `OpenCoreApis`
+- `SaaSControlPlane`
+- `HostedBillingUsage`
+- `Webhooks`
+- `EnterpriseConnectorExtensions`
+
+Licence and control-plane settings live under `Licence` and `ControlPlane`. Community mode is the default. A local licence file can be loaded for paid self-hosted deployments later, and `/admin/licence`, `/api/v1/licence/status`, and GraphQL `licenceStatus` expose the current state. The public repo does not phone home or unlock paid enterprise connector code.
+
+Use `/api/platform/config` to inspect the effective mode and enabled feature flags at runtime.
+
+## Seeded Demo Story
 
 The bootstrap seeds a realistic B2B SaaS sales environment with:
 
@@ -104,18 +197,18 @@ The bootstrap seeds a realistic B2B SaaS sales environment with:
 
 Five accounts are deeply fleshed out:
 
-- `Northstar Logistics`
-- `Harbor Health Systems`
-- `Atlas Legal Cloud`
-- `Meridian Industrial Robotics`
-- `Cedar Financial Group`
+- `Larkspur Logistics Group`
+- `Brindle Care Network`
+- `Quartz Legal Systems`
+- `Emberforge Robotics`
+- `Willowbank Finance Group`
 
 The strongest walkthrough record is:
 
 - `demo` tenant
 - `User 123`
 - `Avery Stone`
-- `Northstar Logistics`
+- `Larkspur Logistics Group`
 
 That record resolves into semantic attributes such as:
 
@@ -185,7 +278,7 @@ The setup command:
 4. creates the local SQLite database directory
 5. provisions the operational source database
 6. provisions the semantic context database
-7. seeds the commercial demo data
+7. seeds the public demo data
 8. restores backend tools and dependencies
 9. installs frontend dependencies
 10. prints URLs, credentials, and sample users
@@ -267,6 +360,438 @@ Use Docker/PostgreSQL when you want to show the same product shape against named
 - GraphQL endpoint: [http://127.0.0.1:5198/graphql](http://127.0.0.1:5198/graphql)
 - Health endpoint: [http://127.0.0.1:5198/health](http://127.0.0.1:5198/health)
 
+## Public Website Routes
+
+The React application now does two jobs:
+
+- it remains the seeded demo and admin console after login
+- it also acts as the public product and learning site for the broader backend integration-layer vision
+
+Public routes:
+
+- `/platform`
+  Explains what Universal Context Layer does, why semantic context matters, and how the same layer can support many consumers.
+- `/integration-layer`
+  Explains connectors, selectors, GraphQL, REST, SDKs, context packages, future webhook delivery, machine-to-machine usage, and backend-only operation.
+- `/connectors`
+  Shows the connector catalogue with executable open-core connectors, configuration and credential schemas, health-check expectations, and clear placeholder messaging for enterprise/vendor connectors.
+- `/open-core`
+  Explains the public repo boundary, future enterprise repo boundary, and why the open source core remains useful on its own.
+- `/commercial`
+  Explains managed SaaS, private cloud, commercial support, and implementation options without pretending paid code lives in this repo.
+- `/onboarding`
+  Runs the SaaS onboarding flow for a new company. It collects organisation details, tenant slug, primary workspace, first admin, current source systems, data categories, desired AI use cases, PII sensitivity, and deployment preference, then provisions a safe starter workspace.
+- `/faq`
+  Answers common buyer, CTO, developer, and architecture questions.
+
+Authenticated routes still provide the seeded demo walkthrough, customer context viewer, admin console, selector builder, audit view, and Intelligent Sales Support example consumer.
+
+## SaaS Onboarding Flow
+
+Open [http://127.0.0.1:5173/onboarding](http://127.0.0.1:5173/onboarding) in local demo mode to try the company onboarding flow.
+
+The flow creates:
+
+- a tenant and primary workspace
+- the first tenant admin account
+- safe mock starter data sources for the selected systems
+- starter semantic attributes based on available data categories
+- published starter selectors that show how source fields become semantic context
+- onboarding state records and audit events
+- next-step guidance for local demo, self-hosted, managed SaaS, or private cloud deployment
+
+Onboarding deliberately does not store production connector credentials. It only creates mock connector placeholders and extension points so the open-source demo remains safe and fictional.
+
+The public REST endpoint is:
+
+```bash
+curl -X POST http://127.0.0.1:5198/api/onboarding \
+  -H "Content-Type: application/json" \
+  -d '{
+    "organisationName": "Acme Revenue Systems",
+    "tenantSlug": "acme-revenue",
+    "primaryWorkspaceName": "Revenue workspace",
+    "adminDisplayName": "Dana Mercer",
+    "adminEmail": "dana@example.test",
+    "adminPassword": "DemoPassword123!",
+    "intendedUseCase": "Generate trusted account briefs for sales and support AI workflows.",
+    "sourceSystems": ["Salesforce CRM", "Zendesk Support", "Snowflake Warehouse"],
+    "dataCategories": ["CRM", "Support", "Warehouse"],
+    "aiUseCases": ["Sales copilot", "Executive account briefs"],
+    "piiSensitivityLevel": "moderate",
+    "preferredDeploymentMode": "local-demo"
+  }'
+```
+
+Authenticated platform or tenant admins can also call the `submitOnboarding` GraphQL mutation.
+
+## Backend-Only Mode
+
+The React app remains available as a separate demo experience under `apps/web`, but the API can now run on its own as a backend integration service.
+
+Backend-only mode supports:
+
+- GraphQL at `/graphql`
+- REST endpoints for common integration workflows under `/api/rest`
+- selector recomputation workers
+- health endpoints at `/health`, `/health/live`, and `/health/ready`
+- OpenAPI and Swagger UI at `/swagger`
+- SQLite for local development
+- PostgreSQL for production
+- machine-to-machine token issuance at `/api/auth/token`
+- demo seeding only when explicitly requested
+
+### Backend-only quick start
+
+Windows:
+
+```powershell
+./scripts/setup-backend.ps1
+./scripts/start-backend.ps1
+```
+
+macOS / Linux:
+
+```bash
+sh ./scripts/setup-backend.sh
+sh ./scripts/start-backend.sh
+```
+
+Optional seeded demo data:
+
+```powershell
+./scripts/setup-backend.ps1 -SeedDemoData
+./scripts/start-backend.ps1 -SeedDemoData
+```
+
+```bash
+sh ./scripts/setup-backend.sh --seed-demo-data
+sh ./scripts/start-backend.sh --seed-demo-data
+```
+
+Optional PostgreSQL mode:
+
+```powershell
+./scripts/setup-backend.ps1 -UseDocker
+./scripts/start-backend.ps1 -UseDocker
+```
+
+```bash
+sh ./scripts/setup-backend.sh --use-docker
+sh ./scripts/start-backend.sh --use-docker
+```
+
+### Key configuration flags
+
+- `Platform__Mode=BackendOnly`
+- `Platform__EnableGraphQl=true`
+- `Platform__EnableRest=true`
+- `Platform__EnableOpenApi=true`
+- `Bootstrap__ApplyMigrationsOnStartup=true`
+- `Bootstrap__SeedDemoData=false`
+- `Database__Provider=Sqlite` for local files or `Database__Provider=Postgres` for PostgreSQL
+- `ConnectionStrings__ContextLayer=...`
+- `ConnectionStrings__CustomerOps=...`
+- `Auth__MachineClients__0__ClientId=...`
+- `Auth__MachineClients__0__ClientSecret=...`
+- `Auth__MachineClients__0__TenantSlug=...`
+- `Auth__MachineClients__0__Role=tenant_admin`
+- `ConnectorBootstrap__Definitions__0__...` when you want to register connectors from environment-backed configuration at startup
+
+Example machine client configuration:
+
+```json
+{
+  "Auth": {
+    "Issuer": "ContextLayer",
+    "Audience": "ContextLayer.Api",
+    "SigningKey": "replace-with-a-long-production-secret",
+    "MachineClients": [
+      {
+        "ClientId": "crm-service",
+        "ClientSecret": "replace-me",
+        "TenantSlug": "acme",
+        "DisplayName": "CRM Service Client",
+        "Role": "tenant_admin",
+        "Scopes": [ "context.read", "context.recompute" ]
+      }
+    ]
+  }
+}
+```
+
+### Example integration calls
+
+Get a machine token:
+
+```bash
+curl -X POST http://127.0.0.1:5198/api/auth/token \
+  -H "Content-Type: application/json" \
+  -d '{
+    "grantType": "client_credentials",
+    "clientId": "crm-service",
+    "clientSecret": "replace-me",
+    "scope": "context.read context.recompute"
+  }'
+```
+
+Read user context over REST:
+
+```bash
+curl http://127.0.0.1:5198/api/rest/tenants/demo/users/123/context \
+  -H "Authorization: Bearer <token>"
+```
+
+Queue recomputation:
+
+```bash
+curl -X POST http://127.0.0.1:5198/api/rest/tenants/demo/users/123/recompute \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "triggeredBy": "crm-webhook"
+  }'
+```
+
+Register a connector over REST:
+
+```bash
+curl -X POST http://127.0.0.1:5198/api/rest/connectors/register \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tenantSlug": "demo",
+    "name": "Billing REST Connector",
+    "description": "Reads billing facts from the existing platform API.",
+    "kind": "Crm",
+    "connectorType": "restApi",
+    "configurationJson": "{\"baseUrl\":\"https://billing.example.com\",\"resourcePath\":\"/accounts/{externalUserId}\"}",
+    "credentialsJson": "{\"bearerToken\":\"replace-me\"}"
+  }'
+```
+
+Run a GraphQL context lookup:
+
+```bash
+curl -X POST http://127.0.0.1:5198/graphql \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "query { userContext(input: { tenantSlug: \"demo\", externalUserId: \"123\" }) { fullName companyName summary overallConfidence } }"
+  }'
+```
+
+### Versioned REST API v1
+
+Systems that do not want GraphQL can use the production-minded REST surface under `/api/v1`. The endpoints use the same application services as GraphQL, support JWT bearer tokens and persisted API clients, return `X-Request-Id` correlation IDs, and expose OpenAPI documentation through Swagger when `Platform__EnableOpenApi=true`.
+
+Core endpoints:
+
+- `GET /api/v1/health`
+- `GET /api/v1/connectors/catalogue`
+- `GET /api/v1/workspaces`
+- `GET /api/v1/context/users/{externalUserId}`
+- `GET /api/v1/context/accounts/{externalAccountId}`
+- `GET /api/v1/context/snapshots/{snapshotId}`
+- `POST /api/v1/context/recompute`
+- `POST /api/v1/selectors/preview`
+- `POST /api/v1/selectors/validate`
+- `GET /api/v1/semantic-attributes`
+- `GET /api/v1/audit-events`
+- `GET /api/v1/billing/usage`
+- `POST /api/v1/events/source-system`
+- `POST /api/v1/blueprints/upload`
+- `POST /api/v1/blueprints/validate`
+- `POST /api/v1/blueprints/preview`
+- `POST /api/v1/blueprints/import`
+- `POST /api/v1/api-clients`
+- `POST /api/v1/api-clients/{id}/rotate`
+- `DELETE /api/v1/api-clients/{id}`
+
+Pagination is available on list endpoints with `page` and `pageSize`. Filters include examples such as `status` on workspaces, `q` and `dataType` on semantic attributes, and `action`, `entityType`, `fromUtc`, and `toUtc` on audit events.
+
+List the connector catalogue:
+
+```bash
+curl "http://127.0.0.1:5198/api/v1/connectors/catalogue?page=1&pageSize=100"
+```
+
+Filter marketplace metadata:
+
+```bash
+curl "http://127.0.0.1:5198/api/v1/connectors/catalogue?availability=OpenCore"
+curl "http://127.0.0.1:5198/api/v1/connectors/catalogue?q=salesforce"
+```
+
+The catalogue includes executable open-core connectors for SQL, REST API, CSV upload, and local mock CRM/billing/support. Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, and NetSuite are labelled as placeholders only; their paid enterprise implementations are intentionally not included in this public repo.
+
+Validate and preview an AI-generated UCL blueprint:
+
+```bash
+curl -X POST "http://127.0.0.1:5198/api/v1/blueprints/preview" \
+  -H "Authorization: Bearer <tenant-admin-token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tenantSlug": "demo",
+    "blueprintJson": "{ \"version\": \"1.0\", \"name\": \"Example\", \"dataSources\": [], \"semanticAttributes\": [], \"selectors\": [] }"
+  }'
+```
+
+Blueprint import supports upload, validation, preview, and apply modes. It can create data sources, semantic attributes, selector definitions, prompt templates, PII rules, and audit policies from user-supplied JSON. The product does not call external AI APIs; users generate the file in Codex, Claude, ChatGPT, or another tool and upload it. The JSON schema is published at [docs/ucl-blueprint.schema.json](docs/ucl-blueprint.schema.json).
+
+Create an API client with a tenant admin JWT:
+
+```bash
+curl -X POST "http://127.0.0.1:5198/api/v1/api-clients" \
+  -H "Authorization: Bearer <tenant-admin-token>" \
+  -H "Content-Type: application/json" \
+  -H "X-Request-Id: docs-create-client-001" \
+  -d '{
+    "displayName": "Warehouse ingestion client",
+    "workspaceSlug": "default",
+    "scopes": ["context.read", "context.write", "context.recompute"]
+  }'
+```
+
+The response shows `apiKey` once. Store it in your secret manager; UCL only stores its hash.
+
+Call REST v1 with API-key authentication:
+
+```bash
+curl "http://127.0.0.1:5198/api/v1/context/users/123" \
+  -H "X-API-Client-Id: <clientId>" \
+  -H "X-API-Key: <apiKey>" \
+  -H "X-Request-Id: crm-context-read-123"
+```
+
+List semantic attributes with pagination and filtering:
+
+```bash
+curl "http://127.0.0.1:5198/api/v1/semantic-attributes?q=health&page=1&pageSize=25" \
+  -H "Authorization: Bearer <token-or-api-key-token>"
+```
+
+Fetch current plan limits and usage with a tenant admin JWT:
+
+```bash
+curl "http://127.0.0.1:5198/api/v1/billing/usage?tenantSlug=demo" \
+  -H "Authorization: Bearer <tenant-admin-token>"
+```
+
+Ingest a source-system event:
+
+```bash
+curl -X POST "http://127.0.0.1:5198/api/v1/events/source-system" \
+  -H "X-API-Client-Id: <clientId>" \
+  -H "X-API-Key: <apiKey>" \
+  -H "X-UCL-Webhook-Timestamp: 2026-05-11T15:45:00.0000000Z" \
+  -H "X-UCL-Webhook-Signature: sha256=<hmac-of-timestamp-dot-body>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "eventId": "warehouse_evt_10001",
+    "workspaceSlug": "default",
+    "sourceSystem": "warehouse",
+    "eventType": "account.updated",
+    "externalUserId": "123",
+    "externalAccountId": "acct-123",
+    "payload": {
+      "health": "green",
+      "observedBy": "warehouse-sync"
+    }
+  }'
+```
+
+Webhook event ingestion supports signature validation, idempotency by event ID, tenant/workspace routing, event storage, selector trigger matching, recomputation job creation, dead-letter records, audit events, and GraphQL event-history inspection. See [docs/webhook-events.md](docs/webhook-events.md) for the provider-neutral contract and JSON examples for `customer.created`, `customer.updated`, `account.updated`, `opportunity.stage_changed`, `product_usage.updated`, `support_ticket.created`, `billing.payment_failed`, `email.engaged`, `lifecycle.converted`, and `source_record.deleted`.
+
+Errors use a consistent shape:
+
+```json
+{
+  "error": {
+    "code": "context.user_not_found",
+    "message": "User context was not found.",
+    "correlationId": "crm-context-read-123"
+  }
+}
+```
+
+### Hosted PostgreSQL Deployment
+
+The first production-like deployment shape for the public repo is:
+
+- React frontend as a static site built from `apps/web`
+- ASP.NET Core backend as a Docker web service from `src/ContextLayer.Api/Dockerfile`
+- PostgreSQL as managed databases for both `ContextLayerDbContext` and `CustomerOpsDbContext`
+- SQLite only for the local demo mode
+
+Use [render.yaml](render.yaml) for a Render Blueprint or follow [docs/hosted-deployment.md](docs/hosted-deployment.md) for manual deployment, environment variables, health checks, migration commands, seed rules, logging, OpenTelemetry, CORS, JWT settings, rate limits, backup, and restore.
+
+This is not the full future managed SaaS control plane. It is the open-core backend running in a hosted environment with PostgreSQL, secure configuration, and customer-owned data-plane responsibilities preserved.
+
+Hosted production should set:
+
+```text
+ASPNETCORE_ENVIRONMENT=Production
+Platform__Mode=SaaS
+Database__Provider=Postgres
+Bootstrap__ApplyMigrationsOnStartup=false
+Bootstrap__SeedDemoData=false
+ConnectionStrings__ContextLayer=<managed PostgreSQL connection string>
+ConnectionStrings__CustomerOps=<managed PostgreSQL connection string>
+Auth__SigningKey=<48+ byte random secret>
+Cors__AllowedOrigins__0=https://<frontend-domain>
+SaaS__PublicBaseUrl=https://<api-domain>
+ControlPlane__Enabled=false
+Licence__Mode=Community
+Licence__FilePath=/var/lib/ucl/licence.json
+```
+
+Run hosted database migrations before starting the new web service:
+
+```powershell
+docker run --rm `
+  -e ASPNETCORE_ENVIRONMENT=Production `
+  -e Platform__Mode=SaaS `
+  -e Database__Provider=Postgres `
+  -e Bootstrap__ApplyMigrationsOnStartup=true `
+  -e Bootstrap__SeedDemoData=false `
+  -e ConnectionStrings__ContextLayer="<managed PostgreSQL connection string>" `
+  -e ConnectionStrings__CustomerOps="<managed PostgreSQL connection string>" `
+  -e Auth__SigningKey="<48+ byte random secret>" `
+  contextlayer-api migrate
+```
+
+Demo seeding is only for local demo mode:
+
+```powershell
+.\scripts\setup-demo.ps1
+```
+
+### Docker deployment
+
+The API Docker image is defined in `src/ContextLayer.Api/Dockerfile`. Build and run it with local backend-only defaults:
+
+```powershell
+docker build -f src/ContextLayer.Api/Dockerfile -t contextlayer-api .
+docker run --rm -p 8080:8080 `
+  -e Platform__Mode=BackendOnly `
+  -e Bootstrap__ApplyMigrationsOnStartup=true `
+  -e Bootstrap__SeedDemoData=false `
+  -e Database__Provider=Postgres `
+  -e ConnectionStrings__ContextLayer="Host=host.docker.internal;Database=context_layer_db;Username=postgres;Password=postgres" `
+  -e ConnectionStrings__CustomerOps="Host=host.docker.internal;Database=customer_ops_db;Username=postgres;Password=postgres" `
+  -e Auth__Issuer=ContextLayer `
+  -e Auth__Audience=ContextLayer.Api `
+  -e Auth__SigningKey=replace-with-a-long-production-secret `
+  contextlayer-api
+```
+
+Once running, open:
+
+- [http://127.0.0.1:5198/swagger](http://127.0.0.1:5198/swagger) for REST docs in local script mode
+- [http://127.0.0.1:8080/swagger](http://127.0.0.1:8080/swagger) for the container default
+- [http://127.0.0.1:8080/health](http://127.0.0.1:8080/health)
+
 Optional observability services are available when the Docker stack is active:
 
 - Grafana: `http://localhost:3000`
@@ -282,45 +807,48 @@ Optional observability services are available when the Docker stack is active:
 
 ## Best Demo Records
 
-- `demo` / `123` / `Avery Stone` / `Northstar Logistics`
-- `demo` / `126` / `Priya Nwosu` / `Harbor Health Systems`
-- `demo` / `129` / `Marcus Bell` / `Atlas Legal Cloud`
-- `summit` / `132` / `Elena Petrov` / `Meridian Industrial Robotics`
-- `summit` / `135` / `Calvin Reese` / `Cedar Financial Group`
+- `demo` / `123` / `Avery Stone` / `Larkspur Logistics Group`
+- `demo` / `126` / `Priya Nwosu` / `Brindle Care Network`
+- `demo` / `129` / `Marcus Bell` / `Quartz Legal Systems`
+- `summit` / `132` / `Elena Petrov` / `Emberforge Robotics`
+- `summit` / `135` / `Calvin Reese` / `Willowbank Finance Group`
 
 ## Recommended Walkthrough
 
 Start with the seeded admin account.
 
 1. Open `Executive Demo` or `/demo`
-   Lead with the story: operational systems remain in place, Context Layer creates semantic meaning, AI consumes the grounded package.
-2. Step through `Legacy Signals`, `Semantic Timeline`, `AI Interaction Timeline`, and `Rollout and ROI`
+   Lead with the story: operational systems remain in place, UCL creates semantic meaning, and many downstream systems can consume the governed context.
+2. Step through `Legacy Signals`, `Semantic Timeline`, `Example Consumer Timeline`, and `Rollout and ROI`
    Use these pages as the narrative spine for decision-makers who need to understand business value, technical rollout, and governance.
 3. Open `Customer Context` for `User 123`
    Show the readable summary, semantic facts, confidence badges, snapshot history, and the UCL interpretation timeline.
 4. Open `Bootstrap Studio`
-   Show how Codex or Claude can analyse customer schemas, CRM samples, KPI notes, and support exports to produce a governed import blueprint.
+   Show how Codex, Claude, ChatGPT, or another AI tool can analyse customer schemas, CRM samples, KPI notes, and support exports to produce a governed import blueprint. The backend validates, previews, stores, audits, and imports that JSON without calling external AI APIs.
 5. Open `Selector Builder`
    Preview `Preferred Channel from Contact Preference` to show how admin-authored logic turns raw source data into a canonical attribute.
-6. Open `Agent Playground`
-   Generate the grounded outreach strategy and show the cited facts driving the recommendation.
+6. Open `Example Consumer: Intelligent Sales Support`
+   Generate the grounded outreach strategy and show the cited facts driving the recommendation. Frame this as one consumer of the context layer, not the whole product.
 7. Open `Audit Log`
-   Close with governance: reads, recomputes, and AI activity are traceable.
+   Close with governance: reads, recomputes, and context access are traceable.
 
 ## How The Product Works End To End
 
 1. Operational data lands in `customer_ops_db`.
 2. Data sources expose those signals to the selector engine.
-3. Selectors apply direct field mappings, thresholds, weighted scoring, formulas, enum normalization, and conflict resolution.
+3. Selectors apply direct field mappings, thresholds, weighted scoring, formulas, enum normalisation, and conflict resolution.
 4. Selector executions persist raw payloads, validation results, confidence, freshness, and provenance.
 5. Canonical context facts are written into `context_layer_db`.
 6. Context snapshots assemble those facts into reusable business profiles.
-7. The AI orchestration layer builds a grounded context package for the selected user and sales objective.
-8. The model returns structured JSON for:
+7. Consumers request context through GraphQL, REST, SDKs, internal services, or governed context packages.
+8. One demo consumer, Intelligent Sales Support, builds a grounded context package for the selected user and sales objective.
+9. The configured model returns structured JSON for:
    - outreach strategy
-   - personalized email draft
+   - personalised email draft
    - follow-up recommendations
-9. The UI shows exactly why the recommendation exists, including citations and low-confidence warnings.
+10. The UI shows exactly why the recommendation exists, including citations and low-confidence warnings.
+
+Other consumers could use the same context to prioritise support, enrich a CRM account page, trigger onboarding workflows, personalise marketing, feed dashboards, update customer success health scoring, or guide a third party agent.
 
 ## Open Source Use
 
@@ -328,12 +856,37 @@ This repository is released under the [MIT License](LICENSE). That means other t
 
 If you build on top of Context Layer, please keep the license notice intact and document any meaningful architectural changes for future contributors.
 
+## Commercial Model
+
+Universal Context Layer is developed as an open core context infrastructure product.
+
+The code in this public repository is the open source core and is free to use under the current licence. It is intended to be useful in its own right for learning, local demos, self-hosting, prototyping, technical evaluation, and community experimentation.
+
+The aim is not to publish a crippled teaser. The open source core is designed to remain a real, working foundation of the product: teams should be able to understand the architecture, run it locally, explore the APIs and SDKs, test integration patterns, and build context consumers on top of it without needing paid features first.
+
+Alongside the open source core, paid offerings may be available for organisations that want faster deployment, deeper integration, or additional operational assurances. These offerings may include managed SaaS, private cloud deployment, on premise deployment, enterprise connectors, SSO, advanced governance features, compliance reporting, billing, SLAs, and implementation or integration support.
+
+The public repository does not include paid enterprise connector implementations, hosted SaaS control-plane implementation, billing-provider integration, customer-specific mappings, or private deployment packs. Where the open source core exposes extension points for connectors, authentication, governance, or deployment, those interfaces are intended to allow commercial modules to plug in later without changing the public core.
+
+The open source core should still remain useful without those paid features. It should be possible to learn from it, run it, extend it, and validate whether the overall approach fits your environment before deciding whether you need commercial help.
+
+For the boundary and extension model, see [docs/open-core-boundary.md](docs/open-core-boundary.md), [docs/enterprise-extension-points.md](docs/enterprise-extension-points.md), and [docs/roadmap.md](docs/roadmap.md).
+
+### Licence Modes
+
+- `Community mode`
+  The default public repo mode. It supports local demos, self-hosting, GraphQL, REST, SDK scaffolds, generic connectors, mock connectors, blueprint import, audit, provenance, and admin-console exploration without a paid licence.
+- `Paid self-hosted mode`
+  A future commercial mode where a customer installs a local licence file and may receive private modules through a private package feed or container registry. The public repo includes the local licence status seam, but not commercial licence signing or paid modules.
+- `Future managed SaaS mode`
+  A future hosted control-plane model for accounts, licences, downloads, documentation, support access, update channels, and optional aggregate usage reporting. Raw operational data and connector credentials should still stay in the customer data plane unless the customer explicitly chooses a managed data-plane deployment.
+
 ## Paid Enterprise Options
 
 The core product in this repository is MIT-licensed and open source. Paid enterprise options are intended for teams that want commercial support, managed deployment, or faster rollout into production environments.
 
-- `Managed SaaS`
-  Fully managed hosting for teams that want the semantic layer live quickly without owning the infrastructure, upgrade path, monitoring, backup posture, and day-to-day operations.
+- `Future managed SaaS`
+  A future managed option for teams that want account management, updates, support, and operational help without owning every platform concern. The public repo does not include this hosted control-plane implementation.
 - `Private cloud / single-tenant deployment`
   Enterprise deployment in a customer-controlled cloud or VPC with stronger isolation, regional hosting choices, identity integration, and governance controls.
 - `On-prem / hybrid deployment`
@@ -341,12 +894,13 @@ The core product in this repository is MIT-licensed and open source. Paid enterp
 - `Connector and selector accelerator`
   Paid delivery for custom connectors, source mappings, selector packs, semantic schema design, and production-ready context models for a specific customer estate.
 - `AI rollout advisory`
-  Workshops and implementation support covering prompt orchestration, governance, business KPI alignment, and how to wire the semantic layer into real product workflows.
+  Workshops and implementation support covering context package design, bring your own AI integration, governance, business KPI alignment, and how to wire the semantic layer into real product workflows.
 - `Enterprise support and SLA`
   Named support, onboarding, troubleshooting help, release guidance, and response expectations for business-critical deployments.
 
 ### Commercial Contact
 
+- Businesses that want support with commercial deployment, enterprise integration, or implementation planning are welcome to contact the maintainer.
 - `Email:` [paul.maddison.delimeg@gmail.com](mailto:paul.maddison.delimeg@gmail.com)
 - `Phone:` [+44 7742 031553](tel:+447742031553)
 
@@ -377,7 +931,7 @@ query DemoContextViewer {
 }
 ```
 
-### Grounded AI context package
+### Example consumer context package
 
 ```graphql
 query DemoSalesContextPackage {
@@ -470,19 +1024,19 @@ npm run build --prefix apps/web
 
 The automated coverage includes:
 
-- backend unit tests for selector logic and AI output validation
-- integration tests for dual-database connectivity, selector execution, context snapshot generation, GraphQL context lookup, and grounded AI output
+- backend unit tests for selector logic and example consumer output validation
+- integration tests for dual-database connectivity, selector execution, context snapshot generation, GraphQL context lookup, and grounded example consumer output
 - frontend component tests
 - frontend end-to-end flows for selector preview and outreach recommendation generation
 - responsive layout coverage for login, core admin routes, and mobile walkthrough surfaces
 
 ## Honest Demo Note
 
-The seeded AI experience currently uses a deterministic mock structured provider so the demo is stable, grounded, and repeatable on any local machine. The orchestration layer, prompt templates, JSON schema validation, provenance, retry behavior, and audit trail are all real. A live external provider can be swapped in without changing the product surface.
+The seeded Intelligent Sales Support experience currently uses a deterministic mock structured provider so the demo is stable, grounded, and repeatable on any local machine. The orchestration layer, prompt templates, JSON schema validation, provenance, retry behaviour, and audit trail are all real. A live external provider can be swapped in, but UCL does not require customers to use this provider or this sales workflow.
 
-## Commercial Architecture Note
+## Architecture Note
 
-The GraphQL-based semantic context layer is a strong fit for AI-enabled sales workflows because it gives downstream product features one stable contract over changing operational systems.
+The GraphQL-based semantic context layer is a strong fit for AI-enabled business systems because it gives downstream product features, workflows, reporting tools, copilots, and agents one stable contract over changing operational systems.
 
 In a real customer environment, many source systems can feed one context platform:
 
@@ -493,7 +1047,7 @@ In a real customer environment, many source systems can feed one context platfor
 - warehouse tables
 - marketing automation
 
-GraphQL becomes the ideal delivery interface because it lets each workflow request exactly the context shape it needs without forcing every AI feature to understand every legacy schema. The selectors and semantic attributes can evolve independently of the operational systems, while masking, provenance, confidence, and audit stay centralized in one layer.
+GraphQL is one delivery interface because it lets each workflow request exactly the context shape it needs without forcing every consumer to understand every legacy schema. REST endpoints, SDKs, context packages, and future delivery channels such as webhooks can serve other integration styles. The selectors and semantic attributes can evolve independently of the operational systems, while masking, provenance, confidence, and audit stay centralised in one layer.
 
 ## ADR
 

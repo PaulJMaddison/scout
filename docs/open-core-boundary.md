@@ -1,0 +1,172 @@
+# Open core boundary
+
+This document explains what belongs in the public Universal Context Layer repository and what should remain outside it. UCL is context infrastructure for AI-enabled business systems, so the public/private boundary should protect the reusable open core while leaving room for commercial enterprise extensions.
+
+## Repository shape
+
+The intended long-term structure is:
+
+- `universalcontextlayer`
+  The public open source core, demo, SDKs, public extension contracts, GraphQL and REST APIs, and local/backend-only runtime
+- `universalcontextlayer-enterprise`
+  A future private repository for paid enterprise extensions such as enterprise connectors, SSO, advanced governance, and managed deployment assets
+- `universalcontextlayer-cloud`
+  An optional future repository for hosted SaaS control plane, billing, operations, and cloud-specific platform concerns
+
+The public repo should define the stable contracts and composition points that let those future codebases depend on the open core without copying it.
+
+## Goal
+
+The public repository should remain a credible, useful open source core. It should be possible for developers and technical teams to:
+
+- understand the architecture
+- run the product locally
+- self-host the core
+- explore the APIs and SDKs
+- experiment with selectors, context snapshots, provenance, and audit flows
+- build context consumers such as apps, workflows, reporting tools, copilots, and agents
+- build extensions against stable public contracts
+
+The public repo should not become a disguised commercial distribution channel for paid enterprise implementation code.
+
+## Current repository inspection
+
+The current repo already contains the main public core surfaces:
+
+- semantic selector execution and fact materialisation in the application and infrastructure projects
+- context facts, context snapshots, semantic attribute definitions, provenance, confidence, freshness, masking, and audit primitives
+- GraphQL and REST API surfaces
+- SQLite local demo mode with fictional seed data
+- PostgreSQL support and migrations
+- mock connector support and generic SQL/REST connector plugins
+- extension interfaces for future enterprise modules
+- React marketing, demo, and admin UI
+- documentation for SaaS architecture, connector plugins, SDKs, product positioning, and context consumers
+
+That shape is intentional. The public repo should prove the architecture and remain useful without shipping private enterprise implementation code.
+
+## What belongs in this repository
+
+The public repo is the right home for:
+
+- the semantic engine and selector execution logic
+- context facts and context snapshots
+- provenance, freshness, confidence, and audit primitives
+- GraphQL and REST APIs
+- SDKs and developer tooling
+- SQLite local mode and supported PostgreSQL mode
+- mock connectors and deterministic demo connectors
+- SQL connector examples when they are generic, safe, and free of customer-specific schema assumptions
+- file connector examples or file-upload fixtures when they use fictional data and do not imply managed enterprise ingestion
+- generic REST connector examples that demonstrate the contract without becoming a vendor-specific integration
+- extension interfaces for connectors, auth, secrets, policy evaluation, audit export, context package export, approval workflows, promotion, and usage metering
+- safe mock or no-op default implementations for those interfaces
+- SaaS-ready metadata models for tenants, workspaces, subscriptions, API clients, onboarding, context package manifests, and usage metering, provided they stay provider-neutral
+- local licence and control-plane configuration seams, provided they do not phone home or unlock private code inside the public repo
+- context package generation patterns and delivery-channel metadata
+- demo UI, samples, and fictional seed data
+- marketing and documentation that explain architecture, extension patterns, product positioning, and the public/private boundary
+
+## What is explicitly public
+
+Keep these in the open core:
+
+1. Semantic engine.
+2. Context facts and snapshots.
+3. GraphQL and REST APIs.
+4. SQLite local demo.
+5. PostgreSQL support.
+6. Mock connectors.
+7. SQL and file connector examples if they are generic, safe, and fictional.
+8. Extension interfaces.
+9. Marketing and documentation.
+
+The key rule is that public code may define a stable contract and a safe generic implementation. Public code should not implement a paid, vendor-specific, customer-specific, or deployment-specific enterprise feature.
+
+## What does not belong in this repository
+
+These should normally live in a future private enterprise repository, a future managed SaaS codebase, or professional services delivery materials:
+
+- real enterprise connectors such as Salesforce, HubSpot, NetSuite, SAP, Zendesk, ServiceNow, Snowflake account packages, customer data warehouses, or other paid packaged integrations
+- SSO or SAML implementations
+- hosted SaaS control-plane implementation
+- commercial licence signing, entitlement enforcement for paid modules, and private package distribution services
+- Stripe, Paddle, or other billing-provider integrations
+- customer-specific deployment templates
+- private cloud automation
+- credential vault integrations such as HashiCorp Vault, AWS Secrets Manager, Azure Key Vault, or GCP Secret Manager
+- enterprise policy engines
+- compliance report exporters
+- advanced governance or compliance packs intended for paid distribution
+- managed deployment automation sold as part of an enterprise or SaaS offer
+- customer-specific connectors, schemas, mappings, prompts, or data
+- secrets, certificates, tokens, and production credentials
+
+## What is explicitly private
+
+Do not implement these publicly:
+
+1. Real enterprise connectors.
+2. SSO/SAML.
+3. Stripe/Paddle billing.
+4. Customer specific deployment templates.
+5. Private cloud automation.
+6. Credential vault integrations.
+7. Enterprise policy engine.
+8. Compliance report exporters.
+
+## Public interfaces vs private implementations
+
+It is intentional for the public repo to expose extension points for future enterprise features. That means:
+
+- interfaces can be public
+- DTOs and DI hooks can be public
+- mock implementations can be public
+- generic examples can be public when they use fictional data and generic protocols
+- documentation can explain the shape of future enterprise integration
+
+But:
+
+- premium implementations should stay outside this repo
+- vendor-specific adapters should stay outside this repo
+- customer-specific deployment and mapping assets should stay outside this repo
+- examples should stay generic
+- documentation should not pretend that paid implementations already ship here
+
+## Connector boundary
+
+The public connector layer may include:
+
+- `mock` connectors for deterministic demos and tests
+- generic `sqlDatabase` or `sqlTable` examples that read from the local demo database or a clearly documented generic schema
+- generic `restApi` examples that show request, response, credentials reference, validation, health check, and provenance shape
+- file or upload examples only when they use fictional fixtures and do not encode a customer data model
+
+The private connector layer should contain:
+
+- packaged vendor connectors
+- customer-specific connector mappings
+- production credential vault adapters
+- support-backed connector certification
+- managed connector sync operations
+- paid connector deployment templates
+
+If a connector knows the business semantics of a named vendor or a named customer environment, it should normally be private.
+
+## Auth, billing, governance, and deployment boundary
+
+Public code can include simple local authentication, API client metadata, provider-neutral usage records, no-op policy evaluators, mock audit exporters, and interfaces that describe how enterprise modules plug in.
+
+Private code should implement enterprise SSO/SAML, billing provider integration, entitlement enforcement, policy engines, compliance exporters, vault integrations, private cloud automation, and customer-specific deployment packs.
+
+## Decision rule
+
+When deciding whether something belongs in the public repo, ask:
+
+1. Does this make the open source core more useful on its own?
+2. Is this a generic contract or a paid implementation?
+3. Would publishing this leak customer-specific, security-sensitive, or commercial IP?
+4. Can the same outcome be achieved by documenting an interface rather than shipping the implementation?
+5. Does this integration mention a real enterprise vendor, a customer environment, a billing provider, an identity provider, a cloud vault, or a private deployment target?
+
+If the answer is unclear, prefer keeping the public repo smaller and documenting the extension point clearly.

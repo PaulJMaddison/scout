@@ -1,6 +1,8 @@
-# Context Layer Web Console
+# Universal Context Layer Web Console
 
-The web console is a React 19 admin application built with Vite, TypeScript, TanStack Router, TanStack Query, React Hook Form, Zod, and Tailwind.
+The web console shows how Universal Context Layer turns existing business data into reusable context for apps, workflows, analytics, copilots, and agents.
+
+It is a React 19 admin application built with Vite, TypeScript, TanStack Router, TanStack Query, React Hook Form, Zod, and Tailwind.
 
 ## What it covers
 
@@ -9,13 +11,13 @@ The web console is a React 19 admin application built with Vite, TypeScript, Tan
 - selector builder with preview, validation, and recompute actions
 - semantic schema registry
 - customer context viewer with confidence, provenance, and timeline context
-- agent playground with grounded package inspection and cited recommendation output
+- example Intelligent Sales Support consumer with grounded package inspection and cited recommendation output
 - audit log and operational overview panels
 - client-side error boundary and request-id-aware API client
 
 ## Environment
 
-Copy [apps/web/.env.example](/C:/UCL/apps/web/.env.example) to `.env`.
+Copy [.env.example](./.env.example) to `.env.local`.
 
 Recommended local values:
 
@@ -30,6 +32,14 @@ For same-origin container deployment, the Docker image builds with:
 - `VITE_API_BASE_URL=`
 - `VITE_GRAPHQL_ENDPOINT=/graphql`
 - `VITE_DEMO_FALLBACK=false`
+
+For hosted static-site deployment, build with the public API origin:
+
+```env
+VITE_API_BASE_URL=https://<api-domain>
+VITE_GRAPHQL_ENDPOINT=https://<api-domain>/graphql
+VITE_DEMO_FALLBACK=false
+```
 
 ## Commands
 

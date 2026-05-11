@@ -20,8 +20,8 @@ export function DemoModePage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Step 1 of 5"
-        title="Use the data you already have to make AI commercially useful"
-        description="Context Layer turns fragmented CRM, product, billing, support, and warehouse data into a governed semantic layer that AI tools can use for better recommendations, safer actions, and clearer business outcomes."
+        title="This demo page shows how raw customer data becomes better AI sales recommendations."
+        description="Universal Context Layer turns fragmented CRM, product, billing, support, and warehouse data into a governed semantic layer that your own systems can consume."
         actions={
           <Link to={executiveStorySteps[1].to}>
             <Button>
@@ -40,18 +40,18 @@ export function DemoModePage() {
               <ArrowRight className="size-4 text-copper-300" />
               <Badge tone="neutral">Context Layer interprets the signals</Badge>
               <ArrowRight className="size-4 text-copper-300" />
-              <Badge tone="success">AI gets reusable business context</Badge>
+              <Badge tone="success">Consumers get reusable business context</Badge>
             </div>
 
             <div className="grid gap-4">
               <p className="text-xs uppercase tracking-[0.22em] text-copper-300">Executive framing</p>
               <h2 className="max-w-4xl font-display text-5xl leading-[1.02] text-ivory-50">
                 Your existing systems already contain the signals AI needs.
-                Context Layer turns them into meaning AI can use.
+                UCL turns them into meaning your systems can use.
               </h2>
               <p className="max-w-3xl text-base leading-8 text-ivory-200">
                 Universal Context Layer reads the operational estate exactly where it already lives, converts
-                disconnected events into governed business meaning, and gives product workflows and AI agents a
+                disconnected events into governed business meaning, and gives product workflows, analytics, copilots, and agents a
                 shared semantic contract they can cite, trust, and reuse.
               </p>
             </div>
@@ -73,9 +73,9 @@ export function DemoModePage() {
               </div>
               <div className="rounded-[24px] border border-white/10 bg-white/6 px-4 py-4">
                 <p className="text-xs uppercase tracking-[0.18em] text-copper-300">After</p>
-                <p className="mt-3 text-lg font-semibold text-ivory-50">Grounded AI interactions that are explainable</p>
+                <p className="mt-3 text-lg font-semibold text-ivory-50">Grounded decisions that are explainable</p>
                 <p className="mt-2 text-sm leading-7 text-ivory-200">
-                  The model receives a structured profile, cites facts, acknowledges weak signals, and produces commercially useful actions.
+                  Apps, workflows, and AI systems receive structured profiles, cited facts, and warnings when signals are weak.
                 </p>
               </div>
             </div>
@@ -86,7 +86,7 @@ export function DemoModePage() {
           <Card className="bg-[radial-gradient(circle_at_top_right,rgba(175,92,43,0.12),transparent_26%),linear-gradient(180deg,rgba(255,248,240,0.96),rgba(252,246,239,0.96))]">
             <p className="text-xs uppercase tracking-[0.18em] text-sage-700">Featured account</p>
             <h3 className="mt-3 font-display text-4xl text-ink-950">
-              {contextQuery.data?.companyName ?? featuredUser?.companyName ?? 'Northstar Logistics'}
+              {contextQuery.data?.companyName ?? featuredUser?.companyName ?? 'Larkspur Logistics Group'}
             </h3>
             <p className="mt-3 text-sm leading-7 text-ink-700">
               {contextQuery.data?.summary ??
@@ -109,7 +109,7 @@ export function DemoModePage() {
                   <div>
                     <p className="font-semibold text-ink-950">You do not need to replatform first</p>
                     <p className="mt-2 text-sm leading-7 text-ink-700">
-                      The first pages show how CRM, support, usage, billing, and web events stay where they are and still become usable by AI.
+                      The first pages show how CRM, support, usage, billing, and web events stay where they are and still become usable by downstream systems.
                     </p>
                   </div>
                 </div>
@@ -120,7 +120,7 @@ export function DemoModePage() {
                   <div>
                     <p className="font-semibold text-ink-950">The semantic lift is visible, not magical</p>
                     <p className="mt-2 text-sm leading-7 text-ink-700">
-                      You can walk through the exact timeline from raw signal to canonical business meaning to governed AI recommendation.
+                      You can walk through the exact timeline from raw signal to canonical business meaning to a governed example recommendation.
                     </p>
                   </div>
                 </div>
@@ -131,7 +131,7 @@ export function DemoModePage() {
                   <div>
                     <p className="font-semibold text-ink-950">Trust and governance stay intact</p>
                     <p className="mt-2 text-sm leading-7 text-ink-700">
-                      Confidence, freshness, provenance, masking, and audit are part of the product story, not an afterthought after the AI demo.
+                      Confidence, freshness, provenance, masking, and audit are part of the context layer, not an afterthought after the example demo.
                     </p>
                   </div>
                 </div>
@@ -179,7 +179,7 @@ export function DemoModePage() {
               <p className="text-xs uppercase tracking-[0.18em] text-copper-700">On-prem / hybrid</p>
               <p className="mt-3 font-semibold text-ink-950">Designed for legacy estates that cannot move quickly</p>
               <p className="mt-2 text-sm leading-7 text-ink-700">
-                Deploy close to regulated or hard-to-move operational systems while keeping the semantic layer and AI workflows under enterprise security and network constraints.
+                Deploy close to regulated or hard-to-move operational systems while keeping the semantic layer and downstream consumers under enterprise security and network constraints.
               </p>
             </Card>
 
@@ -195,7 +195,7 @@ export function DemoModePage() {
               <p className="text-xs uppercase tracking-[0.18em] text-copper-700">AI rollout advisory</p>
               <p className="mt-3 font-semibold text-ink-950">Context design tied to product and revenue outcomes</p>
               <p className="mt-2 text-sm leading-7 text-ink-700">
-                Workshops for semantic schema design, prompt and agent rollout, governance, KPI definition, and how to turn legacy data into grounded AI functionality across products.
+                Workshops for semantic schema design, context package design, bring your own AI rollout, governance, KPI definition, and how to turn legacy data into useful product workflows.
               </p>
             </Card>
 
@@ -254,9 +254,9 @@ export function DemoModePage() {
               </p>
             </Card>
             <Card className="bg-ivory-25">
-              <p className="font-semibold text-ink-950">4. AI Interaction Timeline</p>
+              <p className="font-semibold text-ink-950">4. Example Consumer Timeline</p>
               <p className="mt-2 text-sm leading-7 text-ink-700">
-                The exact moment where grounded context improves the recommendation, the advised action, and the business result.
+                The exact moment where grounded context improves the sales support recommendation, the advised action, and the business result.
               </p>
             </Card>
             <Card className="bg-ivory-25">
@@ -268,12 +268,12 @@ export function DemoModePage() {
           </div>
         </Panel>
 
-        <Panel eyebrow="Grounded objective" title="The live AI use case">
+        <Panel eyebrow="Grounded objective" title="Example consumer: Intelligent Sales Support">
           <Card className="bg-ink-950 text-ivory-50">
             <div className="flex items-start gap-3">
               <Sparkles className="mt-1 size-5 text-copper-300" />
               <div>
-                <p className="font-display text-2xl">Intelligent Sales Support</p>
+            <p className="font-display text-2xl">Example consumer: Intelligent Sales Support</p>
                 <p className="mt-3 text-sm leading-7 text-ivory-200">{featuredObjective}</p>
               </div>
             </div>
@@ -295,7 +295,7 @@ export function DemoModePage() {
             <Card className="bg-ivory-25">
               <p className="text-xs uppercase tracking-[0.18em] text-sage-700">What the product gains</p>
               <p className="mt-2 text-sm leading-7 text-ink-700">
-                Better prioritisation, faster rep preparation, safer AI behaviour, and a clearer route from existing systems to measurable product value.
+                Better prioritisation, faster rep preparation, safer recommendations, and a clearer route from existing systems to measurable product value.
               </p>
             </Card>
           </div>

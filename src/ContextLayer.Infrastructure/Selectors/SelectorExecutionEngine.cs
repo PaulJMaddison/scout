@@ -10,7 +10,8 @@ using ContextLayer.Domain.Enums;
 namespace ContextLayer.Infrastructure.Selectors;
 
 internal sealed class SelectorExecutionEngine(
-    IEnumerable<ISelectorSourceConnector> connectors,
+    IConnectorRegistry connectorRegistry,
+    IConnectorCredentialStore credentialStore,
     IClock clock)
     : ISelectorExecutionEngine
 {
@@ -33,12 +34,22 @@ internal sealed class SelectorExecutionEngine(
         {
             var dataSource = runtimeContext.DataSource;
             var connectionConfig = ParseJsonObject(dataSource.ConnectionConfigJson, "ConnectionConfigJson");
-            var connectorType = connectionConfig["connectorType"]?.GetValue<string>() ?? "mockSignal";
-            var connector = connectors.FirstOrDefault(item => string.Equals(item.ConnectorType, connectorType, StringComparison.OrdinalIgnoreCase))
-                ?? throw new InvalidOperationException($"No source connector is registered for connector type '{connectorType}'.");
+            var connectorType = connectionConfig["connectorType"]?.GetValue<string>() ?? "mock";
+            var connector = connectorRegistry.GetRequiredPlugin(connectorType);
+            var resolvedConfiguration = await credentialStore.ResolveConfigurationSecretsAsync(dataSource.TenantId, connectionConfig, cancellationToken);
+            var credentials = resolvedConfiguration["credentials"] as JsonObject ?? new JsonObject();
+            var fetchRequest = new ConnectorFetchRequest(
+                connectorType,
+                selector,
+                dataSource,
+                userProfile,
+                resolvedConfiguration,
+                credentials,
+                MapMode(mode),
+                new ConnectorExecutionTrigger(MapMode(mode).ToString(), null, "selector-engine"));
 
-            var fetchResult = await connector.FetchAsync(selector, userProfile, dataSource, connectionConfig, cancellationToken);
-            var normalized = (JsonObject)fetchResult.Payload.DeepClone();
+            var fetchResult = await connector.FetchAsync(fetchRequest, cancellationToken);
+            var normalized = (JsonObject)fetchResult.NormalizedPayload.DeepClone();
             var transformTrace = ApplyTransforms(normalized, ParseJsonObject(selector.ExpressionJson, "ExpressionJson"));
             var validationErrors = ValidateSchema(normalized, ParseJsonObject(selector.ValidationSchemaJson, "ValidationSchemaJson"));
             if (validationErrors.Count > 0)
@@ -48,7 +59,7 @@ internal sealed class SelectorExecutionEngine(
                     modeName,
                     false,
                     selector.Name,
-                    fetchResult.RawSourceDataJson,
+                    fetchResult.RawPayloadJson,
                     normalized.ToJsonString(),
                     validationErrors,
                     null,
@@ -72,7 +83,7 @@ internal sealed class SelectorExecutionEngine(
                 freshUntilUtc,
                 explanation,
                 BuildProvenance(selector, connectorType, fetchResult, validationErrors, transformTrace, ruleResult, confidence),
-                fetchResult.RawSourceDataJson,
+                fetchResult.RawPayloadJson,
                 normalized.ToJsonString(),
                 JsonSerializer.Serialize(validationErrors),
                 BuildTrace(selector, connectorType, fetchResult, normalized, validationErrors, transformTrace, ruleResult, explanation, confidence).ToJsonString(),
@@ -82,7 +93,7 @@ internal sealed class SelectorExecutionEngine(
                 modeName,
                 true,
                 selector.Name,
-                fetchResult.RawSourceDataJson,
+                fetchResult.RawPayloadJson,
                 normalized.ToJsonString(),
                 validationErrors,
                 candidate,
@@ -517,7 +528,7 @@ internal sealed class SelectorExecutionEngine(
     private static JsonObject BuildTrace(
         SelectorDefinition selector,
         string connectorType,
-        SourceFetchResult fetchResult,
+        ConnectorFetchResult fetchResult,
         JsonObject normalizedPayload,
         IReadOnlyList<string> validationErrors,
         IReadOnlyList<JsonObject> transformTrace,
@@ -551,7 +562,7 @@ internal sealed class SelectorExecutionEngine(
     private static string BuildProvenance(
         SelectorDefinition selector,
         string connectorType,
-        SourceFetchResult fetchResult,
+        ConnectorFetchResult fetchResult,
         IReadOnlyList<string> validationErrors,
         IReadOnlyList<JsonObject> transformTrace,
         RuleEvaluationResult ruleResult,
@@ -575,6 +586,15 @@ internal sealed class SelectorExecutionEngine(
             confidence
         });
     }
+
+    private static ConnectorRunMode MapMode(SelectorExecutionMode mode)
+        => mode switch
+        {
+            SelectorExecutionMode.Preview => ConnectorRunMode.Preview,
+            SelectorExecutionMode.DryRun => ConnectorRunMode.DryRun,
+            SelectorExecutionMode.Scheduled => ConnectorRunMode.ScheduledSync,
+            _ => ConnectorRunMode.Live
+        };
 
     private static string RenderTemplate(string template, IReadOnlyDictionary<string, string> tokens)
     {

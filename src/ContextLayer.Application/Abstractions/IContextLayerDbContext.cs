@@ -1,4 +1,5 @@
 using ContextLayer.Domain.Entities;
+using ContextLayer.Domain.Saas;
 using Microsoft.EntityFrameworkCore;
 
 namespace ContextLayer.Application.Abstractions;
@@ -8,6 +9,8 @@ public interface IContextLayerDbContext
     DbSet<Tenant> Tenants { get; }
 
     DbSet<UserProfile> UserProfiles { get; }
+
+    DbSet<OperatorAccount> OperatorAccounts { get; }
 
     DbSet<DataSource> DataSources { get; }
 
@@ -31,7 +34,39 @@ public interface IContextLayerDbContext
 
     DbSet<ProvenanceMetadata> ProvenanceMetadata { get; }
 
+    DbSet<SourceSystemEvent> SourceSystemEvents { get; }
+
     DbSet<UserSignal> UserSignals { get; }
+
+    DbSet<Workspace> Workspaces { get; }
+
+    DbSet<WorkspaceMember> WorkspaceMembers { get; }
+
+    DbSet<TenantSubscription> TenantSubscriptions { get; }
+
+    DbSet<BillingPlan> BillingPlans { get; }
+
+    DbSet<BillingPlanLimit> BillingPlanLimits { get; }
+
+    DbSet<ApiClient> ApiClients { get; }
+
+    DbSet<ConnectorInstallation> ConnectorInstallations { get; }
+
+    DbSet<ConnectorCatalogueEntry> ConnectorCatalogueEntries { get; }
+
+    DbSet<ContextPackage> ContextPackages { get; }
+
+    DbSet<BillingUsageRecord> BillingUsageRecords { get; }
+
+    DbSet<OnboardingState> OnboardingStates { get; }
+
+    DbSet<OnboardingApplication> OnboardingApplications { get; }
+
+    DbSet<BlueprintImport> BlueprintImports { get; }
+
+    DbSet<PiiRule> PiiRules { get; }
+
+    DbSet<AuditPolicy> AuditPolicies { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

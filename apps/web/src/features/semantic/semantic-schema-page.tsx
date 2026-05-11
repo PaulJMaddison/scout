@@ -97,7 +97,7 @@ export function SemanticSchemaPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Canonical model"
-        title="Create the shared business vocabulary for AI"
+        title="Create the shared business vocabulary that context consumers can trust."
         description="Define the canonical attributes selectors are allowed to populate so every workflow uses the same trusted meaning for customers, risk, intent, and opportunity."
         actions={
           <Button

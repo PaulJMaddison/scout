@@ -80,7 +80,12 @@ public enum AgentRunStatus
 public enum OperatorRole
 {
     TenantAdmin = 1,
-    SalesRep = 2
+    SalesUser = 2,
+    PlatformOwner = 3,
+    IntegrationAdmin = 4,
+    Analyst = 5,
+    ReadOnly = 6,
+    ApiClient = 7
 }
 
 public enum RecomputeJobStatus
@@ -89,4 +94,124 @@ public enum RecomputeJobStatus
     Running = 2,
     Completed = 3,
     Failed = 4
+}
+
+public enum WorkspaceStatus
+{
+    Active = 1,
+    Archived = 2
+}
+
+public enum WorkspaceMemberRole
+{
+    Owner = 1,
+    Admin = 2,
+    Member = 3,
+    Viewer = 4
+}
+
+public enum SubscriptionPlan
+{
+    Free = 1,
+    Pro = 2,
+    Business = 4,
+    Enterprise = 5
+}
+
+public enum SubscriptionStatus
+{
+    Trialing = 1,
+    Active = 2,
+    PastDue = 3,
+    Paused = 4,
+    Cancelled = 5
+}
+
+public enum ApiClientStatus
+{
+    Active = 1,
+    Disabled = 2,
+    Revoked = 3
+}
+
+public enum ConnectorInstallationStatus
+{
+    Draft = 1,
+    Active = 2,
+    Degraded = 3,
+    Disabled = 4
+}
+
+public enum ConnectorCatalogueAvailability
+{
+    OpenCore = 1,
+    Enterprise = 2,
+    SaaSManaged = 3,
+    ComingSoon = 4
+}
+
+public enum ContextPackageStatus
+{
+    Generated = 1,
+    Superseded = 2,
+    Revoked = 3
+}
+
+public enum BillingUsageMetric
+{
+    ContextSnapshotGenerated = 1,
+    ContextPackageGenerated = 2,
+    SelectorExecution = 3,
+    ApiRequest = 4,
+    WebhookDelivery = 5,
+    ConnectorSync = 6,
+    ContextLookup = 7,
+    RecomputeRequested = 8,
+    SourceEventIngested = 9,
+    BlueprintImported = 10
+}
+
+public enum BillingLimitMetric
+{
+    Tenants = 1,
+    Workspaces = 2,
+    Users = 3,
+    ApiClients = 4,
+    Selectors = 5,
+    ContextLookups = 6,
+    Recomputations = 7,
+    SourceEvents = 8,
+    BlueprintImports = 9,
+    RetentionDays = 10
+}
+
+public enum OnboardingStepStatus
+{
+    NotStarted = 1,
+    InProgress = 2,
+    Completed = 3,
+    Skipped = 4
+}
+
+public enum SourceSystemEventStatus
+{
+    Received = 1,
+    Ignored = 2,
+    Processed = 3,
+    Failed = 4,
+    DeadLettered = 5
+}
+
+public enum BlueprintImportStatus
+{
+    Uploaded = 1,
+    Validated = 2,
+    Rejected = 3,
+    Imported = 4
+}
+
+public enum GovernancePolicyStatus
+{
+    Active = 1,
+    Disabled = 2
 }

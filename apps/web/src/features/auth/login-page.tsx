@@ -51,10 +51,10 @@ export function LoginPage() {
             Context Layer
           </p>
           <h1 className="login-hero-title mt-4 max-w-[13ch] font-display text-[clamp(3rem,5.4vw,5.2rem)] leading-[0.96] tracking-tight text-ink-950">
-            Turn your existing business data into AI-ready context.
+            Turn your existing business data into trusted context for apps, workflows, and AI.
           </h1>
           <p className="login-hero-copy mt-4 max-w-2xl text-base leading-7 text-ink-700">
-            Context Layer reads CRM records, warehouse metrics, product signals, and support history, then creates governed semantic profiles that AI tools can cite, trust, and use.
+            UCL reads CRM records, warehouse metrics, product signals, and support history, then creates governed semantic profiles that apps, workflows, copilots, agents, and AI tools can cite, trust, and use.
           </p>
 
           <div className="login-compact-proof mt-5 flex flex-wrap gap-2">

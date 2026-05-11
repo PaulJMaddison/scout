@@ -12,7 +12,7 @@ export const selectorMappingOptions: Array<{
   {
     value: 'DIRECT_FIELD_MAPPING',
     label: 'Direct field mapping',
-    description: 'Pass a source field through with optional normalization steps.',
+    description: 'Pass a source field through with optional normalisation steps.',
   },
   {
     value: 'WEIGHTED_SCORING',

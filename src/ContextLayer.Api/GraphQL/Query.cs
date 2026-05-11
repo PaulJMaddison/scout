@@ -1,6 +1,7 @@
 using ContextLayer.Application.Contracts;
 using ContextLayer.Application.Services;
 using ContextLayer.Domain.Entities;
+using ContextLayer.Domain.Enums;
 using ContextLayer.Infrastructure.Auth;
 using HotChocolate.Authorization;
 
@@ -8,41 +9,59 @@ namespace ContextLayer.Api.GraphQL;
 
 public sealed class Query
 {
-    [Authorize(Roles = new[] { RoleNames.TenantAdmin })]
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin })]
     public Task<IReadOnlyList<Tenant>> Tenants(
         [Service] IContextLayerService service,
         CancellationToken cancellationToken)
         => service.GetTenantsAsync(cancellationToken);
 
-    [Authorize(Roles = new[] { RoleNames.TenantAdmin, RoleNames.SalesRep })]
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst, RoleNames.SalesUser, RoleNames.ReadOnly, RoleNames.ApiClient })]
     public Task<IReadOnlyList<UserProfileResult>> UserProfiles(
         string tenantSlug,
         [Service] IContextLayerService service,
         CancellationToken cancellationToken)
         => service.GetUserProfilesAsync(tenantSlug, cancellationToken);
 
-    [Authorize(Roles = new[] { RoleNames.TenantAdmin })]
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst, RoleNames.ReadOnly })]
     public Task<IReadOnlyList<DataSource>> DataSources(
         string tenantSlug,
         [Service] IContextLayerService service,
         CancellationToken cancellationToken)
         => service.GetDataSourcesAsync(tenantSlug, cancellationToken);
 
-    [Authorize(Roles = new[] { RoleNames.TenantAdmin })]
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin })]
+    public Task<IReadOnlyList<ConnectorPluginDefinitionResult>> ConnectorPlugins(
+        [Service] IContextLayerService service,
+        CancellationToken cancellationToken)
+        => service.GetConnectorPluginsAsync(cancellationToken);
+
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst, RoleNames.SalesUser, RoleNames.ReadOnly, RoleNames.ApiClient })]
+    public Task<IReadOnlyList<ConnectorCatalogueEntryResult>> ConnectorCatalogue(
+        [Service] IContextLayerService service,
+        CancellationToken cancellationToken)
+        => service.GetConnectorCatalogueAsync(cancellationToken);
+
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.ReadOnly })]
+    public Task<LicenceStatusResult> LicenceStatus(
+        [Service] ILicenceService service,
+        CancellationToken cancellationToken)
+        => service.GetStatusAsync(cancellationToken);
+
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst })]
     public Task<IReadOnlyList<SemanticAttributeDefinition>> SemanticAttributes(
         string tenantSlug,
         [Service] IContextLayerService service,
         CancellationToken cancellationToken)
         => service.GetSemanticAttributesAsync(tenantSlug, cancellationToken);
 
-    [Authorize(Roles = new[] { RoleNames.TenantAdmin })]
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst })]
     public Task<IReadOnlyList<SelectorDefinition>> Selectors(
         string tenantSlug,
         [Service] IContextLayerService service,
         CancellationToken cancellationToken)
         => service.GetSelectorsAsync(tenantSlug, cancellationToken);
 
-    [Authorize(Roles = new[] { RoleNames.TenantAdmin, RoleNames.SalesRep })]
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst, RoleNames.SalesUser, RoleNames.ReadOnly, RoleNames.ApiClient })]
     public Task<IReadOnlyList<SelectorExecution>> SelectorExecutions(
         string tenantSlug,
         string? externalUserId,
@@ -50,14 +69,14 @@ public sealed class Query
         CancellationToken cancellationToken)
         => service.GetSelectorExecutionsAsync(tenantSlug, externalUserId, cancellationToken);
 
-    [Authorize(Roles = new[] { RoleNames.TenantAdmin, RoleNames.SalesRep })]
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst, RoleNames.SalesUser, RoleNames.ReadOnly })]
     public Task<IReadOnlyList<PromptTemplate>> PromptTemplates(
         string tenantSlug,
         [Service] IContextLayerService service,
         CancellationToken cancellationToken)
         => service.GetPromptTemplatesAsync(tenantSlug, cancellationToken);
 
-    [Authorize(Roles = new[] { RoleNames.TenantAdmin, RoleNames.SalesRep })]
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.Analyst, RoleNames.SalesUser })]
     public Task<IReadOnlyList<AgentRun>> AgentRuns(
         string tenantSlug,
         string? externalUserId,
@@ -65,21 +84,103 @@ public sealed class Query
         CancellationToken cancellationToken)
         => service.GetAgentRunsAsync(tenantSlug, externalUserId, cancellationToken);
 
-    [Authorize(Roles = new[] { RoleNames.TenantAdmin })]
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin })]
     public Task<IReadOnlyList<AuditEvent>> AuditEvents(
         string tenantSlug,
         [Service] IContextLayerService service,
         CancellationToken cancellationToken)
         => service.GetAuditEventsAsync(tenantSlug, cancellationToken);
 
-    [Authorize(Roles = new[] { RoleNames.TenantAdmin, RoleNames.SalesRep })]
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst })]
+    public Task<IReadOnlyList<SourceSystemEventHistoryResult>> SourceSystemEvents(
+        string tenantSlug,
+        string? workspaceSlug,
+        string? sourceSystem,
+        string? eventType,
+        string? status,
+        DateTime? fromUtc,
+        DateTime? toUtc,
+        [Service] IContextLayerService service,
+        CancellationToken cancellationToken)
+        => service.GetSourceSystemEventsAsync(tenantSlug, workspaceSlug, sourceSystem, eventType, status, fromUtc, toUtc, cancellationToken);
+
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin })]
+    public Task<SaasArchitectureOverviewResult> SaasArchitectureOverview(
+        string tenantSlug,
+        [Service] IContextLayerService service,
+        CancellationToken cancellationToken)
+        => service.GetSaasArchitectureOverviewAsync(tenantSlug, cancellationToken);
+
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin })]
+    public Task<OrganisationSettingsResult> OrganisationSettings(
+        string tenantSlug,
+        [Service] IContextLayerService service,
+        CancellationToken cancellationToken)
+        => service.GetOrganisationSettingsAsync(tenantSlug, cancellationToken);
+
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst, RoleNames.ReadOnly })]
+    public Task<IReadOnlyList<WorkspaceSummaryResult>> Workspaces(
+        string tenantSlug,
+        string? status,
+        [Service] IContextLayerService service,
+        CancellationToken cancellationToken)
+        => service.GetWorkspacesAsync(tenantSlug, status, cancellationToken);
+
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin })]
+    public Task<IReadOnlyList<OperatorAccountSummaryResult>> OperatorAccounts(
+        string tenantSlug,
+        [Service] IContextLayerService service,
+        CancellationToken cancellationToken)
+        => service.GetOperatorAccountsAsync(tenantSlug, cancellationToken);
+
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin })]
+    public Task<IReadOnlyList<ApiClientSummaryResult>> ApiClients(
+        string tenantSlug,
+        [Service] ApiClientKeyService service,
+        CancellationToken cancellationToken)
+        => service.ListAsync(tenantSlug, cancellationToken);
+
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin })]
+    public Task<IReadOnlyList<BlueprintImportHistoryResult>> BlueprintImports(
+        string tenantSlug,
+        string? status,
+        [Service] IContextLayerService service,
+        CancellationToken cancellationToken)
+        => service.GetBlueprintImportsAsync(tenantSlug, status, cancellationToken);
+
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst })]
+    public Task<IReadOnlyList<GovernancePolicyResult>> GovernancePolicies(
+        string tenantSlug,
+        [Service] IContextLayerService service,
+        CancellationToken cancellationToken)
+        => service.GetGovernancePoliciesAsync(tenantSlug, cancellationToken);
+
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin })]
+    public async Task<BillingPlanDefinitionResult> CurrentPlan(
+        string tenantSlug,
+        [Service] IUsageMeteringService usageMeteringService,
+        [Service] IBillingPlanCatalog planCatalog,
+        CancellationToken cancellationToken)
+    {
+        var overview = await usageMeteringService.GetUsageOverviewAsync(tenantSlug, cancellationToken);
+        return await planCatalog.GetPlanAsync(Enum.Parse<SubscriptionPlan>(overview.Plan), cancellationToken);
+    }
+
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin })]
+    public Task<BillingUsageOverviewResult> BillingUsage(
+        string tenantSlug,
+        [Service] IUsageMeteringService usageMeteringService,
+        CancellationToken cancellationToken)
+        => usageMeteringService.GetUsageOverviewAsync(tenantSlug, cancellationToken);
+
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst, RoleNames.SalesUser, RoleNames.ReadOnly, RoleNames.ApiClient })]
     public Task<ContextProfileResult?> UserContext(
         UserContextLookupInput input,
         [Service] IContextLayerService service,
         CancellationToken cancellationToken)
         => service.GetUserContextAsync(input, cancellationToken);
 
-    [Authorize(Roles = new[] { RoleNames.TenantAdmin, RoleNames.SalesRep })]
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.Analyst, RoleNames.SalesUser, RoleNames.ApiClient })]
     public Task<SalesContextPackageResult?> SalesContextPackage(
         SalesContextPackageInput input,
         [Service] IContextLayerService service,

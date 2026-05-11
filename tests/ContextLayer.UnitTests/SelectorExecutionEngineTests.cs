@@ -3,6 +3,7 @@ using ContextLayer.Application.Abstractions;
 using ContextLayer.Domain.Entities;
 using ContextLayer.Domain.Enums;
 using ContextLayer.Infrastructure.Persistence;
+using ContextLayer.Infrastructure.Connectors;
 using ContextLayer.Infrastructure.Selectors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -401,11 +402,14 @@ public sealed class SelectorExecutionEngineTests
 
             var clock = new TestClock(new DateTime(2026, 05, 09, 12, 00, 00, DateTimeKind.Utc));
             services.AddSingleton<IClock>(clock);
+            services.AddDataProtection();
+            services.AddHttpClient("context-layer-connectors");
             services.AddScoped<ISelectorExecutionEngine, SelectorExecutionEngine>();
-            services.AddScoped<ISelectorSourceConnector, MockSignalSourceConnector>();
-            services.AddScoped<ISelectorSourceConnector, MockPayloadSourceConnector>();
-            services.AddScoped<ISelectorSourceConnector, ApiPayloadSourceConnector>();
-            services.AddScoped<ISelectorSourceConnector, SqlTableSourceConnector>();
+            services.AddScoped<IConnectorPlugin, MockConnectorPlugin>();
+            services.AddScoped<IConnectorPlugin, RestApiConnectorPlugin>();
+            services.AddScoped<IConnectorPlugin, SqlConnectorPlugin>();
+            services.AddScoped<IConnectorRegistry, ConnectorRegistry>();
+            services.AddScoped<IConnectorCredentialStore, ProtectedConnectorCredentialStore>();
 
             var provider = services.BuildServiceProvider();
             var scope = provider.CreateAsyncScope();

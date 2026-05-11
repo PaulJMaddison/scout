@@ -1,0 +1,138 @@
+# Connector Plugin Model
+
+Universal Context Layer now resolves source-system access through a registry-backed connector plugin model. The selector engine still receives raw and normalised payloads for a subject, but connector lifecycle concerns now live behind dedicated plugin interfaces.
+
+## Goals
+
+- Keep selector expression, validation, and fact materialization logic unchanged.
+- Let multiple source-system connectors share one runtime contract.
+- Support preview, dry run, scheduled sync, and event-triggered recompute modes.
+- Return provenance, freshness, diagnostics, and health signals in a consistent shape.
+- Persist credentials outside the selector-visible configuration JSON.
+
+## Core Interfaces
+
+- `IConnectorPlugin`
+  - declares connector metadata, supported capabilities, config schema, validation, health checks, and fetch execution
+- `IConnectorRegistry`
+  - resolves a connector by canonical type or alias such as `crmApi`, `billingApi`, `telemetryApi`, `supportApi`, or `fileUpload`
+- `IConnectorCredentialStore`
+  - stores secrets as protected `secret://...` references and resolves them at runtime
+
+Key files:
+
+- `src/ContextLayer.Application/Abstractions/IConnectorPlugin.cs`
+- `src/ContextLayer.Infrastructure/Connectors/ConnectorRegistry.cs`
+- `src/ContextLayer.Infrastructure/Connectors/ProtectedConnectorCredentialStore.cs`
+
+## Built-In Plugins
+
+- `sqlDatabase`
+  - alias: `sqlTable`
+  - current use: SQL and warehouse-style selectors against generic or demo schemas
+- `restApi`
+  - aliases: `apiPayload`, `crmApi`, `billingApi`, `telemetryApi`, `productTelemetry`, `supportApi`
+  - current use: generic HTTP-backed operational APIs and demo integrations
+- `mock`
+  - aliases: `mockPayload`, `mockSignal`, `fileUpload`
+  - current use: deterministic demos, uploaded payload fixtures, safe file-style examples, and tests
+
+## Open core connector boundary
+
+The public repository may include mock connectors, generic SQL examples, generic REST examples, and safe file/upload fixtures when they use fictional data and do not encode a customer-specific schema.
+
+The public repository must not implement real enterprise connectors. Vendor-specific connectors, customer-specific mappings, managed sync implementations, credential vault integrations, and support-backed connector packages should live in a private enterprise repository and depend on the public connector contracts.
+
+If a connector describes the generic protocol shape, it can be public. If it describes how to integrate a named vendor or customer estate, it should normally be private.
+
+## Connector Configuration
+
+All persisted connector configurations include a canonical `connectorType` field.
+
+### SQL Example
+
+```json
+{
+  "connectorType": "sqlDatabase",
+  "mode": "customerOpsDatabase",
+  "tableName": "customer_context_rollups",
+  "tenantSlug": "demo",
+  "tenantSlugColumn": "tenant_slug",
+  "userIdColumn": "external_user_id",
+  "observedAtColumn": "observed_at_utc",
+  "columns": ["plan_interest_signal", "active_days_30"]
+}
+```
+
+### REST Example
+
+```json
+{
+  "connectorType": "restApi",
+  "baseUrl": "https://api.example.com",
+  "pathTemplate": "/v1/customers/{externalUserId}",
+  "method": "GET",
+  "observedAtPath": "meta.observedAtUtc",
+  "credentials": {
+    "apiKey": "secret://tenant/data-source/apiKey"
+  }
+}
+```
+
+### Mock Example
+
+```json
+{
+  "connectorType": "mock",
+  "records": [
+    {
+      "externalUserId": "123",
+      "observedAtUtc": "2026-05-11T12:00:00Z",
+      "payload": {
+        "crm": {
+          "preferredChannel": "email"
+        }
+      }
+    }
+  ]
+}
+```
+
+## GraphQL
+
+New GraphQL operations:
+
+- `connectorPlugins`
+- `registerConnector(input: RegisterConnectorInput!)`
+- `validateConnectorConfiguration(input: ValidateConnectorConfigurationInput!)`
+- `checkConnectorHealth(input: CheckConnectorHealthInput!)`
+
+These operations reuse the application service and credential store instead of bypassing the domain model.
+
+## Credential Storage
+
+Secrets are stored in `connector_credentials` with protected values. Persisted connector configs only keep references:
+
+```json
+{
+  "credentials": {
+    "apiKey": "secret://<tenant>/<data-source>/apiKey"
+  }
+}
+```
+
+The selector engine resolves secrets through `IConnectorCredentialStore` immediately before plugin execution.
+
+## Tests
+
+Coverage added in:
+
+- `tests/ContextLayer.UnitTests/ConnectorPluginModelTests.cs`
+- `tests/ContextLayer.UnitTests/SelectorExecutionEngineTests.cs`
+- `tests/ContextLayer.IntegrationTests/GraphQlAuthorizationIntegrationTests.cs`
+
+These tests cover alias resolution, secret persistence, preview-compatible REST behavior, selector execution through the plugin registry, and GraphQL connector registration.
+
+The public repository intentionally ships only generic connector contracts and safe example implementations. Premium commercial connector implementations are expected to live in a separate private enterprise repository.
+
+For the wider public/private product boundary, see [open-core-boundary.md](open-core-boundary.md).

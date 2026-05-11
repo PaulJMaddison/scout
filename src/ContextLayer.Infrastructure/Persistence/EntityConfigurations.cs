@@ -296,6 +296,64 @@ internal sealed class ProvenanceMetadataConfiguration : IEntityTypeConfiguration
     }
 }
 
+internal sealed class ConnectorCredentialConfiguration : IEntityTypeConfiguration<ConnectorCredential>
+{
+    public void Configure(EntityTypeBuilder<ConnectorCredential> builder)
+    {
+        builder.ToTable("connector_credentials");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.ConnectorType).HasMaxLength(100).IsRequired();
+        builder.Property(x => x.SecretKey).HasMaxLength(200).IsRequired();
+        builder.Property(x => x.SecretReference).HasMaxLength(300).IsRequired();
+        builder.Property(x => x.ProtectedValue).HasMaxLength(8_000).IsRequired();
+        builder.HasIndex(x => x.SecretReference).IsUnique();
+        builder.HasIndex(x => new { x.TenantId, x.DataSourceId, x.SecretKey }).IsUnique();
+        builder.HasOne(x => x.DataSource)
+            .WithMany()
+            .HasForeignKey(x => x.DataSourceId)
+            .OnDelete(DeleteBehavior.Cascade);
+    }
+}
+
+internal sealed class SourceSystemEventConfiguration : IEntityTypeConfiguration<SourceSystemEvent>
+{
+    public void Configure(EntityTypeBuilder<SourceSystemEvent> builder)
+    {
+        builder.ToTable("source_system_events");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.EventId).HasMaxLength(160).IsRequired();
+        builder.Property(x => x.SourceSystem).HasMaxLength(120).IsRequired();
+        builder.Property(x => x.EventType).HasMaxLength(160).IsRequired();
+        builder.Property(x => x.ExternalUserId).HasMaxLength(200);
+        builder.Property(x => x.ExternalAccountId).HasMaxLength(200);
+        builder.Property(x => x.PayloadJson).HasColumnType("jsonb").IsRequired();
+        builder.Property(x => x.HeadersJson).HasColumnType("jsonb").IsRequired();
+        builder.Property(x => x.ProcessingSummary).HasMaxLength(2_000).IsRequired();
+        builder.Property(x => x.ErrorMessage).HasMaxLength(4_000);
+        builder.Property(x => x.DeadLetterReason).HasMaxLength(4_000);
+        builder.Property(x => x.CorrelationId).HasMaxLength(64).IsRequired();
+        builder.HasIndex(x => new { x.TenantId, x.SourceSystem, x.EventId }).IsUnique();
+        builder.HasIndex(x => new { x.TenantId, x.ReceivedAtUtc });
+        builder.HasIndex(x => new { x.TenantId, x.Status, x.ReceivedAtUtc });
+        builder.HasOne(x => x.Tenant)
+            .WithMany()
+            .HasForeignKey(x => x.TenantId)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(x => x.UserProfile)
+            .WithMany()
+            .HasForeignKey(x => x.UserProfileId)
+            .OnDelete(DeleteBehavior.SetNull);
+        builder.HasOne(x => x.DataSource)
+            .WithMany()
+            .HasForeignKey(x => x.DataSourceId)
+            .OnDelete(DeleteBehavior.SetNull);
+        builder.HasOne(x => x.Workspace)
+            .WithMany()
+            .HasForeignKey(x => x.WorkspaceId)
+            .OnDelete(DeleteBehavior.SetNull);
+    }
+}
+
 internal sealed class UserSignalConfiguration : IEntityTypeConfiguration<UserSignal>
 {
     public void Configure(EntityTypeBuilder<UserSignal> builder)

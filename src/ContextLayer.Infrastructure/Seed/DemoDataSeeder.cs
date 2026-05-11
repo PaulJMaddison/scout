@@ -3,6 +3,7 @@ using ContextLayer.Application.Abstractions;
 using ContextLayer.Domain.Constants;
 using ContextLayer.Domain.Entities;
 using ContextLayer.Domain.Enums;
+using ContextLayer.Domain.Saas;
 using ContextLayer.Infrastructure.Auth;
 using ContextLayer.Infrastructure.Jobs;
 using ContextLayer.Infrastructure.Persistence;
@@ -573,22 +574,91 @@ public static class DemoDataSeeder
         var attributes = new List<SemanticAttributeDefinition>();
         var selectors = new List<SelectorDefinition>();
         var promptTemplates = new List<PromptTemplate>();
+        var workspaces = new List<Workspace>();
+        var workspaceMembers = new List<WorkspaceMember>();
+        var billingPlans = CreateBillingPlans(utcNow);
+        var billingPlanLimits = CreateBillingPlanLimits(billingPlans, utcNow);
+        var subscriptions = new List<TenantSubscription>();
+        var apiClients = new List<ApiClient>();
+        var connectorInstallations = new List<ConnectorInstallation>();
+        var onboardingStates = new List<OnboardingState>();
+        var billingUsageRecords = new List<BillingUsageRecord>();
+        var workspaceByTenantId = new Dictionary<Guid, Workspace>();
 
         foreach (var opsTenant in opsTenants)
         {
             var tenant = Tenant.Create(opsTenant.Slug, opsTenant.Name, utcNow);
             tenants.Add(tenant);
+            var workspace = Workspace.Create(
+                tenant.Id,
+                "default",
+                opsTenant.Slug == "demo" ? "Demo Revenue Workspace" : "Summit Commercial Workspace",
+                "Default workspace for the fictional local demo tenant.",
+                true,
+                utcNow);
+            workspaces.Add(workspace);
+            workspaceByTenantId[tenant.Id] = workspace;
 
             if (opsTenant.Slug == "demo")
             {
+                operatorAccounts.Add(OperatorAccount.Create(tenant.Id, "owner@contextlayer.local", "Pat Quinn", passwordHashingService.HashPassword("DemoOwner123!"), OperatorRole.PlatformOwner, utcNow));
                 operatorAccounts.Add(OperatorAccount.Create(tenant.Id, "admin@contextlayer.local", "Dana Mercer", passwordHashingService.HashPassword("DemoAdmin123!"), OperatorRole.TenantAdmin, utcNow));
-                operatorAccounts.Add(OperatorAccount.Create(tenant.Id, "rep@contextlayer.local", "Jordan Kim", passwordHashingService.HashPassword("DemoSales123!"), OperatorRole.SalesRep, utcNow));
+                operatorAccounts.Add(OperatorAccount.Create(tenant.Id, "integrations@contextlayer.local", "Riley Chen", passwordHashingService.HashPassword("DemoIntegrations123!"), OperatorRole.IntegrationAdmin, utcNow));
+                operatorAccounts.Add(OperatorAccount.Create(tenant.Id, "analyst@contextlayer.local", "Morgan Lee", passwordHashingService.HashPassword("DemoAnalyst123!"), OperatorRole.Analyst, utcNow));
+                operatorAccounts.Add(OperatorAccount.Create(tenant.Id, "rep@contextlayer.local", "Jordan Kim", passwordHashingService.HashPassword("DemoSales123!"), OperatorRole.SalesUser, utcNow));
+                operatorAccounts.Add(OperatorAccount.Create(tenant.Id, "readonly@contextlayer.local", "Taylor Brooks", passwordHashingService.HashPassword("DemoReadOnly123!"), OperatorRole.ReadOnly, utcNow));
             }
             else
             {
                 operatorAccounts.Add(OperatorAccount.Create(tenant.Id, "admin@summit.contextlayer.local", "Maya Sullivan", passwordHashingService.HashPassword("SummitAdmin123!"), OperatorRole.TenantAdmin, utcNow));
-                operatorAccounts.Add(OperatorAccount.Create(tenant.Id, "rep@summit.contextlayer.local", "Leo Grant", passwordHashingService.HashPassword("SummitSales123!"), OperatorRole.SalesRep, utcNow));
+                operatorAccounts.Add(OperatorAccount.Create(tenant.Id, "integrations@summit.contextlayer.local", "Avery Patel", passwordHashingService.HashPassword("SummitIntegrations123!"), OperatorRole.IntegrationAdmin, utcNow));
+                operatorAccounts.Add(OperatorAccount.Create(tenant.Id, "analyst@summit.contextlayer.local", "Casey Nguyen", passwordHashingService.HashPassword("SummitAnalyst123!"), OperatorRole.Analyst, utcNow));
+                operatorAccounts.Add(OperatorAccount.Create(tenant.Id, "rep@summit.contextlayer.local", "Leo Grant", passwordHashingService.HashPassword("SummitSales123!"), OperatorRole.SalesUser, utcNow));
+                operatorAccounts.Add(OperatorAccount.Create(tenant.Id, "readonly@summit.contextlayer.local", "Jamie Walsh", passwordHashingService.HashPassword("SummitReadOnly123!"), OperatorRole.ReadOnly, utcNow));
             }
+
+            var tenantOperators = operatorAccounts.Where(x => x.TenantId == tenant.Id).ToList();
+            workspaceMembers.AddRange(tenantOperators.Select(account => WorkspaceMember.Create(
+                tenant.Id,
+                workspace.Id,
+                account.Id,
+                account.Role is OperatorRole.PlatformOwner or OperatorRole.TenantAdmin or OperatorRole.IntegrationAdmin
+                    ? WorkspaceMemberRole.Admin
+                    : account.Role == OperatorRole.ReadOnly ? WorkspaceMemberRole.Viewer : WorkspaceMemberRole.Member,
+                utcNow)));
+            subscriptions.Add(TenantSubscription.Create(
+                tenant.Id,
+                opsTenant.Slug == "demo" ? SubscriptionPlan.Pro : SubscriptionPlan.Business,
+                SubscriptionStatus.Active,
+                $"demo-billing-{tenant.Slug}",
+                Serialize(new
+                {
+                    mode = "fictional-demo",
+                    maxWorkspaces = 1,
+                    maxApiClients = 2,
+                    maxConnectors = 5,
+                    hostedBilling = false
+                }),
+                utcNow.AddDays(-14),
+                null,
+                utcNow.AddMonths(1),
+                utcNow));
+            apiClients.Add(ApiClient.Create(
+                tenant.Id,
+                workspace.Id,
+                tenant.Slug == "demo" ? "svc-demo-admin" : "svc-summit-admin",
+                tenant.Slug == "demo" ? "Demo Service Client" : "Summit Service Client",
+                passwordHashingService.HashPassword(tenant.Slug == "demo" ? "SvcSecret123!" : "SummitSvcSecret123!"),
+                Serialize(new[] { "context.read", "context.recompute", "connectors.read" }),
+                utcNow));
+            onboardingStates.AddRange(new[]
+            {
+                OnboardingState.Create(tenant.Id, workspace.Id, "create-workspace", OnboardingStepStatus.Completed, Serialize(new { source = "seed" }), utcNow),
+                OnboardingState.Create(tenant.Id, workspace.Id, "connect-source-system", OnboardingStepStatus.Completed, Serialize(new { source = "seed" }), utcNow),
+                OnboardingState.Create(tenant.Id, workspace.Id, "define-semantic-mapping", OnboardingStepStatus.Completed, Serialize(new { source = "seed" }), utcNow),
+                OnboardingState.Create(tenant.Id, workspace.Id, "generate-context-package", OnboardingStepStatus.Completed, Serialize(new { source = "seed" }), utcNow),
+                OnboardingState.Create(tenant.Id, workspace.Id, "configure-webhooks", OnboardingStepStatus.NotStarted, Serialize(new { publicDemo = true }), utcNow)
+            });
 
             var tenantContacts = contacts.Where(x => x.CustomerOpsTenantId == opsTenant.Id).ToList();
             foreach (var contact in tenantContacts)
@@ -708,6 +778,53 @@ public static class DemoDataSeeder
                 utcNow);
 
             dataSources.AddRange(contactSignalsSource, emailSignalsSource, contextRollupSource);
+            connectorInstallations.AddRange(new[]
+            {
+                ConnectorInstallation.Create(
+                    tenant.Id,
+                    workspace.Id,
+                    contactSignalsSource.Id,
+                    "sqlTable",
+                    Serialize(new[] { "preview", "scheduledSync", "provenance" }),
+                    utcNow),
+                ConnectorInstallation.Create(
+                    tenant.Id,
+                    workspace.Id,
+                    emailSignalsSource.Id,
+                    "sqlTable",
+                    Serialize(new[] { "preview", "scheduledSync", "provenance" }),
+                    utcNow),
+                ConnectorInstallation.Create(
+                    tenant.Id,
+                    workspace.Id,
+                    contextRollupSource.Id,
+                    "sqlTable",
+                    Serialize(new[] { "preview", "scheduledSync", "provenance" }),
+                    utcNow)
+            });
+            billingUsageRecords.AddRange(new[]
+            {
+                BillingUsageRecord.Create(
+                    tenant.Id,
+                    workspace.Id,
+                    BillingUsageMetric.SelectorExecution,
+                    tenantContacts.Count * 10,
+                    utcNow.Date.AddDays(-1),
+                    utcNow.Date,
+                    "seed",
+                    Serialize(new { demo = true }),
+                    utcNow),
+                BillingUsageRecord.Create(
+                    tenant.Id,
+                    workspace.Id,
+                    BillingUsageMetric.ContextSnapshotGenerated,
+                    tenantContacts.Count,
+                    utcNow.Date.AddDays(-1),
+                    utcNow.Date,
+                    "seed",
+                    Serialize(new { demo = true }),
+                    utcNow)
+            });
             selectors.AddRange(CreateSelectors(tenant.Id, tenantAttributes, contactSignalsSource, emailSignalsSource, contextRollupSource, utcNow));
             promptTemplates.Add(CreatePromptTemplate(tenant.Id, utcNow));
         }
@@ -718,12 +835,21 @@ public static class DemoDataSeeder
         }
 
         contextDbContext.Tenants.AddRange(tenants);
+        contextDbContext.Workspaces.AddRange(workspaces);
         contextDbContext.OperatorAccounts.AddRange(operatorAccounts);
+        contextDbContext.WorkspaceMembers.AddRange(workspaceMembers);
+        contextDbContext.BillingPlans.AddRange(billingPlans);
+        contextDbContext.BillingPlanLimits.AddRange(billingPlanLimits);
+        contextDbContext.TenantSubscriptions.AddRange(subscriptions);
+        contextDbContext.ApiClients.AddRange(apiClients);
         contextDbContext.UserProfiles.AddRange(userProfiles);
         contextDbContext.DataSources.AddRange(dataSources);
+        contextDbContext.ConnectorInstallations.AddRange(connectorInstallations);
         contextDbContext.SemanticAttributeDefinitions.AddRange(attributes);
         contextDbContext.SelectorDefinitions.AddRange(selectors);
         contextDbContext.PromptTemplates.AddRange(promptTemplates);
+        contextDbContext.OnboardingStates.AddRange(onboardingStates);
+        contextDbContext.BillingUsageRecords.AddRange(billingUsageRecords);
         await contextDbContext.SaveChangesAsync(cancellationToken);
 
         foreach (var tenant in tenants)
@@ -757,7 +883,92 @@ public static class DemoDataSeeder
                 await processor.ProcessAsync(
                     new ContextRecomputeRequest(tenant.Id, userProfile.Id, correlationId, executions.Select(x => x.Id).ToList()),
                     cancellationToken);
+
+                var latestSnapshot = await contextDbContext.ContextSnapshots
+                    .AsNoTracking()
+                    .Where(x => x.TenantId == tenant.Id && x.UserProfileId == userProfile.Id)
+                    .OrderByDescending(x => x.GeneratedAtUtc)
+                    .FirstOrDefaultAsync(cancellationToken);
+                if (latestSnapshot is not null && workspaceByTenantId.TryGetValue(tenant.Id, out var workspace))
+                {
+                    contextDbContext.ContextPackages.Add(ContextPackage.Create(
+                        tenant.Id,
+                        workspace.Id,
+                        latestSnapshot.Id,
+                        $"{tenant.Slug}-{userProfile.ExternalUserId}-sales-demo",
+                        "sales-copilot",
+                        Serialize(new
+                        {
+                            schemaVersion = "2026-05-11",
+                            generatedFor = userProfile.ExternalUserId,
+                            channels = new[] { "graphql", "rest", "sdk" },
+                            publicDemo = true
+                        }),
+                        Serialize(new[] { "graphql", "rest", "sdk" }),
+                        utcNow,
+                        utcNow.AddDays(7)));
+                    contextDbContext.BillingUsageRecords.Add(BillingUsageRecord.Create(
+                        tenant.Id,
+                        workspace.Id,
+                        BillingUsageMetric.ContextPackageGenerated,
+                        1,
+                        utcNow.Date,
+                        utcNow.Date.AddDays(1),
+                        "seed",
+                        Serialize(new { userProfile.ExternalUserId, publicDemo = true }),
+                        utcNow));
+                    await contextDbContext.SaveChangesAsync(cancellationToken);
+                }
             }
+        }
+    }
+
+    private static IReadOnlyList<BillingPlan> CreateBillingPlans(DateTime utcNow)
+        =>
+        [
+            BillingPlan.Create(SubscriptionPlan.Free, "Free", "Safe local evaluation and proof-of-concepts.", true, 10, "provider-plan-free", utcNow),
+            BillingPlan.Create(SubscriptionPlan.Pro, "Pro", "Small teams standardising semantic context across a few systems.", true, 20, "provider-plan-pro", utcNow),
+            BillingPlan.Create(SubscriptionPlan.Business, "Business", "Production teams with multiple workspaces and integration surfaces.", true, 30, "provider-plan-business", utcNow),
+            BillingPlan.Create(SubscriptionPlan.Enterprise, "Enterprise", "Private-cloud, managed SaaS, and custom commercial agreements.", false, 40, "provider-plan-enterprise", utcNow)
+        ];
+
+    private static IReadOnlyList<BillingPlanLimit> CreateBillingPlanLimits(
+        IReadOnlyList<BillingPlan> plans,
+        DateTime utcNow)
+    {
+        var byPlan = plans.ToDictionary(x => x.Plan);
+        var limits = new List<BillingPlanLimit>();
+        Add(byPlan[SubscriptionPlan.Free], BillingLimitMetric.Tenants, 1, "account", "hard", "One tenant per Free subscription.");
+        Add(byPlan[SubscriptionPlan.Free], BillingLimitMetric.Workspaces, 1, "active", "hard", "One active workspace.");
+        Add(byPlan[SubscriptionPlan.Free], BillingLimitMetric.Users, 5, "active", "hard", "Five operator users.");
+        Add(byPlan[SubscriptionPlan.Free], BillingLimitMetric.ApiClients, 1, "active", "hard", "One machine client.");
+        Add(byPlan[SubscriptionPlan.Free], BillingLimitMetric.Selectors, 5, "active", "hard", "Five selectors.");
+        Add(byPlan[SubscriptionPlan.Free], BillingLimitMetric.ContextLookups, 1_000, "monthly", "hard", "Monthly context reads.");
+        Add(byPlan[SubscriptionPlan.Free], BillingLimitMetric.Recomputations, 100, "monthly", "hard", "Monthly recomputations.");
+        Add(byPlan[SubscriptionPlan.Free], BillingLimitMetric.SourceEvents, 1_000, "monthly", "hard", "Monthly source-system events.");
+        Add(byPlan[SubscriptionPlan.Free], BillingLimitMetric.BlueprintImports, 1, "monthly", "hard", "Monthly blueprint imports.");
+        Add(byPlan[SubscriptionPlan.Free], BillingLimitMetric.RetentionDays, 30, "retention", "policy", "Retention target.");
+
+        AddPlan(byPlan[SubscriptionPlan.Pro], 1, 3, 25, 5, 50, 25_000, 2_500, 25_000, 10, 90);
+        AddPlan(byPlan[SubscriptionPlan.Business], 3, 10, 100, 20, 250, 250_000, 25_000, 250_000, 50, 365);
+        AddPlan(byPlan[SubscriptionPlan.Enterprise], null, null, null, null, null, null, null, null, null, 2_555);
+        return limits;
+
+        void Add(BillingPlan plan, BillingLimitMetric metric, long? limit, string window, string enforcement, string notes)
+            => limits.Add(BillingPlanLimit.Create(plan.Id, metric, limit, window, enforcement, notes, utcNow));
+
+        void AddPlan(BillingPlan plan, long? tenants, long? workspaces, long? users, long? apiClients, long? selectors, long? contextLookups, long? recomputations, long? sourceEvents, long? blueprintImports, long retentionDays)
+        {
+            Add(plan, BillingLimitMetric.Tenants, tenants, "account", tenants is null ? "contract" : "hard", "Tenant allowance.");
+            Add(plan, BillingLimitMetric.Workspaces, workspaces, "active", workspaces is null ? "contract" : "hard", "Active workspace allowance.");
+            Add(plan, BillingLimitMetric.Users, users, "active", users is null ? "contract" : "hard", "Operator user allowance.");
+            Add(plan, BillingLimitMetric.ApiClients, apiClients, "active", apiClients is null ? "contract" : "hard", "Machine-client allowance.");
+            Add(plan, BillingLimitMetric.Selectors, selectors, "active", selectors is null ? "contract" : "hard", "Selector definition allowance.");
+            Add(plan, BillingLimitMetric.ContextLookups, contextLookups, "monthly", contextLookups is null ? "contract" : "hard", "Monthly context reads.");
+            Add(plan, BillingLimitMetric.Recomputations, recomputations, "monthly", recomputations is null ? "contract" : "hard", "Monthly recomputations.");
+            Add(plan, BillingLimitMetric.SourceEvents, sourceEvents, "monthly", sourceEvents is null ? "contract" : "hard", "Monthly source-system events.");
+            Add(plan, BillingLimitMetric.BlueprintImports, blueprintImports, "monthly", blueprintImports is null ? "contract" : "hard", "Monthly blueprint imports.");
+            Add(plan, BillingLimitMetric.RetentionDays, retentionDays, "retention", "policy", "Retention target.");
         }
     }
 
@@ -1180,7 +1391,7 @@ public static class DemoDataSeeder
             "Grounded sales orchestration template for strategy, email generation, and follow-up planning.",
             "You are Context Layer's Intelligent Sales Support agent. Use only the supplied grounded context package. Never invent missing details. Every claim must cite one or more citationIds from the context package.",
             "Act like a senior enterprise sales strategist reviewing CRM, warehouse, support, billing, and usage intelligence. If any fact is low confidence, stale, or missing, say so clearly, lower your confidence, and recommend human review. Return JSON only.",
-            "Generate sales support output for {{user.fullName}} at {{user.companyName}}. The sales objective is '{{salesObjective}}'. Produce an outreach strategy, a personalized email draft, and follow-up recommendations grounded in the context package.",
+            "Generate sales support output for {{user.fullName}} at {{user.companyName}}. The sales objective is '{{salesObjective}}'. Produce an outreach strategy, a personalised email draft, and follow-up recommendations grounded in the context package.",
             """
             {
               "type": "object",
@@ -1331,8 +1542,8 @@ public static class DemoDataSeeder
         {
             new(
                 "demo",
-                "Northstar Logistics",
-                "northstarlogistics.io",
+                "Larkspur Logistics Group",
+                "larkspur-logistics.example",
                 "Logistics",
                 "enterprise",
                 "North America",
@@ -1379,8 +1590,8 @@ public static class DemoDataSeeder
                 65_000m),
             new(
                 "demo",
-                "Harbor Health Systems",
-                "harborhealthsystems.com",
+                "Brindle Care Network",
+                "brindle-care.example",
                 "Healthcare",
                 "mid-market",
                 "North America",
@@ -1427,8 +1638,8 @@ public static class DemoDataSeeder
                 28_000m),
             new(
                 "demo",
-                "Atlas Legal Cloud",
-                "atlaslegalcloud.com",
+                "Quartz Legal Systems",
+                "quartz-legal.example",
                 "Legal Tech",
                 "mid-market",
                 "Europe",
@@ -1475,8 +1686,8 @@ public static class DemoDataSeeder
                 48_000m),
             new(
                 "summit",
-                "Meridian Industrial Robotics",
-                "meridianrobotics.ai",
+                "Emberforge Robotics",
+                "emberforge-robotics.example",
                 "Manufacturing",
                 "enterprise",
                 "North America",
@@ -1523,8 +1734,8 @@ public static class DemoDataSeeder
                 72_000m),
             new(
                 "summit",
-                "Cedar Financial Group",
-                "cedarfinancialgroup.com",
+                "Willowbank Finance Group",
+                "willowbank-finance.example",
                 "Financial Services",
                 "enterprise",
                 "Europe",

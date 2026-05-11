@@ -20,6 +20,14 @@ coverage/
 .demo-data/
 .demo-runtime/
 .demo/
+artifacts-private/
+enterprise-build/
+enterprise-drop/
+private-packages/
+*.lic
+*.licence.json
+*.pfx
+*.snk
 npm-debug.log*
 yarn-error.log*
 pnpm-debug.log*

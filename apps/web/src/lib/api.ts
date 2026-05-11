@@ -7,11 +7,26 @@ import type {
   AuthSession,
   AuditEvent,
   AuthenticatedOperator,
+  ApiClientCreatedResult,
+  ApiClientRotatedResult,
+  ApiClientSummary,
+  BillingUsageOverview,
+  BlueprintImportHistory,
+  BlueprintImportInput,
+  BlueprintImportResult,
+  ConnectorCatalogueEntry,
   ContextProfileResult,
+  CreateApiClientInput,
   CreateAgentRunInput,
   DataSource,
+  GovernancePolicy,
   LoginRequest,
+  LicenceStatus,
+  OnboardingResult,
+  OperatorAccountSummary,
+  OrganisationSettings,
   OperationalSummary,
+  PagedResponse,
   PromptTemplate,
   PublishSelectorDefinitionInput,
   QueueContextRecomputeInput,
@@ -25,7 +40,10 @@ import type {
   SelectorExecutionPreviewResult,
   SelectorValidationResult,
   SemanticAttributeDefinition,
+  SubmitOnboardingInput,
+  UploadBlueprintInput,
   UpsertDataSourceInput,
+  UpdateOperatorAccountInput,
   UpsertPromptTemplateInput,
   UpsertSelectorDefinitionInput,
   UpsertSemanticAttributeInput,
@@ -33,6 +51,8 @@ import type {
   UserContextLookupInput,
   ValidateSelectorInput,
   PreviewSelectorInput,
+  SourceSystemEventHistory,
+  WorkspaceSummary,
 } from '@/lib/types'
 
 type ApiMode = 'unknown' | 'live' | 'demo'
@@ -73,8 +93,13 @@ function createRequestId() {
 
 async function parseError(response: Response) {
   try {
-    const payload = (await response.json()) as { title?: string; detail?: string; errors?: Array<{ message: string }> }
-    return payload.detail || payload.title || payload.errors?.map((entry) => entry.message).join('\n') || `Request failed with ${response.status}.`
+    const payload = (await response.json()) as {
+      title?: string
+      detail?: string
+      error?: { message?: string }
+      errors?: Array<{ message: string }>
+    }
+    return payload.error?.message || payload.detail || payload.title || payload.errors?.map((entry) => entry.message).join('\n') || `Request failed with ${response.status}.`
   } catch {
     return `Request failed with ${response.status}.`
   }
@@ -107,6 +132,10 @@ async function restRequest<TData>(
     }
 
     apiModeStore.setMode('live')
+    if (response.status === 204) {
+      return undefined as TData
+    }
+
     return (await response.json()) as TData
   } catch (error) {
     const status = (error as Error & { status?: number }).status
@@ -229,6 +258,428 @@ export const api = {
         fallback: async () => {
           const { mockGetOperationalSummary } = await import('@/mocks/mock-api')
           return mockGetOperationalSummary()
+        },
+      },
+    )
+  },
+
+  async submitOnboarding(input: SubmitOnboardingInput) {
+    return restRequest<OnboardingResult>(
+      '/api/onboarding',
+      {
+        method: 'POST',
+        body: JSON.stringify(input),
+      },
+      {
+        allowDemoFallback: true,
+        fallback: async () => {
+          const { mockSubmitOnboarding } = await import('@/mocks/mock-api')
+          return mockSubmitOnboarding(input)
+        },
+      },
+    )
+  },
+
+  async getConnectorCatalogue() {
+    const data = await restRequest<PagedResponse<ConnectorCatalogueEntry>>(
+      '/api/v1/connectors/catalogue?page=1&pageSize=100',
+      {
+        method: 'GET',
+      },
+      {
+        allowDemoFallback: true,
+        fallback: async () => {
+          const { mockGetConnectorCatalogue } = await import('@/mocks/mock-api')
+          return mockGetConnectorCatalogue()
+        },
+      },
+    )
+    return data.items
+  },
+
+  async getBillingUsage(tenantSlug: string) {
+    return restRequest<BillingUsageOverview>(
+      `/api/v1/billing/usage?tenantSlug=${encodeURIComponent(tenantSlug)}`,
+      {
+        method: 'GET',
+      },
+      {
+        allowDemoFallback: true,
+        fallback: async () => {
+          const { mockGetBillingUsage } = await import('@/mocks/mock-api')
+          return mockGetBillingUsage(tenantSlug)
+        },
+      },
+    )
+  },
+
+  async getLicenceStatus() {
+    return restRequest<LicenceStatus>(
+      '/api/v1/licence/status',
+      { method: 'GET' },
+      {
+        allowDemoFallback: true,
+        fallback: async () => {
+          const { mockGetLicenceStatus } = await import('@/mocks/mock-api')
+          return mockGetLicenceStatus()
+        },
+      },
+    )
+  },
+
+  async getOrganisationSettings(tenantSlug: string) {
+    const data = await graphqlRequest<{ organisationSettings: OrganisationSettings }>(
+      'GetOrganisationSettings',
+      `
+        query GetOrganisationSettings($tenantSlug: String!) {
+          organisationSettings(tenantSlug: $tenantSlug) {
+            tenantId
+            tenantSlug
+            tenantName
+            isActive
+            createdAtUtc
+            updatedAtUtc
+            plan
+            subscriptionStatus
+            workspaceCount
+            userCount
+            apiClientCount
+          }
+        }
+      `,
+      { tenantSlug },
+    )
+    return data.organisationSettings
+  },
+
+  async getWorkspaces(tenantSlug: string) {
+    const data = await graphqlRequest<{ workspaces: WorkspaceSummary[] }>(
+      'GetWorkspaces',
+      `
+        query GetWorkspaces($tenantSlug: String!) {
+          workspaces(tenantSlug: $tenantSlug, status: null) {
+            id
+            slug
+            name
+            description
+            status
+            isDefault
+          }
+        }
+      `,
+      { tenantSlug },
+    )
+    return data.workspaces
+  },
+
+  async getOperatorAccounts(tenantSlug: string) {
+    const data = await graphqlRequest<{ operatorAccounts: OperatorAccountSummary[] }>(
+      'GetOperatorAccounts',
+      `
+        query GetOperatorAccounts($tenantSlug: String!) {
+          operatorAccounts(tenantSlug: $tenantSlug) {
+            id
+            tenantId
+            email
+            displayName
+            role
+            isActive
+            lastLoginAtUtc
+            createdAtUtc
+            updatedAtUtc
+            workspaces {
+              workspaceId
+              workspaceSlug
+              workspaceName
+              role
+              acceptedAtUtc
+            }
+          }
+        }
+      `,
+      { tenantSlug },
+    )
+    return data.operatorAccounts
+  },
+
+  async updateOperatorAccount(input: UpdateOperatorAccountInput) {
+    return restRequest<OperatorAccountSummary>(
+      `/api/v1/admin/users/${input.operatorAccountId}?tenantSlug=${encodeURIComponent(input.tenantSlug)}`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({
+          tenantSlug: input.tenantSlug,
+          displayName: input.displayName,
+          role: input.role,
+          isActive: input.isActive,
+        }),
+      },
+      {
+        allowDemoFallback: true,
+        fallback: async () => {
+          const data = await mockGraphqlRequest<{ updateOperatorAccount: OperatorAccountSummary }>('UpdateOperatorAccount', { input })
+          return data.updateOperatorAccount
+        },
+      },
+    )
+  },
+
+  async getApiClients(tenantSlug: string) {
+    const data = await graphqlRequest<{ apiClients: ApiClientSummary[] }>(
+      'GetApiClients',
+      `
+        query GetApiClients($tenantSlug: String!) {
+          apiClients(tenantSlug: $tenantSlug) {
+            id
+            tenantId
+            workspaceId
+            clientId
+            displayName
+            status
+            scopes
+            lastUsedAtUtc
+            rotatedAtUtc
+            revokedAtUtc
+          }
+        }
+      `,
+      { tenantSlug },
+    )
+    return data.apiClients
+  },
+
+  async createApiClient(input: CreateApiClientInput) {
+    return restRequest<ApiClientCreatedResult>(
+      `/api/v1/api-clients?tenantSlug=${encodeURIComponent(input.tenantSlug)}`,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          displayName: input.displayName,
+          workspaceSlug: input.workspaceSlug,
+          scopes: input.scopes,
+        }),
+      },
+      {
+        allowDemoFallback: true,
+        fallback: async () => {
+          const data = await mockGraphqlRequest<{ createApiClient: ApiClientCreatedResult }>('CreateApiClient', { input })
+          return data.createApiClient
+        },
+      },
+    )
+  },
+
+  async rotateApiClient(tenantSlug: string, clientId: string) {
+    return restRequest<ApiClientRotatedResult>(
+      `/api/v1/api-clients/${encodeURIComponent(clientId)}/rotate?tenantSlug=${encodeURIComponent(tenantSlug)}`,
+      { method: 'POST' },
+      {
+        allowDemoFallback: true,
+        fallback: async () => {
+          const data = await mockGraphqlRequest<{ rotateApiClient: ApiClientRotatedResult }>('RotateApiClient', { tenantSlug, clientId })
+          return data.rotateApiClient
+        },
+      },
+    )
+  },
+
+  async revokeApiClient(tenantSlug: string, clientId: string) {
+    await restRequest<void>(
+      `/api/v1/api-clients/${encodeURIComponent(clientId)}?tenantSlug=${encodeURIComponent(tenantSlug)}`,
+      { method: 'DELETE' },
+      {
+        allowDemoFallback: true,
+        fallback: async () => {
+          await mockGraphqlRequest<{ revokeApiClient: boolean }>('RevokeApiClient', { tenantSlug, clientId })
+        },
+      },
+    )
+    return true
+  },
+
+  async getSourceSystemEvents(tenantSlug: string) {
+    const data = await graphqlRequest<{ sourceSystemEvents: SourceSystemEventHistory[] }>(
+      'GetSourceSystemEvents',
+      `
+        query GetSourceSystemEvents($tenantSlug: String!) {
+          sourceSystemEvents(
+            tenantSlug: $tenantSlug
+            workspaceSlug: null
+            sourceSystem: null
+            eventType: null
+            status: null
+            fromUtc: null
+            toUtc: null
+          ) {
+            id
+            tenantId
+            workspaceId
+            eventId
+            sourceSystem
+            eventType
+            status
+            externalUserId
+            externalAccountId
+            userProfileId
+            dataSourceId
+            matchedSelectorCount
+            processingSummary
+            errorMessage
+            deadLetterReason
+            correlationId
+            receivedAtUtc
+            observedAtUtc
+            processedAtUtc
+            deadLetteredAtUtc
+            payloadJson
+          }
+        }
+      `,
+      { tenantSlug },
+    )
+    return data.sourceSystemEvents
+  },
+
+  async getBlueprintImports(tenantSlug: string) {
+    const data = await graphqlRequest<{ blueprintImports: BlueprintImportHistory[] }>(
+      'GetBlueprintImports',
+      `
+        query GetBlueprintImports($tenantSlug: String!) {
+          blueprintImports(tenantSlug: $tenantSlug, status: null) {
+            id
+            tenantId
+            workspaceId
+            workspaceSlug
+            name
+            status
+            uploadedBy
+            validationIssueCount
+            previewChangeCount
+            importSummaryJson
+            uploadedAtUtc
+            validatedAtUtc
+            importedAtUtc
+          }
+        }
+      `,
+      { tenantSlug },
+    )
+    return data.blueprintImports
+  },
+
+  async getGovernancePolicies(tenantSlug: string) {
+    const data = await graphqlRequest<{ governancePolicies: GovernancePolicy[] }>(
+      'GetGovernancePolicies',
+      `
+        query GetGovernancePolicies($tenantSlug: String!) {
+          governancePolicies(tenantSlug: $tenantSlug) {
+            id
+            tenantId
+            blueprintImportId
+            policyType
+            key
+            displayName
+            description
+            status
+            definitionJson
+            createdAtUtc
+            updatedAtUtc
+          }
+        }
+      `,
+      { tenantSlug },
+    )
+    return data.governancePolicies
+  },
+
+  async exportAuditEvents(tenantSlug: string, format: 'json' | 'csv') {
+    const response = await fetch(
+      `${env.apiBaseUrl}/api/v1/audit-events/export?tenantSlug=${encodeURIComponent(tenantSlug)}&format=${format}`,
+      {
+        headers: {
+          ...(authStore.getAccessToken()
+            ? { Authorization: `Bearer ${authStore.getAccessToken()}` }
+            : {}),
+        },
+      },
+    )
+    if (!response.ok) {
+      throw new Error(await parseError(response))
+    }
+
+    return {
+      content: await response.text(),
+      fileName:
+        response.headers
+          .get('content-disposition')
+          ?.match(/filename="?([^"]+)"?/)?.[1] ?? `ucl-audit.${format}`,
+      contentType: response.headers.get('content-type') ?? (format === 'json' ? 'application/json' : 'text/csv'),
+    }
+  },
+
+  async uploadBlueprint(input: UploadBlueprintInput) {
+    return restRequest<BlueprintImportResult>(
+      '/api/v1/blueprints/upload',
+      {
+        method: 'POST',
+        body: JSON.stringify(input),
+      },
+      {
+        allowDemoFallback: true,
+        fallback: async () => {
+          const { mockUploadBlueprint } = await import('@/mocks/mock-api')
+          return mockUploadBlueprint(input)
+        },
+      },
+    )
+  },
+
+  async validateBlueprint(input: BlueprintImportInput) {
+    return restRequest<BlueprintImportResult>(
+      '/api/v1/blueprints/validate',
+      {
+        method: 'POST',
+        body: JSON.stringify(input),
+      },
+      {
+        allowDemoFallback: true,
+        fallback: async () => {
+          const { mockValidateBlueprint } = await import('@/mocks/mock-api')
+          return mockValidateBlueprint(input)
+        },
+      },
+    )
+  },
+
+  async previewBlueprint(input: BlueprintImportInput) {
+    return restRequest<BlueprintImportResult>(
+      '/api/v1/blueprints/preview',
+      {
+        method: 'POST',
+        body: JSON.stringify(input),
+      },
+      {
+        allowDemoFallback: true,
+        fallback: async () => {
+          const { mockPreviewBlueprint } = await import('@/mocks/mock-api')
+          return mockPreviewBlueprint(input)
+        },
+      },
+    )
+  },
+
+  async importBlueprint(input: BlueprintImportInput) {
+    return restRequest<BlueprintImportResult>(
+      '/api/v1/blueprints/import',
+      {
+        method: 'POST',
+        body: JSON.stringify(input),
+      },
+      {
+        allowDemoFallback: true,
+        fallback: async () => {
+          const { mockImportBlueprint } = await import('@/mocks/mock-api')
+          return mockImportBlueprint(input)
         },
       },
     )

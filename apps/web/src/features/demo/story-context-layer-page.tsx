@@ -18,12 +18,12 @@ export function StoryContextLayerPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Step 3 of 5"
-        title="Turn fragmented events into reusable business meaning"
-        description="This is the semantic lift: governed selectors interpret raw events and resolve them into canonical facts that every product workflow and AI agent can trust."
+        title="Turn fragmented events into reusable business meaning."
+        description="This is the semantic lift: governed selectors interpret raw events and resolve them into canonical facts that product workflows, apps, analytics, copilots, and agents can trust."
         actions={
           <Link to={executiveStorySteps[3].to}>
             <Button>
-              Show the AI interaction timeline
+              Show the example consumer timeline
               <ArrowRight className="size-4" />
             </Button>
           </Link>
@@ -37,9 +37,9 @@ export function StoryContextLayerPage() {
               <div className="flex items-start gap-3">
                 <Sparkles className="mt-1 size-5 text-copper-300" />
                 <div>
-                  <p className="font-display text-3xl">The model no longer sees “User 123”.</p>
+                  <p className="font-display text-3xl">Consumers no longer see only "User 123".</p>
                   <p className="mt-3 text-sm leading-7 text-ivory-200">
-                    It sees a profile with semantic attributes, confidence, freshness, and evidence. The same context can also power prioritisation, account views, playbooks, and product workflows outside the model.
+                    They receive a profile with semantic attributes, confidence, freshness, and evidence. The same context can power prioritisation, account views, playbooks, product workflows, and AI systems.
                   </p>
                 </div>
               </div>
@@ -139,7 +139,7 @@ export function StoryContextLayerPage() {
                     <div>
                       <p className="text-xs uppercase tracking-[0.18em] text-sage-700">Context package effect</p>
                       <p className="mt-2 text-sm leading-7 text-ink-700">
-                        The event now contributes to the same grounded profile that powers prioritisation, customer views, and AI recommendations.
+                        The event now contributes to the same grounded profile that powers prioritisation, customer views, workflows, analytics, and AI recommendations.
                       </p>
                     </div>
                   </div>

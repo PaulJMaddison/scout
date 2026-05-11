@@ -21,8 +21,8 @@ export function StorySourceSignalsPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Step 2 of 5"
-        title="Show the valuable signals already trapped in existing systems"
-        description="This page shows the problem: CRM, billing, support, usage, and web events already contain customer intelligence, but they are fragmented and too raw for AI to use safely."
+        title="Show the valuable signals already trapped in existing systems."
+        description="This page shows the problem: CRM, billing, support, usage, and web events already contain customer intelligence, but they are fragmented and too raw for downstream systems to use safely."
         actions={
           <Link to={executiveStorySteps[2].to}>
             <Button>
@@ -71,9 +71,9 @@ export function StorySourceSignalsPage() {
               <div className="flex items-start gap-3">
                 <MessageSquareWarning className="mt-1 size-5 text-copper-300" />
                 <div>
-                  <p className="font-semibold text-ivory-50">Why AI fails from here</p>
+                  <p className="font-semibold text-ivory-50">Why AI and automation fail from here</p>
                   <p className="mt-2 text-sm leading-7 text-ivory-200">
-                    If you send these fragments directly into an LLM, it sees raw IDs, disconnected events, and inconsistent business semantics. The output may be articulate, but it is not reliably grounded.
+                    If you send these fragments directly into an LLM or workflow, it sees raw IDs, disconnected events, and inconsistent business semantics. The output may look confident, but it is not reliably grounded.
                   </p>
                 </div>
               </div>
@@ -149,9 +149,9 @@ export function StorySourceSignalsPage() {
               <div className="flex items-start gap-3">
                 <Radar className="mt-1 size-5 text-gold-700" />
                 <div>
-                  <p className="font-semibold text-ink-950">AI sees symptoms, not business meaning</p>
-                  <p className="mt-2 text-sm leading-7 text-ink-700">
-                    Without a context layer, the model has to infer intent, urgency, risk, and fit from raw traces. That is exactly where hallucination and inconsistent judgement creep in.
+                    <p className="font-semibold text-ink-950">Consumers see symptoms, not business meaning</p>
+                    <p className="mt-2 text-sm leading-7 text-ink-700">
+                    Without a context layer, a model, report, workflow, or app has to infer intent, urgency, risk, and fit from raw traces. That is where inconsistent judgement creeps in.
                   </p>
                 </div>
               </div>

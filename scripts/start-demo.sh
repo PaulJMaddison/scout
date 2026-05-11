@@ -69,6 +69,25 @@ wait_for_url() {
 }
 
 mkdir -p "$DEMO_DATA_DIR" "$DEMO_RUNTIME_DIR"
+if [ ! -f "$DEMO_DATA_DIR/ucl-demo.licence.json" ]; then
+  issued_at="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+  expires_at="$(date -u -d "+2 years" +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || date -u -v+2y +"%Y-%m-%dT%H:%M:%SZ")"
+  cat >"$DEMO_DATA_DIR/ucl-demo.licence.json" <<EOF
+{
+  "licenceKey": "ucl_demo_local_productisation_preview",
+  "plan": "Community",
+  "licensedTo": "Universal Context Layer local demo",
+  "issuedAtUtc": "$issued_at",
+  "expiresAtUtc": "$expires_at",
+  "entitlements": {
+    "open-core": "enabled",
+    "local-demo": "enabled",
+    "self-hosted-admin-console": "enabled",
+    "enterprise-connectors": "not-in-public-repo"
+  }
+}
+EOF
+fi
 stop_tracked_process "$API_PID_FILE"
 stop_tracked_process "$WEB_PID_FILE"
 
@@ -85,19 +104,25 @@ if [ "$MODE" = "docker" ]; then
   (
     cd "$REPO_ROOT"
     docker compose up -d postgres otel-collector prometheus tempo grafana
+    Platform__Mode=Demo \
+    Bootstrap__ApplyMigrationsOnStartup=true \
+    Bootstrap__SeedDemoData=true \
     "$DOTNET_CMD" run --project src/ContextLayer.Api -- bootstrap-demo
   )
-  API_ENV_PREFIX="ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://127.0.0.1:5198"
+  API_ENV_PREFIX="ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://127.0.0.1:5198 Platform__Mode=Demo Bootstrap__ApplyMigrationsOnStartup=true Bootstrap__SeedDemoData=true"
 else
   (
     cd "$REPO_ROOT"
+    Platform__Mode=Demo \
+    Bootstrap__ApplyMigrationsOnStartup=true \
+    Bootstrap__SeedDemoData=true \
     Database__Provider=Sqlite \
     ConnectionStrings__ContextLayer="Data Source=$DEMO_DATA_DIR/context_layer_demo.db" \
     ConnectionStrings__CustomerOps="Data Source=$DEMO_DATA_DIR/customer_ops_demo.db" \
     Telemetry__OtlpEndpoint="" \
     "$DOTNET_CMD" run --project src/ContextLayer.Api -- bootstrap-demo
   )
-  API_ENV_PREFIX="ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://127.0.0.1:5198 Database__Provider=Sqlite ConnectionStrings__ContextLayer='Data Source=$DEMO_DATA_DIR/context_layer_demo.db' ConnectionStrings__CustomerOps='Data Source=$DEMO_DATA_DIR/customer_ops_demo.db' Telemetry__OtlpEndpoint=''"
+  API_ENV_PREFIX="ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://127.0.0.1:5198 Platform__Mode=Demo Bootstrap__ApplyMigrationsOnStartup=true Bootstrap__SeedDemoData=true Database__Provider=Sqlite ConnectionStrings__ContextLayer='Data Source=$DEMO_DATA_DIR/context_layer_demo.db' ConnectionStrings__CustomerOps='Data Source=$DEMO_DATA_DIR/customer_ops_demo.db' Licence__Mode=Community Licence__FilePath='$DEMO_DATA_DIR/ucl-demo.licence.json' Telemetry__OtlpEndpoint=''"
 fi
 
 (

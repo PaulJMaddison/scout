@@ -35,7 +35,7 @@ function toFormValues(dataSource?: DataSource): DataSourceFormValues {
     description: dataSource?.description ?? '',
     kind: dataSource?.kind ?? 'CRM',
     connectorType: String(config.connectorType ?? 'mockSignal'),
-    provider: String(config.provider ?? 'hubspot'),
+    provider: String(config.provider ?? 'crmApi'),
     mode: String(config.mode ?? 'demo'),
     tableName: String(config.tableName ?? ''),
     columns: Array.isArray(config.columns) ? config.columns.join(', ') : '',

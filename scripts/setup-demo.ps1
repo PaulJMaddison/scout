@@ -39,6 +39,31 @@ VITE_DEMO_FALLBACK=false
 '@ | Set-Content -LiteralPath $webEnvPath
 }
 
+function Ensure-DemoLicenceFile {
+    $licencePath = Join-Path $demoDataDirectory 'ucl-demo.licence.json'
+    if (Test-Path $licencePath) {
+        return
+    }
+
+    $issuedAt = [DateTime]::UtcNow.AddDays(-1).ToString('O')
+    $expiresAt = [DateTime]::UtcNow.AddYears(2).ToString('O')
+    @"
+{
+  "licenceKey": "ucl_demo_local_productisation_preview",
+  "plan": "Community",
+  "licensedTo": "Universal Context Layer local demo",
+  "issuedAtUtc": "$issuedAt",
+  "expiresAtUtc": "$expiresAt",
+  "entitlements": {
+    "open-core": "enabled",
+    "local-demo": "enabled",
+    "self-hosted-admin-console": "enabled",
+    "enterprise-connectors": "not-in-public-repo"
+  }
+}
+"@ | Set-Content -LiteralPath $licencePath
+}
+
 function Invoke-RepoCommand {
     param(
         [Parameter(Mandatory = $true)][scriptblock]$Action,
@@ -98,11 +123,17 @@ function Test-DockerAvailable {
 function Get-LocalDemoEnvironment {
     $contextDbPath = [System.IO.Path]::GetFullPath((Join-Path $demoDataDirectory 'context_layer_demo.db'))
     $customerOpsDbPath = [System.IO.Path]::GetFullPath((Join-Path $demoDataDirectory 'customer_ops_demo.db'))
+    $licencePath = [System.IO.Path]::GetFullPath((Join-Path $demoDataDirectory 'ucl-demo.licence.json'))
     return @{
         'ASPNETCORE_ENVIRONMENT' = 'Development'
+        'Platform__Mode' = 'Demo'
+        'Bootstrap__ApplyMigrationsOnStartup' = 'true'
+        'Bootstrap__SeedDemoData' = 'true'
         'Database__Provider' = 'Sqlite'
         'ConnectionStrings__ContextLayer' = "Data Source=$contextDbPath"
         'ConnectionStrings__CustomerOps' = "Data Source=$customerOpsDbPath"
+        'Licence__Mode' = 'Community'
+        'Licence__FilePath' = $licencePath
         'Cors__AllowedOrigins__0' = 'http://localhost:5173'
         'Cors__AllowedOrigins__1' = 'http://127.0.0.1:5173'
         'Telemetry__OtlpEndpoint' = ''
@@ -128,6 +159,8 @@ $demoMode = if ($UseDocker) { 'docker' } else { 'sqlite' }
 if ($demoMode -eq 'sqlite' -and -not (Test-Path $demoDataDirectory)) {
     New-Item -ItemType Directory -Path $demoDataDirectory | Out-Null
 }
+
+Ensure-DemoLicenceFile
 
 Invoke-RepoCommand -DisplayCommand 'dotnet tool restore' -Action { & $dotnetCommand tool restore }
 Invoke-RepoCommand -DisplayCommand 'dotnet restore ContextLayer.slnx' -Action { & $dotnetCommand restore ContextLayer.slnx }
@@ -161,6 +194,9 @@ if ($demoMode -eq 'docker') {
         & $dotnetCommand tool run dotnet-ef database update --project src/ContextLayer.Infrastructure --startup-project src/ContextLayer.Api --context ContextLayerDbContext
     }
     Invoke-RepoCommand -DisplayCommand 'dotnet run --project src/ContextLayer.Api -- bootstrap-demo' -Action {
+        $env:Platform__Mode = 'Demo'
+        $env:Bootstrap__ApplyMigrationsOnStartup = 'true'
+        $env:Bootstrap__SeedDemoData = 'true'
         & $dotnetCommand run --project src/ContextLayer.Api -- bootstrap-demo
     }
 
@@ -213,8 +249,8 @@ Write-Host '  summit / admin@summit.contextlayer.local / SummitAdmin123!'
 Write-Host '  summit / rep@summit.contextlayer.local / SummitSales123!'
 Write-Host ''
 Write-Host 'Seeded sample users:' -ForegroundColor Yellow
-Write-Host '  demo   User 123  Avery Stone          Northstar Logistics'
-Write-Host '  demo   User 126  Priya Nwosu          Harbor Health Systems'
-Write-Host '  demo   User 129  Marcus Bell          Atlas Legal Cloud'
-Write-Host '  summit User 132  Elena Petrov         Meridian Industrial Robotics'
-Write-Host '  summit User 135  Calvin Reese         Cedar Financial Group'
+Write-Host '  demo   User 123  Avery Stone          Larkspur Logistics Group'
+Write-Host '  demo   User 126  Priya Nwosu          Brindle Care Network'
+Write-Host '  demo   User 129  Marcus Bell          Quartz Legal Systems'
+Write-Host '  summit User 132  Elena Petrov         Emberforge Robotics'
+Write-Host '  summit User 135  Calvin Reese         Willowbank Finance Group'

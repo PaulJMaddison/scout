@@ -186,7 +186,7 @@ export function SelectorBuilderPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Semantic mapping studio"
-        title="Map raw fields into business meaning AI can use"
+        title="Map raw fields into business meaning that apps, workflows, and AI can use."
         description="Define selector logic that converts operational data into canonical context facts, then preview, validate, and publish it with confidence and provenance intact."
         actions={
           <>
@@ -700,7 +700,7 @@ export function SelectorBuilderPage() {
               <div className="grid gap-4">
                 <JsonViewer value={compiledInput} title="Compiled selector input" height="h-56 sm:h-64" />
                 <JsonViewer value={previewMutation.data?.rawSourceDataJson ?? '{}'} title="Raw source payload" height="h-48 sm:h-56" />
-                <JsonViewer value={previewMutation.data?.normalizedSourceDataJson ?? '{}'} title="Normalized source payload" height="h-48 sm:h-56" />
+                <JsonViewer value={previewMutation.data?.normalizedSourceDataJson ?? '{}'} title="Normalised source payload" height="h-48 sm:h-56" />
                 <JsonViewer value={previewMutation.data?.pipelineTraceJson ?? validateMutation.data?.pipelineTraceJson ?? '[]'} title="Pipeline trace" height="h-64 sm:h-72" />
               </div>
 

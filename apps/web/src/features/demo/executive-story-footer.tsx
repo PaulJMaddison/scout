@@ -24,7 +24,7 @@ export function ExecutiveStoryFooter({
               Guided walkthrough
             </p>
             <p className="mt-2 text-sm leading-7 text-ink-700">
-              Step through the legacy data story, the semantic lift, and the grounded AI outcome in sequence.
+              Step through the legacy data story, the semantic lift, and one grounded sales support consumer in sequence.
             </p>
           </div>
 

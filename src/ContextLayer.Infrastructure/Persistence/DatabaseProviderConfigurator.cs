@@ -1,6 +1,7 @@
 using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Npgsql;
 
 namespace ContextLayer.Infrastructure.Persistence;
 
@@ -77,8 +78,63 @@ internal static class DatabaseProviderConfigurator
             return;
         }
 
-        optionsBuilder.UseNpgsql(connectionString, builder => builder.MigrationsHistoryTable("__ef_migrations_history"));
+        optionsBuilder.UseNpgsql(NormalizePostgresConnectionString(connectionString), builder => builder.MigrationsHistoryTable("__ef_migrations_history"));
     }
+
+    private static string NormalizePostgresConnectionString(string connectionString)
+    {
+        if (!Uri.TryCreate(connectionString, UriKind.Absolute, out var uri)
+            || (!string.Equals(uri.Scheme, "postgres", StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(uri.Scheme, "postgresql", StringComparison.OrdinalIgnoreCase)))
+        {
+            return connectionString;
+        }
+
+        var userInfoParts = uri.UserInfo.Split(':', 2);
+        var builder = new NpgsqlConnectionStringBuilder
+        {
+            Host = uri.Host,
+            Database = Uri.UnescapeDataString(uri.AbsolutePath.TrimStart('/')),
+            Username = userInfoParts.Length > 0 ? Uri.UnescapeDataString(userInfoParts[0]) : string.Empty,
+            Password = userInfoParts.Length > 1 ? Uri.UnescapeDataString(userInfoParts[1]) : string.Empty
+        };
+
+        if (!uri.IsDefaultPort)
+        {
+            builder.Port = uri.Port;
+        }
+
+        var queryValues = ParseQuery(uri.Query);
+        if (queryValues.TryGetValue("sslmode", out var sslMode)
+            && Enum.TryParse<SslMode>(NormalizeSslMode(sslMode), ignoreCase: true, out var parsedSslMode))
+        {
+            builder.SslMode = parsedSslMode;
+        }
+
+        return builder.ConnectionString;
+    }
+
+    private static Dictionary<string, string> ParseQuery(string query)
+    {
+        var values = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (string.IsNullOrWhiteSpace(query))
+        {
+            return values;
+        }
+
+        foreach (var pair in query.TrimStart('?').Split('&', StringSplitOptions.RemoveEmptyEntries))
+        {
+            var parts = pair.Split('=', 2);
+            var key = Uri.UnescapeDataString(parts[0]);
+            var value = parts.Length > 1 ? Uri.UnescapeDataString(parts[1]) : string.Empty;
+            values[key] = value;
+        }
+
+        return values;
+    }
+
+    private static string NormalizeSslMode(string value)
+        => value.Replace("-", string.Empty, StringComparison.Ordinal).Replace("_", string.Empty, StringComparison.Ordinal);
 
     private static bool LooksLikeSqlite(string? connectionString)
     {

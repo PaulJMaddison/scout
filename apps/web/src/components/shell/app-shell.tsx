@@ -3,16 +3,31 @@ import { Link, Outlet, useLocation, useNavigate } from '@tanstack/react-router'
 import {
   Activity,
   AppWindow,
+  BookOpen,
+  BriefcaseBusiness,
+  Building2,
   DatabaseZap,
+  FileArchive,
+  FileKey2,
   Flag,
   FileSearch,
   FileUp,
+  Fingerprint,
+  Gauge,
+  GitBranch,
+  HelpCircle,
+  Library,
   LayoutDashboard,
   Menu,
+  PlugZap,
+  RadioTower,
   ScrollText,
+  Settings,
   Shapes,
+  ShieldCheck,
   Sparkles,
   TrendingUp,
+  UserCog,
   Waypoints,
   WandSparkles,
   X,
@@ -31,7 +46,8 @@ interface NavigationItem {
   to: string
   label: string
   icon: typeof LayoutDashboard
-  roles: OperatorRole[]
+  roles?: OperatorRole[]
+  public?: boolean
 }
 
 interface NavigationSection {
@@ -40,6 +56,21 @@ interface NavigationSection {
 }
 
 const navigationSections: NavigationSection[] = [
+  {
+    title: 'Platform',
+    items: [
+      { to: '/platform', label: 'What UCL does', icon: Waypoints, public: true },
+      { to: '/use-cases', label: 'Use cases', icon: BriefcaseBusiness, public: true },
+      { to: '/integrations', label: 'Integrations', icon: DatabaseZap, public: true },
+      { to: '/connectors', label: 'Connector catalogue', icon: PlugZap, public: true },
+      { to: '/open-core', label: 'Open core and repo strategy', icon: GitBranch, public: true },
+      { to: '/pricing', label: 'Pricing and deployment', icon: Gauge, public: true },
+      { to: '/docs', label: 'Docs', icon: Library, public: true },
+      { to: '/demo', label: 'Sales demo', icon: Flag, public: true },
+      { to: '/onboarding', label: 'Company onboarding', icon: Fingerprint, public: true },
+      { to: '/faq', label: 'FAQ', icon: HelpCircle, public: true },
+    ],
+  },
   {
     title: 'Executive Walkthrough',
     items: [
@@ -74,7 +105,7 @@ const navigationSections: NavigationSection[] = [
     title: 'Product Proof',
     items: [
       { to: '/customers', label: '360 Customer Profile', icon: AppWindow, roles: ['tenant_admin', 'sales_rep'] },
-      { to: '/agent-playground', label: 'Grounded AI Playground', icon: WandSparkles, roles: ['tenant_admin', 'sales_rep'] },
+      { to: '/agent-playground', label: 'Example Sales Support', icon: WandSparkles, roles: ['tenant_admin', 'sales_rep'] },
       { to: '/overview', label: 'Operational Overview', icon: LayoutDashboard, roles: ['tenant_admin', 'sales_rep'] },
     ],
   },
@@ -85,6 +116,18 @@ const navigationSections: NavigationSection[] = [
       { to: '/selectors', label: 'Selector Builder', icon: Shapes, roles: ['tenant_admin'] },
       { to: '/semantic-schema', label: 'Schema Registry', icon: FileSearch, roles: ['tenant_admin'] },
       { to: '/bootstrap-studio', label: 'Bootstrap Studio', icon: FileUp, roles: ['tenant_admin'] },
+      { to: '/admin/organisation', label: 'Organisation Settings', icon: Building2, roles: ['platform_owner', 'tenant_admin'] },
+      { to: '/admin/workspaces', label: 'Workspace Settings', icon: Settings, roles: ['platform_owner', 'tenant_admin', 'integration_admin', 'analyst', 'read_only'] },
+      { to: '/admin/users', label: 'Users and Roles', icon: UserCog, roles: ['platform_owner', 'tenant_admin'] },
+      { to: '/admin/api-clients', label: 'API Clients', icon: Fingerprint, roles: ['platform_owner', 'tenant_admin', 'integration_admin'] },
+      { to: '/admin/usage', label: 'Usage and Limits', icon: Gauge, roles: ['platform_owner', 'tenant_admin', 'integration_admin'] },
+      { to: '/admin/connectors', label: 'Connector Catalogue', icon: PlugZap, roles: ['platform_owner', 'tenant_admin', 'integration_admin', 'analyst', 'read_only'] },
+      { to: '/admin/events', label: 'Webhook Events', icon: RadioTower, roles: ['platform_owner', 'tenant_admin', 'integration_admin', 'analyst'] },
+      { to: '/admin/blueprint-imports', label: 'Blueprint Imports', icon: FileArchive, roles: ['platform_owner', 'tenant_admin', 'integration_admin'] },
+      { to: '/admin/governance', label: 'Data Governance', icon: ShieldCheck, roles: ['platform_owner', 'tenant_admin', 'integration_admin', 'analyst'] },
+      { to: '/admin/audit-export', label: 'Audit Export', icon: ScrollText, roles: ['platform_owner', 'tenant_admin'] },
+      { to: '/admin/licence', label: 'Licence and Updates', icon: FileKey2, roles: ['platform_owner', 'tenant_admin', 'integration_admin', 'read_only'] },
+      { to: '/billing', label: 'Legacy Usage Dashboard', icon: Gauge, roles: ['tenant_admin'] },
       { to: '/audit', label: 'Audit Log', icon: ScrollText, roles: ['tenant_admin'] },
     ],
   },
@@ -105,12 +148,15 @@ export function AppShell() {
     apiModeStore.getSnapshot,
   )
   const currentRole = session?.role ?? 'sales_rep'
+  const isPublicMode = !session
   const visibleSections = useMemo(
     () =>
       navigationSections
         .map((section) => ({
           ...section,
-          items: section.items.filter((item) => item.roles.includes(currentRole)),
+          items: section.items.filter((item) =>
+            item.public ? true : Boolean(item.roles?.includes(currentRole)),
+          ),
         }))
         .filter((section) => section.items.length > 0),
     [currentRole],
@@ -122,10 +168,6 @@ export function AppShell() {
   const activeLabel = useMemo(() => {
     return visibleNavigation.find((item) => isNavigationItemActive(location.pathname, item.to))?.label ?? 'Console'
   }, [location.pathname, visibleNavigation])
-
-  if (!session) {
-    return null
-  }
 
   return (
     <div className="min-h-[100dvh] bg-transparent">
@@ -141,7 +183,9 @@ export function AppShell() {
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-copper-300">
                 Context Layer
               </p>
-              <h1 className="mt-3 font-display text-2xl text-ivory-50">Semantic Console</h1>
+              <h1 className="mt-3 font-display text-2xl text-ivory-50">
+                {isPublicMode ? 'Platform Guide' : 'Semantic Console'}
+              </h1>
             </div>
             <button
               type="button"
@@ -154,14 +198,30 @@ export function AppShell() {
           </div>
 
           <div className="mt-8 rounded-[26px] border border-white/10 bg-white/5 p-4 text-ivory-100">
-            <p className="text-xs uppercase tracking-[0.2em] text-ivory-300/70">Workspace</p>
-            <p className="mt-3 text-lg font-semibold">{session.tenantSlug}</p>
-            <p className="mt-1 text-sm text-ivory-300/80">{session.displayName}</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-ivory-300/70">
+              {isPublicMode ? 'Website mode' : 'Workspace'}
+            </p>
+            <p className="mt-3 text-lg font-semibold">{isPublicMode ? 'Open core public site' : session.tenantSlug}</p>
+            <p className="mt-1 text-sm text-ivory-300/80">
+              {isPublicMode
+                ? 'Product vision, integration patterns, commercial boundary, and demo paths in one place.'
+                : session.displayName}
+            </p>
             <div className="mt-4 flex flex-wrap gap-2">
-              <Badge tone="accent">{session.role === 'tenant_admin' ? 'Tenant Admin' : 'Sales Rep'}</Badge>
-              <Badge tone={apiMode === 'live' ? 'success' : apiMode === 'demo' ? 'warning' : 'neutral'}>
-                {apiMode === 'live' ? 'Live GraphQL' : apiMode === 'demo' ? 'Demo mode' : 'Connecting'}
-              </Badge>
+              {isPublicMode ? (
+                <>
+                  <Badge tone="accent">Open source core</Badge>
+                  <Badge tone="neutral">Backend integration layer</Badge>
+                  <Badge tone="success">Future SaaS and enterprise options</Badge>
+                </>
+              ) : (
+                <>
+                  <Badge tone="accent">{session.role.replaceAll('_', ' ')}</Badge>
+                  <Badge tone={apiMode === 'live' ? 'success' : apiMode === 'demo' ? 'warning' : 'neutral'}>
+                    {apiMode === 'live' ? 'Live GraphQL' : apiMode === 'demo' ? 'Demo mode' : 'Connecting'}
+                  </Badge>
+                </>
+              )}
             </div>
           </div>
 
@@ -200,17 +260,36 @@ export function AppShell() {
           </div>
 
           <div className="mt-auto pt-8">
-            <Button
-              type="button"
-              variant="secondary"
-              className="w-full border-white/12 bg-white/6 text-ivory-100 hover:bg-white/12"
-              onClick={() => {
-                signOut()
-                void navigate({ to: '/login' })
-              }}
-            >
-              Sign out
-            </Button>
+            {isPublicMode ? (
+              <div className="grid gap-3">
+                <Link to="/login">
+                  <Button type="button" className="w-full">
+                    Open demo and admin console
+                  </Button>
+                </Link>
+                <a
+                  href="https://github.com/PaulJMaddison/universalcontextlayer"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/12 bg-white/6 px-4 py-2.5 text-sm font-semibold text-ivory-100 transition hover:bg-white/12"
+                >
+                  <BookOpen className="size-4" />
+                  View the public repo
+                </a>
+              </div>
+            ) : (
+              <Button
+                type="button"
+                variant="secondary"
+                className="w-full border-white/12 bg-white/6 text-ivory-100 hover:bg-white/12"
+                onClick={() => {
+                  signOut()
+                  void navigate({ to: '/login' })
+                }}
+              >
+                Sign out
+              </Button>
+            )}
           </div>
         </aside>
 
@@ -227,16 +306,23 @@ export function AppShell() {
               </button>
               <div className="min-w-0">
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sage-700">
-                  {session.tenantSlug}
+                  {isPublicMode ? 'Universal Context Layer' : session.tenantSlug}
                 </p>
                 <h2 className="mt-1 truncate font-display text-xl text-ink-950">{activeLabel}</h2>
               </div>
             </div>
             <div className="hidden shrink-0 items-center gap-3 sm:flex">
-              <Badge tone="neutral">
-                <Activity className="mr-2 size-3.5" />
-                Profiles grounded in provenance
-              </Badge>
+              {isPublicMode ? (
+                <Badge tone="neutral">
+                  <Activity className="mr-2 size-3.5" />
+                  Open core, demo, and context infrastructure in one site
+                </Badge>
+              ) : (
+                <Badge tone="neutral">
+                  <Activity className="mr-2 size-3.5" />
+                  Context grounded in provenance
+                </Badge>
+              )}
             </div>
           </header>
 

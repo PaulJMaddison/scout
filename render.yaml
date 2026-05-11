@@ -1,0 +1,82 @@
+databases:
+  - name: ucl-context-layer-db
+    plan: basic-256mb
+    databaseName: context_layer
+    user: context_layer
+  - name: ucl-customer-ops-db
+    plan: basic-256mb
+    databaseName: customer_ops
+    user: customer_ops
+
+services:
+  - type: web
+    name: universal-context-layer-api
+    runtime: docker
+    dockerContext: .
+    dockerfilePath: ./src/ContextLayer.Api/Dockerfile
+    plan: starter
+    healthCheckPath: /health/ready
+    preDeployCommand: dotnet ContextLayer.Api.dll migrate
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ASPNETCORE_URLS
+        value: http://+:8080
+      - key: Platform__Mode
+        value: SaaS
+      - key: Database__Provider
+        value: Postgres
+      - key: Bootstrap__ApplyMigrationsOnStartup
+        value: "false"
+      - key: Bootstrap__SeedDemoData
+        value: "false"
+      - key: ConnectionStrings__ContextLayer
+        fromDatabase:
+          name: ucl-context-layer-db
+          property: connectionString
+      - key: ConnectionStrings__CustomerOps
+        fromDatabase:
+          name: ucl-customer-ops-db
+          property: connectionString
+      - key: Auth__Issuer
+        value: ContextLayer
+      - key: Auth__Audience
+        value: ContextLayer.Api
+      - key: Auth__SigningKey
+        sync: false
+      - key: Cors__AllowedOrigins__0
+        value: https://universal-context-layer-web.onrender.com
+      - key: SaaS__PublicBaseUrl
+        value: https://universal-context-layer-api.onrender.com
+      - key: Telemetry__DeploymentEnvironment
+        value: production
+      - key: Telemetry__OtlpEndpoint
+        sync: false
+      - key: RateLimits__AuthPermitLimit
+        value: "5"
+      - key: RateLimits__AuthWindowSeconds
+        value: "60"
+      - key: RateLimits__GraphQlTokenLimit
+        value: "120"
+      - key: RateLimits__GraphQlTokensPerPeriod
+        value: "120"
+      - key: RateLimits__GraphQlReplenishmentSeconds
+        value: "60"
+
+  - type: web
+    name: universal-context-layer-web
+    runtime: static
+    rootDir: apps/web
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://universal-context-layer-api.onrender.com
+      - key: VITE_GRAPHQL_ENDPOINT
+        value: https://universal-context-layer-api.onrender.com/graphql
+      - key: VITE_DEMO_FALLBACK
+        value: "false"

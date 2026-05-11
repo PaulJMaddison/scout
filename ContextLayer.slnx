@@ -4,9 +4,11 @@
     <Project Path="src/ContextLayer.Application/ContextLayer.Application.csproj" />
     <Project Path="src/ContextLayer.Domain/ContextLayer.Domain.csproj" />
     <Project Path="src/ContextLayer.Infrastructure/ContextLayer.Infrastructure.csproj" />
+    <Project Path="src/ContextLayer.Sdk/ContextLayer.Sdk.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/ContextLayer.IntegrationTests/ContextLayer.IntegrationTests.csproj" />
+    <Project Path="tests/ContextLayer.Sdk.Tests/ContextLayer.Sdk.Tests.csproj" />
     <Project Path="tests/ContextLayer.UnitTests/ContextLayer.UnitTests.csproj" />
   </Folder>
 </Solution>

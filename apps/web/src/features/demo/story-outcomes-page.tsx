@@ -23,7 +23,7 @@ export function StoryOutcomesPage() {
       accent: 'copper' as const,
     },
     {
-      label: 'Safer AI output',
+      label: 'Safer example output',
       value: `${groundedFacts.length}`,
       footnote: 'Cited facts are shipped with confidence and freshness, which lowers unsupported recommendations.',
       accent: 'sage' as const,
@@ -46,8 +46,8 @@ export function StoryOutcomesPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Step 5 of 5"
-        title="Connect the context layer to rollout, governance, and ROI"
-        description="This closing page ties the semantic layer to product value, adoption realism, and the governance posture buyers need before trusting AI with customer-facing workflows."
+        title="Connect the context layer to rollout, governance, and ROI."
+        description="This closing page ties the semantic layer to product value, adoption realism, and the governance posture buyers need before trusting apps, workflows, analytics, copilots, or agents with customer-facing decisions."
       />
 
       <section className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
@@ -82,7 +82,7 @@ export function StoryOutcomesPage() {
                 <div>
                   <p className="font-semibold text-ink-950">More useful AI interactions</p>
                   <p className="mt-2 text-sm leading-7 text-ink-700">
-                    The model produces a strategy, an email draft, and follow-up guidance that are explainable because they are tied to the same context package your humans can inspect.
+                    The example sales support consumer produces a strategy, an email draft, and follow-up guidance that are explainable because they are tied to the same context package your humans can inspect.
                   </p>
                 </div>
               </div>
@@ -106,7 +106,7 @@ export function StoryOutcomesPage() {
             <Card className="bg-ink-950 text-ivory-50">
               <p className="text-xs uppercase tracking-[0.18em] text-copper-300">What to say live</p>
               <p className="mt-3 text-base leading-8 text-ivory-100">
-                “We are not asking you to replace your systems. We are adding one semantic contract above them so the rest of your product and your AI layer can finally interpret customers consistently.”
+                "We are not asking you to replace your systems. We are adding one semantic contract above them so the rest of your product and your AI tools can finally interpret customers consistently."
               </p>
             </Card>
             <Card className="bg-ivory-25">
@@ -124,7 +124,7 @@ export function StoryOutcomesPage() {
             <Card className="bg-ivory-25">
               <p className="font-semibold text-ink-950">3. Ship grounded AI features safely</p>
               <p className="mt-2 text-sm leading-7 text-ink-700">
-                Give the model context packages with citations, not raw fragments. That makes the product more useful and easier to defend commercially.
+                Give AI systems, apps, and workflows context packages with citations, not raw fragments. That makes the product more useful and easier to defend commercially.
               </p>
             </Card>
           </div>
@@ -161,7 +161,7 @@ export function StoryOutcomesPage() {
                   <p>Which attributes become production truth</p>
                   <p>Which selectors are published</p>
                   <p>How masking and provenance are enforced</p>
-                  <p>Which AI workflows are allowed to consume the context</p>
+                  <p>Which workflows and AI systems are allowed to consume the context</p>
                 </div>
               </Card>
             </div>
@@ -189,9 +189,9 @@ export function StoryOutcomesPage() {
                 <div className="flex items-start gap-3">
                   <WandSparkles className="mt-1 size-5 text-sage-700" />
                   <div>
-                    <p className="font-semibold text-ink-950">Grounded AI playground</p>
+                    <p className="font-semibold text-ink-950">Example Sales Support consumer</p>
                     <p className="mt-2 text-sm leading-7 text-ink-700">
-                      Show the context package, the generated outreach, and the “why this was recommended” trace.
+                      Show the context package, the generated outreach, and the "why this was recommended" trace.
                     </p>
                   </div>
                 </div>

@@ -1,0 +1,227 @@
+using System.Text.Json;
+using ContextLayer.Domain.Enums;
+using ContextLayer.Domain.Saas;
+using ContextLayer.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+
+namespace ContextLayer.Infrastructure.Seed;
+
+public static class ConnectorCatalogueSeeder
+{
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        WriteIndented = false
+    };
+
+    public static async Task SeedAsync(ContextLayerDbContext dbContext, DateTime utcNow, CancellationToken cancellationToken)
+    {
+        var existingTypes = await dbContext.ConnectorCatalogueEntries
+            .AsNoTracking()
+            .Select(x => x.ConnectorType)
+            .ToListAsync(cancellationToken);
+        var existingTypeSet = existingTypes.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var missingEntries = BuildEntries(utcNow)
+            .Where(entry => !existingTypeSet.Contains(entry.ConnectorType))
+            .ToList();
+
+        if (missingEntries.Count == 0)
+        {
+            return;
+        }
+
+        dbContext.ConnectorCatalogueEntries.AddRange(missingEntries);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    private static IReadOnlyList<ConnectorCatalogueEntry> BuildEntries(DateTime utcNow)
+        =>
+        [
+            Entry("sqlDatabase", "SQL Database", "Generic SQL connector for local demo databases and PostgreSQL-backed deployments.", "Database", ConnectorCatalogueAvailability.OpenCore, ["SqlMetric", "Crm", "ProductUsage"], GenericCapabilities(), SqlConfiguration(), SqlCredentials(), "Opens the configured database connection.", false, 10, utcNow),
+            Entry("restApi", "REST API", "Generic REST connector for source systems that expose AI-safe JSON payloads.", "API", ConnectorCatalogueAvailability.OpenCore, ["Crm", "EventStream", "ProductUsage", "SqlMetric"], GenericCapabilities(), RestConfiguration(), RestCredentials(), "HEAD request or static-response validation.", false, 20, utcNow),
+            Entry("csvUpload", "CSV upload", "Demo-safe parsed CSV rows and spreadsheet extracts for local exploration.", "File", ConnectorCatalogueAvailability.OpenCore, ["Crm", "SqlMetric", "ProductUsage", "EventStream"], GenericCapabilities(), CsvConfiguration(), EmptyCredentials(), "Validates parsed row shape only.", false, 30, utcNow),
+            Entry("mockCrm", "Mock CRM", "Fictional CRM records for demos, tests, and starter selector previews.", "Demo", ConnectorCatalogueAvailability.OpenCore, ["Crm", "EventStream"], DemoCapabilities(), MockConfiguration("crm"), EmptyCredentials(), "Always local and deterministic.", false, 40, utcNow),
+            Entry("mockBilling", "Mock Billing", "Fictional billing records for renewal, plan, invoice, and payment signals.", "Demo", ConnectorCatalogueAvailability.OpenCore, ["SqlMetric", "EventStream"], DemoCapabilities(), MockConfiguration("billing"), EmptyCredentials(), "Always local and deterministic.", false, 50, utcNow),
+            Entry("mockSupport", "Mock Support", "Fictional support records for ticket, priority, and sentiment signals.", "Demo", ConnectorCatalogueAvailability.OpenCore, ["Crm", "EventStream"], DemoCapabilities(), MockConfiguration("support"), EmptyCredentials(), "Always local and deterministic.", false, 60, utcNow),
+            Entry("salesforce", "Salesforce placeholder", "Catalogue placeholder for a future commercial Salesforce connector. No Salesforce implementation ships in this repo.", "CRM", ConnectorCatalogueAvailability.SaaSManaged, ["Crm", "EventStream"], PlaceholderCapabilities(), PlaceholderConfiguration("salesforce"), OAuthCredentials(), "Unavailable in open source; safe metadata only.", true, 100, utcNow),
+            Entry("hubspot", "HubSpot placeholder", "Catalogue placeholder for a future commercial HubSpot connector. No HubSpot implementation ships in this repo.", "CRM", ConnectorCatalogueAvailability.SaaSManaged, ["Crm", "EventStream"], PlaceholderCapabilities(), PlaceholderConfiguration("hubspot"), OAuthCredentials(), "Unavailable in open source; safe metadata only.", true, 110, utcNow),
+            Entry("dynamics", "Dynamics placeholder", "Catalogue placeholder for a future commercial Microsoft Dynamics connector. No Dynamics implementation ships in this repo.", "CRM", ConnectorCatalogueAvailability.Enterprise, ["Crm", "EventStream"], PlaceholderCapabilities(), PlaceholderConfiguration("dynamics"), OAuthCredentials(), "Unavailable in open source; safe metadata only.", true, 120, utcNow),
+            Entry("snowflake", "Snowflake placeholder", "Catalogue placeholder for a future commercial Snowflake connector. No Snowflake implementation ships in this repo.", "Warehouse", ConnectorCatalogueAvailability.Enterprise, ["SqlMetric", "ProductUsage"], PlaceholderCapabilities(), PlaceholderConfiguration("snowflake"), WarehouseCredentials(), "Unavailable in open source; safe metadata only.", true, 130, utcNow),
+            Entry("bigquery", "BigQuery placeholder", "Catalogue placeholder for a future commercial BigQuery connector. No BigQuery implementation ships in this repo.", "Warehouse", ConnectorCatalogueAvailability.Enterprise, ["SqlMetric", "ProductUsage"], PlaceholderCapabilities(), PlaceholderConfiguration("bigquery"), WarehouseCredentials(), "Unavailable in open source; safe metadata only.", true, 140, utcNow),
+            Entry("zendesk", "Zendesk placeholder", "Catalogue placeholder for a future commercial Zendesk connector. No Zendesk implementation ships in this repo.", "Support", ConnectorCatalogueAvailability.SaaSManaged, ["Crm", "EventStream"], PlaceholderCapabilities(), PlaceholderConfiguration("zendesk"), OAuthCredentials(), "Unavailable in open source; safe metadata only.", true, 150, utcNow),
+            Entry("netsuite", "NetSuite placeholder", "Catalogue placeholder for a future commercial NetSuite connector. No NetSuite implementation ships in this repo.", "ERP", ConnectorCatalogueAvailability.ComingSoon, ["SqlMetric", "EventStream"], PlaceholderCapabilities(), PlaceholderConfiguration("netsuite"), OAuthCredentials(), "Unavailable in open source; safe metadata only.", true, 160, utcNow)
+        ];
+
+    private static ConnectorCatalogueEntry Entry(
+        string connectorType,
+        string displayName,
+        string description,
+        string category,
+        ConnectorCatalogueAvailability availability,
+        IReadOnlyList<string> supportedDataSourceKinds,
+        IReadOnlyList<string> capabilities,
+        object configurationSchema,
+        object credentialSchema,
+        string healthCheckMode,
+        bool isPlaceholder,
+        int sortOrder,
+        DateTime utcNow)
+        => ConnectorCatalogueEntry.Create(
+            connectorType,
+            displayName,
+            description,
+            category,
+            availability,
+            JsonSerializer.Serialize(supportedDataSourceKinds, JsonOptions),
+            JsonSerializer.Serialize(capabilities, JsonOptions),
+            JsonSerializer.Serialize(configurationSchema, JsonOptions),
+            JsonSerializer.Serialize(credentialSchema, JsonOptions),
+            healthCheckMode,
+            true,
+            isPlaceholder,
+            sortOrder,
+            utcNow);
+
+    private static string[] GenericCapabilities() =>
+    [
+        "configurationValidation",
+        "healthCheck",
+        "preview",
+        "dryRun",
+        "scheduledSync",
+        "eventTriggeredRecompute",
+        "secureCredentialStorage"
+    ];
+
+    private static string[] DemoCapabilities() =>
+    [
+        "configurationValidation",
+        "healthCheck",
+        "preview",
+        "dryRun",
+        "eventTriggeredRecompute",
+        "secureCredentialStorage"
+    ];
+
+    private static string[] PlaceholderCapabilities() =>
+    [
+        "catalogueOnly",
+        "configurationSchema",
+        "futureHealthCheck",
+        "futureCredentialStorage"
+    ];
+
+    private static object SqlConfiguration() => new
+    {
+        type = "object",
+        required = new[] { "tableName", "userIdColumn", "columns" },
+        properties = new Dictionary<string, object>
+        {
+            ["mode"] = new { type = "string", @enum = new[] { "currentDatabase", "customerOpsDatabase", "connectionString" } },
+            ["tableName"] = new { type = "string" },
+            ["userIdColumn"] = new { type = "string" },
+            ["tenantSlugColumn"] = new { type = "string" },
+            ["columns"] = new { type = "array", items = new { type = "string" } }
+        }
+    };
+
+    private static object RestConfiguration() => new
+    {
+        type = "object",
+        required = new[] { "baseUrl" },
+        properties = new Dictionary<string, object>
+        {
+            ["baseUrl"] = new { type = "string" },
+            ["pathTemplate"] = new { type = "string" },
+            ["subjectQueryParameter"] = new { type = "string" },
+            ["staticResponses"] = new { type = "array" }
+        }
+    };
+
+    private static object CsvConfiguration() => new
+    {
+        type = "object",
+        required = new[] { "rows" },
+        properties = new Dictionary<string, object>
+        {
+            ["externalUserIdColumn"] = new { type = "string", @default = "externalUserId" },
+            ["observedAtColumn"] = new { type = "string", @default = "observedAtUtc" },
+            ["delimiter"] = new { type = "string", @default = "," },
+            ["rows"] = new { type = "array" }
+        }
+    };
+
+    private static object MockConfiguration(string payloadRoot) => new
+    {
+        type = "object",
+        required = new[] { "records" },
+        properties = new Dictionary<string, object>
+        {
+            ["scenario"] = new { type = "string", @default = "safe-local-demo" },
+            ["payloadRoot"] = new { type = "string", @const = payloadRoot },
+            ["records"] = new { type = "array" }
+        }
+    };
+
+    private static object PlaceholderConfiguration(string provider) => new
+    {
+        type = "object",
+        description = $"Placeholder schema for future {provider} connector configuration. It is intentionally non-executable in the public repo.",
+        properties = new Dictionary<string, object>
+        {
+            ["provider"] = new { type = "string", @const = provider },
+            ["environment"] = new { type = "string" },
+            ["syncObjects"] = new { type = "array", items = new { type = "string" } }
+        }
+    };
+
+    private static object EmptyCredentials() => new
+    {
+        type = "object",
+        properties = new Dictionary<string, object>()
+    };
+
+    private static object SqlCredentials() => new
+    {
+        type = "object",
+        properties = new Dictionary<string, object>
+        {
+            ["connectionString"] = new { type = "string", secret = true }
+        }
+    };
+
+    private static object RestCredentials() => new
+    {
+        type = "object",
+        properties = new Dictionary<string, object>
+        {
+            ["bearerToken"] = new { type = "string", secret = true },
+            ["apiKey"] = new { type = "string", secret = true },
+            ["basicUsername"] = new { type = "string" },
+            ["basicPassword"] = new { type = "string", secret = true }
+        }
+    };
+
+    private static object OAuthCredentials() => new
+    {
+        type = "object",
+        description = "Commercial/private connector credentials would be stored through IConnectorCredentialStore; values are not implemented here.",
+        properties = new Dictionary<string, object>
+        {
+            ["oauthClientId"] = new { type = "string" },
+            ["oauthClientSecret"] = new { type = "string", secret = true },
+            ["refreshToken"] = new { type = "string", secret = true }
+        }
+    };
+
+    private static object WarehouseCredentials() => new
+    {
+        type = "object",
+        description = "Commercial/private warehouse credentials would be stored through IConnectorCredentialStore; values are not implemented here.",
+        properties = new Dictionary<string, object>
+        {
+            ["account"] = new { type = "string" },
+            ["privateKey"] = new { type = "string", secret = true },
+            ["serviceAccountJson"] = new { type = "string", secret = true }
+        }
+    };
+}

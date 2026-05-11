@@ -35,16 +35,51 @@ function Test-DockerAvailable {
 function Get-LocalDemoEnvironment {
     $contextDbPath = [System.IO.Path]::GetFullPath((Join-Path $demoDataDirectory 'context_layer_demo.db'))
     $customerOpsDbPath = [System.IO.Path]::GetFullPath((Join-Path $demoDataDirectory 'customer_ops_demo.db'))
+    $licencePath = [System.IO.Path]::GetFullPath((Join-Path $demoDataDirectory 'ucl-demo.licence.json'))
     return @{
         'ASPNETCORE_ENVIRONMENT' = 'Development'
         'ASPNETCORE_URLS' = 'http://127.0.0.1:5198'
+        'Platform__Mode' = 'Demo'
+        'Bootstrap__ApplyMigrationsOnStartup' = 'true'
+        'Bootstrap__SeedDemoData' = 'true'
         'Database__Provider' = 'Sqlite'
         'ConnectionStrings__ContextLayer' = "Data Source=$contextDbPath"
         'ConnectionStrings__CustomerOps' = "Data Source=$customerOpsDbPath"
+        'Licence__Mode' = 'Community'
+        'Licence__FilePath' = $licencePath
         'Cors__AllowedOrigins__0' = 'http://localhost:5173'
         'Cors__AllowedOrigins__1' = 'http://127.0.0.1:5173'
         'Telemetry__OtlpEndpoint' = ''
     }
+}
+
+function Ensure-DemoLicenceFile {
+    $licencePath = Join-Path $demoDataDirectory 'ucl-demo.licence.json'
+    if (Test-Path $licencePath) {
+        return
+    }
+
+    if (-not (Test-Path $demoDataDirectory)) {
+        New-Item -ItemType Directory -Path $demoDataDirectory | Out-Null
+    }
+
+    $issuedAt = [DateTime]::UtcNow.AddDays(-1).ToString('O')
+    $expiresAt = [DateTime]::UtcNow.AddYears(2).ToString('O')
+    @"
+{
+  "licenceKey": "ucl_demo_local_productisation_preview",
+  "plan": "Community",
+  "licensedTo": "Universal Context Layer local demo",
+  "issuedAtUtc": "$issuedAt",
+  "expiresAtUtc": "$expiresAt",
+  "entitlements": {
+    "open-core": "enabled",
+    "local-demo": "enabled",
+    "self-hosted-admin-console": "enabled",
+    "enterprise-connectors": "not-in-public-repo"
+  }
+}
+"@ | Set-Content -LiteralPath $licencePath
 }
 
 function Invoke-WithEnvironment {
@@ -152,6 +187,8 @@ if ($demoMode -eq 'sqlite' -and -not (Test-Path $demoDataDirectory)) {
     New-Item -ItemType Directory -Path $demoDataDirectory | Out-Null
 }
 
+Ensure-DemoLicenceFile
+
 Stop-TrackedProcess -PidFile $apiPidPath
 Stop-TrackedProcess -PidFile $webPidPath
 Stop-RepoProcessByPattern -Name 'node.exe' -Pattern (Join-Path $repoRoot 'apps\web')
@@ -182,6 +219,9 @@ $backendEnvironment = if ($demoMode -eq 'docker') {
     @{
         'ASPNETCORE_ENVIRONMENT' = 'Development'
         'ASPNETCORE_URLS' = 'http://127.0.0.1:5198'
+        'Platform__Mode' = 'Demo'
+        'Bootstrap__ApplyMigrationsOnStartup' = 'true'
+        'Bootstrap__SeedDemoData' = 'true'
     }
 }
 else {

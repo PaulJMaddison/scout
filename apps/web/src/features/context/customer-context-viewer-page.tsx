@@ -43,7 +43,7 @@ function describeTimelineLift(category: string, description: string) {
       title: 'Risk and review posture',
       body: normalizedDescription.includes('resolved')
         ? 'Resolved support friction lowers drag on the account and supports a cleaner rollout story.'
-        : 'Open support issues stay visible so downstream AI can acknowledge friction and avoid overconfidence.',
+        : 'Open support issues stay visible so downstream consumers can acknowledge friction and avoid overconfidence.',
       tone: 'warning' as const,
     }
   }
@@ -166,8 +166,8 @@ export function CustomerContextViewerPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Customer intelligence"
-        title="Turn a raw user record into a 360 degree AI-ready profile"
-        description="Inspect the semantic facts, confidence, provenance, source timeline, and snapshot history that let humans and agents work from the same grounded customer context."
+        title="Turn a raw user record into a trusted 360 degree customer context profile."
+        description="Inspect the semantic facts, confidence, provenance, source timeline, and snapshot history that let humans, apps, workflows, copilots, and agents work from the same grounded customer context."
         actions={
           <Button type="button" onClick={() => recomputeMutation.mutate()} disabled={recomputeMutation.isPending}>
             <RefreshCcw className="mr-2 size-4" />
@@ -235,7 +235,7 @@ export function CustomerContextViewerPage() {
                 }
               >
                 <div className="rounded-[24px] bg-ink-950 px-5 py-5 text-ivory-50">
-                  <p className="text-xs uppercase tracking-[0.18em] text-copper-300">Readable agent summary</p>
+                  <p className="text-xs uppercase tracking-[0.18em] text-copper-300">Readable consumer summary</p>
                   <p className="mt-3 text-lg leading-8">{contextProfile.summary}</p>
                 </div>
 
@@ -446,7 +446,7 @@ export function CustomerContextViewerPage() {
             )}
           </Panel>
 
-          <Panel eyebrow="Agent payload" title="Structured context package">
+          <Panel eyebrow="Consumer payload" title="Structured context package">
             <JsonViewer
               value={{
                 sourceSummary: rawSourceSummary,

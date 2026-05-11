@@ -59,9 +59,9 @@ describe('AgentPlaygroundPage', () => {
         tenantId: 'tenant-1',
         externalUserId: '123',
         fullName: 'Avery Stone',
-        email: 'a***@northstarlogistics.io',
+        email: 'a***@larkspur-logistics.example',
         isEmailMasked: true,
-        companyName: 'Northstar Logistics',
+        companyName: 'Larkspur Logistics Group',
         jobTitle: 'VP Revenue Operations',
         segment: 'enterprise',
         lastSeenAtUtc: '2026-05-09T11:00:00Z',
@@ -89,7 +89,7 @@ describe('AgentPlaygroundPage', () => {
       tenantSlug: 'demo',
       externalUserId: '123',
       fullName: 'Avery Stone',
-      companyName: 'Northstar Logistics',
+      companyName: 'Larkspur Logistics Group',
       jobTitle: 'VP Revenue Operations',
       segment: 'enterprise',
       salesObjective: 'Book a discovery call.',
@@ -216,7 +216,7 @@ describe('AgentPlaygroundPage', () => {
       screen.getAllByText(/Lead with enterprise rollout timing and recent product momentum/i).length,
     ).toBeGreaterThan(0)
     expect(
-      screen.getByText(/The model only sees the grounded package below/i),
+      screen.getByText(/The selected model only sees the governed package below/i),
     ).toBeInTheDocument()
   })
 })

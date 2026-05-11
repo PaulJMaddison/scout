@@ -85,6 +85,22 @@ export const contextLayerBlueprintSchema = z.object({
       guardrails: z.array(z.string()).default([]),
     }),
   ).default([]),
+  piiRules: z.array(
+    z.object({
+      key: z.string().min(2),
+      displayName: z.string().min(3),
+      description: z.string().min(10),
+      rule: z.record(z.string(), z.unknown()).default({}),
+    }),
+  ).default([]),
+  auditPolicies: z.array(
+    z.object({
+      key: z.string().min(2),
+      displayName: z.string().min(3),
+      description: z.string().min(10),
+      policy: z.record(z.string(), z.unknown()).default({}),
+    }),
+  ).default([]),
   rolloutNotes: z.array(z.string()).default([]),
 })
 
@@ -99,7 +115,7 @@ export const bootstrapArtifacts = [
   {
     label: 'CRM sample records',
     purpose: 'Show how real opportunities, contacts, activities, and lifecycle stages are encoded.',
-    example: 'CSV export from Salesforce or HubSpot with 50 to 200 representative rows.',
+    example: 'CSV export from an existing CRM or marketing automation platform with 50 to 200 representative rows.',
   },
   {
     label: 'Warehouse KPI definitions',
@@ -187,12 +203,36 @@ Return JSON only with this top-level shape:
       "guardrails": ["string"]
     }
   ],
+  "piiRules": [
+    {
+      "key": "string",
+      "displayName": "string",
+      "description": "string",
+      "rule": { "classification": "string", "fields": ["string"], "masking": "string" }
+    }
+  ],
+  "auditPolicies": [
+    {
+      "key": "string",
+      "displayName": "string",
+      "description": "string",
+      "policy": { "events": ["string"], "retentionDays": 365, "reviewCadence": "string" }
+    }
+  ],
   "rolloutNotes": ["string"]
 }`
 
+export const claudeBootstrapPrompt = `${codexBootstrapPrompt}
+
+If you are Claude, think through the source evidence privately, but return only the final JSON object. Keep field mappings traceable to the uploaded files and mark uncertain assumptions in rolloutNotes.`
+
+export const chatGptBootstrapPrompt = `${codexBootstrapPrompt}
+
+If you are ChatGPT, do not call tools or browse. Work only from the files and pasted samples in this chat. Return valid JSON only, with no Markdown fences.`
+
 export const sampleBlueprint: ContextLayerBlueprint = {
   version: '1.0',
-  name: 'Northstar Logistics intelligent sales blueprint',
+  name: 'Larkspur Logistics Group intelligent sales blueprint',
   tenantSlug: 'demo',
   sourceArtifacts: bootstrapArtifacts.map((artifact) => ({ ...artifact })),
   dataSources: [
@@ -474,9 +514,33 @@ export const sampleBlueprint: ContextLayerBlueprint = {
       ],
     },
   ],
+  piiRules: [
+    {
+      key: 'contactEmailMasking',
+      displayName: 'Contact Email Masking',
+      description: 'Mask contact email addresses for non-admin users while preserving explainability.',
+      rule: {
+        classification: 'personal_contact_data',
+        fields: ['email', 'contact_email', 'preferred_channel'],
+        masking: 'mask_email_for_readonly_and_sales_users',
+      },
+    },
+  ],
+  auditPolicies: [
+    {
+      key: 'blueprintGeneratedSelectorAudit',
+      displayName: 'Blueprint-generated Selector Audit',
+      description: 'Audit generated selectors, prompt templates, and context reads created from imported blueprints.',
+      policy: {
+        events: ['selector.created', 'selector.published', 'prompt.created', 'context.read'],
+        retentionDays: 365,
+        reviewCadence: 'monthly',
+      },
+    },
+  ],
   rolloutNotes: [
     'Start with the three operational data sources already proven in the demo.',
     'Publish only the selectors that pass preview validation against real user records.',
-    'Keep AI output grounded in the imported prompt template until tenant-specific prompt tuning is approved.',
+    'Keep generated output grounded in the imported prompt template until tenant-specific prompt tuning is approved.',
   ],
 }

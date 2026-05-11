@@ -21,10 +21,18 @@ import { useAuthSession } from '@/lib/auth'
 import { prettyJson } from '@/lib/utils'
 import {
   bootstrapArtifacts,
+  chatGptBootstrapPrompt,
+  claudeBootstrapPrompt,
   codexBootstrapPrompt,
   contextLayerBlueprintSchema,
   sampleBlueprint,
 } from '@/features/bootstrap/bootstrap-studio-data'
+
+const aiPrompts = {
+  Codex: codexBootstrapPrompt,
+  Claude: claudeBootstrapPrompt,
+  ChatGPT: chatGptBootstrapPrompt,
+} as const
 
 function downloadTextFile(filename: string, content: string, mimeType: string) {
   const blob = new Blob([content], { type: mimeType })
@@ -42,6 +50,8 @@ export function BootstrapStudioPage() {
   const [blueprintText, setBlueprintText] = useState(() => prettyJson(sampleBlueprint))
   const [importMessages, setImportMessages] = useState<string[]>([])
   const [clipboardMessage, setClipboardMessage] = useState<string | null>(null)
+  const [selectedPrompt, setSelectedPrompt] = useState<keyof typeof aiPrompts>('Codex')
+  const [blueprintResult, setBlueprintResult] = useState<Awaited<ReturnType<typeof api.previewBlueprint>> | null>(null)
 
   const dataSourcesQuery = useQuery({
     queryKey: ['dataSources', tenantSlug],
@@ -110,6 +120,28 @@ export function BootstrapStudioPage() {
     }
   }, [blueprint, dataSourcesQuery.data, promptTemplatesQuery.data, selectorsQuery.data, semanticAttributesQuery.data])
 
+  const validateMutation = useMutation({
+    mutationFn: () => api.validateBlueprint({ tenantSlug, blueprintJson: blueprintText }),
+    onSuccess: (result) => {
+      setBlueprintResult(result)
+      setImportMessages(result.issues.length ? result.issues.map((issue) => `${issue.path}: ${issue.message}`) : ['Blueprint validation passed.'])
+    },
+    onError: (error) => {
+      setImportMessages([`Validation failed: ${error instanceof Error ? error.message : 'Unknown validation error.'}`])
+    },
+  })
+
+  const previewMutation = useMutation({
+    mutationFn: () => api.previewBlueprint({ tenantSlug, blueprintJson: blueprintText }),
+    onSuccess: (result) => {
+      setBlueprintResult(result)
+      setImportMessages(result.preview.map((change) => `${change.action} ${change.entityType}: ${change.name}`))
+    },
+    onError: (error) => {
+      setImportMessages([`Preview failed: ${error instanceof Error ? error.message : 'Unknown preview error.'}`])
+    },
+  })
+
   const importMutation = useMutation({
     onMutate: () => {
       setImportMessages([])
@@ -119,103 +151,15 @@ export function BootstrapStudioPage() {
         throw new Error('Load a valid ContextLayerBlueprint JSON file before importing.')
       }
 
-      const logMessages: string[] = []
-      const currentDataSources = await api.getDataSources(tenantSlug)
-      const currentAttributes = await api.getSemanticAttributes(tenantSlug)
-      const currentSelectors = await api.getSelectors(tenantSlug)
-      const currentPromptTemplates = await api.getPromptTemplates(tenantSlug)
-
-      const dataSourceByName = new Map(currentDataSources.map((item) => [item.name, item]))
-      const attributeByKey = new Map(currentAttributes.map((item) => [item.key, item]))
-      const selectorByName = new Map(currentSelectors.map((item) => [item.name, item]))
-      const promptTemplateByName = new Map(currentPromptTemplates.map((item) => [item.name, item]))
-
-      for (const source of blueprint.dataSources) {
-        const existing = dataSourceByName.get(source.name)
-        const saved = await api.upsertDataSource({
-          id: existing?.id ?? null,
-          tenantSlug,
-          name: source.name,
-          description: source.description,
-          kind: source.kind,
-          connectionConfigJson: prettyJson(source.connectionConfig),
-        })
-        dataSourceByName.set(saved.name, saved)
-        logMessages.push(`${existing ? 'Updated' : 'Created'} data source: ${saved.name}`)
-      }
-
-      for (const attribute of blueprint.semanticAttributes) {
-        const existing = attributeByKey.get(attribute.key)
-        const saved = await api.upsertSemanticAttribute({
-          id: existing?.id ?? null,
-          tenantSlug,
-          key: attribute.key,
-          displayName: attribute.displayName,
-          description: attribute.description,
-          dataType: attribute.dataType,
-          exampleValueJson: attribute.exampleValueJson,
-          isSystem: attribute.isSystem,
-        })
-        attributeByKey.set(saved.key, saved)
-        logMessages.push(`${existing ? 'Updated' : 'Created'} semantic attribute: ${saved.displayName}`)
-      }
-
-      for (const template of blueprint.promptTemplates) {
-        const existing = promptTemplateByName.get(template.name)
-        const saved = await api.upsertPromptTemplate({
-          id: existing?.id ?? null,
-          tenantSlug,
-          name: template.name,
-          description: template.description,
-          systemPrompt: template.systemPrompt,
-          developerPrompt: template.developerPrompt,
-          userPromptTemplate: template.userPromptTemplate,
-          outputSchemaJson: prettyJson(template.outputSchema),
-          guardrailsJson: prettyJson(template.guardrails),
-        })
-        promptTemplateByName.set(saved.name, saved)
-        logMessages.push(`${existing ? 'Updated' : 'Created'} prompt template: ${saved.name}`)
-      }
-
-      for (const selector of blueprint.selectors) {
-        const targetAttribute = attributeByKey.get(selector.targetAttributeKey)
-        if (!targetAttribute) {
-          throw new Error(`Missing semantic attribute '${selector.targetAttributeKey}' for selector '${selector.name}'.`)
-        }
-
-        const dataSource = dataSourceByName.get(selector.dataSourceName)
-        if (!dataSource) {
-          throw new Error(`Missing data source '${selector.dataSourceName}' for selector '${selector.name}'.`)
-        }
-
-        const existing = selectorByName.get(selector.name)
-        const saved = await api.upsertSelector({
-          id: existing?.id ?? null,
-          tenantSlug,
-          dataSourceId: dataSource.id,
-          targetAttributeDefinitionId: targetAttribute.id,
-          name: selector.name,
-          description: selector.description,
-          mappingKind: selector.mappingKind,
-          expressionJson: prettyJson(selector.expression),
-          explanationTemplate: selector.explanationTemplate,
-          validationSchemaJson: prettyJson(selector.validationSchema),
-          defaultConfidence: selector.defaultConfidence,
-          freshnessWindowMinutes: selector.freshnessWindowMinutes,
-          priority: selector.priority,
-          scheduleIntervalMinutes: selector.scheduleIntervalMinutes ?? null,
-        })
-        selectorByName.set(saved.name, saved)
-        logMessages.push(`${existing ? 'Updated' : 'Created'} selector: ${saved.name}`)
-
-        if (selector.publish) {
-          await api.publishSelector({
-            tenantSlug,
-            selectorDefinitionId: saved.id,
-          })
-          logMessages.push(`Published selector: ${saved.name}`)
-        }
-      }
+      const upload = await api.uploadBlueprint({
+        tenantSlug,
+        name: blueprint.name,
+        blueprintJson: blueprintText,
+      })
+      const result = await api.importBlueprint({
+        tenantSlug,
+        importId: upload.importId,
+      })
 
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['dataSources', tenantSlug] }),
@@ -224,10 +168,18 @@ export function BootstrapStudioPage() {
         queryClient.invalidateQueries({ queryKey: ['promptTemplates', tenantSlug] }),
       ])
 
-      return logMessages
+      return result
     },
-    onSuccess: (messages) => {
-      setImportMessages(messages)
+    onSuccess: (result) => {
+      setBlueprintResult(result)
+      setImportMessages([
+        ...result.createdDataSources.map((name) => `Created or updated data source: ${name}`),
+        ...result.createdSemanticAttributes.map((name) => `Created or updated semantic attribute: ${name}`),
+        ...result.createdSelectors.map((name) => `Created or updated selector: ${name}`),
+        ...result.createdPromptTemplates.map((name) => `Created or updated prompt template: ${name}`),
+        ...result.createdPiiRules.map((name) => `Created or updated PII rule: ${name}`),
+        ...result.createdAuditPolicies.map((name) => `Created or updated audit policy: ${name}`),
+      ])
     },
     onError: (error) => {
       setImportMessages([
@@ -253,14 +205,14 @@ export function BootstrapStudioPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="AI-assisted onboarding"
-        title="Use Codex or Claude to draft your first context layer"
+        title="Use Codex or Claude to draft the first UCL blueprint for your existing systems."
         description="Give an AI tool your schemas, CRM exports, usage logs, and KPI notes, then import its ContextLayerBlueprint so teams can review and govern the generated model."
         actions={
           <>
             <Button
               type="button"
               variant="secondary"
-              onClick={() => downloadTextFile('context-layer-bootstrap-prompt.txt', codexBootstrapPrompt, 'text/plain')}
+              onClick={() => downloadTextFile('context-layer-bootstrap-prompt.txt', aiPrompts[selectedPrompt], 'text/plain')}
             >
               <Download className="size-4" />
               Download prompt
@@ -309,7 +261,7 @@ export function BootstrapStudioPage() {
               type="button"
               variant="secondary"
               onClick={async () => {
-                await navigator.clipboard.writeText(codexBootstrapPrompt)
+                await navigator.clipboard.writeText(aiPrompts[selectedPrompt])
                 setClipboardMessage('Prompt copied to clipboard.')
                 window.setTimeout(() => setClipboardMessage(null), 2500)
               }}
@@ -319,18 +271,31 @@ export function BootstrapStudioPage() {
             </Button>
           }
         >
+          <div className="mb-4 flex flex-wrap gap-2">
+            {(Object.keys(aiPrompts) as Array<keyof typeof aiPrompts>).map((tool) => (
+              <Button
+                key={tool}
+                type="button"
+                size="sm"
+                variant={selectedPrompt === tool ? 'primary' : 'secondary'}
+                onClick={() => setSelectedPrompt(tool)}
+              >
+                {tool}
+              </Button>
+            ))}
+          </div>
           <Card className="bg-ink-950 text-ivory-50">
             <div className="flex items-start gap-3">
               <Bot className="mt-1 size-5 text-copper-300" />
               <div>
-                <p className="font-semibold text-ivory-50">Prompt for Codex or Claude</p>
+                <p className="font-semibold text-ivory-50">Prompt for {selectedPrompt}</p>
                 <p className="mt-2 text-sm leading-7 text-ivory-200">
                   This tells the model to inspect source-system evidence, design a governed semantic blueprint, and return one import-ready JSON file instead of prose.
                 </p>
               </div>
             </div>
             <pre className="mt-4 overflow-x-auto whitespace-pre-wrap break-words text-sm leading-7 text-ivory-100">
-              {codexBootstrapPrompt}
+              {aiPrompts[selectedPrompt]}
             </pre>
           </Card>
           {clipboardMessage ? (
@@ -413,7 +378,39 @@ export function BootstrapStudioPage() {
               </Card>
             ) : null}
 
+            {blueprintResult?.issues.length ? (
+              <Card className="border-rosewood-500/30 bg-rosewood-500/8">
+                <p className="font-semibold text-rosewood-800">Server validation feedback</p>
+                <div className="mt-3 grid gap-2 text-sm text-rosewood-800">
+                  {blueprintResult.issues.map((issue) => (
+                    <p key={`${issue.path}-${issue.message}`}>
+                      {issue.path}: {issue.message}
+                      {issue.line != null ? ` (line ${issue.line}, byte ${issue.bytePositionInLine ?? 0})` : ''}
+                    </p>
+                  ))}
+                </div>
+              </Card>
+            ) : null}
+
             <div className="flex flex-wrap gap-3">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => validateMutation.mutate()}
+                disabled={!blueprint || validateMutation.isPending}
+              >
+                <ShieldCheck className="size-4" />
+                {validateMutation.isPending ? 'Validating…' : 'Validate blueprint'}
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => previewMutation.mutate()}
+                disabled={!blueprint || previewMutation.isPending}
+              >
+                <FileCog className="size-4" />
+                {previewMutation.isPending ? 'Building preview…' : 'Preview import'}
+              </Button>
               <Button
                 type="button"
                 onClick={() => importMutation.mutate()}
@@ -429,6 +426,21 @@ export function BootstrapStudioPage() {
         <Panel eyebrow="Step 4" title="Import plan and governance posture">
           {blueprint && importPlan ? (
             <div className="grid gap-3">
+              {blueprintResult?.preview.length ? (
+                <Card className="bg-ivory-25">
+                  <p className="text-xs uppercase tracking-[0.18em] text-sage-700">Server import preview</p>
+                  <div className="mt-3 grid gap-2 text-sm text-ink-700">
+                    {blueprintResult.preview.slice(0, 12).map((change) => (
+                      <p key={`${change.entityType}-${change.name}-${change.path}`}>
+                        {change.action} {change.entityType}: {change.name}
+                      </p>
+                    ))}
+                    {blueprintResult.preview.length > 12 ? (
+                      <p>{blueprintResult.preview.length - 12} more changes hidden for readability.</p>
+                    ) : null}
+                  </div>
+                </Card>
+              ) : null}
               <Card className="bg-ink-950 text-ivory-50">
                 <div className="flex items-start gap-3">
                   <ShieldCheck className="mt-1 size-5 text-copper-300" />

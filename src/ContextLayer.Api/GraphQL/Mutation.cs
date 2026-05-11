@@ -1,5 +1,6 @@
 using ContextLayer.Application.Contracts;
 using ContextLayer.Application.Services;
+using ContextLayer.Api.Auth;
 using ContextLayer.Domain.Entities;
 using ContextLayer.Infrastructure.Auth;
 using HotChocolate.Authorization;
@@ -8,70 +9,159 @@ namespace ContextLayer.Api.GraphQL;
 
 public sealed class Mutation
 {
-    [Authorize(Roles = new[] { RoleNames.TenantAdmin })]
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin })]
+    public Task<OperatorAccountSummaryResult> UpdateOperatorAccount(
+        UpdateOperatorAccountInput input,
+        [Service] IContextLayerService service,
+        CancellationToken cancellationToken)
+        => service.UpdateOperatorAccountAsync(input, cancellationToken);
+
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin })]
+    public Task<ApiClientCreatedResult> CreateApiClient(
+        CreateApiClientRequest input,
+        [Service] ApiClientKeyService service,
+        CancellationToken cancellationToken)
+        => service.CreateAsync(input.TenantSlug, input.WorkspaceSlug, input.DisplayName, input.Scopes, cancellationToken);
+
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin })]
+    public Task<ApiClientRotatedResult> RotateApiClient(
+        string tenantSlug,
+        string clientId,
+        [Service] ApiClientKeyService service,
+        CancellationToken cancellationToken)
+        => service.RotateAsync(tenantSlug, clientId, cancellationToken);
+
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin })]
+    public async Task<bool> RevokeApiClient(
+        string tenantSlug,
+        string clientId,
+        [Service] ApiClientKeyService service,
+        CancellationToken cancellationToken)
+    {
+        await service.RevokeAsync(tenantSlug, clientId, cancellationToken);
+        return true;
+    }
+
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin })]
+    public Task<OnboardingResult> SubmitOnboarding(
+        SubmitOnboardingInput input,
+        [Service] IOnboardingService service,
+        CancellationToken cancellationToken)
+        => service.SubmitAsync(input, cancellationToken);
+
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin })]
+    public Task<BlueprintImportResult> UploadBlueprint(
+        UploadBlueprintInput input,
+        [Service] IBlueprintImportService service,
+        CancellationToken cancellationToken)
+        => service.UploadAsync(input, cancellationToken);
+
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin })]
+    public Task<BlueprintImportResult> ValidateBlueprint(
+        BlueprintImportInput input,
+        [Service] IBlueprintImportService service,
+        CancellationToken cancellationToken)
+        => service.ValidateAsync(input, cancellationToken);
+
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin })]
+    public Task<BlueprintImportResult> PreviewBlueprint(
+        BlueprintImportInput input,
+        [Service] IBlueprintImportService service,
+        CancellationToken cancellationToken)
+        => service.PreviewAsync(input, cancellationToken);
+
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin })]
+    public Task<BlueprintImportResult> ImportBlueprint(
+        BlueprintImportInput input,
+        [Service] IBlueprintImportService service,
+        CancellationToken cancellationToken)
+        => service.ImportAsync(input, cancellationToken);
+
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin })]
     public Task<DataSource> UpsertDataSource(
         UpsertDataSourceInput input,
         [Service] IContextLayerService service,
         CancellationToken cancellationToken)
         => service.UpsertDataSourceAsync(input, cancellationToken);
 
-    [Authorize(Roles = new[] { RoleNames.TenantAdmin })]
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin })]
+    public Task<ConnectorRegistrationResult> RegisterConnector(
+        RegisterConnectorInput input,
+        [Service] IContextLayerService service,
+        CancellationToken cancellationToken)
+        => service.RegisterConnectorAsync(input, cancellationToken);
+
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin })]
+    public Task<ConnectorConfigurationValidationResultModel> ValidateConnectorConfiguration(
+        ValidateConnectorConfigurationInput input,
+        [Service] IContextLayerService service,
+        CancellationToken cancellationToken)
+        => service.ValidateConnectorConfigurationAsync(input, cancellationToken);
+
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin })]
+    public Task<ConnectorHealthResult> CheckConnectorHealth(
+        CheckConnectorHealthInput input,
+        [Service] IContextLayerService service,
+        CancellationToken cancellationToken)
+        => service.CheckConnectorHealthAsync(input, cancellationToken);
+
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst })]
     public Task<SemanticAttributeDefinition> UpsertSemanticAttribute(
         UpsertSemanticAttributeInput input,
         [Service] IContextLayerService service,
         CancellationToken cancellationToken)
         => service.UpsertSemanticAttributeAsync(input, cancellationToken);
 
-    [Authorize(Roles = new[] { RoleNames.TenantAdmin })]
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst })]
     public Task<SelectorDefinition> UpsertSelector(
         UpsertSelectorDefinitionInput input,
         [Service] IContextLayerService service,
         CancellationToken cancellationToken)
         => service.UpsertSelectorAsync(input, cancellationToken);
 
-    [Authorize(Roles = new[] { RoleNames.TenantAdmin })]
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst })]
     public Task<SelectorDefinition> PublishSelector(
         PublishSelectorDefinitionInput input,
         [Service] IContextLayerService service,
         CancellationToken cancellationToken)
         => service.PublishSelectorAsync(input, cancellationToken);
 
-    [Authorize(Roles = new[] { RoleNames.TenantAdmin, RoleNames.SalesRep })]
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst, RoleNames.SalesUser, RoleNames.ApiClient })]
     public Task<QueueRecomputeResult> QueueContextRecompute(
         QueueContextRecomputeInput input,
         [Service] IContextLayerService service,
         CancellationToken cancellationToken)
         => service.QueueContextRecomputeAsync(input, cancellationToken);
 
-    [Authorize(Roles = new[] { RoleNames.TenantAdmin })]
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst })]
     public Task<SelectorExecutionPreviewResult> PreviewSelector(
         PreviewSelectorInput input,
         [Service] IContextLayerService service,
         CancellationToken cancellationToken)
         => service.PreviewSelectorAsync(input, cancellationToken);
 
-    [Authorize(Roles = new[] { RoleNames.TenantAdmin })]
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst })]
     public Task<SelectorValidationResult> ValidateSelector(
         ValidateSelectorInput input,
         [Service] IContextLayerService service,
         CancellationToken cancellationToken)
         => service.ValidateSelectorAsync(input, cancellationToken);
 
-    [Authorize(Roles = new[] { RoleNames.TenantAdmin })]
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin })]
     public Task<ScheduledRecomputeDispatchResult> RunScheduledRecompute(
         RunScheduledRecomputeInput input,
         [Service] IContextLayerService service,
         CancellationToken cancellationToken)
         => service.RunScheduledRecomputeAsync(input, cancellationToken);
 
-    [Authorize(Roles = new[] { RoleNames.TenantAdmin })]
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.Analyst })]
     public Task<PromptTemplate> UpsertPromptTemplate(
         UpsertPromptTemplateInput input,
         [Service] IContextLayerService service,
         CancellationToken cancellationToken)
         => service.UpsertPromptTemplateAsync(input, cancellationToken);
 
-    [Authorize(Roles = new[] { RoleNames.TenantAdmin, RoleNames.SalesRep })]
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.Analyst, RoleNames.SalesUser })]
     public Task<AgentRunResult> CreateAgentRun(
         CreateAgentRunInput input,
         [Service] IContextLayerService service,
