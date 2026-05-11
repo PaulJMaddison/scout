@@ -23,7 +23,7 @@ public sealed class ContextLayerClient : IContextLayerClient, IDisposable
         Auth = new ContextLayerAuthClient(pipeline);
         Users = new ContextLayerUsersClient(pipeline);
         Accounts = new ContextLayerAccountsClient(pipeline);
-        Snapshots = new ContextLayerSnapshotsClient(Users, Accounts);
+        Snapshots = new ContextLayerSnapshotsClient(Users, Accounts, pipeline);
         Facts = new ContextLayerFactsClient(Users, Accounts);
         Selectors = new ContextLayerSelectorsClient(pipeline);
         Recompute = new ContextLayerRecomputeClient(pipeline);
@@ -81,73 +81,10 @@ internal sealed class ContextLayerAuthClient(ContextLayerHttpPipeline pipeline) 
 internal sealed class ContextLayerUsersClient(ContextLayerHttpPipeline pipeline) : IContextLayerUsersClient
 {
     public Task<ContextProfileResult?> GetContextAsync(string tenantSlug, string externalUserId, CancellationToken cancellationToken = default)
-        => pipeline.SendGraphQlAsync<ContextProfileResult>(
-            "GetUserContext",
-            """
-            query GetUserContext($input: UserContextLookupInput!) {
-              userContext(input: $input) {
-                snapshotId
-                tenantSlug
-                externalUserId
-                fullName
-                companyName
-                summary
-                overallConfidence
-                generatedAtUtc
-                isStale
-                sourceSummary {
-                  externalAccountId
-                  accountName
-                  domain
-                  industry
-                  region
-                  lifecycleStage
-                  activePlanName
-                  subscriptionStatus
-                  monthlyRecurringRevenue
-                  openOpportunities
-                  openSupportTickets
-                  pricingPageVisits30d
-                  activeDays30
-                  emailReplies30d
-                  highlights {
-                    label
-                    value
-                    explanation
-                  }
-                  recentTimeline {
-                    category
-                    description
-                    occurredAtUtc
-                  }
-                  rawSummaryJson
-                }
-                history {
-                  snapshotId
-                  snapshotVersion
-                  summary
-                  overallConfidence
-                  generatedAtUtc
-                  isStale
-                  factCount
-                }
-                facts {
-                  id
-                  attributeKey
-                  valueJson
-                  valueType
-                  confidence
-                  observedAtUtc
-                  freshUntilUtc
-                  sourceSelectorDefinitionId
-                  explanation
-                  provenanceJson
-                }
-              }
-            }
-            """,
-            new { input = new UserContextLookupInput(tenantSlug, externalUserId) },
-            "userContext",
+        => pipeline.SendAsync<ContextProfileResult?>(
+            HttpMethod.Get,
+            $"/api/v1/context/users/{Uri.EscapeDataString(externalUserId)}?tenantSlug={Uri.EscapeDataString(tenantSlug)}",
+            null,
             cancellationToken);
 }
 
@@ -156,15 +93,23 @@ internal sealed class ContextLayerAccountsClient(ContextLayerHttpPipeline pipeli
     public Task<AccountContextResult?> GetContextAsync(string tenantSlug, string externalAccountId, CancellationToken cancellationToken = default)
         => pipeline.SendAsync<AccountContextResult?>(
             HttpMethod.Get,
-            $"/v1/accounts/{Uri.EscapeDataString(externalAccountId)}/context?tenantSlug={Uri.EscapeDataString(tenantSlug)}",
+            $"/api/v1/context/accounts/{Uri.EscapeDataString(externalAccountId)}?tenantSlug={Uri.EscapeDataString(tenantSlug)}",
             null,
             cancellationToken);
 }
 
 internal sealed class ContextLayerSnapshotsClient(
     IContextLayerUsersClient usersClient,
-    IContextLayerAccountsClient accountsClient) : IContextLayerSnapshotsClient
+    IContextLayerAccountsClient accountsClient,
+    ContextLayerHttpPipeline pipeline) : IContextLayerSnapshotsClient
 {
+    public Task<ContextSnapshotResult?> GetByIdAsync(string tenantSlug, Guid snapshotId, CancellationToken cancellationToken = default)
+        => pipeline.SendAsync<ContextSnapshotResult?>(
+            HttpMethod.Get,
+            $"/api/v1/context/snapshots/{Uri.EscapeDataString(snapshotId.ToString())}?tenantSlug={Uri.EscapeDataString(tenantSlug)}",
+            null,
+            cancellationToken);
+
     public async Task<ContextSnapshotSummary?> GetLatestForUserAsync(string tenantSlug, string externalUserId, CancellationToken cancellationToken = default)
     {
         var context = await usersClient.GetContextAsync(tenantSlug, externalUserId, cancellationToken);
@@ -191,17 +136,33 @@ internal sealed class ContextLayerSnapshotsClient(
             return null;
         }
 
-        var historyEntry = context.History.FirstOrDefault(x => x.GeneratedAtUtc == context.GeneratedAtUtc);
-        return historyEntry is null
-            ? new ContextSnapshotSummary(Guid.Empty, 0, context.Summary, context.OverallConfidence, context.GeneratedAtUtc, context.IsStale, context.Facts.Count)
+        var latestUser = context.Users
+            .Where(x => x.LatestSnapshotId.HasValue && x.GeneratedAtUtc.HasValue)
+            .OrderByDescending(x => x.GeneratedAtUtc)
+            .FirstOrDefault();
+        if (latestUser?.LatestSnapshotId is null)
+        {
+            return null;
+        }
+
+        var snapshot = await GetByIdAsync(tenantSlug, latestUser.LatestSnapshotId.Value, cancellationToken);
+        return snapshot is null
+            ? new ContextSnapshotSummary(
+                latestUser.LatestSnapshotId.Value,
+                0,
+                latestUser.Summary ?? string.Empty,
+                latestUser.OverallConfidence ?? 0,
+                latestUser.GeneratedAtUtc ?? DateTime.MinValue,
+                latestUser.IsStale,
+                0)
             : new ContextSnapshotSummary(
-                historyEntry.SnapshotId,
-                historyEntry.SnapshotVersion,
-                historyEntry.Summary,
-                historyEntry.OverallConfidence,
-                historyEntry.GeneratedAtUtc,
-                historyEntry.IsStale,
-                historyEntry.FactCount);
+                snapshot.SnapshotId,
+                snapshot.SnapshotVersion,
+                snapshot.Summary,
+                snapshot.OverallConfidence,
+                snapshot.GeneratedAtUtc,
+                snapshot.IsStale,
+                snapshot.Facts.Count);
     }
 }
 
@@ -213,7 +174,10 @@ internal sealed class ContextLayerFactsClient(
         => (await usersClient.GetContextAsync(tenantSlug, externalUserId, cancellationToken))?.Facts ?? Array.Empty<ContextFactResult>();
 
     public async Task<IReadOnlyList<ContextFactResult>> GetForAccountAsync(string tenantSlug, string externalAccountId, CancellationToken cancellationToken = default)
-        => (await accountsClient.GetContextAsync(tenantSlug, externalAccountId, cancellationToken))?.Facts ?? Array.Empty<ContextFactResult>();
+    {
+        var context = await accountsClient.GetContextAsync(tenantSlug, externalAccountId, cancellationToken);
+        return context is null ? Array.Empty<ContextFactResult>() : Array.Empty<ContextFactResult>();
+    }
 }
 
 internal sealed class ContextLayerSelectorsClient(ContextLayerHttpPipeline pipeline) : IContextLayerSelectorsClient
@@ -418,6 +382,9 @@ internal sealed class ScopedAccountsClient(string tenantSlug, IContextLayerAccou
 
 internal sealed class ScopedSnapshotsClient(string tenantSlug, IContextLayerSnapshotsClient inner) : IScopedSnapshotsClient
 {
+    public Task<ContextSnapshotResult?> GetByIdAsync(Guid snapshotId, CancellationToken cancellationToken = default)
+        => inner.GetByIdAsync(tenantSlug, snapshotId, cancellationToken);
+
     public Task<ContextSnapshotSummary?> GetLatestForUserAsync(string externalUserId, CancellationToken cancellationToken = default)
         => inner.GetLatestForUserAsync(tenantSlug, externalUserId, cancellationToken);
 

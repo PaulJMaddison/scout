@@ -36,7 +36,7 @@ export function PricingPage() {
       <PageHeader
         eyebrow="Pricing and deployment"
         title="This page explains how Universal Context Layer can be adopted as open source core, self-hosted backend, managed SaaS, private cloud, or integration layer."
-        description="There is no payment provider wired into the public repository. The product has plan and usage foundations so Stripe, Paddle, or a contracted billing process can be attached later without changing the core metering logic."
+        description="There is no live payment provider wired into the public repository. The product has plan and usage foundations, while hosted billing and commercial licence operations live in paid/private cloud implementation work."
         actions={
           <>
             <Link to="/docs">
@@ -90,7 +90,7 @@ export function PricingPage() {
         <Panel eyebrow="Commercial boundary" title="What is intentionally not in the public repo">
           <BeforeAfter
             before={[
-              'No Stripe or Paddle integration is bundled.',
+              'No live payment-provider integration is bundled.',
               'No paid Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, or NetSuite implementation is shipped.',
               'No customer-specific deployment pack or private-cloud automation is included.',
             ]}

@@ -234,12 +234,7 @@ public sealed class ApiClientKeyService(
     }
 
     private static IReadOnlyList<string> NormalizeScopes(IReadOnlyList<string> scopes)
-        => scopes
-            .Where(scope => !string.IsNullOrWhiteSpace(scope))
-            .Select(scope => scope.Trim())
-            .Distinct(StringComparer.Ordinal)
-            .DefaultIfEmpty("context.read")
-            .ToList();
+        => ApiScopes.Normalize(scopes);
 
     private static IReadOnlyList<string> DeserializeScopes(string json)
     {

@@ -6,6 +6,8 @@ This document describes those extension points and the boundary around them.
 
 For the full public/private product boundary, see [open-core-boundary.md](open-core-boundary.md).
 
+Commercial enterprise implementations include real Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, and NetSuite connectors; SSO/SAML; SCIM; credential vault integrations; advanced governance; compliance exports; private deployment packs; and SLA tooling. Those implementations are paid/private and are not included in this public repo.
+
 ## Principles
 
 - The public repo defines contracts, DTOs, DI hooks, and safe defaults.
@@ -103,3 +105,8 @@ If you add a new extension point:
 - add documentation for how a private package would register the implementation
 
 Do not add vendor-specific or customer-specific enterprise implementations to this repository.
+# Enterprise Extension Points
+
+The public repository exposes stable seams so private paid enterprise packages can plug into the customer-owned data plane without copying open-core implementation code.
+
+Commercial enterprise implementations include real Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, and NetSuite connectors; SSO/SAML; SCIM; credential vault integrations; advanced governance; compliance exports; private deployment packs; and SLA tooling. Those implementations are paid/private and are not included in this public repo.

@@ -155,10 +155,10 @@ export function OnboardingPage() {
   return (
     <div className="grid gap-8">
       <PageHeader
-        eyebrow="SaaS onboarding"
+        eyebrow="Demo/private setup"
         title="Turn existing systems into trusted semantic context."
-        description="Create a tenant-safe starter workspace, admin account, semantic schema, and selector set. The flow uses mock starter sources only, so no production connector credentials are stored during onboarding."
-        actions={<Badge tone="success">Open core safe path</Badge>}
+        description="Create a private starter workspace, admin account, semantic schema, and selector set. This flow is for local demos or deliberately enabled private setup only, and it stores no production connector credentials."
+        actions={<Badge tone="success">Local/private setup</Badge>}
       />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_390px]">
@@ -353,7 +353,7 @@ function GovernanceStep({
           <div>
             <p className="font-semibold text-ink-950">Secure onboarding default</p>
             <p className="mt-1 text-sm leading-6 text-ink-650">
-              This step creates starter sources, semantic definitions, and selector drafts. Real production credentials stay outside onboarding and should be added later through connector registration.
+              This step creates starter sources, semantic definitions, and selector drafts. Real production credentials stay outside this setup flow and should be added later through connector registration.
             </p>
           </div>
         </div>
@@ -523,7 +523,7 @@ function SuccessScreen({
       <PageHeader
         eyebrow="Workspace provisioned"
         title="Your starter context layer is ready."
-        description="The backend created a tenant, workspace, admin account, starter semantic schema, published starter selectors, onboarding states, and audit events. Connector entries are safe placeholders only."
+        description="The backend created a tenant, workspace, admin account, starter semantic schema, published starter selectors, setup state, and audit events. Connector entries are safe placeholders only."
         actions={<Badge tone="success">Tenant: {result.tenantSlug}</Badge>}
       />
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">

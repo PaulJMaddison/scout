@@ -140,7 +140,7 @@ This repository ships:
 - safe generic SQL/file/REST connector examples
 - extension interfaces
 - marketing and documentation
-- domain models and migrations for SaaS-ready metadata
+- domain models and migrations for SaaS/control-plane foundation metadata
 - generic connector contracts and safe implementations
 - extension interfaces for private modules
 - fictional local seed data

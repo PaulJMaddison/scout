@@ -7,34 +7,32 @@ namespace ContextLayer.Sdk.Tests;
 public sealed class ContextLayerClientTests
 {
     [Fact]
-    public async Task UsersGetContextAsync_PostsExpectedGraphQlRequest_AndAddsTracingHeaders()
+    public async Task UsersGetContextAsync_UsesV1RestPath_AndAddsTracingHeaders()
     {
         var handler = new StubHttpMessageHandler(request =>
         {
-            Assert.Equal(HttpMethod.Post, request.Method);
-            Assert.EndsWith("/graphql", request.RequestUri!.ToString(), StringComparison.Ordinal);
+            Assert.Equal(HttpMethod.Get, request.Method);
+            Assert.Equal(
+                "http://127.0.0.1:5198/api/v1/context/users/123?tenantSlug=demo",
+                request.RequestUri!.ToString());
             Assert.True(request.Headers.Contains("X-Request-Id"));
             Assert.Equal("Bearer", request.Headers.Authorization?.Scheme);
             Assert.Equal("token-123", request.Headers.Authorization?.Parameter);
 
             const string json = """
             {
-              "data": {
-                "userContext": {
-                  "snapshotId": "8e22fcf4-6640-4fba-8992-14bd208b89fa",
-                  "tenantSlug": "demo",
-                  "externalUserId": "123",
-                  "fullName": "Avery Stone",
-                  "companyName": "Larkspur Logistics Group",
-                  "summary": "High intent account.",
-                  "overallConfidence": 0.91,
-                  "generatedAtUtc": "2026-05-11T10:00:00Z",
-                  "isStale": false,
-                  "sourceSummary": null,
-                  "history": [],
-                  "facts": []
-                }
-              }
+              "snapshotId": "8e22fcf4-6640-4fba-8992-14bd208b89fa",
+              "tenantSlug": "demo",
+              "externalUserId": "123",
+              "fullName": "Avery Stone",
+              "companyName": "Larkspur Logistics Group",
+              "summary": "High intent account.",
+              "overallConfidence": 0.91,
+              "generatedAtUtc": "2026-05-11T10:00:00Z",
+              "isStale": false,
+              "sourceSummary": null,
+              "history": [],
+              "facts": []
             }
             """;
             return Task.FromResult(CreateJsonResponse(HttpStatusCode.OK, json));
@@ -61,22 +59,18 @@ public sealed class ContextLayerClientTests
         {
             const string json = """
             {
-              "data": {
-                "userContext": {
-                  "snapshotId": "8e22fcf4-6640-4fba-8992-14bd208b89fa",
-                  "tenantSlug": "demo",
-                  "externalUserId": "123",
-                  "fullName": "Avery Stone",
-                  "companyName": "Larkspur Logistics Group",
-                  "summary": "High intent account.",
-                  "overallConfidence": 0.91,
-                  "generatedAtUtc": "2026-05-11T10:00:00Z",
-                  "isStale": false,
-                  "sourceSummary": null,
-                  "history": [],
-                  "facts": []
-                }
-              }
+              "snapshotId": "8e22fcf4-6640-4fba-8992-14bd208b89fa",
+              "tenantSlug": "demo",
+              "externalUserId": "123",
+              "fullName": "Avery Stone",
+              "companyName": "Larkspur Logistics Group",
+              "summary": "High intent account.",
+              "overallConfidence": 0.91,
+              "generatedAtUtc": "2026-05-11T10:00:00Z",
+              "isStale": false,
+              "sourceSummary": null,
+              "history": [],
+              "facts": []
             }
             """;
             return Task.FromResult(CreateJsonResponse(HttpStatusCode.OK, json));
@@ -102,7 +96,7 @@ public sealed class ContextLayerClientTests
         {
             Assert.Equal(HttpMethod.Get, request.Method);
             Assert.Equal(
-                "http://127.0.0.1:5198/v1/accounts/ACC-123/context?tenantSlug=demo",
+                "http://127.0.0.1:5198/api/v1/context/accounts/ACC-123?tenantSlug=demo",
                 request.RequestUri!.ToString());
 
             const string json = """
@@ -110,12 +104,12 @@ public sealed class ContextLayerClientTests
               "tenantSlug": "demo",
               "externalAccountId": "ACC-123",
               "accountName": "Larkspur Logistics Group",
-              "summary": "Account summary.",
-              "overallConfidence": 0.88,
-              "generatedAtUtc": "2026-05-11T10:00:00Z",
-              "isStale": false,
-              "facts": [],
-              "history": []
+              "domain": "larkspur.example",
+              "industry": "Logistics",
+              "segment": "Enterprise",
+              "region": "EMEA",
+              "lifecycleStage": "customer",
+              "users": []
             }
             """;
             return Task.FromResult(CreateJsonResponse(HttpStatusCode.OK, json));
@@ -131,6 +125,49 @@ public sealed class ContextLayerClientTests
 
         Assert.NotNull(result);
         Assert.Equal("ACC-123", result!.ExternalAccountId);
+    }
+
+    [Fact]
+    public async Task SnapshotsGetByIdAsync_UsesV1RestPath_WithoutDoublePrefix()
+    {
+        var snapshotId = Guid.Parse("8e22fcf4-6640-4fba-8992-14bd208b89fa");
+        var handler = new StubHttpMessageHandler(request =>
+        {
+            Assert.Equal(HttpMethod.Get, request.Method);
+            Assert.Equal(
+                $"http://127.0.0.1:5198/api/v1/context/snapshots/{snapshotId}?tenantSlug=demo",
+                request.RequestUri!.ToString());
+
+            const string json = """
+            {
+              "snapshotId": "8e22fcf4-6640-4fba-8992-14bd208b89fa",
+              "tenantId": "5e9cdd48-b71c-4eb7-92fd-d29bfbe99731",
+              "tenantSlug": "demo",
+              "userProfileId": "0f864ac6-dcbf-4850-bd98-1d13975d7813",
+              "externalUserId": "123",
+              "fullName": "Avery Stone",
+              "companyName": "Larkspur Logistics Group",
+              "snapshotVersion": 3,
+              "summary": "Snapshot summary.",
+              "overallConfidence": 0.91,
+              "generatedAtUtc": "2026-05-11T10:00:00Z",
+              "isStale": false,
+              "facts": []
+            }
+            """;
+            return Task.FromResult(CreateJsonResponse(HttpStatusCode.OK, json));
+        });
+
+        using var httpClient = new HttpClient(handler);
+        using var client = new ContextLayerClient(httpClient, new ContextLayerClientOptions
+        {
+            BaseUrl = "http://127.0.0.1:5198/api/v1"
+        });
+
+        var result = await client.Snapshots.GetByIdAsync("demo", snapshotId);
+
+        Assert.NotNull(result);
+        Assert.Equal(3, result!.SnapshotVersion);
     }
 
     [Fact]
@@ -153,22 +190,18 @@ public sealed class ContextLayerClientTests
 
             return Task.FromResult(CreateJsonResponse(HttpStatusCode.OK, """
             {
-              "data": {
-                "userContext": {
-                  "snapshotId": "8e22fcf4-6640-4fba-8992-14bd208b89fa",
-                  "tenantSlug": "demo",
-                  "externalUserId": "123",
-                  "fullName": "Avery Stone",
-                  "companyName": "Larkspur Logistics Group",
-                  "summary": "Recovered after retry.",
-                  "overallConfidence": 0.91,
-                  "generatedAtUtc": "2026-05-11T10:00:00Z",
-                  "isStale": false,
-                  "sourceSummary": null,
-                  "history": [],
-                  "facts": []
-                }
-              }
+              "snapshotId": "8e22fcf4-6640-4fba-8992-14bd208b89fa",
+              "tenantSlug": "demo",
+              "externalUserId": "123",
+              "fullName": "Avery Stone",
+              "companyName": "Larkspur Logistics Group",
+              "summary": "Recovered after retry.",
+              "overallConfidence": 0.91,
+              "generatedAtUtc": "2026-05-11T10:00:00Z",
+              "isStale": false,
+              "sourceSummary": null,
+              "history": [],
+              "facts": []
             }
             """));
         });

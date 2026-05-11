@@ -1,6 +1,7 @@
 using ContextLayer.Application.Contracts;
 using ContextLayer.Application.Services;
 using ContextLayer.Api.Auth;
+using ContextLayer.Api.Onboarding;
 using ContextLayer.Domain.Entities;
 using ContextLayer.Infrastructure.Auth;
 using HotChocolate.Authorization;
@@ -43,11 +44,15 @@ public sealed class Mutation
     }
 
     [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin })]
-    public Task<OnboardingResult> SubmitOnboarding(
+    public async Task<OnboardingResult> SubmitOnboarding(
         SubmitOnboardingInput input,
+        [Service] OnboardingAccessGuard onboardingAccessGuard,
         [Service] IOnboardingService service,
         CancellationToken cancellationToken)
-        => service.SubmitAsync(input, cancellationToken);
+    {
+        onboardingAccessGuard.EnsureOnboardingAllowed(input.TenantSlug, "graphql");
+        return await service.SubmitAsync(input, cancellationToken);
+    }
 
     [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin })]
     public Task<BlueprintImportResult> UploadBlueprint(

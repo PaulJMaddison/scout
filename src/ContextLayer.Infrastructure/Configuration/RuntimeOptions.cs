@@ -40,6 +40,10 @@ public sealed class FeatureFlagOptions
 
     public bool EnterpriseConnectorExtensions { get; set; } = false;
 
+    public bool AnonymousOnboarding { get; set; } = false;
+
+    public bool AllowProductionOnboarding { get; set; } = false;
+
     public IReadOnlyList<string> EnabledFlags()
     {
         var flags = new List<string>();
@@ -49,6 +53,8 @@ public sealed class FeatureFlagOptions
         AddIf(flags, HostedBillingUsage, "hosted-billing-usage");
         AddIf(flags, Webhooks, "webhooks");
         AddIf(flags, EnterpriseConnectorExtensions, "enterprise-connector-extensions");
+        AddIf(flags, AnonymousOnboarding, "anonymous-onboarding");
+        AddIf(flags, AllowProductionOnboarding, "production-onboarding");
         return flags;
     }
 
@@ -111,6 +117,17 @@ public sealed class BootstrapOptions
     public bool ApplyMigrationsOnStartup { get; set; } = true;
 
     public bool SeedDemoData { get; set; } = false;
+}
+
+public sealed class DataProtectionKeyOptions
+{
+    public const string SectionName = "DataProtection";
+
+    public string ApplicationName { get; set; } = "UniversalContextLayer";
+
+    public string KeyRingPath { get; set; } = string.Empty;
+
+    public bool RequirePersistentKeys { get; set; } = false;
 }
 
 public sealed class TelemetryOptions

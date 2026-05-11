@@ -9,9 +9,9 @@ The expected repository split is:
 - `universalcontextlayer`
   The public open source core
 - `universalcontextlayer-enterprise`
-  A future private repository for paid enterprise extensions
+  A private paid repository for enterprise extensions
 - `universalcontextlayer-cloud`
-  An optional future repository for managed SaaS and control-plane concerns
+  A private cloud/control-plane repository for hosted commercial operations
 
 ## Public open source core
 
@@ -48,6 +48,7 @@ These are likely to be developed outside the public repo:
 - support-backed observability and operational tooling
 
 This list is here to clarify boundary expectations, not to imply that those implementations already exist in the public repository.
+Some of these capabilities now exist in private commercial repositories, but they remain outside the public open-core deliverable.
 
 ## Managed SaaS direction
 

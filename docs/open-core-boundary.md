@@ -1,13 +1,15 @@
-# Open core boundary
+# Private Product Boundary
 
-This document explains what belongs in the public Universal Context Layer repository and what should remain outside it. UCL is context infrastructure for AI-enabled business systems, so the public/private boundary should protect the reusable open core while leaving room for commercial enterprise extensions.
+This document explains what belongs in the current private Universal Context Layer product repository and what should remain outside it. UCL is context infrastructure for AI-enabled business systems, so the boundary should protect the reusable core while leaving room for commercial enterprise and hosted-control-plane extensions.
+
+The repository is private/commercial at the moment. Before any public repo is recreated, prepare a deliberately stripped version that removes private strategy, customer-specific material, secrets, generated runtime artefacts, paid connector code, and overclaiming SaaS copy.
 
 ## Repository shape
 
 The intended long-term structure is:
 
 - `universalcontextlayer`
-  The public open source core, demo, SDKs, public extension contracts, GraphQL and REST APIs, and local/backend-only runtime
+  The product core, demo, SDKs, extension contracts, GraphQL and REST APIs, and local/backend-only runtime. This repo is currently private.
 - `universalcontextlayer-enterprise`
   A future private repository for paid enterprise extensions such as enterprise connectors, SSO, advanced governance, and managed deployment assets
 - `universalcontextlayer-cloud`
@@ -61,7 +63,7 @@ The public repo is the right home for:
 - generic REST connector examples that demonstrate the contract without becoming a vendor-specific integration
 - extension interfaces for connectors, auth, secrets, policy evaluation, audit export, context package export, approval workflows, promotion, and usage metering
 - safe mock or no-op default implementations for those interfaces
-- SaaS-ready metadata models for tenants, workspaces, subscriptions, API clients, onboarding, context package manifests, and usage metering, provided they stay provider-neutral
+- SaaS/control-plane foundation metadata models for tenants, workspaces, subscriptions, API clients, onboarding, context package manifests, and usage metering, provided they stay provider-neutral
 - local licence and control-plane configuration seams, provided they do not phone home or unlock private code inside the public repo
 - context package generation patterns and delivery-channel metadata
 - demo UI, samples, and fictional seed data

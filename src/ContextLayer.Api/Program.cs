@@ -4,6 +4,7 @@ using Microsoft.OpenApi;
 using ContextLayer.Api.Auth;
 using ContextLayer.Api.GraphQL;
 using ContextLayer.Api.Middleware;
+using ContextLayer.Api.Onboarding;
 using ContextLayer.Api.Rest;
 using ContextLayer.Application.Abstractions;
 using ContextLayer.Application.Contracts;
@@ -170,7 +171,8 @@ builder.Services.AddRateLimiter(options =>
 
 builder.Services
     .AddContextLayerApplication()
-    .AddContextLayerInfrastructure(builder.Configuration);
+    .AddContextLayerInfrastructure(builder.Configuration, builder.Environment);
+builder.Services.AddSingleton<OnboardingAccessGuard>();
 
 builder.Services
     .AddGraphQLServer()
@@ -494,9 +496,17 @@ apiClientsGroup.MapPost("/{clientId}/revoke", async (
 
 app.MapPost("/api/onboarding", async (
         SubmitOnboardingInput request,
+        HttpContext httpContext,
+        OnboardingAccessGuard onboardingAccessGuard,
         IOnboardingService onboardingService,
         CancellationToken cancellationToken) =>
     {
+        var disabled = onboardingAccessGuard.DenyAnonymousIfDisabled(httpContext, request.TenantSlug, "rest");
+        if (disabled is not null)
+        {
+            return disabled;
+        }
+
         try
         {
             var result = await onboardingService.SubmitAsync(request, cancellationToken);
@@ -612,6 +622,10 @@ app.MapGet("/api/platform/config", () => Results.Ok(new
     service = "ContextLayer.Api",
     mode = platformOptions.Mode,
     features = featureFlagOptions.EnabledFlags(),
+    onboarding = new
+    {
+        anonymousEnabled = app.Services.GetRequiredService<OnboardingAccessGuard>().IsAnonymousOnboardingAllowed()
+    },
     controlPlane = new
     {
         enabled = controlPlaneOptions.Enabled,

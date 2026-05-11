@@ -20,6 +20,8 @@ WORKDIR /app
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends curl ca-certificates \
+    && mkdir -p /var/lib/ucl/data-protection-keys \
+    && chown -R $APP_UID:$APP_UID /var/lib/ucl \
     && rm -rf /var/lib/apt/lists/*
 
 ENV ASPNETCORE_HTTP_PORTS=8080

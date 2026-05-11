@@ -6,8 +6,8 @@ export function OpenCorePage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Open core strategy"
-        title="This page explains what belongs in the open source core and what should stay in future commercial extension modules."
-        description="This site needs to be honest about the commercial boundary. The open source project should remain useful, teachable, and deployable. Paid options can be described clearly without placing enterprise implementation code into the public repository."
+        title="This page explains what belongs in the open source core and what stays in paid/private enterprise and cloud modules."
+        description="The public project remains useful, teachable, and deployable. Paid enterprise and cloud options can be described clearly without placing their implementation code into the public repository."
       />
 
       <section className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
@@ -72,7 +72,7 @@ export function OpenCorePage() {
               <div>
                 <p className="font-semibold text-ink-950">`universalcontextlayer-enterprise`</p>
                 <p className="mt-2 text-sm leading-7 text-ink-700">
-                  Future private repository for enterprise extensions, commercial deployment assets, and support-backed features that should not live in the public repo.
+                  Private paid repository for real enterprise connectors, SSO/SAML, SCIM, vaults, advanced governance, compliance exports, deployment packs, and SLA tooling.
                 </p>
               </div>
             </div>
@@ -83,7 +83,7 @@ export function OpenCorePage() {
               <div>
                 <p className="font-semibold text-ink-950">`universalcontextlayer-cloud`</p>
                 <p className="mt-2 text-sm leading-7 text-ink-700">
-                  Optional future repository for managed SaaS infrastructure, operations, deployment automation, and cloud-specific platform concerns.
+                  Private cloud/control-plane repository for hosted account management, billing, licence portals, downloads, update channels, support portals, aggregate usage reporting, and cloud operations.
                 </p>
               </div>
             </div>
@@ -124,7 +124,7 @@ export function OpenCorePage() {
             {[
               'The React UI is the public site, demo, and admin console. The long-term product value is the backend semantic integration layer.',
               'The public repo remains the open source core and demo, not a throwaway marketing artefact.',
-              'Enterprise features can be discussed commercially without pretending they already exist in this repository.',
+              'Enterprise and cloud features can be discussed commercially while making clear that their implementation code is private and not shipped here.',
               'One website is enough for now. Later, if the SaaS grows, the marketing/docs site and hosted product can be split cleanly.',
             ].map((line) => (
               <Card key={line} className="bg-ivory-25">

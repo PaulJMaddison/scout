@@ -85,17 +85,20 @@ public static class VersionedRestEndpointRouteBuilderExtensions
             .RequireAuthorization(new AuthorizeAttribute
             {
                 Roles = string.Join(',', RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst, RoleNames.SalesUser, RoleNames.ReadOnly, RoleNames.ApiClient)
-            });
+            })
+            .RequireApiClientScope(ApiScopes.ContextRead);
         var writer = v1.MapGroup(string.Empty)
             .RequireAuthorization(new AuthorizeAttribute
             {
                 Roles = string.Join(',', RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst, RoleNames.ApiClient)
-            });
+            })
+            .RequireApiClientScope(ApiScopes.ContextWrite);
         var admin = v1.MapGroup(string.Empty)
             .RequireAuthorization(new AuthorizeAttribute
             {
                 Roles = string.Join(',', RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin)
-            });
+            })
+            .RequireApiClientScope(ApiScopes.AdminManage);
 
         reader.MapGet("/workspaces", async (
                 string? tenantSlug,
@@ -525,6 +528,35 @@ public static class VersionedRestEndpointRouteBuilderExtensions
             .WithName("V1RevokeApiClient");
 
         return endpoints;
+    }
+
+    private static RouteGroupBuilder RequireApiClientScope(this RouteGroupBuilder group, string requiredScope)
+    {
+        group.AddEndpointFilter(async (context, next) =>
+        {
+            var user = context.HttpContext.User;
+            if (!user.IsInRole(RoleNames.ApiClient))
+            {
+                return await next(context);
+            }
+
+            var scopes = user.FindAll("scope")
+                .SelectMany(claim => claim.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                .Select(ApiScopes.Normalize)
+                .ToHashSet(StringComparer.Ordinal);
+            if (scopes.Contains(requiredScope))
+            {
+                return await next(context);
+            }
+
+            return Error(
+                context.HttpContext,
+                StatusCodes.Status403Forbidden,
+                "authorization.scope_denied",
+                $"API client scope '{requiredScope}' is required.");
+        });
+
+        return group;
     }
 
     private static string ResolveTenantSlug(ICurrentActorService actorService, string? requestedTenantSlug)

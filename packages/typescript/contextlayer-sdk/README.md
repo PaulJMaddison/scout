@@ -1,6 +1,8 @@
 # @universalcontextlayer/sdk
 
-Typed TypeScript SDK for Universal Context Layer. It gives application teams a stable client surface instead of requiring them to work directly with the full GraphQL schema.
+Typed TypeScript SDK scaffold for Universal Context Layer. It gives application teams a stable client surface for the local/private product API instead of requiring them to hand-roll REST and GraphQL calls during pilots.
+
+This package lives in the private product workspace today. Treat it as local/private scaffolding until npm publishing is deliberately configured and reviewed.
 
 ## SDK Folder Structure
 
@@ -38,7 +40,7 @@ packages/typescript/contextlayer-sdk/
 ## Install
 
 ```bash
-npm install @universalcontextlayer/sdk
+npm install ../packages/typescript/contextlayer-sdk
 ```
 
 ## Quick Start
@@ -54,6 +56,7 @@ const contextLayer = createContextLayerClient({
 const context = await contextLayer.users.getContext('demo', '123')
 const facts = await contextLayer.facts.getForUser('demo', '123')
 const snapshot = await contextLayer.snapshots.getLatestForUser('demo', '123')
+const snapshotById = await contextLayer.snapshots.getById('demo', snapshot!.snapshotId)
 const account = await contextLayer.accounts.getContext('demo', 'ACC-123')
 ```
 
@@ -158,7 +161,7 @@ Run the local API first:
 
 ## Versioning
 
-- npm package version tracks the product release line, currently `1.1.x`
+- npm package versioning follows the private product line until package publishing is deliberately configured
 - additive API coverage can ship in minor versions
 - breaking client contract changes require a major bump
 
@@ -167,13 +170,13 @@ Run the local API first:
 - package name: `@universalcontextlayer/sdk`
 - published files: `dist/` and `README.md`
 - module format: ESM with type declarations
+- Publishing is not configured as part of this private hardening pass.
 
 ## Tests
 
 Current tests cover:
 
-- GraphQL user context lookup
+- REST v1 user, account, and snapshot route construction
 - tenant-scoped delegation
-- REST account context lookup
 - transient retry handling
 - typed problem-details error mapping

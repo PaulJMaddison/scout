@@ -1,6 +1,8 @@
 # SDK Development
 
-Universal Context Layer ships two first-class SDKs so consuming products can integrate against stable client interfaces instead of hand-rolling GraphQL and REST requests.
+Universal Context Layer includes two local/private SDK scaffolds so consuming products can integrate against stable client interfaces instead of hand-rolling GraphQL and REST requests during pilots.
+
+They are not currently configured for public package publishing. Treat NuGet/npm publishing as a deliberate later release task, with the private product boundary reviewed first.
 
 ## Layout
 
@@ -46,7 +48,7 @@ npm run pack:dry-run
 
 ## Versioning
 
-- keep npm and NuGet SDK versions aligned to the product release line
+- keep npm and NuGet SDK versions aligned to the private product line
 - minor releases can add new client groups, methods, or response fields
 - major releases are reserved for breaking contract changes
 
@@ -54,6 +56,7 @@ npm run pack:dry-run
 
 - NuGet: `ContextLayer.Sdk`
 - npm: `@universalcontextlayer/sdk`
+- current packaging commands are local validation aids, not release publishing steps
 
 ## Test Coverage
 
@@ -65,4 +68,4 @@ Recommended coverage for both SDKs:
 - GraphQL error propagation
 - problem-details REST error propagation
 - tenant-scoped client delegation
-- representative user and account context queries
+- representative REST v1 user, account, and snapshot context queries

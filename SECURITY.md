@@ -21,9 +21,11 @@ Include:
 This is a public repository. Please do not submit:
 
 - real secrets, API keys, certificates, tokens, or passwords
+- `.env` files, local databases, logs, generated licences, private signing keys, generated tokens, support bundles, or vendor credentials
 - customer data, customer schemas, or customer-specific integration details
 - internal-only commercial documents, pricing notes, or private roadmap material
 - paid enterprise implementation code that is intended to remain outside the open source core
+- private cloud/control-plane implementation code that is intended to remain outside the open source core
 
 If you discover that sensitive material has been committed by mistake, report it privately as quickly as possible rather than opening a public issue.
 

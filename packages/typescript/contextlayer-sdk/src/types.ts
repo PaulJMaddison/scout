@@ -74,6 +74,22 @@ export interface ContextSnapshotHistoryResult {
   factCount: number
 }
 
+export interface ContextSnapshotResult {
+  snapshotId: string
+  tenantId: string
+  tenantSlug: string
+  userProfileId: string
+  externalUserId: string
+  fullName: string
+  companyName: string
+  snapshotVersion: number
+  summary: string
+  overallConfidence: number
+  generatedAtUtc: string
+  isStale: boolean
+  facts: ContextFactResult[]
+}
+
 export interface ContextProfileResult {
   snapshotId: string
   tenantSlug: string
@@ -93,12 +109,24 @@ export interface AccountContextResult {
   tenantSlug: string
   externalAccountId: string
   accountName: string
-  summary: string
-  overallConfidence: number
-  generatedAtUtc: string
+  domain: string
+  industry: string
+  segment: string
+  region: string
+  lifecycleStage: string
+  users: AccountContextUserResult[]
+}
+
+export interface AccountContextUserResult {
+  externalUserId: string
+  fullName: string
+  email: string
+  jobTitle: string
+  latestSnapshotId?: string | null
+  summary?: string | null
+  overallConfidence?: number | null
+  generatedAtUtc?: string | null
   isStale: boolean
-  facts: ContextFactResult[]
-  history: ContextSnapshotHistoryResult[]
 }
 
 export interface ContextSnapshotSummary {

@@ -7,9 +7,9 @@ export function CommercialPage() {
     body: string
     icon: typeof CloudCog
   }> = [
-    { title: 'Managed SaaS', body: 'Use UCL as a managed service with hosted runtime, upgrades, monitoring, and operational support.', icon: CloudCog },
-    { title: 'Private cloud or single tenant', body: 'Deploy with stronger isolation, customer-controlled networking, and enterprise operational controls.', icon: Lock },
-    { title: 'Enterprise connectors and governance add-ons', body: 'Commercial packaging may later include connectors, enterprise controls, and support-backed rollout assets that do not belong in the public repo by default.', icon: ServerCog },
+    { title: 'Managed SaaS control plane', body: 'A paid/private cloud offering can manage accounts, licences, downloads, support, update channels, and aggregate usage without requiring raw operational data by default.', icon: CloudCog },
+    { title: 'Private cloud or single tenant', body: 'A paid/private deployment can add stronger isolation, customer-controlled networking, and commercial operations around the customer-owned data plane.', icon: Lock },
+    { title: 'Enterprise connectors and governance add-ons', body: 'Paid/private packages provide real enterprise connectors, SSO/SAML, SCIM, vault integrations, advanced governance, compliance exports, deployment packs, and SLA tooling outside the public repo.', icon: ServerCog },
     { title: 'Implementation services', body: 'Accelerate source onboarding, semantic schema design, selector packs, and product integration work.', icon: Handshake },
     { title: 'Support and SLA', body: 'Provide named support, operational guidance, and response expectations for production teams.', icon: LifeBuoy },
     { title: 'Commercial rollout help', body: 'Work with CTOs, architects, and product teams on platform shape, governance, rollout sequencing, and operating model.', icon: Building2 },
@@ -19,8 +19,8 @@ export function CommercialPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Commercial options"
-        title="This page explains the commercial paths for managed SaaS, private cloud, enterprise support, and implementation help."
-        description="The commercial story should be clear without weakening the public project. Buyers need to understand what they can use today, what they may want help with later, and why managed deployment, enterprise connectors, governance depth, support, or implementation help could make commercial sense."
+        title="This page explains the paid/private enterprise and cloud offerings that sit beside the public open-core repository."
+        description="The public repo contains the safe open core and self-hosted data-plane foundations. Commercial modules can add real enterprise connectors, enterprise identity, vaults, advanced governance, compliance exports, deployment packs, SLA tooling, hosted account management, billing, licence portals, downloads, update channels, support portals, and cloud operations."
       />
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">

@@ -289,6 +289,46 @@ public sealed class V1RestApiIntegrationTests
     }
 
     [Fact]
+    public async Task ApiClientScopes_DenyWriteEndpoint_WhenClientOnlyHasReadScope()
+    {
+        await using var factory = new V1RestWebApplicationFactory();
+        await SeedAsync(factory.Services);
+        using var client = factory.CreateClient();
+
+        AuthenticateAsTenantAdmin(client);
+        var createdClientResponse = await client.PostAsJsonAsync("/api/v1/api-clients", new V1CreateApiClientRequest(
+            "Read-only client",
+            "primary",
+            ["context:read"]));
+        Assert.Equal(HttpStatusCode.Created, createdClientResponse.StatusCode);
+        var createdClient = JsonNode.Parse(await createdClientResponse.Content.ReadAsStringAsync())!.AsObject();
+        var clientId = createdClient["clientId"]!.GetValue<string>();
+        var apiKey = createdClient["apiKey"]!.GetValue<string>();
+
+        client.DefaultRequestHeaders.Authorization = null;
+        client.DefaultRequestHeaders.Add("X-API-Client-Id", clientId);
+        client.DefaultRequestHeaders.Add("X-API-Key", apiKey);
+
+        var readResponse = await client.GetAsync("/api/v1/context/users/user-123");
+        Assert.Equal(HttpStatusCode.OK, readResponse.StatusCode);
+
+        var writeResponse = await SignedPostAsJsonAsync(client, "/api/v1/events/source-system", apiKey, new V1SourceSystemEventRequest(
+            "evt-read-only-denied-001",
+            "primary",
+            "warehouse",
+            "account.updated",
+            new { health = "green" },
+            null,
+            "user-123",
+            "acct-123",
+            DateTime.UtcNow));
+
+        Assert.Equal(HttpStatusCode.Forbidden, writeResponse.StatusCode);
+        var error = JsonNode.Parse(await writeResponse.Content.ReadAsStringAsync())!.AsObject();
+        Assert.Equal("authorization.scope_denied", error["error"]!["code"]!.GetValue<string>());
+    }
+
+    [Fact]
     public async Task BillingLimits_AreEnforced_ForTenantScopedUsage()
     {
         await using var factory = new V1RestWebApplicationFactory();

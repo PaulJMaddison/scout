@@ -198,12 +198,12 @@ export const faqEntries = [
   {
     question: 'What would be paid later?',
     answer:
-      'Managed SaaS, private cloud deployment support, enterprise governance add-ons, commercial support, packaged enterprise connectors, implementation services, and other operational extensions may be offered commercially later. The public repo should remain a credible open source core rather than a crippled teaser.',
+      'Paid/private offerings cover real enterprise connectors, SSO/SAML, SCIM, vault integrations, advanced governance, compliance exports, deployment packs, SLA tooling, hosted account management, billing, commercial licence portals, download portals, update channels, support portals, aggregate usage reporting, cloud operations, and implementation services. The public repo remains a credible open source core rather than a crippled teaser.',
   },
   {
     question: 'Where would paid code live?',
     answer:
-      'The likely direction is to keep the public repo for the open source core and demo, create a separate private repository for enterprise extensions, and optionally use another repository for managed cloud infrastructure. Paid implementation code should not be mixed into the public repo by default.',
+      'Paid implementation code lives outside this public repo in private enterprise and cloud repositories. The public repo may describe those commercial options, but it does not ship the paid connector, identity, vault, compliance, deployment, billing, licence portal, or hosted control-plane implementations.',
   },
   {
     question: 'Would there be one website or two?',

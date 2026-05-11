@@ -92,6 +92,9 @@ services:
       Database__Provider: ${Database__Provider:-Postgres}
       Bootstrap__ApplyMigrationsOnStartup: ${Bootstrap__ApplyMigrationsOnStartup:-true}
       Bootstrap__SeedDemoData: ${Bootstrap__SeedDemoData:-false}
+      DataProtection__ApplicationName: ${DataProtection__ApplicationName:-UniversalContextLayer}
+      DataProtection__KeyRingPath: ${DataProtection__KeyRingPath:-/var/lib/ucl/data-protection-keys}
+      DataProtection__RequirePersistentKeys: ${DataProtection__RequirePersistentKeys:-true}
       ConnectionStrings__ContextLayer: Host=postgres;Port=5432;Database=${CONTEXT_LAYER_DB:-context_layer_db};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}
       ConnectionStrings__CustomerOps: Host=postgres;Port=5432;Database=${CUSTOMER_OPS_DB:-customer_ops_db};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}
       Telemetry__OtlpEndpoint: ${Telemetry__OtlpEndpoint:-http://otel-collector:4317}
@@ -110,6 +113,8 @@ services:
       Llm__MinimumStrongFacts: ${Llm__MinimumStrongFacts:-3}
     ports:
       - "5198:8080"
+    volumes:
+      - contextlayer-api-data-protection:/var/lib/ucl/data-protection-keys
     depends_on:
       postgres:
         condition: service_healthy
@@ -136,3 +141,4 @@ volumes:
   contextlayer-prometheus:
   contextlayer-tempo:
   contextlayer-grafana:
+  contextlayer-api-data-protection:

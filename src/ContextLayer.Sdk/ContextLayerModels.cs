@@ -92,6 +92,21 @@ public sealed record ContextSnapshotHistoryResult(
     bool IsStale,
     int FactCount);
 
+public sealed record ContextSnapshotResult(
+    Guid SnapshotId,
+    Guid TenantId,
+    string TenantSlug,
+    Guid UserProfileId,
+    string ExternalUserId,
+    string FullName,
+    string CompanyName,
+    int SnapshotVersion,
+    string Summary,
+    decimal OverallConfidence,
+    DateTime GeneratedAtUtc,
+    bool IsStale,
+    IReadOnlyList<ContextFactResult> Facts);
+
 public sealed record ContextProfileResult(
     Guid SnapshotId,
     string TenantSlug,
@@ -110,12 +125,23 @@ public sealed record AccountContextResult(
     string TenantSlug,
     string ExternalAccountId,
     string AccountName,
-    string Summary,
-    decimal OverallConfidence,
-    DateTime GeneratedAtUtc,
-    bool IsStale,
-    IReadOnlyList<ContextFactResult> Facts,
-    IReadOnlyList<ContextSnapshotHistoryResult> History);
+    string Domain,
+    string Industry,
+    string Segment,
+    string Region,
+    string LifecycleStage,
+    IReadOnlyList<AccountContextUserResult> Users);
+
+public sealed record AccountContextUserResult(
+    string ExternalUserId,
+    string FullName,
+    string Email,
+    string JobTitle,
+    Guid? LatestSnapshotId,
+    string? Summary,
+    decimal? OverallConfidence,
+    DateTime? GeneratedAtUtc,
+    bool IsStale);
 
 public sealed record GroundedContextFactResult(
     string CitationId,

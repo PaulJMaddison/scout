@@ -8,6 +8,7 @@ import type {
   ContextLayerClientOptions,
   ContextLayerErrorDetail,
   ContextProfileResult,
+  ContextSnapshotResult,
   ContextSnapshotSummary,
   LoginRequest,
   PreviewSelectorInput,
@@ -43,6 +44,7 @@ export interface ContextLayerClient {
     getContext(tenantSlug: string, externalAccountId: string): Promise<AccountContextResult | null>
   }
   snapshots: {
+    getById(tenantSlug: string, snapshotId: string): Promise<ContextSnapshotResult | null>
     getLatestForUser(tenantSlug: string, externalUserId: string): Promise<ContextSnapshotSummary | null>
     getLatestForAccount(tenantSlug: string, externalAccountId: string): Promise<ContextSnapshotSummary | null>
   }
@@ -79,6 +81,7 @@ export interface TenantScopedContextLayerClient {
     getContext(externalAccountId: string): Promise<AccountContextResult | null>
   }
   snapshots: {
+    getById(snapshotId: string): Promise<ContextSnapshotResult | null>
     getLatestForUser(externalUserId: string): Promise<ContextSnapshotSummary | null>
     getLatestForAccount(externalAccountId: string): Promise<ContextSnapshotSummary | null>
   }
@@ -239,7 +242,12 @@ class HttpPipeline {
       return path
     }
 
-    return `${this.baseUrl}${path.startsWith('/') ? path : `/${path}`}`
+    let resolvedPath = path.startsWith('/') ? path : `/${path}`
+    if (this.baseUrl.toLowerCase().endsWith('/api/v1') && resolvedPath.toLowerCase().startsWith('/api/v1')) {
+      resolvedPath = resolvedPath.slice('/api/v1'.length) || '/'
+    }
+
+    return `${this.baseUrl}${resolvedPath}`
   }
 
   private createRequestId(): string {
@@ -258,78 +266,11 @@ export function createContextLayerClient(options: ContextLayerClientOptions): Co
 
   const users = {
     async getContext(tenantSlug: string, externalUserId: string): Promise<ContextProfileResult | null> {
-      return pipeline.graphql<ContextProfileResult>(
-        'GetUserContext',
-        `
-          query GetUserContext($input: UserContextLookupInput!) {
-            userContext(input: $input) {
-              snapshotId
-              tenantSlug
-              externalUserId
-              fullName
-              companyName
-              summary
-              overallConfidence
-              generatedAtUtc
-              isStale
-              sourceSummary {
-                externalAccountId
-                accountName
-                domain
-                industry
-                region
-                lifecycleStage
-                activePlanName
-                subscriptionStatus
-                monthlyRecurringRevenue
-                openOpportunities
-                openSupportTickets
-                pricingPageVisits30d
-                activeDays30
-                emailReplies30d
-                highlights {
-                  label
-                  value
-                  explanation
-                }
-                recentTimeline {
-                  category
-                  description
-                  occurredAtUtc
-                }
-                rawSummaryJson
-              }
-              history {
-                snapshotId
-                snapshotVersion
-                summary
-                overallConfidence
-                generatedAtUtc
-                isStale
-                factCount
-              }
-              facts {
-                id
-                attributeKey
-                valueJson
-                valueType
-                confidence
-                observedAtUtc
-                freshUntilUtc
-                sourceSelectorDefinitionId
-                explanation
-                provenanceJson
-              }
-            }
-          }
-        `,
+      return pipeline.request<ContextProfileResult>(
+        `/api/v1/context/users/${encodeURIComponent(externalUserId)}?tenantSlug=${encodeURIComponent(tenantSlug)}`,
         {
-          input: {
-            tenantSlug,
-            externalUserId,
-          },
+          method: 'GET',
         },
-        'userContext',
       )
     },
   }
@@ -337,7 +278,7 @@ export function createContextLayerClient(options: ContextLayerClientOptions): Co
   const accounts = {
     async getContext(tenantSlug: string, externalAccountId: string): Promise<AccountContextResult | null> {
       return pipeline.request<AccountContextResult>(
-        `/v1/accounts/${encodeURIComponent(externalAccountId)}/context?tenantSlug=${encodeURIComponent(tenantSlug)}`,
+        `/api/v1/context/accounts/${encodeURIComponent(externalAccountId)}?tenantSlug=${encodeURIComponent(tenantSlug)}`,
         {
           method: 'GET',
         },
@@ -346,6 +287,14 @@ export function createContextLayerClient(options: ContextLayerClientOptions): Co
   }
 
   const snapshots = {
+    async getById(tenantSlug: string, snapshotId: string): Promise<ContextSnapshotResult | null> {
+      return pipeline.request<ContextSnapshotResult>(
+        `/api/v1/context/snapshots/${encodeURIComponent(snapshotId)}?tenantSlug=${encodeURIComponent(tenantSlug)}`,
+        {
+          method: 'GET',
+        },
+      )
+    },
     async getLatestForUser(tenantSlug: string, externalUserId: string): Promise<ContextSnapshotSummary | null> {
       const context = await users.getContext(tenantSlug, externalUserId)
       if (!context) {
@@ -369,17 +318,33 @@ export function createContextLayerClient(options: ContextLayerClientOptions): Co
         return null
       }
 
-      return (
-        context.history.find((entry) => entry.generatedAtUtc === context.generatedAtUtc) ?? {
-          snapshotId: '',
-          snapshotVersion: 0,
-          summary: context.summary,
-          overallConfidence: context.overallConfidence,
-          generatedAtUtc: context.generatedAtUtc,
-          isStale: context.isStale,
-          factCount: context.facts.length,
-        }
-      )
+      const latestUser = [...context.users]
+        .filter((user) => user.latestSnapshotId && user.generatedAtUtc)
+        .sort((left, right) => right.generatedAtUtc!.localeCompare(left.generatedAtUtc!))[0]
+      if (!latestUser?.latestSnapshotId) {
+        return null
+      }
+
+      const snapshot = await snapshots.getById(tenantSlug, latestUser.latestSnapshotId)
+      return snapshot
+        ? {
+            snapshotId: snapshot.snapshotId,
+            snapshotVersion: snapshot.snapshotVersion,
+            summary: snapshot.summary,
+            overallConfidence: snapshot.overallConfidence,
+            generatedAtUtc: snapshot.generatedAtUtc,
+            isStale: snapshot.isStale,
+            factCount: snapshot.facts.length,
+          }
+        : {
+            snapshotId: latestUser.latestSnapshotId,
+            snapshotVersion: 0,
+            summary: latestUser.summary ?? '',
+            overallConfidence: latestUser.overallConfidence ?? 0,
+            generatedAtUtc: latestUser.generatedAtUtc ?? '',
+            isStale: latestUser.isStale,
+            factCount: 0,
+          }
     },
   }
 
@@ -388,7 +353,8 @@ export function createContextLayerClient(options: ContextLayerClientOptions): Co
       return (await users.getContext(tenantSlug, externalUserId))?.facts ?? []
     },
     async getForAccount(tenantSlug: string, externalAccountId: string): Promise<ContextFactResult[]> {
-      return (await accounts.getContext(tenantSlug, externalAccountId))?.facts ?? []
+      await accounts.getContext(tenantSlug, externalAccountId)
+      return []
     },
   }
 
@@ -615,6 +581,9 @@ export function createContextLayerClient(options: ContextLayerClientOptions): Co
           },
         },
         snapshots: {
+          getById(snapshotId: string) {
+            return snapshots.getById(tenantSlug, snapshotId)
+          },
           getLatestForUser(externalUserId: string) {
             return snapshots.getLatestForUser(tenantSlug, externalUserId)
           },

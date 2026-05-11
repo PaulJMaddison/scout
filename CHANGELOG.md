@@ -6,6 +6,27 @@ The format is inspired by Keep a Changelog and this project follows semantic ver
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-05-11
+
+### Added
+
+- Prepared the public open-core relaunch with clearer commercial boundaries across README, docs, and marketing copy.
+- Added release notes for the coordinated public, enterprise, and cloud repository split.
+- Clarified context consumer patterns for AI tools, workflows, reports, applications, copilots, agents, and non-AI automation.
+- Documented product positioning for CEOs, CTOs, product teams, and engineers.
+
+### Changed
+
+- Updated public version metadata to `2.1.0`.
+- Reframed public SaaS wording as SaaS/control-plane foundations rather than hosted SaaS implementation.
+- Clarified that paid enterprise connectors, SSO/SAML, SCIM, vault integrations, advanced governance, compliance exports, deployment packs, SLA tooling, hosted account management, billing, licence portals, download portals, update channels, support portals, and cloud operations are paid/private offerings outside the public repo.
+- Tightened website and README copy so enterprise/cloud options are marketed without implying their code ships in open source.
+
+### Security
+
+- Re-audited the public boundary so real enterprise/cloud implementation code, private signing keys, vendor credentials, customer-specific code, and raw customer data remain out of the public repository.
+- Kept blueprint import as user-provided JSON; it does not call external AI APIs.
+
 ## [2.0.0] - 2026-05-11
 
 ### Added

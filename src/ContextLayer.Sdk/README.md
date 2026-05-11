@@ -1,6 +1,8 @@
 # ContextLayer.Sdk
 
-`ContextLayer.Sdk` is the typed .NET SDK for Universal Context Layer. It wraps the product API behind stable client interfaces so application teams do not need to know the full GraphQL schema.
+`ContextLayer.Sdk` is the typed .NET SDK scaffold for Universal Context Layer. It wraps the local/private product API behind stable client interfaces so application teams do not need to hand-roll REST and GraphQL calls during pilots.
+
+This SDK lives in the private product workspace today. Treat it as local/private scaffolding until NuGet publishing is deliberately configured and reviewed.
 
 ## SDK Folder Structure
 
@@ -36,7 +38,7 @@ tests/ContextLayer.Sdk.Tests/
 ## Install
 
 ```bash
-dotnet add package ContextLayer.Sdk
+dotnet add reference src/ContextLayer.Sdk/ContextLayer.Sdk.csproj
 ```
 
 ## Quick Start
@@ -53,6 +55,7 @@ using var contextLayer = new ContextLayerClient(new ContextLayerClientOptions
 var context = await contextLayer.Users.GetContextAsync("demo", "123");
 var facts = await contextLayer.Facts.GetForUserAsync("demo", "123");
 var snapshot = await contextLayer.Snapshots.GetLatestForUserAsync("demo", "123");
+var snapshotById = await contextLayer.Snapshots.GetByIdAsync("demo", snapshot!.SnapshotId);
 var packageResult = await contextLayer.Packages.GetAiContextForUserAsync(
     "demo",
     "123",
@@ -150,7 +153,7 @@ The SDK targets the repo-local API started by the demo scripts:
 
 ## Versioning
 
-- SDK version follows the product release line, currently `1.1.x`.
+- SDK versioning follows the private product line until package publishing is deliberately configured.
 - Additive client methods and model fields can ship in minor releases.
 - Breaking changes require a major version bump.
 
@@ -159,13 +162,13 @@ The SDK targets the repo-local API started by the demo scripts:
 - NuGet package id: `ContextLayer.Sdk`
 - package output: `src/ContextLayer.Sdk/bin/<Configuration>/`
 - symbols: `.snupkg`
+- Publishing is not configured as part of this private hardening pass.
 
 ## Tests
 
 Current tests cover:
 
-- GraphQL user context requests
+- REST v1 user, account, and snapshot route construction
 - tenant-scoped client behavior
-- REST account context lookup
 - transient retry handling
 - typed problem-details error mapping

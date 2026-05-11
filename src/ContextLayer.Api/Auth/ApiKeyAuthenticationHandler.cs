@@ -1,6 +1,8 @@
 using System.Security.Claims;
+using System.Text.Json;
 using System.Text.Encodings.Web;
 using ContextLayer.Domain.Enums;
+using ContextLayer.Infrastructure.Auth;
 using ContextLayer.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
@@ -55,6 +57,7 @@ public sealed class ApiKeyAuthenticationHandler(
             new("tenant_id", client.TenantId.ToString("D")),
             new("tenant_slug", client.Tenant.Slug),
             new("display_name", client.DisplayName),
+            new("scope", string.Join(' ', DeserializeScopes(client.ScopesJson))),
             new(ClaimTypes.Email, $"{client.ClientId}@machines.contextlayer.local"),
             new(ClaimTypes.Role, ContextLayer.Infrastructure.Auth.RoleNames.ApiClient)
         };
@@ -92,5 +95,17 @@ public sealed class ApiKeyAuthenticationHandler(
         }
 
         return (null, null);
+    }
+
+    private static IReadOnlyList<string> DeserializeScopes(string scopesJson)
+    {
+        try
+        {
+            return ApiScopes.Normalize(JsonSerializer.Deserialize<IReadOnlyList<string>>(scopesJson, JsonSerializerOptions.Web) ?? []);
+        }
+        catch (JsonException)
+        {
+            return [];
+        }
     }
 }

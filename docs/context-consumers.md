@@ -1,45 +1,15 @@
-# Context consumers
+# Context Consumers
 
-UCL creates the context. Your systems consume it.
+Universal Context Layer creates governed semantic context that other systems consume. It does not require customers to use UCL's AI, replace their systems of record, or move raw operational data into a hosted control plane by default.
 
-The context layer is useful because many systems can share the same semantic facts instead of each product, report, agent, or workflow reinterpreting source data on its own. A consumer can be an AI system, but it does not have to be.
+Common consumers include:
 
-## Common consumers
+- AI tools, agents, and copilots that need scoped facts with confidence, freshness, masking, and provenance
+- workflow automation that should react to semantic state rather than raw events alone
+- internal applications that need account, user, product, support, billing, and lifecycle meaning
+- reporting tools that benefit from shared definitions and traceable source evidence
+- customer-facing product experiences that need trusted context without duplicating integration logic
 
-- Internal copilots can answer employee questions using governed customer and account context.
-- CRM AI features can enrich account views, prioritise opportunities, or explain recommended actions.
-- Support automation can combine ticket severity with account value, renewal risk, product usage, and customer status.
-- Customer success tools can show onboarding health, adoption signals, expansion fit, and renewal risk.
-- Product onboarding can tailor next steps based on role, product usage, blockers, plan interest, and support history.
-- Marketing personalisation can use shared semantic attributes instead of fragile campaign-specific joins.
-- Reporting and decision systems can consume trusted facts with freshness and provenance metadata.
-- Workflow automation can trigger actions when semantic state changes, not only when raw events arrive.
-- Third party AI agents can receive scoped context packages with allowed facts, citations, masking decisions, and audit visibility.
-- Internal business applications can use GraphQL, REST, or SDKs to display business meaning without embedding upstream schema logic.
+The public repo includes REST, GraphQL, SDK scaffolds, context snapshots, semantic facts, provenance, audit foundations, and demo consumers. Paid/private repos may add enterprise connector packs or hosted control-plane services, but those are not required for the open-core data plane to demonstrate the consumer contract.
 
-## Consumer contract
-
-Consumers should receive context in a shape that is stable and explainable:
-
-- subject identity, such as customer, account, opportunity, product, or user
-- semantic facts, such as churn risk, expansion potential, plan interest, support drag, usage maturity, or billing status
-- confidence score
-- freshness state and expiry
-- provenance linking the fact back to source systems, records, and selectors
-- masking status for sensitive fields
-- audit trail for reads, recomputes, and package generation
-- optional context package manifest for a specific use case or audience
-
-## Technical access patterns
-
-The current public repo includes GraphQL, REST, TypeScript SDK, .NET SDK, backend-only mode, and context package generation for the sales support demo. It also includes a customer-owned data-plane posture: context reads, recomputes, provenance, API keys, and source events can stay inside the customer environment.
-
-Use GraphQL when a product needs flexible context reads. Use REST for common service integrations and machine-to-machine workflows. Use SDKs when application teams want typed client code. Use governed context packages when an AI system or automation needs a scoped set of allowed facts with evidence and guardrails.
-
-The hosted control-plane seam is not part of the consumer contract. Consumers should query the local/self-hosted data plane unless the customer explicitly chooses a future managed deployment.
-
-## Example consumer: Intelligent Sales Support
-
-The current demo consumer builds a context package for a selected user and sales objective. It then generates an outreach strategy, email draft, and follow-up plan that cite the facts behind the advice.
-
-This is a useful proof point because the value is easy to see live. It is not the only architecture. The same facts could support support triage, onboarding, customer success, reporting, workflow automation, or an internal copilot.
+Blueprint import accepts user-created JSON and does not call external AI APIs.

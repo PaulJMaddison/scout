@@ -2,12 +2,20 @@
 
 Universal Context Layer turns existing business data into trusted context that any AI tool, workflow, or product can use.
 
-Release: `2.0.0`
+Release: `2.1.0`
 License: [MIT](LICENSE)
 Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
 Security: [SECURITY.md](SECURITY.md)
 
 UCL is context infrastructure for AI-enabled products, workflows, and agents. It does not replace your CRM, ERP, support desk, warehouse, product database, billing system, spreadsheets, or legacy databases. It sits beside those systems and creates the missing semantic layer above them.
+
+## Current Maturity
+
+- Public open-core product foundation with a working local SQLite demo, self-hosted data plane, admin console, REST/GraphQL APIs, SDK scaffolds, and generic connector contracts.
+- Customer operational data can remain local by default; UCL does not need to own the customer's AI provider or raw systems of record.
+- Not a self-serve hosted commercial SaaS product in this public repository.
+- Not a paid enterprise connector pack in this public repository.
+- Paid enterprise and cloud/control-plane implementations are commercial/private offerings that are intentionally not included in this open-source repo.
 
 It is built to make a few points obvious in a few clicks:
 
@@ -119,10 +127,10 @@ These screenshots are captured from the current repo UI running locally in the d
   Dual-database architecture with operational source data separated from semantic context data
 - Context consumers
   GraphQL and REST APIs, TypeScript and .NET SDKs, governed context packages, confidence handling, provenance, masking, audit logging, and SaaS metadata for future delivery channels such as webhooks
-- SaaS readiness
-  Tenant/workspace control plane, persisted API clients, plan and subscription metadata, connector installation records, context package metadata, billing usage records, onboarding state, feature flags, and PostgreSQL migrations
+- SaaS/control-plane foundations
+  Tenant/workspace metadata, persisted API clients, plan and subscription metadata, connector installation records, context package metadata, billing usage records, onboarding state, feature flags, and PostgreSQL migrations. Hosted account management, live billing, commercial licence portals, download portals, update channels, support portals, and cloud operations live in paid/private cloud implementation work, not in this public repo.
 
-The SaaS architecture is documented in [docs/saas-architecture.md](docs/saas-architecture.md), the connector marketplace skeleton is documented in [docs/connector-marketplace.md](docs/connector-marketplace.md), and billing/metering foundations are documented in [docs/billing-metering.md](docs/billing-metering.md). The public repo keeps the open-source core, demo, SDKs, REST and GraphQL APIs, and generic extension points working, but does not include paid enterprise connector implementations, payment provider integrations, or customer-specific integration code.
+The SaaS/control-plane foundations are documented in [docs/saas-architecture.md](docs/saas-architecture.md), the connector catalogue skeleton is documented in [docs/connector-marketplace.md](docs/connector-marketplace.md), and billing/metering foundations are documented in [docs/billing-metering.md](docs/billing-metering.md). This public product repo keeps the core, demo, SDKs, REST and GraphQL APIs, and generic extension points working, but does not include paid enterprise connector implementations, payment provider integrations, hosted billing/control-plane code, or customer-specific integration code.
 
 ## Control Plane And Customer Data Plane
 
@@ -380,15 +388,17 @@ Public routes:
 - `/commercial`
   Explains managed SaaS, private cloud, commercial support, and implementation options without pretending paid code lives in this repo.
 - `/onboarding`
-  Runs the SaaS onboarding flow for a new company. It collects organisation details, tenant slug, primary workspace, first admin, current source systems, data categories, desired AI use cases, PII sensitivity, and deployment preference, then provisions a safe starter workspace.
+  Runs the local demo/private setup flow for a new company. It collects organisation details, tenant slug, primary workspace, first admin, current source systems, data categories, desired AI use cases, PII sensitivity, and deployment preference, then provisions a safe starter workspace.
 - `/faq`
   Answers common buyer, CTO, developer, and architecture questions.
 
 Authenticated routes still provide the seeded demo walkthrough, customer context viewer, admin console, selector builder, audit view, and Intelligent Sales Support example consumer.
 
-## SaaS Onboarding Flow
+## Demo And Private Setup Flow
 
 Open [http://127.0.0.1:5173/onboarding](http://127.0.0.1:5173/onboarding) in local demo mode to try the company onboarding flow.
+
+Anonymous onboarding is enabled only for local demo/development by default. In Production or `SaaS` mode it fails closed unless `FeatureFlags__AnonymousOnboarding=true` and `FeatureFlags__AllowProductionOnboarding=true` are deliberately set for a controlled private setup window.
 
 The flow creates:
 
@@ -398,11 +408,11 @@ The flow creates:
 - starter semantic attributes based on available data categories
 - published starter selectors that show how source fields become semantic context
 - onboarding state records and audit events
-- next-step guidance for local demo, self-hosted, managed SaaS, or private cloud deployment
+- next-step guidance for local demo, self-hosted, future hosted control-plane, or private cloud deployment
 
-Onboarding deliberately does not store production connector credentials. It only creates mock connector placeholders and extension points so the open-source demo remains safe and fictional.
+Onboarding deliberately does not store production connector credentials. It only creates mock connector placeholders and extension points so the private setup path remains safe and fictional.
 
-The public REST endpoint is:
+The local/private setup REST endpoint is:
 
 ```bash
 curl -X POST http://127.0.0.1:5198/api/onboarding \
@@ -717,7 +727,7 @@ Errors use a consistent shape:
 
 ### Hosted PostgreSQL Deployment
 
-The first production-like deployment shape for the public repo is:
+The first production-like deployment shape for this private product foundation is:
 
 - React frontend as a static site built from `apps/web`
 - ASP.NET Core backend as a Docker web service from `src/ContextLayer.Api/Dockerfile`
@@ -726,7 +736,7 @@ The first production-like deployment shape for the public repo is:
 
 Use [render.yaml](render.yaml) for a Render Blueprint or follow [docs/hosted-deployment.md](docs/hosted-deployment.md) for manual deployment, environment variables, health checks, migration commands, seed rules, logging, OpenTelemetry, CORS, JWT settings, rate limits, backup, and restore.
 
-This is not the full future managed SaaS control plane. It is the open-core backend running in a hosted environment with PostgreSQL, secure configuration, and customer-owned data-plane responsibilities preserved.
+This is not the full future managed SaaS control plane. It is the backend running in a hosted environment with PostgreSQL, secure configuration, and customer-owned data-plane responsibilities preserved.
 
 Hosted production should set:
 
@@ -744,6 +754,8 @@ SaaS__PublicBaseUrl=https://<api-domain>
 ControlPlane__Enabled=false
 Licence__Mode=Community
 Licence__FilePath=/var/lib/ucl/licence.json
+DataProtection__KeyRingPath=/var/lib/ucl/data-protection-keys
+DataProtection__RequirePersistentKeys=true
 ```
 
 Run hosted database migrations before starting the new web service:
@@ -758,6 +770,9 @@ docker run --rm `
   -e ConnectionStrings__ContextLayer="<managed PostgreSQL connection string>" `
   -e ConnectionStrings__CustomerOps="<managed PostgreSQL connection string>" `
   -e Auth__SigningKey="<48+ byte random secret>" `
+  -e DataProtection__KeyRingPath="/var/lib/ucl/data-protection-keys" `
+  -e DataProtection__RequirePersistentKeys=true `
+  -v ucl-data-protection-keys:/var/lib/ucl/data-protection-keys `
   contextlayer-api migrate
 ```
 
@@ -783,6 +798,9 @@ docker run --rm -p 8080:8080 `
   -e Auth__Issuer=ContextLayer `
   -e Auth__Audience=ContextLayer.Api `
   -e Auth__SigningKey=replace-with-a-long-production-secret `
+  -e DataProtection__KeyRingPath=/var/lib/ucl/data-protection-keys `
+  -e DataProtection__RequirePersistentKeys=true `
+  -v ucl-data-protection-keys:/var/lib/ucl/data-protection-keys `
   contextlayer-api
 ```
 

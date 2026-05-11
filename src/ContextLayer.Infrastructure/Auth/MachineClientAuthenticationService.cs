@@ -136,7 +136,7 @@ public sealed class MachineClientAuthenticationService(
 
         try
         {
-            return JsonSerializer.Deserialize<IReadOnlyList<string>>(scopesJson, JsonSerializerOptions.Web) ?? [];
+            return ApiScopes.Normalize(JsonSerializer.Deserialize<IReadOnlyList<string>>(scopesJson, JsonSerializerOptions.Web) ?? []);
         }
         catch (JsonException)
         {
@@ -146,11 +146,7 @@ public sealed class MachineClientAuthenticationService(
 
     private static IReadOnlyList<string> ResolveGrantedScopes(IReadOnlyList<string> configuredScopes, string? requestedScope)
     {
-        var normalizedConfigured = configuredScopes
-            .Where(scope => !string.IsNullOrWhiteSpace(scope))
-            .Select(scope => scope.Trim())
-            .Distinct(StringComparer.Ordinal)
-            .ToList();
+        var normalizedConfigured = ApiScopes.Normalize(configuredScopes).ToList();
 
         if (normalizedConfigured.Count == 0)
         {
@@ -164,6 +160,7 @@ public sealed class MachineClientAuthenticationService(
 
         var requested = requestedScope
             .Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(ApiScopes.Normalize)
             .Distinct(StringComparer.Ordinal)
             .ToList();
 

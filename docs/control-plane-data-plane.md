@@ -24,6 +24,8 @@ The public repository includes safe generic connectors and mock connectors only.
 
 The hosted control plane is a future commercial seam, not a requirement for the open-core product. It may manage accounts, plans, licences, downloads, documentation, support access, update channels, and optional aggregate usage reporting.
 
+Paid/private cloud control-plane modules may also manage hosted account management, billing, commercial licence portals, download portals, support portals, and cloud operations. They are commercial implementations outside this public repo.
+
 Control-plane metadata should be limited to operational account information and licensing state. It must not require raw CRM records, ERP records, support tickets, product usage, billing events, customer emails, warehouse rows, or context facts to leave the customer environment.
 
 ## v2 Public Repo Foundations
@@ -77,3 +79,8 @@ flowchart LR
 ## Future Private Work
 
 Future paid or private repositories may add SSO, enterprise connectors, commercial licence signing, hosted account management, private cloud deployment packs, compliance reporting, support bundles, and SLA tooling. Those modules should plug into the public extension interfaces without turning the open-core repo into a crippled teaser.
+# Control Plane And Customer Data Plane
+
+The public repository implements the customer-owned data-plane foundations. Source connectors, selector execution, semantic attributes, context snapshots, context facts, provenance, audit logs, REST, GraphQL, API keys, local users, local roles, and customer operational data remain in the customer environment by default.
+
+Paid/private cloud control-plane modules may manage hosted account management, billing, commercial licences, downloads, update channels, support access, aggregate usage reporting, and cloud operations. They must not require raw customer operational records, connector credentials, context facts, or prompt packages to leave the customer data plane by default.

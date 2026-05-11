@@ -12,7 +12,7 @@ export function ApiClientsPage() {
   const tenantSlug = session?.tenantSlug ?? 'demo'
   const [displayName, setDisplayName] = useState('Revenue automation client')
   const [workspaceSlug, setWorkspaceSlug] = useState('')
-  const [scopes, setScopes] = useState('context.read events.write')
+  const [scopes, setScopes] = useState('context:read events:ingest')
   const [shownSecret, setShownSecret] = useState<string | null>(null)
   const clientsQuery = useQuery({
     queryKey: ['apiClients', tenantSlug],
@@ -84,7 +84,7 @@ export function ApiClientsPage() {
           <Field label="Workspace slug" hint="optional">
             <Input value={workspaceSlug} onChange={(event) => setWorkspaceSlug(event.target.value)} placeholder="default" />
           </Field>
-          <Field label="Scopes" hint="space-separated">
+          <Field label="Scopes" hint="space-separated, e.g. context:read events:ingest">
             <Input value={scopes} onChange={(event) => setScopes(event.target.value)} />
           </Field>
         </div>

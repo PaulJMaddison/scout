@@ -29,6 +29,8 @@ SaaS__PublicBaseUrl=https://<api-domain>
 ControlPlane__Enabled=false
 Licence__Mode=Community
 Licence__FilePath=/var/lib/ucl/licence.json
+DataProtection__KeyRingPath=/var/lib/ucl/data-protection-keys
+DataProtection__RequirePersistentKeys=true
 VITE_API_BASE_URL=https://<api-domain>
 VITE_GRAPHQL_ENDPOINT=https://<api-domain>/graphql
 VITE_DEMO_FALLBACK=false
@@ -59,6 +61,9 @@ docker run --rm -p 8080:8080 `
   -e Auth__Issuer=ContextLayer `
   -e Auth__Audience=ContextLayer.Api `
   -e Auth__SigningKey="<48+ byte random secret>" `
+  -e DataProtection__KeyRingPath="/var/lib/ucl/data-protection-keys" `
+  -e DataProtection__RequirePersistentKeys=true `
+  -v ucl-data-protection-keys:/var/lib/ucl/data-protection-keys `
   -e Cors__AllowedOrigins__0="https://<frontend-domain>" `
   contextlayer-api
 ```
@@ -77,6 +82,9 @@ docker run --rm `
   -e ConnectionStrings__ContextLayer="<managed PostgreSQL connection string>" `
   -e ConnectionStrings__CustomerOps="<managed PostgreSQL connection string>" `
   -e Auth__SigningKey="<48+ byte random secret>" `
+  -e DataProtection__KeyRingPath="/var/lib/ucl/data-protection-keys" `
+  -e DataProtection__RequirePersistentKeys=true `
+  -v ucl-data-protection-keys:/var/lib/ucl/data-protection-keys `
   contextlayer-api migrate
 ```
 
@@ -135,13 +143,21 @@ Use `/health/ready` for Render and other rolling deployment platforms.
 - `Bootstrap__ApplyMigrationsOnStartup=false`
 - `Bootstrap__SeedDemoData=false`
 - `Auth__SigningKey`: high-entropy secret, at least 48 bytes recommended.
+- `DataProtection__KeyRingPath`: persistent file-system path or mounted volume for ASP.NET Data Protection keys.
+- `DataProtection__RequirePersistentKeys=true`: required for Production/SaaS mode so protected connector credentials remain readable after restarts.
 - `Cors__AllowedOrigins__0`: exact frontend origin, no trailing slash.
 - `RateLimits__*`: tune auth and GraphQL limits per plan and deployment size.
 - `Telemetry__OtlpEndpoint`: optional OTLP collector endpoint.
 - `ControlPlane__Enabled=false`: keep disabled unless a private hosted control-plane service is available.
 - `Licence__Mode=Community`: default for the public repo; paid self-hosted deployments can point `Licence__FilePath` at a mounted local licence file.
 
-Production uses secure cookie policy, HSTS, forwarded proxy headers, JWT signing-key validation, JSON console logging, explicit CORS origins, and configurable rate limits.
+Production uses secure cookie policy, HSTS, forwarded proxy headers, JWT signing-key validation, persistent Data Protection key storage, JSON console logging, explicit CORS origins, and configurable rate limits.
+
+## Connector Credential Protection
+
+Connector secrets are stored through `IConnectorCredentialStore` as protected references, not plaintext configuration. ASP.NET Data Protection encrypts those stored values. In container or self-hosted deployments the key ring must be persisted, otherwise a restart or new container may be unable to decrypt existing connector credentials.
+
+Use a mounted directory such as `/var/lib/ucl/data-protection-keys` and keep it backed up with the application database. Do not copy the key ring into source control or support bundles.
 
 ## Logging And OpenTelemetry
 

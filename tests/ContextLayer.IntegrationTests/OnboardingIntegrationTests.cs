@@ -1,9 +1,15 @@
 using System.Net;
 using System.Net.Http.Json;
+using ContextLayer.Api.Onboarding;
 using ContextLayer.Application.Contracts;
 using ContextLayer.Domain.Enums;
+using ContextLayer.Infrastructure.Configuration;
 using ContextLayer.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.FileProviders;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
@@ -75,6 +81,22 @@ public sealed class OnboardingIntegrationTests
         Assert.Equal(2, await dbContext.AuditEvents.CountAsync(x => x.Action == "onboarding.provisioned"));
     }
 
+    [Fact]
+    public void OnboardingAccessGuard_DeniesProductionByDefault()
+    {
+        var guard = new OnboardingAccessGuard(
+            Options.Create(new PlatformOptions { Mode = PlatformModes.SaaS }),
+            Options.Create(new FeatureFlagOptions
+            {
+                AnonymousOnboarding = true,
+                AllowProductionOnboarding = false
+            }),
+            new TestHostEnvironment("Production"),
+            NullLogger<OnboardingAccessGuard>.Instance);
+
+        Assert.False(guard.IsAnonymousOnboardingAllowed());
+    }
+
     private static SubmitOnboardingInput CreateInput(
         string tenantSlug,
         string organisationName,
@@ -96,27 +118,35 @@ public sealed class OnboardingIntegrationTests
             PiiSensitivityLevel: "moderate",
             PreferredDeploymentMode: "local-demo");
 
-    private sealed class OnboardingWebApplicationFactory : WebApplicationFactory<Program>
+    private sealed class OnboardingWebApplicationFactory(
+        string environmentName = "Development",
+        string platformMode = "BackendOnly",
+        bool anonymousOnboarding = true,
+        bool allowProductionOnboarding = false) : WebApplicationFactory<Program>
     {
         private readonly InMemoryDatabaseRoot databaseRoot = new();
         private readonly string databaseName = $"onboarding-tests-{Guid.NewGuid():N}";
 
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
-            builder.UseEnvironment("Development");
+            builder.UseEnvironment(environmentName);
             builder.ConfigureAppConfiguration((_, config) =>
             {
                 var settings = new Dictionary<string, string?>
                 {
-                    ["Platform:Mode"] = "BackendOnly",
+                    ["Platform:Mode"] = platformMode,
                     ["Platform:EnableRest"] = "true",
                     ["Platform:EnableGraphQl"] = "true",
                     ["Platform:EnableOpenApi"] = "false",
+                    ["FeatureFlags:AnonymousOnboarding"] = anonymousOnboarding.ToString(),
+                    ["FeatureFlags:AllowProductionOnboarding"] = allowProductionOnboarding.ToString(),
                     ["Bootstrap:ApplyMigrationsOnStartup"] = "true",
                     ["Bootstrap:SeedDemoData"] = "false",
                     ["Auth:Issuer"] = "ContextLayer.Tests",
                     ["Auth:Audience"] = "ContextLayer.Tests",
-                    ["Auth:SigningKey"] = "context-layer-tests-signing-key-1234567890",
+                    ["Auth:SigningKey"] = "context-layer-tests-signing-key-1234567890-extra-production-safe-length",
+                    ["Auth:MinimumSigningKeyLength"] = "32",
+                    ["Auth:RequireSecureSigningKey"] = environmentName == "Production" ? "false" : "true",
                     ["Telemetry:OtlpEndpoint"] = string.Empty
                 };
 
@@ -142,5 +172,16 @@ public sealed class OnboardingIntegrationTests
                     provider.GetRequiredService<CustomerOpsDbContext>());
             });
         }
+    }
+
+    private sealed class TestHostEnvironment(string environmentName) : IHostEnvironment
+    {
+        public string EnvironmentName { get; set; } = environmentName;
+
+        public string ApplicationName { get; set; } = "ContextLayer.IntegrationTests";
+
+        public string ContentRootPath { get; set; } = Directory.GetCurrentDirectory();
+
+        public IFileProvider ContentRootFileProvider { get; set; } = new NullFileProvider();
     }
 }
