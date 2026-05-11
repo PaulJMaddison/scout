@@ -23,8 +23,24 @@ Catalogue-only placeholders:
 - BigQuery
 - Zendesk
 - NetSuite
+- Microsoft 365 / Outlook
+- Gmail / Google Workspace
+- Slack
+- Microsoft Teams
+- Outlook Calendar
+- Google Calendar
+- Segment
+- Amplitude
+- Mixpanel
+- PostHog
+- Jira
+- Linear
+- Confluence
+- Notion
+- SharePoint
+- Google Drive
 
-The placeholder entries are metadata only. They intentionally do not register connector plugins, authenticate to vendor APIs, sync vendor records, or store vendor-specific credentials in the public repo.
+The placeholder entries are metadata only. They intentionally do not register connector plugins, authenticate to vendor APIs, sync vendor records, ingest message or document bodies, ingest attachments, ingest analytics payloads, or store vendor-specific credentials in the public repo. Real implementations live in private paid enterprise packages.
 
 ## Backend Model
 

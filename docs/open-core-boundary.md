@@ -1,15 +1,15 @@
-# Private Product Boundary
+# Open-Core Product Boundary
 
-This document explains what belongs in the current private Universal Context Layer product repository and what should remain outside it. UCL is context infrastructure for AI-enabled business systems, so the boundary should protect the reusable core while leaving room for commercial enterprise and hosted-control-plane extensions.
+This document explains what belongs in the public Universal Context Layer product repository and what should remain outside it. UCL is context infrastructure for AI-enabled business systems, so the boundary protects the reusable open core while leaving room for commercial enterprise and hosted-control-plane extensions.
 
-The repository is private/commercial at the moment. Before any public repo is recreated, prepare a deliberately stripped version that removes private strategy, customer-specific material, secrets, generated runtime artefacts, paid connector code, and overclaiming SaaS copy.
+This repository is public-facing. It must not contain private strategy, customer-specific material, secrets, generated runtime artefacts, paid connector implementation code, or overclaiming SaaS copy.
 
 ## Repository shape
 
 The intended long-term structure is:
 
 - `universalcontextlayer`
-  The product core, demo, SDKs, extension contracts, GraphQL and REST APIs, and local/backend-only runtime. This repo is currently private.
+  The public product core, demo, SDKs, extension contracts, GraphQL and REST APIs, and local/backend-only runtime.
 - `universalcontextlayer-enterprise`
   A future private repository for paid enterprise extensions such as enterprise connectors, SSO, advanced governance, and managed deployment assets
 - `universalcontextlayer-cloud`
@@ -89,7 +89,7 @@ The key rule is that public code may define a stable contract and a safe generic
 
 These should normally live in a future private enterprise repository, a future managed SaaS codebase, or professional services delivery materials:
 
-- real enterprise connectors such as Salesforce, HubSpot, NetSuite, SAP, Zendesk, ServiceNow, Snowflake account packages, customer data warehouses, or other paid packaged integrations
+- real enterprise connectors such as Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, NetSuite, Microsoft 365 / Outlook, Gmail / Google Workspace, Slack, Microsoft Teams, Outlook Calendar, Google Calendar, Segment, Amplitude, Mixpanel, PostHog, Jira, Linear, Confluence, Notion, SharePoint, Google Drive, SAP, ServiceNow, customer data warehouses, or other paid packaged integrations
 - SSO or SAML implementations
 - hosted SaaS control-plane implementation
 - commercial licence signing, entitlement enforcement for paid modules, and private package distribution services
@@ -143,6 +143,7 @@ The public connector layer may include:
 - generic `sqlDatabase` or `sqlTable` examples that read from the local demo database or a clearly documented generic schema
 - generic `restApi` examples that show request, response, credentials reference, validation, health check, and provenance shape
 - file or upload examples only when they use fictional fixtures and do not encode a customer data model
+- catalogue placeholders for paid/private connectors, clearly marked as non-executable and impossible to configure in the public repo
 
 The private connector layer should contain:
 

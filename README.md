@@ -81,7 +81,7 @@ That is the value of the reusable integration and context layer:
 - a cross-system event timeline that shows how raw operational signals become semantic meaning
 - Bootstrap Studio showing how tools like Codex or Claude can analyse source systems, generate a `ContextLayerBlueprint`, and import governed selectors, attributes, data sources, and prompt templates
 - a data source view that reinforces the operational system boundary
-- a connector catalogue page that shows open-core connectors and clearly labels enterprise/vendor connectors as placeholders
+- a connector catalogue page that shows open-core connectors and clearly labels enterprise/vendor connectors as non-executable paid/private placeholders
 - a selector builder showing how raw fields become semantic attributes
 - a schema registry for the canonical business vocabulary
 - a customer context viewer where `User 123` becomes a 360 commercial profile
@@ -130,7 +130,7 @@ These screenshots are captured from the current repo UI running locally in the d
 - SaaS/control-plane foundations
   Tenant/workspace metadata, persisted API clients, plan and subscription metadata, connector installation records, context package metadata, billing usage records, onboarding state, feature flags, and PostgreSQL migrations. Hosted account management, live billing, commercial licence portals, download portals, update channels, support portals, and cloud operations live in paid/private cloud implementation work, not in this public repo.
 
-The SaaS/control-plane foundations are documented in [docs/saas-architecture.md](docs/saas-architecture.md), the connector catalogue skeleton is documented in [docs/connector-marketplace.md](docs/connector-marketplace.md), and billing/metering foundations are documented in [docs/billing-metering.md](docs/billing-metering.md). This public product repo keeps the core, demo, SDKs, REST and GraphQL APIs, and generic extension points working, but does not include paid enterprise connector implementations, payment provider integrations, hosted billing/control-plane code, or customer-specific integration code.
+The SaaS/control-plane foundations are documented in [docs/saas-architecture.md](docs/saas-architecture.md), the connector catalogue skeleton is documented in [docs/connector-marketplace.md](docs/connector-marketplace.md), and billing/metering foundations are documented in [docs/billing-metering.md](docs/billing-metering.md). This public product repo keeps the core, demo, SDKs, REST and GraphQL APIs, and generic extension points working, but does not include paid enterprise connector implementations, payment provider integrations, hosted billing/control-plane code, or customer-specific integration code. Paid/private connector placeholders include CRM, warehouse, support, ERP, email, chat, calendar, product analytics, issue/project, and knowledge-system families; the public repo contains catalogue metadata and docs only for those vendors.
 
 ## Control Plane And Customer Data Plane
 
@@ -633,7 +633,7 @@ curl "http://127.0.0.1:5198/api/v1/connectors/catalogue?availability=OpenCore"
 curl "http://127.0.0.1:5198/api/v1/connectors/catalogue?q=salesforce"
 ```
 
-The catalogue includes executable open-core connectors for SQL, REST API, CSV upload, and local mock CRM/billing/support. Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, and NetSuite are labelled as placeholders only; their paid enterprise implementations are intentionally not included in this public repo.
+The catalogue includes executable open-core connectors for SQL, REST API, CSV upload, and local mock CRM/billing/support. Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, NetSuite, Microsoft 365 / Outlook, Gmail / Google Workspace, Slack, Microsoft Teams, Outlook Calendar, Google Calendar, Segment, Amplitude, Mixpanel, PostHog, Jira, Linear, Confluence, Notion, SharePoint, and Google Drive are labelled as placeholders only; their paid enterprise implementations are intentionally not included in this public repo.
 
 Validate and preview an AI-generated UCL blueprint:
 

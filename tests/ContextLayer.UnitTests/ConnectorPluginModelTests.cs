@@ -5,6 +5,7 @@ using ContextLayer.Domain.Entities;
 using ContextLayer.Domain.Enums;
 using ContextLayer.Infrastructure.Connectors;
 using ContextLayer.Infrastructure.Persistence;
+using ContextLayer.Infrastructure.Seed;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -49,6 +50,46 @@ public sealed class ConnectorPluginModelTests
         Assert.DoesNotContain("bigquery", registeredTypes);
         Assert.DoesNotContain("zendesk", registeredTypes);
         Assert.DoesNotContain("netsuite", registeredTypes);
+        Assert.DoesNotContain("microsoft365-outlook", registeredTypes);
+        Assert.DoesNotContain("gmail", registeredTypes);
+        Assert.DoesNotContain("slack", registeredTypes);
+        Assert.DoesNotContain("microsoft-teams", registeredTypes);
+        Assert.DoesNotContain("outlook-calendar", registeredTypes);
+        Assert.DoesNotContain("google-calendar", registeredTypes);
+        Assert.DoesNotContain("segment", registeredTypes);
+        Assert.DoesNotContain("amplitude", registeredTypes);
+        Assert.DoesNotContain("mixpanel", registeredTypes);
+        Assert.DoesNotContain("posthog", registeredTypes);
+        Assert.DoesNotContain("jira", registeredTypes);
+        Assert.DoesNotContain("linear", registeredTypes);
+        Assert.DoesNotContain("confluence", registeredTypes);
+        Assert.DoesNotContain("notion", registeredTypes);
+        Assert.DoesNotContain("sharepoint", registeredTypes);
+        Assert.DoesNotContain("google-drive", registeredTypes);
+    }
+
+    [Fact]
+    public async Task ConnectorCatalogue_SeedsPaidEnterprisePlaceholders_WithoutExecutablePlugins()
+    {
+        await using var provider = CreateServices().BuildServiceProvider();
+        await using var scope = provider.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ContextLayerDbContext>();
+        await dbContext.Database.EnsureCreatedAsync();
+
+        await ConnectorCatalogueSeeder.SeedAsync(dbContext, new DateTime(2026, 05, 11, 12, 0, 0, DateTimeKind.Utc), CancellationToken.None);
+        var placeholders = await dbContext.ConnectorCatalogueEntries
+            .Where(x => EnterprisePlaceholderTypes.Contains(x.ConnectorType))
+            .ToListAsync();
+        var registry = scope.ServiceProvider.GetRequiredService<IConnectorRegistry>();
+
+        Assert.Equal(16, placeholders.Count);
+        Assert.All(placeholders, entry =>
+        {
+            Assert.True(entry.IsPlaceholder);
+            Assert.Equal(ConnectorCatalogueAvailability.Enterprise, entry.Availability);
+            Assert.Contains("public repo does not include", entry.Description.ToLowerInvariant());
+            Assert.False(registry.TryGetPlugin(entry.ConnectorType, out _));
+        });
     }
 
     [Fact]
@@ -166,6 +207,26 @@ public sealed class ConnectorPluginModelTests
         services.AddScoped<IConnectorCredentialStore, ProtectedConnectorCredentialStore>();
         return services;
     }
+
+    private static readonly string[] EnterprisePlaceholderTypes =
+    [
+        "microsoft365-outlook",
+        "gmail",
+        "slack",
+        "microsoft-teams",
+        "outlook-calendar",
+        "google-calendar",
+        "segment",
+        "amplitude",
+        "mixpanel",
+        "posthog",
+        "jira",
+        "linear",
+        "confluence",
+        "notion",
+        "sharepoint",
+        "google-drive"
+    ];
 
     private sealed class TestClock : IClock
     {

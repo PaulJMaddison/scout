@@ -6,7 +6,7 @@ This document describes those extension points and the boundary around them.
 
 For the full public/private product boundary, see [open-core-boundary.md](open-core-boundary.md).
 
-Commercial enterprise implementations include real Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, and NetSuite connectors; SSO/SAML; SCIM; credential vault integrations; advanced governance; compliance exports; private deployment packs; and SLA tooling. Those implementations are paid/private and are not included in this public repo.
+Commercial enterprise implementations include real Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, NetSuite, Microsoft 365 / Outlook, Gmail / Google Workspace, Slack, Microsoft Teams, Outlook Calendar, Google Calendar, Segment, Amplitude, Mixpanel, PostHog, Jira, Linear, Confluence, Notion, SharePoint, and Google Drive connectors; SSO/SAML; SCIM; credential vault integrations; advanced governance; compliance exports; private deployment packs; and SLA tooling. Those implementations are paid/private and are not included in this public repo.
 
 ## Principles
 
@@ -54,7 +54,7 @@ The public repo should keep the semantic engine, context facts and snapshots, Gr
 
 Enterprise packages may later provide:
 
-- real enterprise connectors
+- real enterprise connectors, including email, chat, calendar, analytics, issue, project, document, and knowledge-system adapters
 - SSO/SAML implementations
 - Stripe, Paddle, or other billing-provider integrations
 - customer-specific deployment templates
@@ -109,4 +109,4 @@ Do not add vendor-specific or customer-specific enterprise implementations to th
 
 The public repository exposes stable seams so private paid enterprise packages can plug into the customer-owned data plane without copying open-core implementation code.
 
-Commercial enterprise implementations include real Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, and NetSuite connectors; SSO/SAML; SCIM; credential vault integrations; advanced governance; compliance exports; private deployment packs; and SLA tooling. Those implementations are paid/private and are not included in this public repo.
+Commercial enterprise implementations include real Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, NetSuite, Microsoft 365 / Outlook, Gmail / Google Workspace, Slack, Microsoft Teams, Outlook Calendar, Google Calendar, Segment, Amplitude, Mixpanel, PostHog, Jira, Linear, Confluence, Notion, SharePoint, and Google Drive connectors; SSO/SAML; SCIM; credential vault integrations; advanced governance; compliance exports; private deployment packs; and SLA tooling. Those implementations are paid/private and are not included in this public repo.
