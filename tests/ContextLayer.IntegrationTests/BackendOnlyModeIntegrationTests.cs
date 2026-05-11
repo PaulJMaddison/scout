@@ -51,7 +51,7 @@ public sealed class BackendOnlyModeIntegrationTests
             grantType = "client_credentials",
             clientId = "svc-demo-admin",
             clientSecret = "SvcSecret123!",
-            scope = "context.read context.recompute"
+            scope = "context:read context:write"
         });
 
         Assert.Equal(HttpStatusCode.OK, tokenResponse.StatusCode);
@@ -133,8 +133,8 @@ public sealed class BackendOnlyModeIntegrationTests
                     ["Auth:MachineClients:0:TenantSlug"] = "demo",
                     ["Auth:MachineClients:0:DisplayName"] = "Demo Service Client",
                     ["Auth:MachineClients:0:Role"] = "tenant_admin",
-                    ["Auth:MachineClients:0:Scopes:0"] = "context.read",
-                    ["Auth:MachineClients:0:Scopes:1"] = "context.recompute",
+                    ["Auth:MachineClients:0:Scopes:0"] = "context:read",
+                    ["Auth:MachineClients:0:Scopes:1"] = "context:write",
                     ["Telemetry:OtlpEndpoint"] = string.Empty
                 };
 

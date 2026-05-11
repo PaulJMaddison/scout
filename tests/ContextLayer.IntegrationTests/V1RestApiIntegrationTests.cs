@@ -102,7 +102,7 @@ public sealed class V1RestApiIntegrationTests
         var createdClientResponse = await client.PostAsJsonAsync("/api/v1/api-clients", new V1CreateApiClientRequest(
             "Warehouse ingestion client",
             "primary",
-            ["context.read", "context.write", "context.recompute"]));
+            ["context:read", "context:write", "selectors:write", "events:ingest", "audit:read"]));
         Assert.Equal(HttpStatusCode.Created, createdClientResponse.StatusCode);
         var createdClient = JsonNode.Parse(await createdClientResponse.Content.ReadAsStringAsync())!.AsObject();
         var clientId = createdClient["clientId"]!.GetValue<string>();
@@ -209,7 +209,7 @@ public sealed class V1RestApiIntegrationTests
         var createdClientResponse = await client.PostAsJsonAsync("/api/v1/api-clients", new V1CreateApiClientRequest(
             "Webhook client",
             "primary",
-            ["context.write", "context.recompute"]));
+            ["events:ingest"]));
         var createdClient = JsonNode.Parse(await createdClientResponse.Content.ReadAsStringAsync())!.AsObject();
         var clientId = createdClient["clientId"]!.GetValue<string>();
         var apiKey = createdClient["apiKey"]!.GetValue<string>();
@@ -229,8 +229,9 @@ public sealed class V1RestApiIntegrationTests
             "acct-123",
             DateTime.UtcNow);
 
-        var first = await SignedPostAsJsonAsync(client, "/api/v1/events/source-system?tenantSlug=beta", apiKey, payload);
-        var second = await SignedPostAsJsonAsync(client, "/api/v1/events/source-system?tenantSlug=beta", apiKey, payload);
+        var crossTenant = await SignedPostAsJsonAsync(client, "/api/v1/events/source-system?tenantSlug=beta", apiKey, payload);
+        var first = await SignedPostAsJsonAsync(client, "/api/v1/events/source-system", apiKey, payload);
+        var second = await SignedPostAsJsonAsync(client, "/api/v1/events/source-system", apiKey, payload);
         var badSignature = await SignedPostAsJsonAsync(
             client,
             "/api/v1/events/source-system",
@@ -242,6 +243,7 @@ public sealed class V1RestApiIntegrationTests
             apiKey,
             payload with { EventId = "evt-dead-letter-001", ExternalUserId = "missing-user", ExternalAccountId = null });
 
+        Assert.Equal(HttpStatusCode.Forbidden, crossTenant.StatusCode);
         Assert.Equal(HttpStatusCode.Accepted, first.StatusCode);
         Assert.Equal(HttpStatusCode.Accepted, second.StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, badSignature.StatusCode);
@@ -284,6 +286,7 @@ public sealed class V1RestApiIntegrationTests
         Assert.Single(await dbContext.SourceSystemEvents.Where(x => x.TenantId == demoTenant.Id && x.EventId == "evt-idempotent-001").ToListAsync());
         Assert.False(await dbContext.SourceSystemEvents.AnyAsync(x => x.TenantId == betaTenant.Id && x.EventId == "evt-idempotent-001"));
         Assert.False(await dbContext.SourceSystemEvents.AnyAsync(x => x.EventId == "evt-bad-signature-001"));
+        Assert.True(await dbContext.AuditEvents.AnyAsync(x => x.TenantId == demoTenant.Id && x.Action == "auth.permission.denied"));
         Assert.True(await dbContext.AuditEvents.AnyAsync(x => x.TenantId == demoTenant.Id && x.Action == "source-system.event.ignored"));
         Assert.True(await dbContext.AuditEvents.AnyAsync(x => x.TenantId == demoTenant.Id && x.Action == "source-system.event.failed"));
     }
@@ -339,7 +342,7 @@ public sealed class V1RestApiIntegrationTests
         var createdClientResponse = await client.PostAsJsonAsync("/api/v1/api-clients", new V1CreateApiClientRequest(
             "Limit test client",
             "primary",
-            ["context.write"]));
+            ["events:ingest"]));
         Assert.Equal(HttpStatusCode.Created, createdClientResponse.StatusCode);
         var createdClient = JsonNode.Parse(await createdClientResponse.Content.ReadAsStringAsync())!.AsObject();
         var clientId = createdClient["clientId"]!.GetValue<string>();

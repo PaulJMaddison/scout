@@ -523,7 +523,7 @@ Example machine client configuration:
         "TenantSlug": "acme",
         "DisplayName": "CRM Service Client",
         "Role": "tenant_admin",
-        "Scopes": [ "context.read", "context.recompute" ]
+        "Scopes": [ "context:read", "context:write" ]
       }
     ]
   }
@@ -541,21 +541,21 @@ curl -X POST http://127.0.0.1:5198/api/auth/token \
     "grantType": "client_credentials",
     "clientId": "crm-service",
     "clientSecret": "replace-me",
-    "scope": "context.read context.recompute"
+    "scope": "context:read context:write"
   }'
 ```
 
 Read user context over REST:
 
 ```bash
-curl http://127.0.0.1:5198/api/rest/tenants/demo/users/123/context \
+curl "http://127.0.0.1:5198/api/v1/context/users/123?tenantSlug=demo" \
   -H "Authorization: Bearer <token>"
 ```
 
 Queue recomputation:
 
 ```bash
-curl -X POST http://127.0.0.1:5198/api/rest/tenants/demo/users/123/recompute \
+curl -X POST "http://127.0.0.1:5198/api/v1/context/recompute?tenantSlug=demo" \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -566,17 +566,22 @@ curl -X POST http://127.0.0.1:5198/api/rest/tenants/demo/users/123/recompute \
 Register a connector over REST:
 
 ```bash
-curl -X POST http://127.0.0.1:5198/api/rest/connectors/register \
+curl -X POST http://127.0.0.1:5198/graphql \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{
-    "tenantSlug": "demo",
-    "name": "Billing REST Connector",
-    "description": "Reads billing facts from the existing platform API.",
-    "kind": "Crm",
-    "connectorType": "restApi",
-    "configurationJson": "{\"baseUrl\":\"https://billing.example.com\",\"resourcePath\":\"/accounts/{externalUserId}\"}",
-    "credentialsJson": "{\"bearerToken\":\"replace-me\"}"
+    "query": "mutation RegisterConnector($input: RegisterConnectorInput!) { registerConnector(input: $input) { dataSourceId connectorType status } }",
+    "variables": {
+      "input": {
+        "tenantSlug": "demo",
+        "name": "Billing REST Connector",
+        "description": "Reads billing facts from the existing platform API.",
+        "kind": "Crm",
+        "connectorType": "restApi",
+        "configurationJson": "{\"baseUrl\":\"https://billing.example.com\",\"resourcePath\":\"/accounts/{externalUserId}\"}",
+        "credentialsJson": "{\"bearerToken\":\"replace-me\"}"
+      }
+    }
   }'
 ```
 
@@ -659,11 +664,13 @@ curl -X POST "http://127.0.0.1:5198/api/v1/api-clients" \
   -d '{
     "displayName": "Warehouse ingestion client",
     "workspaceSlug": "default",
-    "scopes": ["context.read", "context.write", "context.recompute"]
+    "scopes": ["context:read", "context:write", "selectors:write", "events:ingest", "audit:read", "billing:read", "blueprints:write"]
   }'
 ```
 
 The response shows `apiKey` once. Store it in your secret manager; UCL only stores its hash.
+
+API clients use first-class scopes: `context:read`, `context:write`, `selectors:read`, `selectors:write`, `events:ingest`, `audit:read`, `admin:manage`, `blueprints:write`, and `billing:read`. Older dot-form scopes are accepted as aliases for compatibility, but new integrations should use the colon names.
 
 Call REST v1 with API-key authentication:
 
