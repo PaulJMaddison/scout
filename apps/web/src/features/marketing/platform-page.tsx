@@ -27,6 +27,9 @@ export function PlatformPage() {
             <Link to="/open-core">
               <Button variant="secondary">Open core boundary</Button>
             </Link>
+            <Link to="/pricing">
+              <Button variant="secondary">Paid pilot path</Button>
+            </Link>
           </>
         }
       />
@@ -145,6 +148,27 @@ export function PlatformPage() {
             tone="success"
           />
         </div>
+      </Panel>
+
+      <Panel eyebrow="Customer data plane" title="The paid pilot proves the self-hosted semantic layer first">
+        <div className="grid gap-4 md:grid-cols-3">
+          {[
+            ['Runs beside customer systems', 'Connector configuration, selectors, context facts, snapshots, provenance, and audit logs stay in the customer-controlled environment by default.'],
+            ['Feeds customer-owned consumers', 'Customer apps, workflows, reports, copilots, and agents can consume context without adopting our AI stack.'],
+            ['Future control plane stays separate', 'Accounts, billing, licences, downloads, support, and update channels are future/private control-plane concerns, not complete self-serve SaaS in this repo.'],
+          ].map(([title, body]) => (
+            <Card key={title} className="bg-ivory-25">
+              <p className="font-semibold text-ink-950">{title}</p>
+              <p className="mt-2 text-sm leading-7 text-ink-700">{body}</p>
+            </Card>
+          ))}
+        </div>
+      </Panel>
+
+      <Panel eyebrow="Anonymised ERP platform pattern" title="Existing systems can stay while the new platform consumes meaning">
+        <p className="text-sm leading-7 text-ink-700">
+          A recent ERP platform engagement showed the same architectural pattern: legacy databases, CRM-style records, operational systems, and fragmented business data stayed in place while a semantic context layer helped a new web platform and AI-enabled workflows consume business meaning rather than raw records. The details remain anonymised and customer-specific, but the repeatable pattern is what UCL productises.
+        </p>
       </Panel>
 
       <section className="grid gap-4 2xl:grid-cols-[0.95fr_1.05fr]">

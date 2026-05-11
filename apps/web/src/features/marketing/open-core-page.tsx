@@ -36,7 +36,7 @@ export function OpenCorePage() {
           <div className="grid gap-3">
             {[
               ['Enterprise-only implementation code', 'Do not place paid connectors, enterprise identity, private cloud deployment assets, or commercial operations code into the public repository unless explicitly intended as open source.'],
-              ['Pretend implementations', 'Do not imply Salesforce, HubSpot, enterprise SSO, or other paid options exist here if they are only planned. Describe them as future or commercial options instead.'],
+              ['Pretend implementations', 'Do not imply paid vendor connectors, enterprise SSO, or hosted cloud operations ship here. Describe them as private commercial options and keep public entries as placeholders.'],
               ['Weak open source positioning', 'The public project should not read like a crippled trial. It should stand on its own as a real core product and learning platform.'],
             ].map(([title, body]) => (
               <Card key={title} className="bg-ivory-25">
@@ -72,7 +72,7 @@ export function OpenCorePage() {
               <div>
                 <p className="font-semibold text-ink-950">`universalcontextlayer-enterprise`</p>
                 <p className="mt-2 text-sm leading-7 text-ink-700">
-                  Private paid repository for real enterprise connectors, SSO/SAML, SCIM, vaults, advanced governance, compliance exports, deployment packs, and SLA tooling.
+                  Private paid repository for real enterprise connectors across CRM, warehouse, email, chat, calendar, analytics, work management, and knowledge systems, plus SSO/SAML, SCIM, vaults, advanced governance, compliance exports, deployment packs, and SLA tooling.
                 </p>
               </div>
             </div>

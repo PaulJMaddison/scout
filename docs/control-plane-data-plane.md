@@ -18,7 +18,7 @@ Typical data-plane components:
 - audit events, source events, recompute jobs, and governance policies
 - GraphQL, REST, SDK, and webhook/event ingestion endpoints
 
-The public repository includes safe generic connectors and mock connectors only. Paid enterprise connector code, customer-specific mappings, and private deployment packs should live outside this repo.
+The public repository includes safe generic connectors, mock connectors, and paid/private connector placeholders only. Paid enterprise connector code, customer-specific mappings, and private deployment packs should live outside this repo.
 
 ## Hosted Control Plane
 
@@ -26,7 +26,7 @@ The hosted control plane is a future commercial seam, not a requirement for the 
 
 Paid/private cloud control-plane modules may also manage hosted account management, billing, commercial licence portals, download portals, support portals, and cloud operations. They are commercial implementations outside this public repo.
 
-Control-plane metadata should be limited to operational account information and licensing state. It must not require raw CRM records, ERP records, support tickets, product usage, billing events, customer emails, warehouse rows, or context facts to leave the customer environment.
+Control-plane metadata should be limited to operational account information and licensing state. It must not require raw CRM records, ERP records, support tickets, product usage, billing events, customer emails, chat messages, calendar descriptions, issue descriptions, documents, attachments, warehouse rows, analytics event payloads, or context facts to leave the customer environment.
 
 ## v2 Public Repo Foundations
 

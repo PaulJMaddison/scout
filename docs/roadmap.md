@@ -37,7 +37,7 @@ Current and near-term public repo priorities:
 
 These are likely to be developed outside the public repo:
 
-- real enterprise connectors
+- real enterprise connectors across CRM, warehouse, email, chat, calendar, analytics, work management, and knowledge systems
 - SSO/SAML implementations
 - Stripe, Paddle, or other billing-provider integrations
 - customer-specific deployment templates

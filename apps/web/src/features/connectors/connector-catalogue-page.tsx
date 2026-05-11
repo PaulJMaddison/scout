@@ -108,7 +108,7 @@ export function ConnectorCataloguePage() {
               <div>
                 <p className="font-semibold text-ink-950">Catalogue only</p>
                 <p className="mt-2 text-sm leading-7 text-ink-700">
-                  Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, and NetSuite are visible as marketplace metadata only. Their real integrations belong in private/commercial packages.
+                  Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, NetSuite, Microsoft 365 / Outlook, Gmail, Slack, Teams, calendar, analytics, issue, and knowledge-system connectors are visible as marketplace metadata only. Their real integrations belong in private/commercial packages.
                 </p>
               </div>
             </div>

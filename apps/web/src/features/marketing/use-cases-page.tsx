@@ -127,6 +127,12 @@ export function UseCasesPage() {
         </div>
       </Panel>
 
+      <Panel eyebrow="Anonymised ERP platform pattern" title="The same pattern works beyond the sales demo">
+        <p className="text-sm leading-7 text-ink-700">
+          A recent ERP platform engagement showed why this matters. Legacy databases, CRM-style records, operational systems, and fragmented business data were not replaced first. A semantic context layer over existing data let a new web platform and AI-enabled workflows consume customer, account, workflow, and operational meaning. UCL productises that pattern for paid pilots while keeping the customer-specific mappings and data under customer control.
+        </p>
+      </Panel>
+
       <section className="grid gap-4 lg:grid-cols-3">
         {[
           ['CEO view', 'Use existing data to improve sales, retention, support, and customer experience without first funding a broad platform replacement.'],

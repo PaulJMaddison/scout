@@ -6,6 +6,27 @@ The format is inspired by Keep a Changelog and this project follows semantic ver
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-05-12
+
+### Added
+
+- Added public-safe catalogue placeholders and docs for paid/private email, chat, calendar, product analytics, work management, and knowledge-system connector families.
+- Added release notes for the v2.2.0 public open-core release aligned with the private enterprise connector-suite release.
+- Added paid pilot documentation, a production install checklist, and an anonymised ERP platform implementation pattern for buyer proof.
+
+### Changed
+
+- Clarified that real Microsoft 365 / Outlook, Gmail / Google Workspace, Slack, Microsoft Teams, Outlook Calendar, Google Calendar, Segment, Amplitude, Mixpanel, PostHog, Jira, Linear, Confluence, Notion, SharePoint, and Google Drive implementations live in private enterprise packages.
+- Folded in public data-plane hardening for REST/GraphQL scope checks, correlation-friendly errors, and webhook safety documentation.
+- Updated pricing, commercial, docs, connector catalogue, open-core, and integrations copy for a paid-pilot-first commercial motion rather than complete self-serve SaaS.
+- Updated public version metadata to `2.2.0`.
+
+### Security
+
+- Reconfirmed that the public repo contains placeholders/interfaces only for paid enterprise connectors and does not include private connector implementation code.
+- Documented the metadata-only and explicit opt-in safety model for communication and knowledge connectors.
+- Added production guidance that `VITE_DEMO_FALLBACK=true` is local-demo only and must not mask API failures in customer environments.
+
 ## [2.1.1] - 2026-05-11
 
 ### Security

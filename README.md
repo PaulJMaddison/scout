@@ -1,13 +1,13 @@
 # Universal Context Layer
 
-Universal Context Layer turns existing business data into trusted context that any AI tool, workflow, or product can use.
+Universal Context Layer turns existing business data into trusted semantic context that customer-owned AI tools, workflows, apps, and reports can use.
 
-Release: `2.1.0`
+Release: `2.2.0`
 License: [MIT](LICENSE)
 Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
 Security: [SECURITY.md](SECURITY.md)
 
-UCL is context infrastructure for AI-enabled products, workflows, and agents. It does not replace your CRM, ERP, support desk, warehouse, product database, billing system, spreadsheets, or legacy databases. It sits beside those systems and creates the missing semantic layer above them.
+UCL is context infrastructure for AI-enabled products, workflows, apps, reports, and agents. It does not replace your CRM, ERP, support desk, warehouse, product database, billing system, spreadsheets, or legacy databases. It sits beside those systems and creates the missing semantic layer above them.
 
 ## Current Maturity
 
@@ -16,6 +16,56 @@ UCL is context infrastructure for AI-enabled products, workflows, and agents. It
 - Not a self-serve hosted commercial SaaS product in this public repository.
 - Not a paid enterprise connector pack in this public repository.
 - Paid enterprise and cloud/control-plane implementations are commercial/private offerings that are intentionally not included in this open-source repo.
+- Public enterprise connector entries are placeholders and interfaces only. Real implementations live in private enterprise packages, use metadata-only ingestion by default for communication and knowledge sources, and require explicit customer opt-in before message bodies, document bodies, or attachments are processed.
+
+## First Paid Pilot Path
+
+The current sellable motion is a supported paid pilot, not a fully hands-off SaaS signup. A customer can run the UCL data plane in their own environment, keep operational data local, and use UCL to create governed context for their own AI tools, applications, reports, and workflows.
+
+Use these documents before offering a first commercial pilot:
+
+- [Paid pilot offer](docs/paid-pilot.md)
+  Explains the first commercial package, buyer profile, pilot workflow, deliverables, boundaries, and success criteria.
+- [Production install checklist](docs/production-install-checklist.md)
+  Covers secrets, PostgreSQL, demo fallback, Data Protection keys, connector credentials, privacy, audit, backups, logs, and support.
+
+Keep the phrase "customer data plane" central in sales and technical discussions. It is the clearest way to explain that UCL can create semantic context without requiring the customer to send raw operational data to a hosted SaaS by default.
+
+## Customer Data Plane
+
+The customer data plane is the part of UCL that runs beside the customer's systems. It owns connector configuration, source access, selectors, semantic schema, context facts, context snapshots, provenance, audit logs, API clients, and local operational configuration.
+
+In a paid pilot, the customer data plane is the product being proved. It lets the customer keep operational data under their control while downstream systems consume trusted context through REST, GraphQL, SDKs, or internal service calls.
+
+The future hosted control plane should manage commercial operations such as accounts, billing, licences, downloads, support, update channels, entitlement metadata, customer contacts, and optional aggregate usage. It should not require raw customer records, connector credentials, context facts, prompt context packages, message bodies, documents, attachments, or analytics event payloads by default.
+
+## Anonymised ERP Platform Pattern
+
+A recent ERP platform engagement showed the pattern clearly: the customer did not need to rip out legacy systems. We created a semantic context layer over existing operational data so the new web platform and AI-enabled workflows could consume business meaning rather than raw records.
+
+That engagement involved the same architectural pattern UCL productises: legacy databases and fragmented business records stayed in place, while a context layer made customer, account, workflow, and operational context reusable for the new platform. It is described as an [anonymised implementation pattern](docs/anonymised-erp-platform-pattern.md), not as a named case study or customer endorsement.
+
+## What This Is Not Yet
+
+UCL is sellable today as a supported paid pilot and hybrid self-hosted context infrastructure product. It is not yet:
+
+- a complete self-serve SaaS signup
+- a live hosted billing product
+- a hosted account-management portal
+- a production licence portal
+- a public package containing paid enterprise connectors
+- a vendor-certified connector suite
+- a replacement for the customer's AI stack
+
+The open-source core is useful on its own, and paid implementation support can make the first customer onboarding practical. Fully managed SaaS operations remain future/private cloud-control-plane work.
+
+## Production Readiness
+
+Use the [production install checklist](docs/production-install-checklist.md) before any customer-facing pilot. At minimum, production-style deployments need PostgreSQL, persistent Data Protection keys, a strong `Auth__SigningKey`, scoped API clients, audit logging, backup and restore testing, customer-approved connector credential storage, and demo seed data disabled.
+
+## Demo Fallback Warning
+
+`VITE_DEMO_FALLBACK=true` is for local demos only. Customer and production-style deployments must use `VITE_DEMO_FALLBACK=false`. Demo fallback must never hide API failures or present mock data as customer data.
 
 It is built to make a few points obvious in a few clicks:
 

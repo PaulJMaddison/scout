@@ -5,28 +5,40 @@ import { BeforeAfter } from '@/features/marketing/marketing-components'
 
 const plans = [
   {
-    name: 'Free',
-    label: 'Open evaluation',
-    body: 'Use the local demo, inspect the open source core, and understand selectors, snapshots, REST, GraphQL, and seeded fictional data.',
-    bestFor: 'Learning, workshops, proof-of-concepts',
+    name: 'Free open core',
+    label: 'Available now',
+    body: 'Run the local demo, inspect the open source core, and understand selectors, snapshots, REST, GraphQL, SDKs, and fictional seed data.',
+    bestFor: 'Learning, internal evaluation, technical due diligence',
   },
   {
-    name: 'Pro',
-    label: 'Team pilot',
-    body: 'Run a small production-minded pilot with tenant-scoped users, API clients, selectors, context lookups, recomputes, source events, and blueprint imports.',
-    bestFor: 'Small teams proving value',
+    name: 'Discovery workshop',
+    label: 'Scoped engagement',
+    body: 'Map the first workflow, source systems, governance constraints, customer data-plane shape, and pilot success criteria before implementation starts.',
+    bestFor: 'Buyers deciding where the first pilot should land',
   },
   {
-    name: 'Business',
-    label: 'Production rollout',
-    body: 'Support more workspaces, users, API clients, selectors, usage volume, retention, and operational integration surfaces.',
-    bestFor: 'Cross-functional production teams',
+    name: 'Starter paid pilot',
+    label: 'Contact for pilot pricing',
+    body: 'Implementation-led pilot for one workflow, one environment, selected source systems or safe exports, and one downstream consumer.',
+    bestFor: 'Teams proving value in two to four weeks',
   },
   {
-    name: 'Enterprise',
+    name: 'Production pilot',
+    label: 'Scoped after discovery',
+    body: 'Production-style customer data plane with PostgreSQL, production secrets, backup/restore review, scoped API clients, masking, audit, and handover.',
+    bestFor: 'Teams preparing for real operational use',
+  },
+  {
+    name: 'Enterprise/private deployment',
     label: 'Commercial agreement',
-    body: 'Use private cloud, managed SaaS, custom retention, support, enterprise governance, and connector work through a paid agreement.',
+    body: 'Private enterprise connector modules, governance hardening, customer-specific deployment design, and support model through a paid agreement.',
     bestFor: 'Larger or regulated estates',
+  },
+  {
+    name: 'Future managed SaaS/control plane',
+    label: 'Future/private work',
+    body: 'Hosted account management, billing, licences, downloads, support access, update channels, entitlement metadata, and optional aggregate usage.',
+    bestFor: 'Customers that later want managed commercial operations',
   },
 ]
 
@@ -35,8 +47,8 @@ export function PricingPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Pricing and deployment"
-        title="This page explains how Universal Context Layer can be adopted as open source core, self-hosted backend, managed SaaS, private cloud, or integration layer."
-        description="There is no live payment provider wired into the public repository. The product has plan and usage foundations, while hosted billing and commercial licence operations live in paid/private cloud implementation work."
+        title="This page explains what you can use now, what you can buy as a paid pilot, and what remains future control-plane work."
+        description="There is no live card payment, self-service subscription, or complete managed SaaS operation in the public repository. The commercial path today is open core plus supported paid pilot, with private enterprise modules and future cloud/control-plane work scoped separately."
         actions={
           <>
             <Link to="/docs">
@@ -52,7 +64,22 @@ export function PricingPage() {
         }
       />
 
-      <section className="grid gap-4 xl:grid-cols-4">
+      <Panel eyebrow="What you can buy now" title="The practical commercial motion is implementation-led">
+        <div className="grid gap-4 md:grid-cols-3">
+          {[
+            ['Discovery workshop', 'A short scoped engagement to pick the first workflow, source systems, customer data-plane shape, and success criteria.'],
+            ['Starter paid pilot', 'A supported pilot that turns existing data into semantic context for one useful consumer.'],
+            ['Production pilot', 'A harder production-style pilot with PostgreSQL, secrets, backups, audit, masking, and customer handover.'],
+          ].map(([title, body]) => (
+            <Card key={title} className="bg-ivory-25">
+              <p className="font-semibold text-ink-950">{title}</p>
+              <p className="mt-2 text-sm leading-7 text-ink-700">{body}</p>
+            </Card>
+          ))}
+        </div>
+      </Panel>
+
+      <section className="grid gap-4 xl:grid-cols-3">
         {plans.map((plan) => (
           <Card key={plan.name} className="bg-ivory-25">
             <div className="flex items-center justify-between gap-3">
@@ -91,30 +118,28 @@ export function PricingPage() {
           <BeforeAfter
             before={[
               'No live payment-provider integration is bundled.',
-              'No paid Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, or NetSuite implementation is shipped.',
-              'No customer-specific deployment pack or private-cloud automation is included.',
+              'No paid CRM, warehouse, support, ERP, email, chat, calendar, analytics, issue, project, or knowledge-system connector implementation is shipped.',
+              'No hands-off self-service account, licence, support, or hosted billing portal is included.',
             ]}
             after={[
               'Clean billing-provider interfaces and no-op provider defaults are present.',
               'Connector, credential, health-check, and catalogue extension points are safe to build against.',
-              'The open core remains credible while commercial modules can live outside the public repository.',
+              'The open core remains credible while paid pilot delivery, private connector modules, and future control-plane work can live outside the public repository.',
             ]}
           />
         </Panel>
 
-        <Panel eyebrow="Usage foundations" title="Plan limits are already modelled for hosted SaaS operation">
+        <Panel eyebrow="What is not self-serve yet" title="Do not confuse the pilot offer with complete SaaS operations">
           <div className="grid gap-3 md:grid-cols-2">
             {[
-              'Tenants',
-              'Workspaces',
-              'Users',
-              'API clients',
-              'Selectors',
-              'Context lookups',
-              'Recomputations',
-              'Source events',
-              'Blueprint imports',
-              'Retention days',
+              'Live card payment',
+              'Hosted account portal',
+              'Licence portal',
+              'Support portal',
+              'Automated connector provisioning',
+              'Vendor-certified connector delivery',
+              'Hands-off production operations',
+              'Customer-specific compliance sign-off',
             ].map((item) => (
               <Card key={item} className="bg-ivory-25 py-4 shadow-none">
                 <p className="text-sm font-semibold text-ink-950">{item}</p>

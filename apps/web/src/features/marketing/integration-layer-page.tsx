@@ -52,7 +52,7 @@ export function IntegrationLayerPage() {
               ['REST API connector', 'Fetch subject-level payloads from modern service APIs and internal platforms.'],
               ['File upload connector', 'Accept CSV, export, or spreadsheet-driven data drops during staged onboarding.'],
               ['Mock connector', 'Support deterministic demos, previews, and onboarding rehearsals without claiming live enterprise integrations.'],
-              ['Future CRM and telemetry connectors', 'The public repo can describe interfaces and patterns without shipping paid enterprise implementations here.'],
+              ['Private enterprise connectors', 'The public repo can describe interfaces and patterns without shipping paid CRM, warehouse, email, chat, calendar, analytics, work-management, or knowledge-system implementations here.'],
               ['Shared runtime features', 'Raw payloads, normalised payloads, provenance, freshness, validation, health checks, preview, dry run, scheduled sync, and event-triggered recompute.'],
             ].map(([title, body]) => (
               <Card key={title} className="bg-ivory-25">
@@ -141,6 +141,21 @@ export function IntegrationLayerPage() {
           </div>
         </Panel>
       </section>
+
+      <Panel eyebrow="Paid pilot use" title="Implementation-led onboarding is the right first customer path">
+        <div className="grid gap-4 md:grid-cols-3">
+          {[
+            ['Start with one workflow', 'Pick a real business workflow and prove that semantic context improves it.'],
+            ['Use safe source access', 'Start with SQL, REST, CSV, or commercially scoped private connectors, with credentials controlled by the customer.'],
+            ['Harden before go-live', 'Disable demo fallback, use PostgreSQL, persist Data Protection keys, scope API clients, and test restore.'],
+          ].map(([title, body]) => (
+            <Card key={title} className="bg-ivory-25">
+              <p className="font-semibold text-ink-950">{title}</p>
+              <p className="mt-2 text-sm leading-7 text-ink-700">{body}</p>
+            </Card>
+          ))}
+        </div>
+      </Panel>
 
       <section className="grid gap-4 2xl:grid-cols-2">
         <CodeBlock title="GraphQL context lookup" language="graphql" code={graphQlContextLookup} />

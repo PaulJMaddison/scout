@@ -21,6 +21,9 @@ export function LandingPage() {
             <Link to="/platform">
               <Button variant="secondary">Explore the platform</Button>
             </Link>
+            <Link to="/pricing">
+              <Button variant="secondary">Paid pilot path</Button>
+            </Link>
           </>
         }
       />
@@ -79,10 +82,25 @@ export function LandingPage() {
         </Panel>
       </section>
 
+      <Panel eyebrow="Anonymised ERP platform pattern" title="Recent implementation experience showed the pattern clearly">
+        <div className="grid gap-4 lg:grid-cols-[1fr_0.9fr]">
+          <Card className="bg-ivory-25 shadow-none">
+            <p className="text-sm leading-7 text-ink-700">
+              A recent ERP platform engagement involved legacy databases, CRM-style records, operational systems, and fragmented business data. The customer did not need to rip out those systems first. A semantic context layer over existing operational data let a new web platform and AI-enabled workflows consume business meaning rather than raw records.
+            </p>
+          </Card>
+          <Card className="bg-ivory-25 shadow-none">
+            <p className="text-sm leading-7 text-ink-700">
+              This is an anonymised implementation pattern, not a named case study. It supports the paid pilot motion: prove one valuable workflow, keep customer operational data controlled, and expand the context layer once the value is clear.
+            </p>
+          </Card>
+        </div>
+      </Panel>
+
       <section className="grid gap-4 md:grid-cols-3">
         <MetricCard label="1 semantic layer" value="Many systems" footnote="Connect source systems once, then let multiple products and workflows consume the same governed context." accent="copper" />
         <MetricCard label="Evidence attached" value="Always" footnote="Facts carry confidence, provenance, freshness, masking, and audit visibility so teams can review the basis for decisions." accent="sage" />
-        <MetricCard label="Deployment choice" value="5 paths" footnote="Use open source core, self-hosted backend, managed SaaS, private cloud, or an internal integration layer." accent="gold" />
+        <MetricCard label="Sellable today" value="Paid pilot" footnote="Use open core plus supported implementation to prove a customer-owned data plane before future managed SaaS operations." accent="gold" />
       </section>
 
       <Panel eyebrow="Before and after" title="The product changes what downstream systems are allowed to depend on">
@@ -163,6 +181,21 @@ export function LandingPage() {
             <Card key={title} className="bg-ivory-25 shadow-none">
               <GitBranch className="size-5 text-copper-700" />
               <p className="mt-4 font-semibold text-ink-950">{title}</p>
+              <p className="mt-2 text-sm leading-7 text-ink-700">{body}</p>
+            </Card>
+          ))}
+        </div>
+      </Panel>
+
+      <Panel eyebrow="What you can buy now" title="Start with a paid pilot, not a pretend self-serve SaaS">
+        <div className="grid gap-4 md:grid-cols-3">
+          {[
+            ['Discovery workshop', 'Map the first workflow, source systems, governance constraints, and success criteria.'],
+            ['Starter paid pilot', 'Build a first customer data plane and one downstream context consumer with implementation support.'],
+            ['Production pilot', 'Add PostgreSQL, secrets, backups, audit, masking, scoped API clients, and handover for production-style use.'],
+          ].map(([title, body]) => (
+            <Card key={title} className="bg-ivory-25 shadow-none">
+              <p className="font-semibold text-ink-950">{title}</p>
               <p className="mt-2 text-sm leading-7 text-ink-700">{body}</p>
             </Card>
           ))}

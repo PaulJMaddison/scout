@@ -9,7 +9,7 @@ export function CommercialPage() {
   }> = [
     { title: 'Managed SaaS control plane', body: 'A paid/private cloud offering can manage accounts, licences, downloads, support, update channels, and aggregate usage without requiring raw operational data by default.', icon: CloudCog },
     { title: 'Private cloud or single tenant', body: 'A paid/private deployment can add stronger isolation, customer-controlled networking, and commercial operations around the customer-owned data plane.', icon: Lock },
-    { title: 'Enterprise connectors and governance add-ons', body: 'Paid/private packages provide real enterprise connectors, SSO/SAML, SCIM, vault integrations, advanced governance, compliance exports, deployment packs, and SLA tooling outside the public repo.', icon: ServerCog },
+    { title: 'Enterprise connectors and governance add-ons', body: 'Paid/private packages provide real CRM, warehouse, email, chat, calendar, analytics, work management, and knowledge connectors, plus SSO/SAML, SCIM, vault integrations, advanced governance, compliance exports, deployment packs, and SLA tooling outside the public repo.', icon: ServerCog },
     { title: 'Implementation services', body: 'Accelerate source onboarding, semantic schema design, selector packs, and product integration work.', icon: Handshake },
     { title: 'Support and SLA', body: 'Provide named support, operational guidance, and response expectations for production teams.', icon: LifeBuoy },
     { title: 'Commercial rollout help', body: 'Work with CTOs, architects, and product teams on platform shape, governance, rollout sequencing, and operating model.', icon: Building2 },
@@ -20,7 +20,7 @@ export function CommercialPage() {
       <PageHeader
         eyebrow="Commercial options"
         title="This page explains the paid/private enterprise and cloud offerings that sit beside the public open-core repository."
-        description="The public repo contains the safe open core and self-hosted data-plane foundations. Commercial modules can add real enterprise connectors, enterprise identity, vaults, advanced governance, compliance exports, deployment packs, SLA tooling, hosted account management, billing, licence portals, downloads, update channels, support portals, and cloud operations."
+        description="The public repo contains the safe open core and self-hosted data-plane foundations. Commercial modules can add real enterprise connectors with metadata-only defaults, enterprise identity, vaults, advanced governance, compliance exports, deployment packs, SLA tooling, hosted account management, billing, licence portals, downloads, update channels, support portals, and cloud operations."
       />
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -38,6 +38,28 @@ export function CommercialPage() {
           )
         })}
       </section>
+
+      <Panel eyebrow="What you can buy now" title="The current commercial offer is a supported paid pilot">
+        <div className="grid gap-4 md:grid-cols-4">
+          {[
+            ['Discovery workshop', 'Scope the first workflow, source systems, buyer outcome, and production-readiness path.'],
+            ['Starter paid pilot', 'Implement one customer data plane and one downstream context consumer with support.'],
+            ['Production pilot', 'Harden the pilot with PostgreSQL, secrets, audit, masking, backup/restore, and handover.'],
+            ['Enterprise rollout design', 'Plan private connectors, governance, support, and operating model for a larger estate.'],
+          ].map(([title, body]) => (
+            <Card key={title} className="bg-ivory-25">
+              <p className="font-semibold text-ink-950">{title}</p>
+              <p className="mt-2 text-sm leading-7 text-ink-700">{body}</p>
+            </Card>
+          ))}
+        </div>
+      </Panel>
+
+      <Panel eyebrow="Not self-serve SaaS yet" title="Confidence without overclaiming">
+        <p className="text-sm leading-7 text-ink-700">
+          Universal Context Layer is sellable today as open core plus implementation-led paid pilot. Fully managed account signup, live billing, licence portal, support portal, automated connector provisioning, and hands-off SaaS operations are future/private cloud-control-plane work.
+        </p>
+      </Panel>
 
       <section className="grid gap-4 2xl:grid-cols-[1fr_1fr]">
         <Panel eyebrow="For CTOs" title="Why a technical buyer might pay later">

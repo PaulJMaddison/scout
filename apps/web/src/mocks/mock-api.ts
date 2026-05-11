@@ -249,6 +249,70 @@ const connectorCatalogue: ConnectorCatalogueEntry[] = [
     'Catalogue metadata only.',
     'No NetSuite implementation ships in the public repo.',
   ]),
+  connectorCatalogueEntry('microsoft365-outlook', 'Microsoft 365 / Outlook placeholder', 'Email', 'Enterprise', true, [
+    'Catalogue metadata only.',
+    'No Outlook mailbox implementation ships in the public repo.',
+  ]),
+  connectorCatalogueEntry('gmail', 'Gmail / Google Workspace placeholder', 'Email', 'Enterprise', true, [
+    'Catalogue metadata only.',
+    'No Gmail implementation ships in the public repo.',
+  ]),
+  connectorCatalogueEntry('slack', 'Slack placeholder', 'Collaboration', 'Enterprise', true, [
+    'Catalogue metadata only.',
+    'No Slack implementation ships in the public repo.',
+  ]),
+  connectorCatalogueEntry('microsoft-teams', 'Microsoft Teams placeholder', 'Collaboration', 'Enterprise', true, [
+    'Catalogue metadata only.',
+    'No Teams implementation ships in the public repo.',
+  ]),
+  connectorCatalogueEntry('outlook-calendar', 'Outlook Calendar placeholder', 'Calendar', 'Enterprise', true, [
+    'Catalogue metadata only.',
+    'No Outlook Calendar implementation ships in the public repo.',
+  ]),
+  connectorCatalogueEntry('google-calendar', 'Google Calendar placeholder', 'Calendar', 'Enterprise', true, [
+    'Catalogue metadata only.',
+    'No Google Calendar implementation ships in the public repo.',
+  ]),
+  connectorCatalogueEntry('segment', 'Segment placeholder', 'Product analytics', 'Enterprise', true, [
+    'Catalogue metadata only.',
+    'No Segment implementation ships in the public repo.',
+  ]),
+  connectorCatalogueEntry('amplitude', 'Amplitude placeholder', 'Product analytics', 'Enterprise', true, [
+    'Catalogue metadata only.',
+    'No Amplitude implementation ships in the public repo.',
+  ]),
+  connectorCatalogueEntry('mixpanel', 'Mixpanel placeholder', 'Product analytics', 'Enterprise', true, [
+    'Catalogue metadata only.',
+    'No Mixpanel implementation ships in the public repo.',
+  ]),
+  connectorCatalogueEntry('posthog', 'PostHog placeholder', 'Product analytics', 'Enterprise', true, [
+    'Catalogue metadata only.',
+    'No PostHog implementation ships in the public repo.',
+  ]),
+  connectorCatalogueEntry('jira', 'Jira placeholder', 'Work management', 'Enterprise', true, [
+    'Catalogue metadata only.',
+    'No Jira implementation ships in the public repo.',
+  ]),
+  connectorCatalogueEntry('linear', 'Linear placeholder', 'Work management', 'Enterprise', true, [
+    'Catalogue metadata only.',
+    'No Linear implementation ships in the public repo.',
+  ]),
+  connectorCatalogueEntry('confluence', 'Confluence placeholder', 'Knowledge', 'Enterprise', true, [
+    'Catalogue metadata only.',
+    'No Confluence implementation ships in the public repo.',
+  ]),
+  connectorCatalogueEntry('notion', 'Notion placeholder', 'Knowledge', 'Enterprise', true, [
+    'Catalogue metadata only.',
+    'No Notion implementation ships in the public repo.',
+  ]),
+  connectorCatalogueEntry('sharepoint', 'SharePoint placeholder', 'Knowledge', 'Enterprise', true, [
+    'Catalogue metadata only.',
+    'No SharePoint implementation ships in the public repo.',
+  ]),
+  connectorCatalogueEntry('google-drive', 'Google Drive placeholder', 'Knowledge', 'Enterprise', true, [
+    'Catalogue metadata only.',
+    'No Google Drive implementation ships in the public repo.',
+  ]),
 ]
 
 export async function mockLogin(input: LoginRequest) {

@@ -86,7 +86,7 @@ export function IntegrationsPage() {
               [Database, 'SQL and warehouse data', 'Use views, roll-ups, and subject-level rows from operational databases and analytics stores.'],
               [Cable, 'REST and internal APIs', 'Fetch account, customer, usage, billing, support, or product payloads from services the business already runs.'],
               [FileSpreadsheet, 'CSV and spreadsheet stages', 'Support early onboarding and data discovery without pretending the first integration is production-grade.'],
-              [PlugZap, 'Connector marketplace skeleton', 'Show Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, and NetSuite as placeholders only.'],
+              [PlugZap, 'Connector marketplace skeleton', 'Show CRM, warehouse, support, ERP, email, chat, calendar, analytics, issue, project, and knowledge-system connectors as paid/private placeholders only.'],
               [Webhook, 'Source-system events', 'Accept lifecycle, usage, billing, support, marketing, and deletion events through a neutral event contract.'],
               [ShieldCheck, 'Credentials and health', 'Credential and health abstractions keep real connector secrets out of the public demo implementation.'],
             ].map(([Icon, title, body]) => (

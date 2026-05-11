@@ -198,7 +198,7 @@ export const faqEntries = [
   {
     question: 'What would be paid later?',
     answer:
-      'Paid/private offerings cover real enterprise connectors, SSO/SAML, SCIM, vault integrations, advanced governance, compliance exports, deployment packs, SLA tooling, hosted account management, billing, commercial licence portals, download portals, update channels, support portals, aggregate usage reporting, cloud operations, and implementation services. The public repo remains a credible open source core rather than a crippled teaser.',
+      'Paid/private offerings cover real enterprise connectors across CRM, warehouse, email, chat, calendar, analytics, work management, and knowledge systems, plus SSO/SAML, SCIM, vault integrations, advanced governance, compliance exports, deployment packs, SLA tooling, hosted account management, billing, commercial licence portals, download portals, update channels, support portals, aggregate usage reporting, cloud operations, and implementation services. The public repo remains a credible open source core rather than a crippled teaser.',
   },
   {
     question: 'Where would paid code live?',

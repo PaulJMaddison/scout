@@ -156,38 +156,38 @@ export function DemoModePage() {
       <section className="grid gap-4 2xl:grid-cols-[1.15fr_0.85fr]">
         <Panel
           eyebrow="Commercial model"
-          title="Paid enterprise options on top of the open-source core"
+          title="Paid pilot options on top of the open-source core"
         >
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             <Card className="bg-ivory-25">
-              <p className="text-xs uppercase tracking-[0.18em] text-copper-700">Managed SaaS</p>
-              <p className="mt-3 font-semibold text-ink-950">Fastest path to a live production context layer</p>
+              <p className="text-xs uppercase tracking-[0.18em] text-copper-700">Discovery workshop</p>
+              <p className="mt-3 font-semibold text-ink-950">Pick the first workflow and success criteria</p>
               <p className="mt-2 text-sm leading-7 text-ink-700">
-                Hosted Universal Context Layer with managed upgrades, monitoring, backups, and a commercial support path for teams that want speed without owning infrastructure.
+                Map source systems, governance constraints, downstream consumers, and the first customer data-plane shape before implementation starts.
               </p>
             </Card>
 
             <Card className="bg-ivory-25">
-              <p className="text-xs uppercase tracking-[0.18em] text-copper-700">Private cloud / single tenant</p>
-              <p className="mt-3 font-semibold text-ink-950">Enterprise deployment with stronger isolation</p>
+              <p className="text-xs uppercase tracking-[0.18em] text-copper-700">Starter paid pilot</p>
+              <p className="mt-3 font-semibold text-ink-950">Prove one valuable context consumer</p>
               <p className="mt-2 text-sm leading-7 text-ink-700">
-                Single-tenant deployment in a customer-controlled cloud or VPC with regional hosting, SSO, SCIM, RBAC hardening, audit retention, and governance controls.
+                Use open core plus supported implementation to connect selected sources or safe exports, build selectors, and expose governed context.
               </p>
             </Card>
 
             <Card className="bg-ivory-25">
-              <p className="text-xs uppercase tracking-[0.18em] text-copper-700">On-prem / hybrid</p>
-              <p className="mt-3 font-semibold text-ink-950">Designed for legacy estates that cannot move quickly</p>
+              <p className="text-xs uppercase tracking-[0.18em] text-copper-700">Production pilot</p>
+              <p className="mt-3 font-semibold text-ink-950">Harden the customer-owned data plane</p>
               <p className="mt-2 text-sm leading-7 text-ink-700">
-                Deploy close to regulated or hard-to-move operational systems while keeping the semantic layer and downstream consumers under enterprise security and network constraints.
+                Add PostgreSQL, production secrets, audit, masking, backup and restore testing, API scopes, and handover around the first workflow.
               </p>
             </Card>
 
             <Card className="bg-ivory-25">
               <p className="text-xs uppercase tracking-[0.18em] text-copper-700">Connector accelerator</p>
-              <p className="mt-3 font-semibold text-ink-950">Custom integration and selector delivery</p>
+              <p className="mt-3 font-semibold text-ink-950">Commercially scoped private connector delivery</p>
               <p className="mt-2 text-sm leading-7 text-ink-700">
-                Paid build-out for bespoke CRM, warehouse, support, billing, or product telemetry connectors plus the first production-ready selector packs and semantic mappings.
+                Paid build-out for private connector modules and selector packs where generic SQL, REST, CSV, or exports are not enough.
               </p>
             </Card>
 
@@ -200,10 +200,10 @@ export function DemoModePage() {
             </Card>
 
             <Card className="bg-ivory-25">
-              <p className="text-xs uppercase tracking-[0.18em] text-copper-700">Support and SLA</p>
-              <p className="mt-3 font-semibold text-ink-950">Commercial support for production teams</p>
+              <p className="text-xs uppercase tracking-[0.18em] text-copper-700">Future control plane</p>
+              <p className="mt-3 font-semibold text-ink-950">Not complete self-serve SaaS yet</p>
               <p className="mt-2 text-sm leading-7 text-ink-700">
-                Named support, onboarding, release guidance, troubleshooting help, operating reviews, and enterprise response expectations for business-critical deployments.
+                Hosted account management, live billing, licence portal, support portal, and update-channel automation are future/private cloud work.
               </p>
             </Card>
           </div>
@@ -212,7 +212,7 @@ export function DemoModePage() {
         <Panel eyebrow="Commercial contact" title="Talk to Paul about pilots, deployment, or licensing support">
           <Card className="bg-[linear-gradient(180deg,rgba(255,248,240,0.96),rgba(252,246,239,0.96))]">
             <p className="text-sm leading-7 text-ink-700">
-              The MIT-licensed core stays open source. Paid engagement is available for teams that want a hosted deployment, enterprise rollout help, connector work, or a commercially supported implementation.
+              The MIT-licensed core stays open source. Paid engagement is available now for discovery workshops, starter pilots, production pilots, private connector scoping, and commercially supported implementation.
             </p>
             <div className="mt-5 grid gap-3">
               <div className="rounded-[20px] border border-ink-900/8 bg-white/70 px-4 py-4">

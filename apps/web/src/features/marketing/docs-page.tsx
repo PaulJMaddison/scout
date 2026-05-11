@@ -30,7 +30,7 @@ export function DocsPage() {
         {[
           [TerminalSquare, 'Run locally', 'Use the setup scripts to start the SQLite demo with fictional tenant, customer, selector, and context data.'],
           [GitBranch, 'Understand open core', 'Read the open-core boundary, enterprise extension points, and connector marketplace docs.'],
-          [ShieldCheck, 'Review SaaS readiness', 'Inspect tenant, workspace, API client, onboarding, billing, event ingestion, audit, and usage architecture.'],
+          [ShieldCheck, 'Plan a paid pilot', 'Review the paid pilot offer, production install checklist, and anonymised ERP platform pattern before customer onboarding.'],
         ].map(([Icon, title, body]) => (
           <Card key={title as string} className="bg-ivory-25">
             <Icon className="size-5 text-copper-700" />
@@ -77,6 +77,9 @@ export function DocsPage() {
               ['docs/billing-metering.md', 'Plan catalogue, usage recording, limit enforcement, and future payment-provider integration.'],
               ['docs/webhook-events.md', 'Provider-neutral event contract, signatures, idempotency, recompute triggers, and dead letters.'],
               ['docs/connector-marketplace.md', 'Connector catalogue, availability labels, safe mock connectors, and enterprise placeholders.'],
+              ['docs/paid-pilot.md', 'Paid pilot buyer profile, scope, packages, success criteria, and implementation-led commercial path.'],
+              ['docs/production-install-checklist.md', 'Production mode, PostgreSQL, secrets, demo fallback, backups, audit, observability, and support boundaries.'],
+              ['docs/anonymised-erp-platform-pattern.md', 'Anonymised ERP platform implementation pattern showing why semantic context beats raw records.'],
               ['docs/ucl-blueprint.schema.json', 'Blueprint JSON schema for AI-assisted bootstrap imports.'],
             ].map(([title, body]) => (
               <Card key={title} className="bg-ivory-25 shadow-none">
