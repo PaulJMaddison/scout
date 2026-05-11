@@ -38,11 +38,11 @@ export function StoryAiWorkflowPage() {
               </div>
             </Card>
 
-            <div className="grid gap-3 md:grid-cols-3">
+            <div className="grid gap-3 2xl:grid-cols-3">
               <Card className="bg-ivory-25">
                 <div className="flex items-start gap-3">
-                  <Bot className="mt-1 size-5 text-copper-700" />
-                  <div>
+                  <Bot className="mt-1 size-5 shrink-0 text-copper-700" />
+                  <div className="min-w-0">
                     <p className="font-semibold text-ink-950">Advice</p>
                     <p className="mt-2 text-sm leading-7 text-ink-700">
                       The model recommends a channel, message, and next action using grounded facts rather than guesswork.
@@ -52,8 +52,8 @@ export function StoryAiWorkflowPage() {
               </Card>
               <Card className="bg-ivory-25">
                 <div className="flex items-start gap-3">
-                  <MessageCircleReply className="mt-1 size-5 text-sage-700" />
-                  <div>
+                  <MessageCircleReply className="mt-1 size-5 shrink-0 text-sage-700" />
+                  <div className="min-w-0">
                     <p className="font-semibold text-ink-950">Action</p>
                     <p className="mt-2 text-sm leading-7 text-ink-700">
                       The rep or workflow receives a usable recommendation that already includes the business rationale.
@@ -63,8 +63,8 @@ export function StoryAiWorkflowPage() {
               </Card>
               <Card className="bg-ivory-25">
                 <div className="flex items-start gap-3">
-                  <Target className="mt-1 size-5 text-gold-700" />
-                  <div>
+                  <Target className="mt-1 size-5 shrink-0 text-gold-700" />
+                  <div className="min-w-0">
                     <p className="font-semibold text-ink-950">Result</p>
                     <p className="mt-2 text-sm leading-7 text-ink-700">
                       The product can prioritise the account, guide the next interaction, and explain exactly which context drove the recommendation.
