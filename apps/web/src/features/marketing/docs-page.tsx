@@ -56,7 +56,7 @@ export function DocsPage() {
               },
               {
                 label: 'Third',
-                title: 'Read the integration and SaaS docs',
+                title: 'Read integration and control-plane docs',
                 body: 'Review REST, GraphQL, source events, API clients, onboarding, billing metering, and connector extension points.',
               },
               {

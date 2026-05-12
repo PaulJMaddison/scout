@@ -6,6 +6,27 @@ The format is inspired by Keep a Changelog and this project follows semantic ver
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-05-12
+
+### Added
+
+- Added first-class webhook signing secrets with create, list, rotate, and revoke REST endpoints, hashed storage, workspace scoping, timestamp checks, replay checks, and audit events.
+- Added a public-safe governance hook seam so private enterprise policy packages can mask or suppress returned context without placing paid implementation code in the public repository.
+- Added a canonical API scope contract document and pilot readiness scripts for local paid-pilot checks without GitHub Actions.
+- Added a paid pilot readiness runbook covering PostgreSQL smoke checks, backup/restore rehearsal, support bundle dry runs, upgrade/rollback rehearsal, and customer handover.
+
+### Changed
+
+- Formalised `context:write` as an official scope and aligned public docs, SDK examples, and REST behaviour around the canonical scope set.
+- Reworded public copy towards paid pilot, customer data plane, self-hosted context infrastructure, and future/private cloud control-plane language.
+- Kept legacy API-key webhook HMAC compatibility, but marked dedicated webhook signing secrets as the recommended production model.
+
+### Security
+
+- Kept the public repository limited to open-core code, public interfaces, no-op/default implementations, placeholders, docs, scripts, and examples with fictional data.
+- Reconfirmed that paid enterprise connector implementations, private governance policy implementation, and hosted cloud/control-plane implementation remain outside the public repository.
+- Extended local artefact ignore coverage for runtime data, logs, generated licences, keys, certificates, and support bundles.
+
 ## [2.2.0] - 2026-05-12
 
 ### Added

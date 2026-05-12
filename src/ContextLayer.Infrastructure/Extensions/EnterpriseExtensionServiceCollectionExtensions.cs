@@ -46,6 +46,14 @@ public static class EnterpriseExtensionServiceCollectionExtensions
         return services;
     }
 
+    public static IServiceCollection AddContextGovernanceHook<T>(
+        this IServiceCollection services)
+        where T : class, IContextGovernanceHook
+    {
+        services.AddScoped<IContextGovernanceHook, T>();
+        return services;
+    }
+
     public static IServiceCollection AddPiiMaskingProvider<T>(
         this IServiceCollection services)
         where T : class, IPiiMaskingProvider
@@ -109,6 +117,7 @@ public static class EnterpriseExtensionServiceCollectionExtensions
         services.TryAddEnumerable(ServiceDescriptor.Scoped<ICredentialProvider, NullCredentialProvider>());
         services.TryAddEnumerable(ServiceDescriptor.Scoped<ISecretResolver, DevelopmentSecretResolver>());
         services.TryAddEnumerable(ServiceDescriptor.Scoped<IPolicyEvaluator, DenyByDefaultPolicyEvaluator>());
+        services.TryAddEnumerable(ServiceDescriptor.Scoped<IContextGovernanceHook, NoopContextGovernanceHook>());
         services.TryAddEnumerable(ServiceDescriptor.Scoped<IPiiMaskingProvider, DefaultPiiMaskingProvider>());
         services.TryAddEnumerable(ServiceDescriptor.Scoped<IAuditExporter, NoOpAuditExporter>());
         services.TryAddEnumerable(ServiceDescriptor.Scoped<IContextPackageExporter, JsonContextPackageExporter>());

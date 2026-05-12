@@ -208,7 +208,7 @@ export const faqEntries = [
   {
     question: 'Would there be one website or two?',
     answer:
-      'For now, one polished site is the better choice. The current React site can explain the open source core, the backend integration layer, the managed SaaS vision, the demo/admin console, and the future enterprise boundary in one coherent experience. A split into separate marketing and hosted-app sites only becomes necessary later if the SaaS offering grows significantly.',
+      'For now, one polished site is the better choice. The current React site can explain the open source core, the backend integration layer, the future private cloud/control-plane direction, the demo/admin console, and the future enterprise boundary in one coherent experience. A split into separate marketing and hosted-app sites only becomes necessary later if a managed control-plane offering grows significantly.',
   },
   {
     question: 'How would an external system call UCL?',

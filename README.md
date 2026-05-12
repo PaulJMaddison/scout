@@ -2,7 +2,7 @@
 
 Universal Context Layer turns existing business data into trusted semantic context that customer-owned AI tools, workflows, apps, and reports can use.
 
-Release: `2.2.0`
+Release: `2.3.0`
 License: [MIT](LICENSE)
 Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
 Security: [SECURITY.md](SECURITY.md)
@@ -57,7 +57,7 @@ UCL is sellable today as a supported paid pilot and hybrid self-hosted context i
 - a vendor-certified connector suite
 - a replacement for the customer's AI stack
 
-The open-source core is useful on its own, and paid implementation support can make the first customer onboarding practical. Fully managed SaaS operations remain future/private cloud-control-plane work.
+The open-source core is useful on its own, and paid implementation support can make the first customer onboarding practical. Fully managed control-plane operations remain future/private cloud work.
 
 ## Production Readiness
 
@@ -177,10 +177,10 @@ These screenshots are captured from the current repo UI running locally in the d
   Dual-database architecture with operational source data separated from semantic context data
 - Context consumers
   GraphQL and REST APIs, TypeScript and .NET SDKs, governed context packages, confidence handling, provenance, masking, audit logging, and SaaS metadata for future delivery channels such as webhooks
-- SaaS/control-plane foundations
+- Future/private cloud control-plane foundations
   Tenant/workspace metadata, persisted API clients, plan and subscription metadata, connector installation records, context package metadata, billing usage records, onboarding state, feature flags, and PostgreSQL migrations. Hosted account management, live billing, commercial licence portals, download portals, update channels, support portals, and cloud operations live in paid/private cloud implementation work, not in this public repo.
 
-The SaaS/control-plane foundations are documented in [docs/saas-architecture.md](docs/saas-architecture.md), the connector catalogue skeleton is documented in [docs/connector-marketplace.md](docs/connector-marketplace.md), and billing/metering foundations are documented in [docs/billing-metering.md](docs/billing-metering.md). This public product repo keeps the core, demo, SDKs, REST and GraphQL APIs, and generic extension points working, but does not include paid enterprise connector implementations, payment provider integrations, hosted billing/control-plane code, or customer-specific integration code. Paid/private connector placeholders include CRM, warehouse, support, ERP, email, chat, calendar, product analytics, issue/project, and knowledge-system families; the public repo contains catalogue metadata and docs only for those vendors.
+Future/private cloud control-plane foundations are documented in [docs/saas-architecture.md](docs/saas-architecture.md), the connector catalogue skeleton is documented in [docs/connector-marketplace.md](docs/connector-marketplace.md), and billing/metering foundations are documented in [docs/billing-metering.md](docs/billing-metering.md). This public product repo keeps the customer data plane, demo, SDKs, REST and GraphQL APIs, and generic extension points working, but does not include paid enterprise connector implementations, payment provider integrations, hosted billing/control-plane code, or customer-specific integration code. Paid/private connector placeholders include CRM, warehouse, support, ERP, email, chat, calendar, product analytics, issue/project, and knowledge-system families; the public repo contains catalogue metadata and docs only for those vendors.
 
 ## Control Plane And Customer Data Plane
 
@@ -436,7 +436,7 @@ Public routes:
 - `/open-core`
   Explains the public repo boundary, future enterprise repo boundary, and why the open source core remains useful on its own.
 - `/commercial`
-  Explains managed SaaS, private cloud, commercial support, and implementation options without pretending paid code lives in this repo.
+  Explains future managed control-plane, private cloud, commercial support, and implementation options without pretending paid code lives in this repo.
 - `/onboarding`
   Runs the local demo/private setup flow for a new company. It collects organisation details, tenant slug, primary workspace, first admin, current source systems, data categories, desired AI use cases, PII sensitivity, and deployment preference, then provisions a safe starter workspace.
 - `/faq`
@@ -720,7 +720,7 @@ curl -X POST "http://127.0.0.1:5198/api/v1/api-clients" \
 
 The response shows `apiKey` once. Store it in your secret manager; UCL only stores its hash.
 
-API clients use first-class scopes: `context:read`, `context:write`, `selectors:read`, `selectors:write`, `events:ingest`, `audit:read`, `admin:manage`, `blueprints:write`, and `billing:read`. Older dot-form scopes are accepted as aliases for compatibility, but new integrations should use the colon names.
+API clients use the canonical scope contract documented in [docs/api-scopes.md](docs/api-scopes.md): `context:read`, `context:write`, `selectors:read`, `selectors:write`, `events:ingest`, `audit:read`, `admin:manage`, `blueprints:write`, and `billing:read`. `context:write` is official, not an accidental extra scope. Older dot-form scopes are accepted as aliases for compatibility, but new integrations should use only the colon names they need.
 
 Call REST v1 with API-key authentication:
 
@@ -793,7 +793,7 @@ The first production-like deployment shape for this private product foundation i
 
 Use [render.yaml](render.yaml) for a Render Blueprint or follow [docs/hosted-deployment.md](docs/hosted-deployment.md) for manual deployment, environment variables, health checks, migration commands, seed rules, logging, OpenTelemetry, CORS, JWT settings, rate limits, backup, and restore.
 
-This is not the full future managed SaaS control plane. It is the backend running in a hosted environment with PostgreSQL, secure configuration, and customer-owned data-plane responsibilities preserved.
+This is not the full future managed control plane. It is the backend running in a hosted environment with PostgreSQL, secure configuration, and customer-owned data-plane responsibilities preserved.
 
 Hosted production should set:
 
@@ -939,7 +939,7 @@ The code in this public repository is the open source core and is free to use un
 
 The aim is not to publish a crippled teaser. The open source core is designed to remain a real, working foundation of the product: teams should be able to understand the architecture, run it locally, explore the APIs and SDKs, test integration patterns, and build context consumers on top of it without needing paid features first.
 
-Alongside the open source core, paid offerings may be available for organisations that want faster deployment, deeper integration, or additional operational assurances. These offerings may include managed SaaS, private cloud deployment, on premise deployment, enterprise connectors, SSO, advanced governance features, compliance reporting, billing, SLAs, and implementation or integration support.
+Alongside the open source core, paid offerings may be available for organisations that want faster deployment, deeper integration, or additional operational assurances. These offerings may include implementation-led paid pilots, private cloud deployment, on premise deployment, private enterprise connectors, SSO, advanced governance features, compliance reporting, SLAs, and future/private cloud control-plane support.
 
 The public repository does not include paid enterprise connector implementations, hosted SaaS control-plane implementation, billing-provider integration, customer-specific mappings, or private deployment packs. Where the open source core exposes extension points for connectors, authentication, governance, or deployment, those interfaces are intended to allow commercial modules to plug in later without changing the public core.
 
@@ -953,14 +953,14 @@ For the boundary and extension model, see [docs/open-core-boundary.md](docs/open
   The default public repo mode. It supports local demos, self-hosting, GraphQL, REST, SDK scaffolds, generic connectors, mock connectors, blueprint import, audit, provenance, and admin-console exploration without a paid licence.
 - `Paid self-hosted mode`
   A future commercial mode where a customer installs a local licence file and may receive private modules through a private package feed or container registry. The public repo includes the local licence status seam, but not commercial licence signing or paid modules.
-- `Future managed SaaS mode`
+- `Future/private cloud control-plane mode`
   A future hosted control-plane model for accounts, licences, downloads, documentation, support access, update channels, and optional aggregate usage reporting. Raw operational data and connector credentials should still stay in the customer data plane unless the customer explicitly chooses a managed data-plane deployment.
 
 ## Paid Enterprise Options
 
 The core product in this repository is MIT-licensed and open source. Paid enterprise options are intended for teams that want commercial support, managed deployment, or faster rollout into production environments.
 
-- `Future managed SaaS`
+- `Future/private cloud control plane`
   A future managed option for teams that want account management, updates, support, and operational help without owning every platform concern. The public repo does not include this hosted control-plane implementation.
 - `Private cloud / single-tenant deployment`
   Enterprise deployment in a customer-controlled cloud or VPC with stronger isolation, regional hosting choices, identity integration, and governance controls.

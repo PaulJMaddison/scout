@@ -292,6 +292,78 @@ public sealed class V1RestApiIntegrationTests
     }
 
     [Fact]
+    public async Task WebhookSigningSecrets_ValidateRotateRevokeReplayAndAudit()
+    {
+        await using var factory = new V1RestWebApplicationFactory();
+        await SeedAsync(factory.Services);
+        using var client = factory.CreateClient();
+
+        AuthenticateAsTenantAdmin(client);
+        var createdClientResponse = await client.PostAsJsonAsync("/api/v1/api-clients", new V1CreateApiClientRequest(
+            "Webhook event client",
+            "primary",
+            ["events:ingest"]));
+        var createdClient = JsonNode.Parse(await createdClientResponse.Content.ReadAsStringAsync())!.AsObject();
+        var clientId = createdClient["clientId"]!.GetValue<string>();
+        var apiKey = createdClient["apiKey"]!.GetValue<string>();
+
+        var createdSecretResponse = await client.PostAsJsonAsync("/api/v1/webhook-signing-secrets", new V1CreateWebhookSigningSecretRequest("Primary webhook secret", "primary"));
+        Assert.Equal(HttpStatusCode.Created, createdSecretResponse.StatusCode);
+        var createdSecret = JsonNode.Parse(await createdSecretResponse.Content.ReadAsStringAsync())!.AsObject();
+        var secretId = createdSecret["secretId"]!.GetValue<string>();
+        var secret = createdSecret["secret"]!.GetValue<string>();
+
+        client.DefaultRequestHeaders.Authorization = null;
+        client.DefaultRequestHeaders.Add("X-API-Client-Id", clientId);
+        client.DefaultRequestHeaders.Add("X-API-Key", apiKey);
+        var firstPayload = new V1SourceSystemEventRequest("evt-webhook-secret-001", "primary", "warehouse", "account.updated", new { health = "green" }, null, "user-123", "acct-123", DateTime.UtcNow);
+        var first = await SignedWebhookSecretPostAsJsonAsync(client, "/api/v1/events/source-system", secretId, secret, firstPayload);
+        var replay = await SignedWebhookSecretPostAsJsonAsync(client, "/api/v1/events/source-system", secretId, secret, firstPayload);
+        var badSignature = await SignedWebhookSecretPostAsJsonAsync(client, "/api/v1/events/source-system", secretId, "wrong-secret", firstPayload with { EventId = "evt-webhook-secret-bad" });
+        var expired = await SignedWebhookSecretPostAsJsonAsync(client, "/api/v1/events/source-system", secretId, secret, firstPayload with { EventId = "evt-webhook-secret-expired" }, DateTimeOffset.UtcNow.AddMinutes(-20));
+        var crossWorkspace = await SignedWebhookSecretPostAsJsonAsync(client, "/api/v1/events/source-system", secretId, secret, firstPayload with { EventId = "evt-webhook-secret-cross", WorkspaceSlug = "other" });
+
+        Assert.Equal(HttpStatusCode.Accepted, first.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, replay.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, badSignature.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, expired.StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, crossWorkspace.StatusCode);
+
+        AuthenticateAsTenantAdmin(client);
+        var rotateResponse = await client.PostAsync($"/api/v1/webhook-signing-secrets/{secretId}/rotate", null);
+        Assert.Equal(HttpStatusCode.OK, rotateResponse.StatusCode);
+        var rotated = JsonNode.Parse(await rotateResponse.Content.ReadAsStringAsync())!.AsObject();
+        var rotatedSecret = rotated["secret"]!.GetValue<string>();
+
+        client.DefaultRequestHeaders.Authorization = null;
+        client.DefaultRequestHeaders.Add("X-API-Client-Id", clientId);
+        client.DefaultRequestHeaders.Add("X-API-Key", apiKey);
+        var oldSecretAfterRotation = await SignedWebhookSecretPostAsJsonAsync(client, "/api/v1/events/source-system", secretId, secret, firstPayload with { EventId = "evt-webhook-secret-old" });
+        var rotatedSecretWorks = await SignedWebhookSecretPostAsJsonAsync(client, "/api/v1/events/source-system", secretId, rotatedSecret, firstPayload with { EventId = "evt-webhook-secret-rotated" });
+
+        Assert.Equal(HttpStatusCode.Unauthorized, oldSecretAfterRotation.StatusCode);
+        Assert.Equal(HttpStatusCode.Accepted, rotatedSecretWorks.StatusCode);
+
+        AuthenticateAsTenantAdmin(client);
+        var revokeResponse = await client.DeleteAsync($"/api/v1/webhook-signing-secrets/{secretId}");
+        Assert.Equal(HttpStatusCode.NoContent, revokeResponse.StatusCode);
+
+        client.DefaultRequestHeaders.Authorization = null;
+        client.DefaultRequestHeaders.Add("X-API-Client-Id", clientId);
+        client.DefaultRequestHeaders.Add("X-API-Key", apiKey);
+        var revoked = await SignedWebhookSecretPostAsJsonAsync(client, "/api/v1/events/source-system", secretId, rotatedSecret, firstPayload with { EventId = "evt-webhook-secret-revoked" });
+
+        Assert.Equal(HttpStatusCode.Unauthorized, revoked.StatusCode);
+
+        await using var scope = factory.Services.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ContextLayerDbContext>();
+        Assert.True(await dbContext.WebhookSigningSecrets.AnyAsync(x => x.SecretId == secretId && x.SecretHash != secret && x.Status == WebhookSigningSecretStatus.Revoked));
+        Assert.True(await dbContext.AuditEvents.AnyAsync(x => x.Action == "webhook.signature.accepted"));
+        Assert.True(await dbContext.AuditEvents.AnyAsync(x => x.Action == "webhook.signature.rejected"));
+        Assert.True(await dbContext.AuditEvents.AnyAsync(x => x.Action == "webhook.secret.denied"));
+    }
+
+    [Fact]
     public async Task ApiClientScopes_DenyWriteEndpoint_WhenClientOnlyHasReadScope()
     {
         await using var factory = new V1RestWebApplicationFactory();
@@ -496,6 +568,30 @@ public sealed class V1RestApiIntegrationTests
             Content = new StringContent(body, Encoding.UTF8, "application/json")
         };
         request.Headers.Add("X-UCL-Webhook-Timestamp", timestamp);
+        request.Headers.Add("X-UCL-Webhook-Signature", signature);
+        return client.SendAsync(request);
+    }
+
+    private static Task<HttpResponseMessage> SignedWebhookSecretPostAsJsonAsync(
+        HttpClient client,
+        string url,
+        string secretId,
+        string secret,
+        V1SourceSystemEventRequest payload,
+        DateTimeOffset? timestamp = null)
+    {
+        var body = JsonSerializer.Serialize(payload, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        var resolvedTimestamp = (timestamp ?? DateTimeOffset.UtcNow).ToString("O");
+        var eventId = payload.EventId ?? Guid.NewGuid().ToString("N");
+        using var hmac = new System.Security.Cryptography.HMACSHA256(Encoding.UTF8.GetBytes(secret));
+        var signature = "sha256=" + Convert.ToHexString(hmac.ComputeHash(Encoding.UTF8.GetBytes($"{resolvedTimestamp}.{eventId}.{body}"))).ToLowerInvariant();
+        var request = new HttpRequestMessage(HttpMethod.Post, url)
+        {
+            Content = new StringContent(body, Encoding.UTF8, "application/json")
+        };
+        request.Headers.Add("X-UCL-Webhook-Secret-Id", secretId);
+        request.Headers.Add("X-UCL-Webhook-Secret", secret);
+        request.Headers.Add("X-UCL-Webhook-Timestamp", resolvedTimestamp);
         request.Headers.Add("X-UCL-Webhook-Signature", signature);
         return client.SendAsync(request);
     }

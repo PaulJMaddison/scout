@@ -40,7 +40,7 @@ export function PlatformPage() {
             <div className="flex flex-wrap gap-2">
               <Badge tone="accent">Open source core</Badge>
               <Badge tone="neutral">Backend integration layer</Badge>
-              <Badge tone="success">Future managed SaaS and enterprise options</Badge>
+              <Badge tone="success">Future private cloud and enterprise options</Badge>
             </div>
             <div>
               <p className="text-xs uppercase tracking-[0.22em] text-copper-300">What it does</p>

@@ -46,6 +46,10 @@ public sealed record V1CreateApiClientRequest(
     string? WorkspaceSlug,
     IReadOnlyList<string> Scopes);
 
+public sealed record V1CreateWebhookSigningSecretRequest(
+    string DisplayName,
+    string? WorkspaceSlug);
+
 public sealed record V1UpdateOperatorAccountRequest(
     string? TenantSlug,
     string DisplayName,

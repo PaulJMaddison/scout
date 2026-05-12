@@ -92,3 +92,37 @@ public sealed record SourceSystemEventHistoryResult(
     DateTime? ProcessedAtUtc,
     DateTime? DeadLetteredAtUtc,
     string PayloadJson);
+
+public sealed record WebhookSigningSecretCreatedResult(
+    Guid Id,
+    Guid TenantId,
+    Guid? WorkspaceId,
+    string SecretId,
+    string DisplayName,
+    string Secret,
+    string Status,
+    DateTime CreatedAtUtc);
+
+public sealed record WebhookSigningSecretRotatedResult(
+    Guid Id,
+    string SecretId,
+    string Secret,
+    DateTime RotatedAtUtc);
+
+public sealed record WebhookSigningSecretSummaryResult(
+    Guid Id,
+    Guid TenantId,
+    Guid? WorkspaceId,
+    string SecretId,
+    string DisplayName,
+    string Status,
+    DateTime? LastUsedAtUtc,
+    DateTime? RotatedAtUtc,
+    DateTime? RevokedAtUtc);
+
+public sealed record WebhookSignatureValidationResult(
+    bool Accepted,
+    string Reason,
+    Guid? TenantId = null,
+    Guid? WorkspaceId = null,
+    string? SecretId = null);

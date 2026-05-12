@@ -35,7 +35,7 @@ const plans = [
     bestFor: 'Larger or regulated estates',
   },
   {
-    name: 'Future managed SaaS/control plane',
+    name: 'Future private cloud/control plane',
     label: 'Future/private work',
     body: 'Hosted account management, billing, licences, downloads, support access, update channels, entitlement metadata, and optional aggregate usage.',
     bestFor: 'Customers that later want managed commercial operations',
@@ -48,7 +48,7 @@ export function PricingPage() {
       <PageHeader
         eyebrow="Pricing and deployment"
         title="This page explains what you can use now, what you can buy as a paid pilot, and what remains future control-plane work."
-        description="There is no live card payment, self-service subscription, or complete managed SaaS operation in the public repository. The commercial path today is open core plus supported paid pilot, with private enterprise modules and future cloud/control-plane work scoped separately."
+        description="There is no live card payment, self-service subscription, or complete managed control-plane operation in the public repository. The commercial path today is open core plus supported paid pilot, with private enterprise modules and future cloud/control-plane work scoped separately."
         actions={
           <>
             <Link to="/docs">
@@ -100,7 +100,7 @@ export function PricingPage() {
           {[
             [GitBranch, 'Open source core', 'Run locally with SQLite and fictional seed data. Useful for evaluation and learning.'],
             [ServerCog, 'Self-hosted backend', 'Deploy the API and workers with PostgreSQL while retaining your own operations model.'],
-            [CloudCog, 'Managed SaaS', 'Use a hosted control plane when speed and managed operations matter more than owning runtime.'],
+            [CloudCog, 'Future control plane', 'Use a hosted control plane when speed and managed operations matter more than owning runtime.'],
             [LockKeyhole, 'Private cloud', 'Use stronger tenant isolation, regional deployment, and enterprise governance controls.'],
             [Building2, 'Integration layer', 'Embed UCL behind a product or internal platform as the semantic contract over source systems.'],
           ].map(([Icon, title, body]) => (

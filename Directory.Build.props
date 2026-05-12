@@ -9,10 +9,10 @@
     <InvariantGlobalization>true</InvariantGlobalization>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
-    <Version>2.2.0</Version>
-    <AssemblyVersion>2.2.0.0</AssemblyVersion>
-    <FileVersion>2.2.0.0</FileVersion>
-    <InformationalVersion>2.2.0</InformationalVersion>
+    <Version>2.3.0</Version>
+    <AssemblyVersion>2.3.0.0</AssemblyVersion>
+    <FileVersion>2.3.0.0</FileVersion>
+    <InformationalVersion>2.3.0</InformationalVersion>
     <Product>Context Layer</Product>
     <Authors>Paul Maddison and contributors</Authors>
     <Company>Universal Context Layer</Company>
@@ -22,6 +22,6 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/PaulJMaddison/universalcontextlayer</PackageProjectUrl>
     <PackageTags>context-infrastructure;graphql;rest;dotnet;react;semantic-layer;context-engineering;open-core</PackageTags>
-    <PackageReleaseNotes>2.2.0 public open-core release with expanded paid/private enterprise connector placeholders, hardened REST and GraphQL scope checks, webhook documentation, and clearer metadata-only connector safety positioning.</PackageReleaseNotes>
+    <PackageReleaseNotes>2.3.0 public open-core release with paid-pilot readiness scripts, separate webhook signing secrets, replay protection, public governance seams, formal API scope contracts, and clearer customer data-plane positioning.</PackageReleaseNotes>
   </PropertyGroup>
 </Project>

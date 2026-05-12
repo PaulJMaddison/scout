@@ -212,7 +212,7 @@ export function AppShell() {
                 <>
                   <Badge tone="accent">Open source core</Badge>
                   <Badge tone="neutral">Backend integration layer</Badge>
-                  <Badge tone="success">Future SaaS and enterprise options</Badge>
+                  <Badge tone="success">Future private cloud and enterprise options</Badge>
                 </>
               ) : (
                 <>

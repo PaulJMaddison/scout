@@ -142,6 +142,30 @@ public sealed record PolicyEvaluationResult(
     JsonArray Warnings,
     IReadOnlyList<ExtensionError> Errors);
 
+public sealed record ContextGovernanceFact(
+    string Key,
+    JsonNode? Value,
+    string Classification,
+    JsonObject Provenance);
+
+public sealed record ContextGovernanceRequest(
+    TenantContext Tenant,
+    EnterpriseActorContext Actor,
+    string Purpose,
+    IReadOnlyList<ContextGovernanceFact> Facts,
+    JsonObject? Metadata = null);
+
+public sealed record ContextGovernanceDecision(
+    string FactKey,
+    bool Visible,
+    bool Masked,
+    JsonNode? Value,
+    string Reason);
+
+public sealed record ContextGovernanceResult(
+    IReadOnlyList<ContextGovernanceDecision> Decisions,
+    IReadOnlyList<ExtensionError> Errors);
+
 public sealed record PiiFieldValue(
     string FieldName,
     string? Value,

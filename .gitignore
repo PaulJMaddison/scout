@@ -7,6 +7,7 @@ obj/
 .env
 .env.local
 .env.*.local
+.local/
 .dotnet/
 .node/
 .dotnet-install.ps1
@@ -26,8 +27,19 @@ enterprise-drop/
 private-packages/
 *.lic
 *.licence.json
+*.db
+*.sqlite
+*.sqlite3
+*.log
+*.pem
+*.key
+*.crt
+*.cer
 *.pfx
+*.p12
 *.snk
+support-bundles/
+support-bundle-*/
 npm-debug.log*
 yarn-error.log*
 pnpm-debug.log*

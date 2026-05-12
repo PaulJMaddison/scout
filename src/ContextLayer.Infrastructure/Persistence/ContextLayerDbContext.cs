@@ -54,6 +54,8 @@ public sealed class ContextLayerDbContext(DbContextOptions<ContextLayerDbContext
 
     public DbSet<ApiClient> ApiClients => Set<ApiClient>();
 
+    public DbSet<WebhookSigningSecret> WebhookSigningSecrets => Set<WebhookSigningSecret>();
+
     public DbSet<ConnectorInstallation> ConnectorInstallations => Set<ConnectorInstallation>();
 
     public DbSet<ConnectorCatalogueEntry> ConnectorCatalogueEntries => Set<ConnectorCatalogueEntry>();

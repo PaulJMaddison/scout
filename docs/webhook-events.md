@@ -6,15 +6,17 @@ Universal Context Layer accepts provider-neutral source-system events at:
 POST /api/v1/events/source-system
 ```
 
-The endpoint is designed for SaaS integrations where CRM, support, billing, warehouse, product, marketing, or legacy systems notify UCL that source data changed. UCL stores each event, validates signatures, deduplicates by event ID, matches selectors, and queues recomputation jobs when a user can be resolved.
+The endpoint is designed for customer data-plane integrations where CRM, support, billing, warehouse, product, marketing, or legacy systems notify UCL that source data changed. UCL stores each event, validates signatures, deduplicates by event ID, matches selectors, and queues recomputation jobs when a user can be resolved.
 
 ## Authentication And Signature
 
-Use an API client created through `/api/v1/api-clients` with the `events:ingest` scope. Send:
+Use an API client created through `/api/v1/api-clients` with the `events:ingest` scope. For production-style pilots, create a separate webhook signing secret through `/api/v1/webhook-signing-secrets` and send:
 
 ```http
 X-API-Client-Id: <clientId>
 X-API-Key: <apiKey>
+X-UCL-Webhook-Secret-Id: <webhookSecretId>
+X-UCL-Webhook-Secret: <one-time-returned-webhook-secret>
 X-UCL-Webhook-Timestamp: 2026-05-11T15:45:00.0000000Z
 X-UCL-Webhook-Signature: sha256=<hex-hmac>
 ```
@@ -22,12 +24,14 @@ X-UCL-Webhook-Signature: sha256=<hex-hmac>
 Signature input is:
 
 ```text
-{timestamp}.{raw-request-body}
+{timestamp}.{eventId}.{raw-request-body}
 ```
 
-The current open-core endpoint validates the HMAC-SHA256 signature with the one-time API key value because the API key is already a non-stored secret. For production deployments, create a dedicated webhook-only API client with only `events:ingest`, rotate it separately from read/write clients, and revoke it without affecting context consumers. Private enterprise extensions may replace this public model with a separate webhook signing-secret store and rotation workflow.
+Webhook signing secrets are separate from API keys and are stored only as hashes. They can be created, listed, rotated, and revoked independently of API clients.
 
-Timestamps must be within five minutes of the API server clock. The API key is never stored in plaintext; only the transient request value is used for signature validation.
+Timestamps must be within five minutes of the API server clock. Event IDs are replay-protected for webhook-secret-authenticated requests. The legacy API-key HMAC shape `{timestamp}.{raw-request-body}` remains accepted for compatibility, but it is not recommended for production pilots.
+
+Provider-specific signature formats for Slack, GitHub, Stripe, or other vendors should plug in through a public provider adapter seam or a private enterprise implementation. Do not add private provider adapters to the public repo.
 
 ## Event Contract
 

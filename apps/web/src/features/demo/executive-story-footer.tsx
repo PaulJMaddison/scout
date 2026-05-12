@@ -53,7 +53,7 @@ export function ExecutiveStoryFooter({
             Paid enterprise options
           </p>
           <p className="mt-2 text-sm leading-7 text-ink-700">
-            Open-source core, plus paid options for managed SaaS, private cloud, on-prem deployment, connector work, and enterprise support.
+            Open-source core, plus paid options for future managed control-plane work, private cloud, on-prem deployment, connector work, and enterprise support.
           </p>
           <div className="mt-4 grid gap-2 text-sm text-ink-950">
             <a

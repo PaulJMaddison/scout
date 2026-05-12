@@ -343,7 +343,7 @@ function GovernanceStep({
         >
           <option value="local-demo">Local demo</option>
           <option value="self-hosted">Self-hosted</option>
-          <option value="managed-saas">Managed SaaS</option>
+          <option value="managed-saas">Future managed control plane</option>
           <option value="private-cloud">Private cloud</option>
         </Select>
       </Field>

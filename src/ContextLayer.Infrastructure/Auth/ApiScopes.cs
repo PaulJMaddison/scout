@@ -12,6 +12,19 @@ public static class ApiScopes
     public const string BlueprintsWrite = "blueprints:write";
     public const string BillingRead = "billing:read";
 
+    public static readonly IReadOnlySet<string> Canonical = new HashSet<string>(StringComparer.Ordinal)
+    {
+        ContextRead,
+        ContextWrite,
+        SelectorsRead,
+        SelectorsWrite,
+        EventsIngest,
+        AuditRead,
+        AdminManage,
+        BlueprintsWrite,
+        BillingRead
+    };
+
     private static readonly Dictionary<string, string> Aliases = new(StringComparer.OrdinalIgnoreCase)
     {
         ["context.read"] = ContextRead,

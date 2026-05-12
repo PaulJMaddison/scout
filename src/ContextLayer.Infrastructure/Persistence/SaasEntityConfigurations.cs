@@ -110,6 +110,28 @@ internal sealed class ApiClientConfiguration : IEntityTypeConfiguration<ApiClien
     }
 }
 
+internal sealed class WebhookSigningSecretConfiguration : IEntityTypeConfiguration<WebhookSigningSecret>
+{
+    public void Configure(EntityTypeBuilder<WebhookSigningSecret> builder)
+    {
+        builder.ToTable("saas_webhook_signing_secrets");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.SecretId).HasMaxLength(120).IsRequired();
+        builder.Property(x => x.DisplayName).HasMaxLength(200).IsRequired();
+        builder.Property(x => x.SecretHash).HasMaxLength(1_000).IsRequired();
+        builder.HasIndex(x => x.SecretId).IsUnique();
+        builder.HasIndex(x => new { x.TenantId, x.WorkspaceId, x.Status });
+        builder.HasOne(x => x.Tenant)
+            .WithMany()
+            .HasForeignKey(x => x.TenantId)
+            .OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(x => x.Workspace)
+            .WithMany()
+            .HasForeignKey(x => x.WorkspaceId)
+            .OnDelete(DeleteBehavior.SetNull);
+    }
+}
+
 internal sealed class ConnectorInstallationConfiguration : IEntityTypeConfiguration<ConnectorInstallation>
 {
     public void Configure(EntityTypeBuilder<ConnectorInstallation> builder)

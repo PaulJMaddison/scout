@@ -50,9 +50,9 @@ These are likely to be developed outside the public repo:
 This list is here to clarify boundary expectations, not to imply that those implementations already exist in the public repository.
 Some of these capabilities now exist in private commercial repositories, but they remain outside the public open-core deliverable.
 
-## Managed SaaS direction
+## Future Managed Control-Plane Direction
 
-If a managed SaaS offering is developed later, it will likely focus on:
+If a managed control-plane offering is developed later, it will likely focus on:
 
 - hosted operations
 - tenant administration

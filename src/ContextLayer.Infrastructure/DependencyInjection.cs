@@ -71,6 +71,7 @@ public static class DependencyInjection
         services.AddScoped<AuthenticationService>();
         services.AddScoped<MachineClientAuthenticationService>();
         services.AddScoped<ApiClientKeyService>();
+        services.AddScoped<WebhookSigningSecretService>();
         services.AddScoped<ICurrentActorService, CurrentActorService>();
         services.AddSingleton<IBackgroundJobMonitor, InMemoryBackgroundJobMonitor>();
         services.AddSingleton<BackgroundJobMetrics>();

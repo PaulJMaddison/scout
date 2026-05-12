@@ -87,7 +87,7 @@ The key rule is that public code may define a stable contract and a safe generic
 
 ## What does not belong in this repository
 
-These should normally live in a future private enterprise repository, a future managed SaaS codebase, or professional services delivery materials:
+These should normally live in a future private enterprise repository, future private cloud/control-plane codebase, or professional services delivery materials:
 
 - real enterprise connectors such as Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, NetSuite, Microsoft 365 / Outlook, Gmail / Google Workspace, Slack, Microsoft Teams, Outlook Calendar, Google Calendar, Segment, Amplitude, Mixpanel, PostHog, Jira, Linear, Confluence, Notion, SharePoint, Google Drive, SAP, ServiceNow, customer data warehouses, or other paid packaged integrations
 - SSO or SAML implementations

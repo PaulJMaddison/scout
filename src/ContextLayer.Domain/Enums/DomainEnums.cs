@@ -134,6 +134,12 @@ public enum ApiClientStatus
     Revoked = 3
 }
 
+public enum WebhookSigningSecretStatus
+{
+    Active = 1,
+    Revoked = 2
+}
+
 public enum ConnectorInstallationStatus
 {
     Draft = 1,

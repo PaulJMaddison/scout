@@ -169,6 +169,27 @@ internal sealed class DenyByDefaultPolicyEvaluator : IPolicyEvaluator
     }
 }
 
+internal sealed class NoopContextGovernanceHook : IContextGovernanceHook
+{
+    public string HookKey => "noop-context-governance";
+
+    public ValueTask<ContextGovernanceResult> EvaluateAsync(
+        ContextGovernanceRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var decisions = request.Facts
+            .Select(fact => new ContextGovernanceDecision(
+                fact.Key,
+                true,
+                false,
+                fact.Value?.DeepClone(),
+                "No enterprise context governance hook is configured."))
+            .ToList();
+        return ValueTask.FromResult(new ContextGovernanceResult(decisions, []));
+    }
+}
+
 internal sealed class DefaultPiiMaskingProvider : IPiiMaskingProvider
 {
     public string ProviderKey => "default";

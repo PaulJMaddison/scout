@@ -79,7 +79,7 @@ export function UsageDashboardPage() {
       <PageHeader
         eyebrow="Billing and usage"
         title="Meter the context layer before a payment provider ever touches it."
-        description="This dashboard shows the SaaS billing foundation: plan limits, current usage, hard enforcement points, retention policy, and the clean seam where Stripe or Paddle can be attached later."
+        description="This dashboard shows the future control-plane billing foundation: plan limits, current usage, hard enforcement points, retention policy, and the clean seam where a private billing provider can be attached later."
       />
 
       <section className="grid gap-4 lg:grid-cols-4">

@@ -60,7 +60,7 @@ export function UsersRolesPage() {
       <PageHeader
         eyebrow="Users and roles"
         title="Give every operator the smallest useful role inside the tenant and workspace boundary."
-        description="Early SaaS customers need a clear place to see who can configure mappings, manage integrations, inspect context, and administer machine access."
+        description="Paid pilot and customer data-plane operators need a clear place to see who can configure mappings, manage integrations, inspect context, and administer machine access."
         actions={<Badge tone={canManageUsers(session.role) ? 'success' : 'neutral'}>{canManageUsers(session.role) ? 'Role editing enabled' : 'Read only for your role'}</Badge>}
       />
 

@@ -52,6 +52,15 @@ public interface IPolicyEvaluator
         CancellationToken cancellationToken = default);
 }
 
+public interface IContextGovernanceHook
+{
+    string HookKey { get; }
+
+    ValueTask<ContextGovernanceResult> EvaluateAsync(
+        ContextGovernanceRequest request,
+        CancellationToken cancellationToken = default);
+}
+
 public interface IPiiMaskingProvider
 {
     string ProviderKey { get; }

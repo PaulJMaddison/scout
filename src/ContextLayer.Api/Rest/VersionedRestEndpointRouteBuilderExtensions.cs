@@ -427,25 +427,35 @@ public static class VersionedRestEndpointRouteBuilderExtensions
                 string? tenantSlug,
                 IContextLayerService service,
                 ICurrentActorService actorService,
+                WebhookSigningSecretService webhookSigningSecretService,
                 CancellationToken cancellationToken) =>
             await ExecuteAsync(async _ =>
             {
                 var resolvedTenantSlug = ResolveTenantSlug(actorService, tenantSlug);
                 var body = await ReadBodyAsync(httpRequest, cancellationToken);
-                if (!ValidateWebhookSignature(httpRequest.HttpContext, body))
-                {
-                    return Error(httpRequest.HttpContext, StatusCodes.Status401Unauthorized, "webhook.signature_invalid", "Webhook signature validation failed.");
-                }
-
                 var request = JsonSerializer.Deserialize<V1SourceSystemEventRequest>(body, JsonOptions)
                     ?? throw new InvalidOperationException("A source-system event body is required.");
+                var eventId = request.EventId ?? httpRequest.Headers["X-UCL-Event-Id"].FirstOrDefault() ?? Guid.NewGuid().ToString("N");
+                var signatureResult = await ValidateWebhookSignatureAsync(
+                    httpRequest.HttpContext,
+                    webhookSigningSecretService,
+                    resolvedTenantSlug,
+                    request.WorkspaceSlug,
+                    eventId,
+                    body,
+                    cancellationToken);
+                if (!signatureResult.Accepted)
+                {
+                    return Error(httpRequest.HttpContext, StatusCodes.Status401Unauthorized, "webhook.signature_invalid", $"Webhook signature validation failed: {signatureResult.Reason}.");
+                }
+
                 var payloadJson = request.PayloadJson
                     ?? JsonSerializer.Serialize(request.Payload ?? new { }, JsonOptions);
                 var result = await service.IngestSourceSystemEventAsync(
                     new SourceSystemEventInput(
                         resolvedTenantSlug,
                         request.WorkspaceSlug,
-                        request.EventId ?? httpRequest.Headers["X-UCL-Event-Id"].FirstOrDefault() ?? Guid.NewGuid().ToString("N"),
+                        eventId,
                         request.SourceSystem,
                         request.EventType,
                         payloadJson,
@@ -475,6 +485,35 @@ public static class VersionedRestEndpointRouteBuilderExtensions
                 return Results.Created($"/api/v1/api-clients/{result.ClientId}", result);
             }))
             .WithName("V1CreateApiClient");
+
+        admin.MapGet("/webhook-signing-secrets", async (
+                string? tenantSlug,
+                int? page,
+                int? pageSize,
+                WebhookSigningSecretService webhookSigningSecretService,
+                ICurrentActorService actorService,
+                CancellationToken cancellationToken) =>
+            await ExecuteAsync(async _ =>
+            {
+                var resolvedTenantSlug = ResolveTenantSlug(actorService, tenantSlug);
+                var secrets = await webhookSigningSecretService.ListAsync(resolvedTenantSlug, cancellationToken);
+                return Results.Ok(Page(secrets, page, pageSize));
+            }))
+            .WithName("V1ListWebhookSigningSecrets");
+
+        admin.MapPost("/webhook-signing-secrets", async (
+                V1CreateWebhookSigningSecretRequest request,
+                string? tenantSlug,
+                WebhookSigningSecretService webhookSigningSecretService,
+                ICurrentActorService actorService,
+                CancellationToken cancellationToken) =>
+            await ExecuteAsync(async _ =>
+            {
+                var resolvedTenantSlug = ResolveTenantSlug(actorService, tenantSlug);
+                var result = await webhookSigningSecretService.CreateAsync(resolvedTenantSlug, request.WorkspaceSlug, request.DisplayName, cancellationToken);
+                return Results.Created($"/api/v1/webhook-signing-secrets/{result.SecretId}", result);
+            }))
+            .WithName("V1CreateWebhookSigningSecret");
 
         blueprintWriter.MapPost("/blueprints/upload", async (
                 UploadBlueprintInput request,
@@ -556,6 +595,33 @@ public static class VersionedRestEndpointRouteBuilderExtensions
                 return Results.NoContent();
             }))
             .WithName("V1RevokeApiClient");
+
+        admin.MapPost("/webhook-signing-secrets/{id}/rotate", async (
+                string id,
+                string? tenantSlug,
+                WebhookSigningSecretService webhookSigningSecretService,
+                ICurrentActorService actorService,
+                CancellationToken cancellationToken) =>
+            await ExecuteAsync(async _ =>
+            {
+                var resolvedTenantSlug = ResolveTenantSlug(actorService, tenantSlug);
+                return Results.Ok(await webhookSigningSecretService.RotateAsync(resolvedTenantSlug, id, cancellationToken));
+            }))
+            .WithName("V1RotateWebhookSigningSecret");
+
+        admin.MapDelete("/webhook-signing-secrets/{id}", async (
+                string id,
+                string? tenantSlug,
+                WebhookSigningSecretService webhookSigningSecretService,
+                ICurrentActorService actorService,
+                CancellationToken cancellationToken) =>
+            await ExecuteAsync(async _ =>
+            {
+                var resolvedTenantSlug = ResolveTenantSlug(actorService, tenantSlug);
+                await webhookSigningSecretService.RevokeAsync(resolvedTenantSlug, id, cancellationToken);
+                return Results.NoContent();
+            }))
+            .WithName("V1RevokeWebhookSigningSecret");
 
         return endpoints;
     }
@@ -702,31 +768,56 @@ public static class VersionedRestEndpointRouteBuilderExtensions
         return await reader.ReadToEndAsync(cancellationToken);
     }
 
-    private static bool ValidateWebhookSignature(HttpContext httpContext, string body)
+    private static async Task<WebhookSignatureValidationResult> ValidateWebhookSignatureAsync(
+        HttpContext httpContext,
+        WebhookSigningSecretService webhookSigningSecretService,
+        string tenantSlug,
+        string? workspaceSlug,
+        string eventId,
+        string body,
+        CancellationToken cancellationToken)
     {
         if (!string.Equals(httpContext.User.Identity?.AuthenticationType, ApiKeyAuthenticationHandler.SchemeName, StringComparison.Ordinal))
         {
-            return true;
+            return new WebhookSignatureValidationResult(true, "non_api_key_actor");
+        }
+
+        var webhookSecretId = httpContext.Request.Headers["X-UCL-Webhook-Secret-Id"].FirstOrDefault();
+        var webhookSecret = httpContext.Request.Headers["X-UCL-Webhook-Secret"].FirstOrDefault();
+        var signature = httpContext.Request.Headers["X-UCL-Webhook-Signature"].FirstOrDefault();
+        var timestamp = httpContext.Request.Headers["X-UCL-Webhook-Timestamp"].FirstOrDefault();
+        if (!string.IsNullOrWhiteSpace(webhookSecretId))
+        {
+            if (string.IsNullOrWhiteSpace(webhookSecret)
+                || string.IsNullOrWhiteSpace(signature)
+                || string.IsNullOrWhiteSpace(timestamp))
+            {
+                return new WebhookSignatureValidationResult(false, "missing_webhook_secret_headers");
+            }
+
+            return await webhookSigningSecretService.ValidateAsync(
+                tenantSlug,
+                workspaceSlug,
+                webhookSecretId,
+                webhookSecret,
+                timestamp,
+                eventId,
+                body,
+                signature,
+                cancellationToken);
         }
 
         var rawApiKey = httpContext.Items[ApiKeyAuthenticationHandler.RawApiKeyItemName] as string;
-        var signature = httpContext.Request.Headers["X-UCL-Webhook-Signature"].FirstOrDefault();
-        var timestamp = httpContext.Request.Headers["X-UCL-Webhook-Timestamp"].FirstOrDefault();
         if (string.IsNullOrWhiteSpace(rawApiKey)
             || string.IsNullOrWhiteSpace(signature)
-            || string.IsNullOrWhiteSpace(timestamp)
-            || !DateTimeOffset.TryParse(timestamp, out var parsedTimestamp)
-            || Math.Abs((DateTimeOffset.UtcNow - parsedTimestamp.ToUniversalTime()).TotalMinutes) > 5)
+            || string.IsNullOrWhiteSpace(timestamp))
         {
-            return false;
+            return new WebhookSignatureValidationResult(false, "missing_legacy_headers");
         }
 
-        var signedPayload = $"{timestamp}.{body}";
-        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(rawApiKey));
-        var expected = "sha256=" + Convert.ToHexString(hmac.ComputeHash(Encoding.UTF8.GetBytes(signedPayload))).ToLowerInvariant();
-        return CryptographicOperations.FixedTimeEquals(
-            Encoding.UTF8.GetBytes(expected),
-            Encoding.UTF8.GetBytes(signature.Trim().ToLowerInvariant()));
+        return WebhookSigningSecretService.VerifyLegacyApiKeyHmac(rawApiKey, timestamp, body, signature)
+            ? new WebhookSignatureValidationResult(true, "legacy_api_key_hmac")
+            : new WebhookSignatureValidationResult(false, "legacy_api_key_hmac_invalid");
     }
 
     private sealed class EndpointHttpContext

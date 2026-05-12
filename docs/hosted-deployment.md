@@ -2,7 +2,7 @@
 
 This guide describes the first production-like deployment shape for the public Universal Context Layer repo: React as a static site, ASP.NET Core as a Docker web service, PostgreSQL as managed databases, and SQLite only for local demo mode.
 
-It is not the full future managed SaaS control plane. The open-core backend still operates as the customer data plane: connectors, selectors, context facts, provenance, audit logs, and credentials stay in the customer-controlled environment unless the customer explicitly exports them.
+It is not the full future managed control plane. The open-core backend still operates as the customer data plane: connectors, selectors, context facts, provenance, audit logs, and credentials stay in the customer-controlled environment unless the customer explicitly exports them.
 
 ## Target Architecture
 

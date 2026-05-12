@@ -7,7 +7,7 @@ export function CommercialPage() {
     body: string
     icon: typeof CloudCog
   }> = [
-    { title: 'Managed SaaS control plane', body: 'A paid/private cloud offering can manage accounts, licences, downloads, support, update channels, and aggregate usage without requiring raw operational data by default.', icon: CloudCog },
+    { title: 'Future private cloud control plane', body: 'A paid/private cloud offering can manage accounts, licences, downloads, support, update channels, and aggregate usage without requiring raw operational data by default.', icon: CloudCog },
     { title: 'Private cloud or single tenant', body: 'A paid/private deployment can add stronger isolation, customer-controlled networking, and commercial operations around the customer-owned data plane.', icon: Lock },
     { title: 'Enterprise connectors and governance add-ons', body: 'Paid/private packages provide real CRM, warehouse, email, chat, calendar, analytics, work management, and knowledge connectors, plus SSO/SAML, SCIM, vault integrations, advanced governance, compliance exports, deployment packs, and SLA tooling outside the public repo.', icon: ServerCog },
     { title: 'Implementation services', body: 'Accelerate source onboarding, semantic schema design, selector packs, and product integration work.', icon: Handshake },

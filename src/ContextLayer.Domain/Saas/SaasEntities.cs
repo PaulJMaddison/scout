@@ -326,6 +326,76 @@ public sealed class ApiClient : AuditedTenantEntity
     }
 }
 
+public sealed class WebhookSigningSecret : AuditedTenantEntity
+{
+    private WebhookSigningSecret()
+    {
+    }
+
+    public Guid? WorkspaceId { get; private set; }
+
+    public string SecretId { get; private set; } = string.Empty;
+
+    public string DisplayName { get; private set; } = string.Empty;
+
+    public string SecretHash { get; private set; } = string.Empty;
+
+    public WebhookSigningSecretStatus Status { get; private set; }
+
+    public DateTime? LastUsedAtUtc { get; private set; }
+
+    public DateTime? RotatedAtUtc { get; private set; }
+
+    public DateTime? RevokedAtUtc { get; private set; }
+
+    public Tenant Tenant { get; private set; } = null!;
+
+    public Workspace? Workspace { get; private set; }
+
+    public static WebhookSigningSecret Create(
+        Guid tenantId,
+        Guid? workspaceId,
+        string secretId,
+        string displayName,
+        string secretHash,
+        DateTime utcNow)
+    {
+        var secret = new WebhookSigningSecret
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            SecretId = secretId.Trim(),
+            DisplayName = displayName.Trim(),
+            SecretHash = secretHash.Trim(),
+            Status = WebhookSigningSecretStatus.Active
+        };
+
+        secret.SetAuditTimestamps(utcNow);
+        return secret;
+    }
+
+    public void RotateSecret(string secretHash, DateTime utcNow)
+    {
+        SecretHash = secretHash.Trim();
+        RotatedAtUtc = utcNow;
+        Status = WebhookSigningSecretStatus.Active;
+        SetAuditTimestamps(utcNow);
+    }
+
+    public void MarkUsed(DateTime utcNow)
+    {
+        LastUsedAtUtc = utcNow;
+        SetAuditTimestamps(utcNow);
+    }
+
+    public void Revoke(DateTime utcNow)
+    {
+        Status = WebhookSigningSecretStatus.Revoked;
+        RevokedAtUtc = utcNow;
+        SetAuditTimestamps(utcNow);
+    }
+}
+
 public sealed class ConnectorInstallation : AuditedTenantEntity
 {
     private ConnectorInstallation()

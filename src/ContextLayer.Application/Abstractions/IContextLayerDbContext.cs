@@ -50,6 +50,8 @@ public interface IContextLayerDbContext
 
     DbSet<ApiClient> ApiClients { get; }
 
+    DbSet<WebhookSigningSecret> WebhookSigningSecrets { get; }
+
     DbSet<ConnectorInstallation> ConnectorInstallations { get; }
 
     DbSet<ConnectorCatalogueEntry> ConnectorCatalogueEntries { get; }

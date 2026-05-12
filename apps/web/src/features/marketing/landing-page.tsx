@@ -100,7 +100,7 @@ export function LandingPage() {
       <section className="grid gap-4 md:grid-cols-3">
         <MetricCard label="1 semantic layer" value="Many systems" footnote="Connect source systems once, then let multiple products and workflows consume the same governed context." accent="copper" />
         <MetricCard label="Evidence attached" value="Always" footnote="Facts carry confidence, provenance, freshness, masking, and audit visibility so teams can review the basis for decisions." accent="sage" />
-        <MetricCard label="Sellable today" value="Paid pilot" footnote="Use open core plus supported implementation to prove a customer-owned data plane before future managed SaaS operations." accent="gold" />
+        <MetricCard label="Sellable today" value="Paid pilot" footnote="Use open core plus supported implementation to prove a customer-owned data plane before future managed control-plane operations." accent="gold" />
       </section>
 
       <Panel eyebrow="Before and after" title="The product changes what downstream systems are allowed to depend on">
@@ -174,7 +174,7 @@ export function LandingPage() {
           {[
             ['Open source core', 'Run the demo, inspect selectors, and learn the architecture.'],
             ['Self-hosted backend', 'Deploy GraphQL, REST, SDKs, API clients, and webhooks around your systems.'],
-            ['Managed SaaS', 'Let the hosted service manage runtime, upgrades, and operational basics.'],
+            ['Future control plane', 'Use private cloud/control-plane services later for account, licence, and operational workflows.'],
             ['Private cloud', 'Use single-tenant isolation, regional control, and enterprise governance.'],
             ['Integration layer', 'Embed UCL behind a product or platform as the semantic contract.'],
           ].map(([title, body]) => (

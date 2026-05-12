@@ -2378,12 +2378,12 @@ function deploymentGuidance(mode: SubmitOnboardingInput['preferredDeploymentMode
     return 'Prepare PostgreSQL, signing keys, and your connector secret store for the self-hosted control plane.'
   }
   if (mode === 'managed-saas') {
-    return 'Invite your integration admin and move starter sources to managed SaaS connector registrations.'
+    return 'Invite your integration admin and move starter sources to paid pilot connector registrations.'
   }
   if (mode === 'private-cloud') {
     return 'Schedule the private cloud network and identity review before moving credentials into the environment.'
   }
-  return 'Keep exploring with local demo data, then switch to backend-only or SaaS mode when you are ready.'
+  return 'Keep exploring with local demo data, then switch to backend-only or production-style customer data-plane mode when you are ready.'
 }
 
 function connectorCatalogueEntry(
