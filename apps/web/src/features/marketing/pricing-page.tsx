@@ -12,25 +12,25 @@ const plans = [
   },
   {
     name: 'Discovery workshop',
-    label: 'Scoped engagement',
-    body: 'Map the first workflow, source systems, governance constraints, customer data-plane shape, and pilot success criteria before implementation starts.',
+    label: 'GBP 1,500-3,000',
+    body: 'Map the first workflow, source systems, governance constraints, customer data-plane shape, and pilot success criteria before implementation starts. Usually credited against a paid pilot agreed within 30 days.',
     bestFor: 'Buyers deciding where the first pilot should land',
   },
   {
     name: 'Starter paid pilot',
-    label: 'Contact for pilot pricing',
+    label: 'GBP 7,500-15,000',
     body: 'Implementation-led pilot for one workflow, one environment, selected source systems or safe exports, and one downstream consumer.',
     bestFor: 'Teams proving value in two to four weeks',
   },
   {
     name: 'Production pilot',
-    label: 'Scoped after discovery',
+    label: 'GBP 20,000-45,000',
     body: 'Production-style customer data plane with PostgreSQL, production secrets, backup/restore review, scoped API clients, masking, audit, and handover.',
     bestFor: 'Teams preparing for real operational use',
   },
   {
     name: 'Enterprise/private deployment',
-    label: 'Commercial agreement',
+    label: 'Scoped from GBP 50,000',
     body: 'Private enterprise connector modules, governance hardening, customer-specific deployment design, and support model through a paid agreement.',
     bestFor: 'Larger or regulated estates',
   },
@@ -67,9 +67,9 @@ export function PricingPage() {
       <Panel eyebrow="What you can buy now" title="The practical commercial motion is implementation-led">
         <div className="grid gap-4 md:grid-cols-3">
           {[
-            ['Discovery workshop', 'A short scoped engagement to pick the first workflow, source systems, customer data-plane shape, and success criteria.'],
-            ['Starter paid pilot', 'A supported pilot that turns existing data into semantic context for one useful consumer.'],
-            ['Production pilot', 'A harder production-style pilot with PostgreSQL, secrets, backups, audit, masking, and customer handover.'],
+            ['Discovery workshop', 'GBP 1,500-3,000 to pick the first workflow, source systems, customer data-plane shape, and success criteria.'],
+            ['Starter paid pilot', 'GBP 7,500-15,000 for one workflow, selected source systems or safe exports, and one useful consumer.'],
+            ['Production pilot', 'GBP 20,000-45,000 for PostgreSQL, secrets, backups, audit, masking, and customer handover.'],
           ].map(([title, body]) => (
             <Card key={title} className="bg-ivory-25">
               <p className="font-semibold text-ink-950">{title}</p>

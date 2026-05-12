@@ -39,8 +39,10 @@ export function PrivacyPage() {
         <div className="grid gap-3 md:grid-cols-2">
           {[
             'Name, work email, company, source-system description, and target workflow.',
+            'Campaign attribution such as UTM parameters, referrer, and landing page path may be captured to understand which adverts or pages generated an enquiry.',
+            'The lead endpoint may store salted hashes of IP address and user agent for abuse review. Raw IP address and raw user-agent values should not be stored in the CRM database.',
             'Information is used to assess pilot fit, reply to the enquiry, prepare scoping discussions, and maintain a commercial record of the conversation.',
-            'The current form opens a prefilled email. It does not create a public-repo CRM account, payment account, or hosted customer workspace.',
+            'The form can submit to the private cloud mini CRM when configured, or fall back to a prefilled email. It does not create a payment account or hosted customer workspace.',
             'If analytics, CRM, email, or form tooling is added to a live deployment, that deployment should disclose the processors and retention policy used.',
           ].map((item) => (
             <Card key={item} className="bg-ivory-25 shadow-none">

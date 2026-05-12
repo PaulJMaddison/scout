@@ -64,7 +64,14 @@ Commercial scope normally excludes:
 - live payment-provider billing
 - full hosted SaaS account management
 
-Use pricing ranges or placeholders until pricing is approved. Example public language: "scoped engagement", "from a fixed pilot fee", or "contact for pilot pricing".
+Recommended founder-led price anchors:
+
+- discovery workshop: GBP 1,500-3,000, usually credited against a paid pilot agreed within 30 days
+- starter paid pilot: GBP 7,500-15,000
+- production pilot: GBP 20,000-45,000
+- enterprise rollout: scoped from GBP 50,000
+
+Final pricing can still be bespoke, but ranges help filter enquiries before scoping time is spent.
 
 ## Technical Scope
 
@@ -104,6 +111,8 @@ Technical scope should be explicit before work starts:
 - executive playback and technical handover
 
 ## Recommended Pilot Workflow
+
+The sharpest first vertical wedge is energy buying and pricing: contract records, supplier terms, usage signals, pricing spreadsheets, ERP exports, and support context are often scattered across systems, yet pricing and procurement decisions need trustworthy context. UCL can still serve the general platform story, but paid adverts should lead with a concrete workflow such as trusted context for energy pricing, procurement, and operational AI workflows.
 
 1. Discovery workshop
 
@@ -172,7 +181,7 @@ Best for a buyer who understands the problem but has not selected the first work
 - pilot recommendation
 - indicative implementation plan
 
-Pricing language: scoped workshop fee.
+Pricing language: GBP 1,500-3,000, credited against pilot where commercially agreed.
 
 ### Starter Pilot
 
@@ -186,7 +195,7 @@ Best for proving the architectural pattern quickly.
 - one executive playback
 - one technical handover
 
-Pricing language: fixed pilot fee or from a defined pilot range.
+Pricing language: GBP 7,500-15,000 depending source access and consumer scope.
 
 ### Production Pilot
 
@@ -201,7 +210,7 @@ Best for teams that want a production-style customer data plane with stronger op
 - one or two downstream consumers
 - go-forward support model
 
-Pricing language: scoped production pilot, priced after discovery.
+Pricing language: GBP 20,000-45,000 depending hardening and stakeholder scope.
 
 ### Enterprise Rollout Design
 
@@ -214,7 +223,7 @@ Best after a successful pilot or for larger estates.
 - private enterprise module plan
 - future cloud/control-plane alignment
 
-Pricing language: enterprise design engagement.
+Pricing language: scoped from GBP 50,000 after discovery and pilot evidence.
 
 Convert to ongoing support, enterprise connectors, private cloud, or managed operations once the customer has seen the value.
 

@@ -6,6 +6,25 @@ The format is inspired by Keep a Changelog and this project follows semantic ver
 
 ## [Unreleased]
 
+## [2.5.0] - 2026-05-12
+
+### Added
+
+- Added a GitHub Pages compatible static brochure/demo site for sales, marketing, and buyer education.
+- Added static fictional fixtures for Northstar Logistics, User 123 / Avery Stone, raw operational signals, semantic facts, selector definitions, grounded AI output, audit provenance, and interaction timelines.
+- Added `build:static-demo` and `preview:static-demo` scripts plus a dedicated static-demo Vite config with Pages base-path support and generated `index.html` / `404.html` fallbacks.
+- Added static demo documentation and captured laptop/mobile screenshots.
+
+### Changed
+
+- Clarified that the static site is not the product runtime: the downloadable React app, backend, APIs, SDKs, selector engine, seeded demo, and local setup path remain the functional product experience.
+- Updated public release metadata to `2.5.0`.
+- Expanded paid-pilot and hosted-deployment documentation for the public commercial positioning.
+
+### Security
+
+- Kept the static demo backend-free with fictional snapshot data only. It does not include customer operational data, secrets, live connector execution, database access, or paid/private connector implementation code.
+
 ## [2.4.1] - 2026-05-12
 
 ### Added

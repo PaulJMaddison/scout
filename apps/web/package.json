@@ -1,7 +1,7 @@
 {
   "name": "universal-context-layer-web",
   "private": true,
-  "version": "2.4.1",
+  "version": "2.5.0",
   "description": "Open core marketing site and self-hosted admin console for Universal Context Layer.",
   "license": "MIT",
   "author": "Paul Maddison and contributors",
@@ -25,8 +25,10 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:static-demo": "tsc -p tsconfig.static-demo.json && vite build --config vite.static-demo.config.ts",
     "lint": "eslint .",
     "preview": "vite preview",
+    "preview:static-demo": "vite preview --config vite.static-demo.config.ts --host 127.0.0.1",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test"

@@ -33,6 +33,8 @@ DataProtection__KeyRingPath=/var/lib/ucl/data-protection-keys
 DataProtection__RequirePersistentKeys=true
 VITE_API_BASE_URL=https://<api-domain>
 VITE_GRAPHQL_ENDPOINT=https://<api-domain>/graphql
+VITE_PILOT_LEAD_ENDPOINT=https://<cloud-api-domain>/api/v1/crm/leads
+VITE_TURNSTILE_SITE_KEY=<optional-turnstile-site-key>
 VITE_DEMO_FALLBACK=false
 Telemetry__OtlpEndpoint=<optional OTLP endpoint>
 ```
@@ -126,6 +128,8 @@ npm run build
 
 If the frontend and API are served from the same origin, set `VITE_API_BASE_URL=` and `VITE_GRAPHQL_ENDPOINT=/graphql`.
 
+For paid-ad traffic, set `VITE_PILOT_LEAD_ENDPOINT` to the private cloud/control-plane mini CRM endpoint and, if using Cloudflare Turnstile, set `VITE_TURNSTILE_SITE_KEY` at build time. The cloud API must hold the matching Turnstile secret in secure configuration.
+
 ## Health Checks
 
 - `/health/live`: process liveness, no database dependency.
@@ -152,6 +156,8 @@ Use `/health/ready` for Render and other rolling deployment platforms.
 - `Licence__Mode=Community`: default for the public repo; paid self-hosted deployments can point `Licence__FilePath` at a mounted local licence file.
 
 Production uses secure cookie policy, HSTS, forwarded proxy headers, JWT signing-key validation, persistent Data Protection key storage, JSON console logging, explicit CORS origins, and configurable rate limits.
+
+The bundled web nginx image sets `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, and a baseline `Content-Security-Policy` that permits the optional Cloudflare Turnstile script/frame. If hosting on Render Static Sites, Netlify, Cloudflare Pages, or S3/CloudFront, reproduce equivalent headers in that platform rather than relying on this nginx config.
 
 ## Connector Credential Protection
 

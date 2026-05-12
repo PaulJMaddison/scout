@@ -65,6 +65,7 @@ The buyer should finish the pilot with:
 
 ## Sample Use Cases
 
+- trusted context for energy pricing, procurement, and operational AI workflows
 - sales account intelligence for next-best action
 - customer success renewal and churn-risk context
 - support prioritisation based on commercial and product signals
@@ -93,3 +94,7 @@ A successful first paid pilot proves that:
 ## Recommended Next Step
 
 Run a paid discovery and implementation pilot with a named workflow, named source systems, and named success criteria. Start with generic SQL/PostgreSQL, REST, CSV, or safe exported data, then scope private enterprise connectors only after the workflow value is clear.
+
+Founder-led commercial anchors: discovery workshop GBP 1,500-3,000, starter paid pilot GBP 7,500-15,000, production pilot GBP 20,000-45,000, and enterprise rollout scoped from GBP 50,000.
+
+Use [Paid Pilot Proof Package](paid-pilot-proof-package.md) for the demo script, one-page PDF content, data-plane diagram, screenshot checklist, and anonymised ERP pattern story.

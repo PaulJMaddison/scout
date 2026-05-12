@@ -1,4 +1,4 @@
-import { type FormEvent, useMemo, useState } from 'react'
+import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowRight,
   BadgeCheck,
@@ -12,7 +12,24 @@ import {
   Workflow,
 } from 'lucide-react'
 import { Badge, Button, Card, Field, Input, PageHeader, Panel, Textarea } from '@/components/ui/primitives'
-import { pilotContactEmail, pilotLeadEndpoint } from '@/features/marketing/site-constants'
+import { pilotContactEmail, pilotLeadEndpoint, turnstileSiteKey } from '@/features/marketing/site-constants'
+
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (
+        container: HTMLElement,
+        options: {
+          sitekey: string
+          callback: (token: string) => void
+          'expired-callback': () => void
+          theme: 'light'
+        },
+      ) => string
+      remove: (widgetId: string) => void
+    }
+  }
+}
 
 interface PilotFormState {
   name: string
@@ -20,6 +37,7 @@ interface PilotFormState {
   company: string
   sourceSystems: string
   targetWorkflow: string
+  website: string
 }
 
 const emptyPilotForm: PilotFormState = {
@@ -28,6 +46,31 @@ const emptyPilotForm: PilotFormState = {
   company: '',
   sourceSystems: '',
   targetWorkflow: '',
+  website: '',
+}
+
+function getAttribution() {
+  if (typeof window === 'undefined') {
+    return {
+      utmSource: '',
+      utmMedium: '',
+      utmCampaign: '',
+      utmTerm: '',
+      utmContent: '',
+      referrer: '',
+      landingPagePath: '',
+    }
+  }
+  const params = new URLSearchParams(window.location.search)
+  return {
+    utmSource: params.get('utm_source') ?? '',
+    utmMedium: params.get('utm_medium') ?? '',
+    utmCampaign: params.get('utm_campaign') ?? '',
+    utmTerm: params.get('utm_term') ?? '',
+    utmContent: params.get('utm_content') ?? '',
+    referrer: document.referrer,
+    landingPagePath: `${window.location.pathname}${window.location.search}`.slice(0, 500),
+  }
 }
 
 function buildPilotMailto(form: PilotFormState) {
@@ -56,7 +99,45 @@ function buildPilotMailto(form: PilotFormState) {
 export function PilotPage() {
   const [form, setForm] = useState<PilotFormState>(emptyPilotForm)
   const [submitState, setSubmitState] = useState<'idle' | 'submitting' | 'submitted' | 'failed'>('idle')
+  const [spamChallengeToken, setSpamChallengeToken] = useState('')
+  const turnstileRef = useRef<HTMLDivElement | null>(null)
   const mailtoHref = useMemo(() => buildPilotMailto(form), [form])
+
+  useEffect(() => {
+    if (!turnstileSiteKey || !turnstileRef.current) {
+      return
+    }
+
+    let widgetId = ''
+    const render = () => {
+      if (!turnstileRef.current || !window.turnstile || widgetId) {
+        return
+      }
+      widgetId = window.turnstile.render(turnstileRef.current, {
+        sitekey: turnstileSiteKey,
+        theme: 'light',
+        callback: setSpamChallengeToken,
+        'expired-callback': () => setSpamChallengeToken(''),
+      })
+    }
+
+    if (!window.turnstile) {
+      const script = document.createElement('script')
+      script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'
+      script.async = true
+      script.defer = true
+      script.onload = render
+      document.head.appendChild(script)
+    } else {
+      render()
+    }
+
+    return () => {
+      if (widgetId && window.turnstile) {
+        window.turnstile.remove(widgetId)
+      }
+    }
+  }, [])
 
   function updateField(field: keyof PilotFormState, value: string) {
     setForm((current) => ({ ...current, [field]: value }))
@@ -77,6 +158,9 @@ export function PilotPage() {
             sourceSystems: form.sourceSystems,
             targetWorkflow: form.targetWorkflow,
             submissionSource: 'Website',
+            website: form.website,
+            spamChallengeToken,
+            ...getAttribution(),
           }),
         })
         if (!response.ok) {
@@ -84,6 +168,7 @@ export function PilotPage() {
         }
         setSubmitState('submitted')
         setForm(emptyPilotForm)
+        setSpamChallengeToken('')
         return
       } catch {
         setSubmitState('failed')
@@ -178,6 +263,12 @@ export function PilotPage() {
         ))}
       </section>
 
+      <Panel eyebrow="Why now" title="Trusted context for energy pricing, procurement, and operational AI workflows">
+        <p className="max-w-5xl text-sm leading-7 text-ink-700">
+          The sharpest first wedge is energy buying and pricing: contract data, usage signals, supplier terms, ERP records, pricing spreadsheets, and support context already exist, but they are often too fragmented for reliable workflow automation. UCL gives those systems a shared semantic layer so pricing reviews, procurement decisions, renewals, and AI-assisted operations can work from governed facts rather than scattered extracts.
+        </p>
+      </Panel>
+
       <section className="grid gap-4 2xl:grid-cols-[0.95fr_1.05fr]">
         <Panel eyebrow="Scope" title="What a paid pilot includes">
           <div className="grid gap-3 md:grid-cols-2">
@@ -216,6 +307,14 @@ export function PilotPage() {
 
       <Panel eyebrow="Pilot request" title="Request a paid pilot scope" className="scroll-mt-6" action={<Mail className="size-5 text-copper-700" />}>
         <form id="pilot-request" className="grid gap-4" onSubmit={handleSubmit}>
+          <Field label="Website" className="hidden">
+            <Input
+              tabIndex={-1}
+              autoComplete="off"
+              value={form.website}
+              onChange={(event) => updateField('website', event.target.value)}
+            />
+          </Field>
           <div className="grid gap-4 md:grid-cols-3">
             <Field label="Name">
               <Input
@@ -261,6 +360,7 @@ export function PilotPage() {
               />
             </Field>
           </div>
+          {turnstileSiteKey ? <div ref={turnstileRef} /> : null}
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-ink-900/8 bg-ivory-25 px-4 py-4">
             <p className="max-w-3xl text-sm leading-7 text-ink-700" aria-live="polite">
               {submitState === 'submitted'

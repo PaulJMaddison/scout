@@ -4,6 +4,9 @@ export const pilotContactEmail =
 export const pilotLeadEndpoint =
   import.meta.env.VITE_PILOT_LEAD_ENDPOINT?.trim() || ''
 
+export const turnstileSiteKey =
+  import.meta.env.VITE_TURNSTILE_SITE_KEY?.trim() || ''
+
 export const siteOperatorName =
   import.meta.env.VITE_SITE_OPERATOR_NAME?.trim() || 'Paul Maddison, for the Universal Context Layer project'
 

@@ -2,7 +2,7 @@
 
 Universal Context Layer turns existing business data into trusted semantic context that customer-owned AI tools, workflows, apps, and reports can use.
 
-Release: `2.4.1`
+Release: `2.5.0`
 License: [MIT](LICENSE)
 Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
 Security: [SECURITY.md](SECURITY.md)
@@ -288,6 +288,26 @@ The data is internally consistent on purpose. For example:
 - strong email engagement reinforces preferred outreach channel
 - open support issues can weaken confidence or increase review flags
 - billing and opportunity signals affect budget readiness and urgency
+
+## Static GitHub Pages Demo
+
+The repository includes a backend-free static demo that can be published to GitHub Pages from `apps/web/dist-static-demo`. It is a brochure, sales, and marketing walkthrough using the same professional brand direction as the React site, with fixed fictional snapshots instead of live API calls, databases, Docker, or setup scripts.
+
+The full downloadable product still lives in this repo as the functional React application, backend, APIs, SDKs, selector engine, seeded demo, and local setup path.
+
+Build it from `apps/web` with:
+
+```powershell
+npm run build:static-demo
+```
+
+Preview it locally with:
+
+```powershell
+npm run preview:static-demo
+```
+
+See [docs/static-github-pages-demo.md](docs/static-github-pages-demo.md) for the publishing workflow, included fixture data, and limitations.
 
 ## Fresh Laptop Quick Start
 

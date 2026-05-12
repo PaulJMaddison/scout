@@ -9,12 +9,14 @@ obj/
 .env.*.local
 .local/
 .dotnet/
+dotnet10-layout/
 .node/
 .dotnet-install.ps1
 *.user
 *.suo
 node_modules/
 dist/
+dist-static-demo/
 playwright-report/
 test-results/
 coverage/
