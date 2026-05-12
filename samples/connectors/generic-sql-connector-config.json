@@ -1,0 +1,16 @@
+{
+  "connectorType": "sqlTable",
+  "mode": "customerOpsDatabase",
+  "tableName": "customer_context_rollups",
+  "tenantSlugColumn": "tenant_slug",
+  "tenantSlug": "demo",
+  "userIdColumn": "external_user_id",
+  "observedAtColumn": "observed_at_utc",
+  "columns": [
+    "plan_interest_signal",
+    "active_days_30",
+    "pricing_page_visits_30",
+    "open_support_tickets_30",
+    "recommended_sales_motion_signal"
+  ]
+}

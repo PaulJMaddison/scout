@@ -217,3 +217,11 @@ Best after a successful pilot or for larger estates.
 Pricing language: enterprise design engagement.
 
 Convert to ongoing support, enterprise connectors, private cloud, or managed operations once the customer has seen the value.
+
+## Related Pilot Documents
+
+- [First Paid Pilot One-Pager](first-paid-pilot-one-pager.md)
+- [Pilot SOW Template](pilot-sow-template.md)
+- [Production Install Rehearsal](production-install-rehearsal.md)
+- [First Real Connector Proof](first-real-connector-proof.md)
+- [Pilot Agreement Outline](legal/pilot-agreement-outline.md)

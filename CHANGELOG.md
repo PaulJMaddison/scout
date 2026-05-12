@@ -6,6 +6,26 @@ The format is inspired by Keep a Changelog and this project follows semantic ver
 
 ## [Unreleased]
 
+## [2.4.0] - 2026-05-12
+
+### Added
+
+- Added first paid pilot one-pager and pilot SOW template for implementation-led paid pilot conversations.
+- Added production install rehearsal documentation plus PowerShell and Bash rehearsal scripts covering production mode, PostgreSQL, strong signing keys, persistent Data Protection keys, migrations, backup/restore, health, REST, GraphQL, OpenTelemetry, and machine authentication checks.
+- Added a first real connector proof for the generic SQL connector, including sample connector configuration, sample source SQL, API lookup documentation, and audit/provenance expectations.
+- Added legal and support starter templates for pilot agreement outline, data processing assumptions, security/privacy appendix, support model, onboarding checklist, and incident response outline.
+
+### Changed
+
+- Strengthened the SQL connector integration proof from preview-only mapping to source row, selector execution, context fact, context snapshot, service/API-shaped lookup, provenance metadata, and recompute audit verification.
+- Linked the paid pilot document to the new one-pager, SOW, production rehearsal, connector proof, and legal outline.
+- Updated public package and release metadata to `2.4.0`.
+
+### Security
+
+- Kept the public repository boundary clean: no vendor-specific paid connector implementation, no private cloud implementation, no customer secrets, and no raw customer data.
+- Reinforced that customer-owned data planes keep operational data, credentials, context facts, snapshots, selectors, and local audit logs out of hosted control-plane services by default.
+
 ## [2.3.0] - 2026-05-12
 
 ### Added

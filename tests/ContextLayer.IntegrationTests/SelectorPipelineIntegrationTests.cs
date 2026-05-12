@@ -96,7 +96,7 @@ public sealed class SelectorPipelineIntegrationTests
     }
 
     [Fact]
-    public async Task SqlTableConnector_ReadsCurrentDatabaseRow_AndMapsValue()
+    public async Task SqlTableConnector_ReadsCurrentDatabaseRow_AndProducesContextSnapshot()
     {
         await using var harness = await IntegrationHarness.CreateSqliteAsync();
         await harness.DbContext.Database.ExecuteSqlRawAsync("""
@@ -149,10 +149,43 @@ public sealed class SelectorPipelineIntegrationTests
             30,
             harness.Clock.UtcNow);
 
+        selector.Publish(harness.Clock.UtcNow);
+        harness.DbContext.AddRange(tenant, userProfile, dataSource, attribute, selector);
+        await harness.DbContext.SaveChangesAsync();
+
         var outcome = await harness.Engine.ExecuteAsync(new SelectorRuntimeContext(selector, dataSource, attribute), userProfile, SelectorExecutionMode.Preview, CancellationToken.None);
 
         Assert.True(outcome.IsSuccess);
         Assert.Equal("\"email\"", outcome.CandidateFact!.ValueJson);
+        Assert.Contains("sqlTable", outcome.CandidateFact.ProvenanceJson, StringComparison.Ordinal);
+        Assert.Equal(harness.Clock.UtcNow.AddMinutes(-15), outcome.CandidateFact.ObservedAtUtc.ToUniversalTime());
+
+        var correlationId = "sql-connector-" + Guid.NewGuid().ToString("N");
+        var execution = SelectorExecution.Create(tenant.Id, selector.Id, userProfile.Id, correlationId, "integration-test", SelectorExecutionMode.Live, harness.Clock.UtcNow);
+        harness.DbContext.SelectorExecutions.Add(execution);
+        await harness.DbContext.SaveChangesAsync();
+
+        await harness.Processor.ProcessAsync(
+            new ContextRecomputeRequest(tenant.Id, userProfile.Id, correlationId, new[] { execution.Id }),
+            CancellationToken.None);
+
+        var context = await harness.Service.GetUserContextAsync(new UserContextLookupInput(tenant.Slug, userProfile.ExternalUserId), CancellationToken.None);
+        var storedExecution = await harness.DbContext.SelectorExecutions.FirstAsync(x => x.Id == execution.Id);
+        var provenance = await harness.DbContext.ProvenanceMetadata.ToListAsync();
+        var auditEvent = await harness.DbContext.AuditEvents.FirstOrDefaultAsync(x => x.Action == "context.recompute.completed");
+
+        Assert.NotNull(context);
+        Assert.False(context!.IsStale);
+        Assert.Equal(1, context.History.Single().SnapshotVersion);
+        Assert.Single(context.Facts);
+        Assert.Equal("preferredChannel", context.Facts.Single().AttributeKey);
+        Assert.Equal("\"email\"", context.Facts.Single().ValueJson);
+        Assert.Equal(0.95m, context.Facts.Single().Confidence);
+        Assert.Contains("sqlTable", context.Facts.Single().ProvenanceJson, StringComparison.Ordinal);
+        Assert.Contains("preferred_channel", storedExecution.RawSourceDataJson, StringComparison.Ordinal);
+        Assert.Contains(provenance, x => x.Kind == "selector-execution" && x.SourceSystem == "sqlTable");
+        Assert.Contains(provenance, x => x.Kind == "context-fact" && x.SourceSystem == "sqlTable");
+        Assert.NotNull(auditEvent);
     }
 
     [Fact]
