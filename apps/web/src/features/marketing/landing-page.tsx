@@ -8,21 +8,24 @@ export function LandingPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Universal Context Layer"
-        title="This page introduces Universal Context Layer as context infrastructure for turning existing business data into trusted semantic context."
+        title="Trusted context infrastructure for AI workflows, apps, reports, and agents."
         description="Businesses do not need to rip out legacy systems or use our AI. UCL sits beside CRM, billing, support, product, warehouse, spreadsheets, and older SQL systems, then maps raw data into trusted facts that apps, workflows, reports, copilots, and agents can use."
         actions={
           <>
-            <Link to="/demo">
+            <Link to="/pilot">
               <Button>
+                Request paid pilot scope
+                <ArrowRight className="size-4" />
+              </Button>
+            </Link>
+            <Link to="/demo">
+              <Button variant="secondary">
                 See the sales demo
                 <ArrowRight className="size-4" />
               </Button>
             </Link>
             <Link to="/platform">
               <Button variant="secondary">Explore the platform</Button>
-            </Link>
-            <Link to="/pricing">
-              <Button variant="secondary">Paid pilot path</Button>
             </Link>
           </>
         }

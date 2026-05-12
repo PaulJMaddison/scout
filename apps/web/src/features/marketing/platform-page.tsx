@@ -14,7 +14,7 @@ export function PlatformPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Universal Context Layer"
-        title="This page explains how Universal Context Layer turns existing business data into trusted context that any AI tool, workflow, or product can use."
+        title="Turn existing business data into trusted context that any AI tool, workflow, or product can use."
         description="It does not replace your systems. It gives CRM, ERP, warehouse, support, billing, telemetry, SharePoint, spreadsheets, SQL databases, and internal applications a shared semantic layer."
         actions={
           <>

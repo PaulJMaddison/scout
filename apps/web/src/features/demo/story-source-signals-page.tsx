@@ -22,7 +22,7 @@ export function StorySourceSignalsPage() {
       <PageHeader
         eyebrow="Step 2 of 5"
         title="Show the valuable signals already trapped in existing systems."
-        description="This page shows the problem: CRM, billing, support, usage, and web events already contain customer intelligence, but they are fragmented and too raw for downstream systems to use safely."
+        description="CRM, billing, support, usage, and web events already contain customer intelligence, but they are fragmented and too raw for downstream systems to use safely."
         actions={
           <Link to={executiveStorySteps[2].to}>
             <Button>

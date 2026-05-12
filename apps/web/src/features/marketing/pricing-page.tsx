@@ -47,7 +47,7 @@ export function PricingPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Pricing and deployment"
-        title="This page explains what you can use now, what you can buy as a paid pilot, and what remains future control-plane work."
+        title="What you can use now, what you can buy as a paid pilot, and what remains future control-plane work."
         description="There is no live card payment, self-service subscription, or complete managed control-plane operation in the public repository. The commercial path today is open core plus supported paid pilot, with private enterprise modules and future cloud/control-plane work scoped separately."
         actions={
           <>

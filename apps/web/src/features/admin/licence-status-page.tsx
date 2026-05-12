@@ -40,7 +40,7 @@ export function LicenceStatusPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Licence and deployment status"
-        title="This page shows whether the self-hosted data plane is running in community mode, paid self-hosted mode, or a future control-plane-connected mode."
+        title="Licence status for community mode, paid self-hosted mode, or a future control-plane-connected mode."
         description="It is intentionally conservative: customer operational data stays in this environment, and the public repo only models the licence and update seams for future commercial modules."
         actions={licence ? <StatusBadge value={licence.status} /> : <Badge tone="neutral">Checking</Badge>}
       />

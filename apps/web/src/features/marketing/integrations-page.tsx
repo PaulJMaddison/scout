@@ -9,7 +9,7 @@ export function IntegrationsPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Integrations"
-        title="This page explains how Universal Context Layer connects existing systems without forcing the business to replace them."
+        title="Connect existing systems without forcing the business to replace them."
         description="UCL can act as a self-hosted backend, future managed integration layer, private-cloud service, or embedded product component. It accepts source events, reads operational systems inside the customer environment, runs selectors, and exposes trusted context through GraphQL, REST, SDKs, and webhooks."
         actions={
           <>

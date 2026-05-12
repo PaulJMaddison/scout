@@ -6,7 +6,7 @@ export function OpenCorePage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Open core strategy"
-        title="This page explains what belongs in the open source core and what stays in paid/private enterprise and cloud modules."
+        title="A clear boundary between the open source core and paid/private enterprise or cloud modules."
         description="The public project remains useful, teachable, and deployable. Paid enterprise and cloud options can be described clearly without placing their implementation code into the public repository."
       />
 

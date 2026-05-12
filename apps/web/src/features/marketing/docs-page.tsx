@@ -9,7 +9,7 @@ export function DocsPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Documentation"
-        title="This page points builders to the APIs, architecture notes, and demo flows needed to understand Universal Context Layer."
+        title="APIs, architecture notes, and demo flows for understanding Universal Context Layer."
         description="Use these docs to evaluate the open source core, run the local demo, inspect the control-plane/data-plane split, understand connector boundaries, and see how raw customer data becomes reusable semantic context."
         actions={
           <>
@@ -78,6 +78,7 @@ export function DocsPage() {
               ['docs/webhook-events.md', 'Provider-neutral event contract, signatures, idempotency, recompute triggers, and dead letters.'],
               ['docs/connector-marketplace.md', 'Connector catalogue, availability labels, safe mock connectors, and enterprise placeholders.'],
               ['docs/paid-pilot.md', 'Paid pilot buyer profile, scope, packages, success criteria, and implementation-led commercial path.'],
+              ['docs/first-real-connector-proof.md', 'Verified generic SQL connector proof from source data to selectors, facts, snapshots, API response, and provenance.'],
               ['docs/production-install-checklist.md', 'Production mode, PostgreSQL, secrets, demo fallback, backups, audit, observability, and support boundaries.'],
               ['docs/anonymised-erp-platform-pattern.md', 'Anonymised ERP platform implementation pattern showing why semantic context beats raw records.'],
               ['docs/ucl-blueprint.schema.json', 'Blueprint JSON schema for AI-assisted bootstrap imports.'],

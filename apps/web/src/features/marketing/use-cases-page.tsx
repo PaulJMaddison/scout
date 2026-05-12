@@ -47,7 +47,7 @@ export function UseCasesPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Use cases"
-        title="This page shows how Universal Context Layer turns existing business data into practical outcomes across sales, support, product, marketing, and operations."
+        title="Turn existing business data into practical outcomes across sales, support, product, marketing, and operations."
         description="The same semantic layer can serve many teams because selectors turn raw source data into trusted facts once, then expose those facts through context snapshots, APIs, SDKs, and governed packages."
         actions={
           <>

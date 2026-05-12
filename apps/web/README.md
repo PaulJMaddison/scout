@@ -24,6 +24,8 @@ Recommended local values:
 ```env
 VITE_API_BASE_URL=http://localhost:5198
 VITE_GRAPHQL_ENDPOINT=
+VITE_PILOT_LEAD_ENDPOINT=
+VITE_PILOT_CONTACT_EMAIL=hello@universalcontextlayer.com
 VITE_DEMO_FALLBACK=true
 ```
 
@@ -38,8 +40,12 @@ For hosted static-site deployment, build with the public API origin:
 ```env
 VITE_API_BASE_URL=https://<api-domain>
 VITE_GRAPHQL_ENDPOINT=https://<api-domain>/graphql
+VITE_PILOT_LEAD_ENDPOINT=https://<cloud-api-domain>/api/v1/crm/leads
+VITE_PILOT_CONTACT_EMAIL=hello@universalcontextlayer.com
 VITE_DEMO_FALLBACK=false
 ```
+
+`VITE_PILOT_LEAD_ENDPOINT` should point at the cloud/control-plane mini CRM endpoint for paid-ad traffic. If it is empty, the pilot form falls back to a prefilled email.
 
 ## Commands
 

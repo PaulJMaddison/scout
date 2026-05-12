@@ -71,6 +71,12 @@ const platformRoute = createRoute({
   component: lazyRouteComponent(() => import('@/features/marketing/platform-page'), 'PlatformPage'),
 })
 
+const pilotRoute = createRoute({
+  getParentRoute: () => marketingRoute,
+  path: '/pilot',
+  component: lazyRouteComponent(() => import('@/features/marketing/pilot-page'), 'PilotPage'),
+})
+
 const integrationLayerRoute = createRoute({
   getParentRoute: () => marketingRoute,
   path: '/integration-layer',
@@ -138,6 +144,18 @@ const faqRoute = createRoute({
   getParentRoute: () => marketingRoute,
   path: '/faq',
   component: lazyRouteComponent(() => import('@/features/marketing/faq-page'), 'FaqPage'),
+})
+
+const privacyRoute = createRoute({
+  getParentRoute: () => marketingRoute,
+  path: '/privacy',
+  component: lazyRouteComponent(() => import('@/features/marketing/privacy-page'), 'PrivacyPage'),
+})
+
+const termsRoute = createRoute({
+  getParentRoute: () => marketingRoute,
+  path: '/terms',
+  component: lazyRouteComponent(() => import('@/features/marketing/terms-page'), 'TermsPage'),
 })
 
 const publicDemoRoute = createRoute({
@@ -409,6 +427,7 @@ const routeTree = rootRoute.addChildren([
   marketingRoute.addChildren([
     indexRoute,
     platformRoute,
+    pilotRoute,
     useCasesRoute,
     integrationsRoute,
     integrationLayerRoute,
@@ -420,6 +439,8 @@ const routeTree = rootRoute.addChildren([
     publicDemoRoute,
     onboardingRoute,
     faqRoute,
+    privacyRoute,
+    termsRoute,
   ]),
   appRoute.addChildren([
     storySourceSignalsRoute,

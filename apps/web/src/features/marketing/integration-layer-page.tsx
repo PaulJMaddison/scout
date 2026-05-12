@@ -14,7 +14,7 @@ export function IntegrationLayerPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Backend integration layer"
-        title="This page explains how Universal Context Layer gives products, workflows, analytics, copilots, and agents one governed context contract over existing systems."
+        title="One governed context contract for products, workflows, analytics, copilots, and agents."
         description="Use it as a backend-only service, an internal platform component, or the context layer behind a product. It can ingest or fetch source data, interpret it through selectors, and publish governed semantic context back to the systems that need business meaning."
       />
 

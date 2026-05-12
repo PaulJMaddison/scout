@@ -15,6 +15,7 @@ import {
   Fingerprint,
   Gauge,
   GitBranch,
+  Handshake,
   HelpCircle,
   Library,
   LayoutDashboard,
@@ -60,6 +61,7 @@ const navigationSections: NavigationSection[] = [
     title: 'Platform',
     items: [
       { to: '/platform', label: 'What UCL does', icon: Waypoints, public: true },
+      { to: '/pilot', label: 'Paid pilot', icon: Handshake, public: true },
       { to: '/use-cases', label: 'Use cases', icon: BriefcaseBusiness, public: true },
       { to: '/integrations', label: 'Integrations', icon: DatabaseZap, public: true },
       { to: '/connectors', label: 'Connector catalogue', icon: PlugZap, public: true },
@@ -69,6 +71,13 @@ const navigationSections: NavigationSection[] = [
       { to: '/demo', label: 'Sales demo', icon: Flag, public: true },
       { to: '/onboarding', label: 'Company onboarding', icon: Fingerprint, public: true },
       { to: '/faq', label: 'FAQ', icon: HelpCircle, public: true },
+    ],
+  },
+  {
+    title: 'Legal',
+    items: [
+      { to: '/privacy', label: 'Privacy', icon: ShieldCheck, public: true },
+      { to: '/terms', label: 'Terms and disclaimer', icon: ScrollText, public: true },
     ],
   },
   {

@@ -19,7 +19,7 @@ export function CommercialPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Commercial options"
-        title="This page explains the paid/private enterprise and cloud offerings that sit beside the public open-core repository."
+        title="Paid/private enterprise and cloud options beside the public open-core repository."
         description="The public repo contains the safe open core and self-hosted data-plane foundations. Commercial modules can add real enterprise connectors with metadata-only defaults, enterprise identity, vaults, advanced governance, compliance exports, deployment packs, SLA tooling, hosted account management, billing, licence portals, downloads, update channels, support portals, and cloud operations."
       />
 

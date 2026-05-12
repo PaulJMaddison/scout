@@ -7,7 +7,7 @@ export function FaqPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="FAQ"
-        title="This page answers common buyer and builder questions about Universal Context Layer."
+        title="Common buyer and builder questions about Universal Context Layer."
         description="These are the questions most technical and commercial stakeholders ask when they are deciding whether UCL is a demo, a real backend layer, an open source core, or the start of a managed platform."
       />
 
