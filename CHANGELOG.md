@@ -6,6 +6,18 @@ The format is inspired by Keep a Changelog and this project follows semantic ver
 
 ## [Unreleased]
 
+## [2.5.1] - 2026-05-12
+
+### Added
+
+- Enabled the live GitHub Pages static demo at `https://pauljmaddison.github.io/universalcontextlayer/`.
+- Added the live Pages URL to the README and static demo documentation.
+- Added `.nojekyll` generation to the static demo build output for GitHub Pages serving.
+
+### Changed
+
+- Updated public release metadata to `2.5.1`.
+
 ## [2.5.0] - 2026-05-12
 
 ### Added
