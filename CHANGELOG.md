@@ -6,6 +6,23 @@ The format is inspired by Keep a Changelog and this project follows semantic ver
 
 ## [Unreleased]
 
+## [2.4.1] - 2026-05-12
+
+### Added
+
+- Added a dedicated paid pilot landing page at `/pilot` with a single pilot-scope CTA, lead capture fields, verified SQL connector proof messaging, customer-owned data-plane positioning, pilot inclusions/exclusions, 2-6 week timeline, and anonymised ERP platform pattern.
+- Added public privacy and terms/disclaimer pages with operator/contact configuration and legal-review caveats.
+- Added configurable `VITE_PILOT_LEAD_ENDPOINT` support so the pilot form can submit to the private cloud mini CRM, with email fallback when no endpoint is configured.
+
+### Changed
+
+- Rewrote public homepage and marketing page headings to remove "This page..." style copy.
+- Updated web Docker and environment documentation for pilot lead endpoint and site/operator settings.
+
+### Security
+
+- Kept the public repository boundary clean: the landing page can post enquiry metadata to the private cloud CRM, but the public repo does not include raw customer operational data handling or paid connector implementation code.
+
 ## [2.4.0] - 2026-05-12
 
 ### Added

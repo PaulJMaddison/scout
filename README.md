@@ -2,7 +2,7 @@
 
 Universal Context Layer turns existing business data into trusted semantic context that customer-owned AI tools, workflows, apps, and reports can use.
 
-Release: `2.4.0`
+Release: `2.4.1`
 License: [MIT](LICENSE)
 Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
 Security: [SECURITY.md](SECURITY.md)
