@@ -295,6 +295,8 @@ The repository includes a backend-free static demo that can be published to GitH
 
 The full downloadable product still lives in this repo as the functional React application, backend, APIs, SDKs, selector engine, seeded demo, and local setup path.
 
+Live static demo: [https://pauljmaddison.github.io/universalcontextlayer/](https://pauljmaddison.github.io/universalcontextlayer/)
+
 Build it from `apps/web` with:
 
 ```powershell

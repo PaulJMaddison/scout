@@ -4,6 +4,8 @@ The static GitHub Pages demo is a backend-free Universal Context Layer brochure,
 
 It is deliberately separate from the full product experience. The public repository still contains the functional React application, backend, APIs, SDKs, selectors, seeded demo, and local setup path that teams can download and run to use the product.
 
+Live demo URL: [https://pauljmaddison.github.io/universalcontextlayer/](https://pauljmaddison.github.io/universalcontextlayer/)
+
 ## How it differs from the full local app
 
 The full local app can authenticate users, call the API, run selectors, recompute snapshots, use databases, and exercise the seeded backend demo. It is the product experience.
@@ -65,6 +67,8 @@ One manual publishing option:
 4. Keep the base path aligned with the repository path, for example `/universalcontextlayer/`.
 
 The build also creates `index.html` and `404.html` from the static demo shell so GitHub Pages has a root document and a fallback page.
+
+The build also emits `.nojekyll` so GitHub Pages serves the Vite asset folder without Jekyll processing.
 
 ## What data is included
 
