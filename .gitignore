@@ -28,6 +28,9 @@ enterprise-build/
 enterprise-drop/
 private-packages/
 aidocs/
+/aidocs/
+UCL-local-aidocs/
+*-aidocs/
 *.lic
 *.licence.json
 *.db

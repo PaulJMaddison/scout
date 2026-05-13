@@ -16,7 +16,7 @@ const env = {
       : configuredGraphqlEndpoint,
   demoFallbackEnabled:
     import.meta.env.VITE_DEMO_FALLBACK === undefined
-      ? true
+      ? import.meta.env.DEV
       : import.meta.env.VITE_DEMO_FALLBACK === 'true',
 }
 

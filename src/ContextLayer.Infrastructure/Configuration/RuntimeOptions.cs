@@ -145,6 +145,45 @@ public sealed class TelemetryOptions
     public string OtlpEndpoint { get; set; } = string.Empty;
 }
 
+public sealed class GraphQlOptions
+{
+    public const string SectionName = "GraphQl";
+
+    public int MaxExecutionDepth { get; set; } = 16;
+
+    public int ExecutionTimeoutSeconds { get; set; } = 15;
+
+    public bool DisableIntrospectionInProduction { get; set; } = true;
+
+    public bool EnableGetRequestsInProduction { get; set; } = false;
+
+    public bool EnableSchemaRequestsInProduction { get; set; } = false;
+
+    public bool EnableMultipartRequests { get; set; } = false;
+
+    public int MaxBatchSize { get; set; } = 5;
+
+    public int MaxConcurrentExecutions { get; set; } = 32;
+}
+
+public sealed class SecurityHeadersOptions
+{
+    public const string SectionName = "SecurityHeaders";
+
+    public bool Enabled { get; set; } = true;
+
+    public bool EnableHsts { get; set; } = true;
+
+    public string ContentSecurityPolicy { get; set; } =
+        "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'";
+
+    public string ReferrerPolicy { get; set; } = "strict-origin-when-cross-origin";
+
+    public string PermissionsPolicy { get; set; } = "camera=(), microphone=(), geolocation=(), payment=()";
+
+    public string FrameOptions { get; set; } = "DENY";
+}
+
 public sealed class RateLimitOptions
 {
     public const string SectionName = "RateLimits";
