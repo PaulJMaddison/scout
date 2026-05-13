@@ -27,6 +27,7 @@ artifacts-private/
 enterprise-build/
 enterprise-drop/
 private-packages/
+aidocs/
 *.lic
 *.licence.json
 *.db

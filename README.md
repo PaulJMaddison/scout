@@ -2,7 +2,7 @@
 
 Universal Context Layer turns existing business data into trusted semantic context that customer-owned AI tools, workflows, apps, reports, and agents can use.
 
-Release: `2.6.0`
+Release: `2.7.0`
 License: [MIT](LICENSE)
 Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
 Security: [SECURITY.md](SECURITY.md)
@@ -44,6 +44,12 @@ Use these documents before offering a first commercial pilot:
   Shows how the backend-free public demo tells the product story under a GitHub Pages base path.
 - [Production install checklist](docs/production-install-checklist.md)
   Covers secrets, PostgreSQL, demo fallback, Data Protection keys, connector credentials, privacy, audit, backups, logs, and support.
+- [Paid pilot end-to-end rehearsal](docs/paid-pilot-end-to-end-rehearsal.md)
+  Walks the local cross-repo commercial flow without real hosting, payment credentials, production licence keys, or customer data.
+- [Commercial readiness summary](docs/commercial-readiness-summary.md)
+  States what is ready to show, what is ready for paid pilot conversations, what remains, and what claims not to make yet.
+- [Release and hosting alignment](docs/release-and-hosting-alignment.md)
+  Keeps public hosting aligned to reviewed `main`/tag releases rather than accidental feature branch deployment.
 
 Keep the phrase "customer data plane" central in sales and technical discussions. It is the clearest way to explain that UCL can create semantic context without requiring the customer to send raw operational data to a hosted SaaS by default.
 

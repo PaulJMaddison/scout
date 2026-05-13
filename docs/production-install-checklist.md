@@ -25,6 +25,22 @@ For paid pilots, production-style deployments, customer environments, and hosted
 - never present demo fallback data as customer data
 - confirm the built frontend was created with the intended production values
 
+## Executable Preflight
+
+Run the local production-style environment check before a paid pilot rehearsal or customer deployment:
+
+```powershell
+.\scripts\check-production-env.ps1 -EnvFile .env.production.local
+```
+
+On Linux/macOS hosts:
+
+```bash
+./scripts/check-production-env.sh .env.production.local
+```
+
+The preflight refuses demo fallback, placeholder signing keys, SQLite/local demo mode, demo seeding, temporary Data Protection keys, and missing PostgreSQL connection strings. It prints only a redacted configuration summary.
+
 ## Secrets
 
 - Set `Auth__SigningKey` to a high-entropy secret of at least 48 bytes.
@@ -90,6 +106,7 @@ For paid pilots, production-style deployments, customer environments, and hosted
 - Generate support bundles with redaction enabled.
 - Exclude raw customer data, secrets, keys, and connector credentials from support bundles unless explicitly approved.
 - Agree the support channel, response expectations, and escalation route before the pilot starts.
+- If the private cloud control plane is used, align with its backup, restore, incident, support, and live-hosting preflight runbooks without exposing private cloud internals or raw customer data in this public repo.
 
 ## Pre-Pilot Go-Live Checklist
 

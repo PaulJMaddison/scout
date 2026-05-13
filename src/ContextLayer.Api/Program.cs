@@ -48,6 +48,9 @@ if (string.Equals(platformOptions.Mode, PlatformModes.SaaS, StringComparison.Ord
     featureFlagOptions.HostedBillingUsage = true;
 }
 
+var productionReadinessReport = ProductionEnvironmentReadinessValidator.GetReport(builder.Configuration, builder.Environment);
+ProductionEnvironmentReadinessValidator.ThrowIfBlocked(productionReadinessReport);
+
 if (hostedMode
     && configuredAuthOptions.RequireSecureSigningKey
     && (string.IsNullOrWhiteSpace(configuredAuthOptions.SigningKey)
@@ -569,6 +572,7 @@ opsGroup.MapGet("/summary", async (
             }
         });
     });
+opsGroup.MapGet("/production-readiness", () => Results.Ok(productionReadinessReport));
 
 if (platformOptions.EnableRest)
 {

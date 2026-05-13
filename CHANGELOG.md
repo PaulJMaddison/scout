@@ -6,6 +6,24 @@ The format is inspired by Keep a Changelog and this project follows semantic ver
 
 ## [Unreleased]
 
+## [2.7.0] - 2026-05-13
+
+### Added
+
+- Added customer data-plane installation and production-readiness runbooks for paid-pilot delivery.
+- Added commercial readiness, hosting alignment, observability, machine-to-machine identity, support expectation, privacy, cookie/consent, terms, and paid-pilot legal draft documentation.
+- Added production environment readiness checks for production-style data-plane configuration.
+
+### Changed
+
+- Updated public release metadata to `2.7.0`.
+- Strengthened the public open-core story around demos, static demo caveats, install runbooks, public API/SDK/context package docs, and paid-pilot boundaries.
+
+### Security
+
+- Reconfirmed that the public repo does not include paid enterprise implementations, private cloud/control-plane implementation, real licence signing keys, customer-specific code, or raw customer operational data.
+- Reconfirmed that this release prepares for hosted and paid-pilot readiness but is not a complete self-serve SaaS release.
+
 ## [2.6.0] - 2026-05-13
 
 ### Added

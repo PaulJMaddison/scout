@@ -54,3 +54,11 @@ Before first signature, ask a solicitor to review:
 - offboarding, export, delete, and backup ownership language
 
 The templates in this repository are useful preparation material, not final legal documents.
+# Mandatory Legal Review Notes
+
+- This draft is not legal advice.
+- Customer data-plane operation keeps raw operational data, connector credentials, selectors, facts, snapshots, and provenance local by default.
+- Cloud control-plane processing is limited to account, licence, download, update, support, entitlement, lead, audit, and aggregate usage metadata unless separately reviewed.
+- Support data must be redacted; raw operational data must not be sent to cloud support by default.
+- First-party event tracking needs notice, consent/lawful-basis assessment, minimisation, retention, and opt-out/withdrawal handling.
+- GDPR, UK GDPR, and PECR review is required before production.

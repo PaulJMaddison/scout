@@ -1,16 +1,18 @@
 # Data Processing Assumptions
 
-This document is not legal advice. It is a practical assumptions list for solicitor and data protection review before a paid pilot.
+This is a non-lawyer drafting aid for legal and data protection review. It is not legal advice. Validate these assumptions under UK GDPR, GDPR, PECR, customer contract terms, and the actual hosting/support model before production.
 
-## Default Position
+## Architecture Assumption
 
-Universal Context Layer is designed around a customer-owned data plane. Raw operational data, connector credentials, context facts, context snapshots, selectors, and local audit logs stay in the customer-controlled environment by default.
+The customer data plane processes customer operational data locally by default. That includes connectors, source records, selectors, context facts, snapshots, provenance, audit logs, local API clients, and connector credentials.
 
-The hosted or private control plane, if used, should manage commercial metadata only by default. It should not require raw customer operational data.
+The cloud control plane processes metadata needed to run a supported paid pilot: accounts, contacts, licences, downloads, update-channel metadata, support cases, optional aggregate usage, entitlement state, and commercial audit events.
 
-## Data Categories
+## Raw Data Boundary
 
-The pilot should classify each source field before use:
+Raw operational data must not be sent to the cloud control plane or cloud support by default. This includes source rows, message bodies, documents, attachments, prompt packages, local logs containing payloads, connector credentials, database dumps, and private keys.
+
+## Data Categories To Classify
 
 - commercial account metadata
 - product usage summaries
@@ -19,41 +21,44 @@ The pilot should classify each source field before use:
 - CRM-style opportunity or contact metadata
 - operational workflow state
 - identifiers and contact details
-- special category or highly sensitive data, if any
+- special-category or highly sensitive data, if any
 
-Message bodies, document bodies, attachments, detailed ticket descriptions, and free-text notes are excluded unless explicitly approved.
+Message bodies, document bodies, attachments, detailed ticket descriptions, free-text notes, and analytics raw payloads are excluded unless explicitly approved.
 
 ## Roles And Responsibilities
 
-Customer responsibilities:
+Customer responsibilities should include lawful-basis review, source-field approval, masking rules, source credentials and rotation, customer environment backups, support-bundle approval, retention, and deletion expectations.
 
-- confirm lawful basis and internal approvals
-- approve source fields and masking rules
-- own source credentials and rotation
-- own customer environment backups unless separately agreed
-- approve support bundle export
-- decide retention and deletion expectations
+Supplier responsibilities should include processing only agreed pilot data, avoiding committed secrets/raw data, keeping provenance visible, documenting connector/selector/context behaviour, and reporting suspected incidents through the agreed route.
 
-Supplier responsibilities:
+## First-Party Events
 
-- process only agreed pilot data
-- avoid committing secrets or raw data
-- keep provenance visible
-- document connector, selector, and context output behaviour
-- report suspected incidents through the agreed route
+First-party event tracking requires a GDPR/PECR review before production. Each event must have a purpose, field list, retention period, consent/lawful-basis decision, and redaction rule. Avoid free-text fields and customer operational identifiers.
 
-## Backups, Restore, Export, And Delete
+## Support Handling
 
-The customer should own backup and restore for the customer data plane unless the SOW says otherwise. Restore rehearsals should include both the context-layer database and any customer-ops/source database used by the pilot.
+Support bundles should be redacted locally before sharing. If a customer asks for deeper support, agree the minimum dataset, secure transfer route, retention, access controls, and deletion evidence before transfer.
 
-Offboarding should define:
+## Backups, Export, And Delete
 
-- export format for agreed semantic configuration and context metadata
-- deletion or return of support bundles
-- licence expiry or revocation
-- credential revocation
-- removal of temporary access
+The customer should own backup and restore for the customer data plane unless the SOW says otherwise. Restore rehearsals should include the context-layer database, any customer-ops/source database used by the pilot, and ASP.NET Data Protection keys where protected credentials depend on them.
 
-## Legal Review
+Offboarding should define export format, deletion or return of support bundles, licence expiry or revocation, credential revocation, temporary access removal, and retained audit records.
 
-A solicitor should review controller/processor roles, international transfer assumptions, data processing agreement terms, retention, audit rights, and incident notification obligations.
+## Open Questions For Legal Review
+
+- controller/processor split for paid pilot operations
+- whether aggregate usage counts can identify a customer or user
+- retention periods for leads, support, audit, and download logs
+- international transfer and subprocessor list
+- data subject request handling route
+- incident notification wording and timing
+
+## Mandatory Legal Review Notes
+
+- This draft is not legal advice.
+- Customer data-plane operation keeps raw operational data, connector credentials, selectors, facts, snapshots, and provenance local by default.
+- Cloud control-plane processing is limited to metadata unless separately reviewed.
+- Support data must be redacted; raw operational data must not be sent to cloud support by default.
+- First-party event tracking needs notice, consent/lawful-basis assessment, minimisation, retention, and opt-out/withdrawal handling.
+- GDPR, UK GDPR, and PECR review is required before production.
