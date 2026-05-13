@@ -5,17 +5,22 @@ import type {
   AuthSession,
   AuthenticatedOperator,
   ContextFactResult,
+  ContextFactLookupOptions,
   ContextLayerClientOptions,
   ContextLayerErrorDetail,
   ContextProfileResult,
   ContextSnapshotResult,
   ContextSnapshotSummary,
   LoginRequest,
+  MachineTokenRequest,
+  MachineTokenResponse,
   PreviewSelectorInput,
   QueueRecomputeResult,
   SalesContextPackageResult,
   SelectorExecutionPreviewResult,
   SelectorValidationResult,
+  SourceSystemEventAcceptedResult,
+  SourceSystemEventRequest,
   ValidateSelectorInput,
 } from './types.js'
 
@@ -32,9 +37,18 @@ interface GraphQlEnvelope<TData> {
   }>
 }
 
+interface PageResult<T> {
+  items: T[]
+  page: number
+  pageSize: number
+  totalCount: number
+  hasMore: boolean
+}
+
 export interface ContextLayerClient {
   auth: {
     login(input: LoginRequest): Promise<AuthSession>
+    getMachineToken(input: MachineTokenRequest): Promise<MachineTokenResponse>
     getCurrentOperator(): Promise<AuthenticatedOperator>
   }
   users: {
@@ -49,8 +63,8 @@ export interface ContextLayerClient {
     getLatestForAccount(tenantSlug: string, externalAccountId: string): Promise<ContextSnapshotSummary | null>
   }
   facts: {
-    getForUser(tenantSlug: string, externalUserId: string): Promise<ContextFactResult[]>
-    getForAccount(tenantSlug: string, externalAccountId: string): Promise<ContextFactResult[]>
+    getForUser(tenantSlug: string, externalUserId: string, options?: ContextFactLookupOptions): Promise<ContextFactResult[]>
+    getForAccount(tenantSlug: string, externalAccountId: string, options?: ContextFactLookupOptions): Promise<ContextFactResult[]>
   }
   selectors: {
     preview(input: PreviewSelectorInput): Promise<SelectorExecutionPreviewResult>
@@ -69,6 +83,12 @@ export interface ContextLayerClient {
   audit: {
     getEvents(tenantSlug: string): Promise<AuditEvent[]>
   }
+  events: {
+    ingestSourceSystemEvent(
+      tenantSlug: string,
+      input: SourceSystemEventRequest,
+    ): Promise<SourceSystemEventAcceptedResult>
+  }
   forTenant(tenantSlug: string): TenantScopedContextLayerClient
 }
 
@@ -86,8 +106,8 @@ export interface TenantScopedContextLayerClient {
     getLatestForAccount(externalAccountId: string): Promise<ContextSnapshotSummary | null>
   }
   facts: {
-    getForUser(externalUserId: string): Promise<ContextFactResult[]>
-    getForAccount(externalAccountId: string): Promise<ContextFactResult[]>
+    getForUser(externalUserId: string, options?: ContextFactLookupOptions): Promise<ContextFactResult[]>
+    getForAccount(externalAccountId: string, options?: ContextFactLookupOptions): Promise<ContextFactResult[]>
   }
   recompute: {
     queueForUser(externalUserId: string, triggeredBy: string): Promise<QueueRecomputeResult>
@@ -100,6 +120,9 @@ export interface TenantScopedContextLayerClient {
   }
   audit: {
     getEvents(): Promise<AuditEvent[]>
+  }
+  events: {
+    ingestSourceSystemEvent(input: SourceSystemEventRequest): Promise<SourceSystemEventAcceptedResult>
   }
 }
 
@@ -216,6 +239,27 @@ class HttpPipeline {
         correlationId?: string
         retryable?: boolean
         errors?: ContextLayerErrorDetail[]
+        error?: {
+          code?: string
+          message?: string
+          correlationId?: string
+          details?: Record<string, string[]>
+        }
+      }
+      if (body.error) {
+        const details = Object.entries(body.error.details ?? {}).flatMap(([target, messages]) =>
+          messages.map((message) => ({
+            target,
+            message,
+          })),
+        )
+
+        return new ContextLayerError(body.error.message ?? `Request failed with ${response.status}.`, {
+          status: response.status,
+          correlationId: body.error.correlationId ?? correlationId,
+          code: body.error.code,
+          details,
+        })
       }
 
       return new ContextLayerError(body.detail ?? body.title ?? `Request failed with ${response.status}.`, {
@@ -263,6 +307,18 @@ class HttpPipeline {
 
 export function createContextLayerClient(options: ContextLayerClientOptions): ContextLayerClient {
   const pipeline = new HttpPipeline(options)
+
+  const buildQuery = (params: Record<string, string | number | null | undefined>) => {
+    const search = new URLSearchParams()
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined && value !== null && value !== '') {
+        search.set(key, String(value))
+      }
+    }
+
+    const query = search.toString()
+    return query ? `?${query}` : ''
+  }
 
   const users = {
     async getContext(tenantSlug: string, externalUserId: string): Promise<ContextProfileResult | null> {
@@ -349,12 +405,43 @@ export function createContextLayerClient(options: ContextLayerClientOptions): Co
   }
 
   const facts = {
-    async getForUser(tenantSlug: string, externalUserId: string): Promise<ContextFactResult[]> {
-      return (await users.getContext(tenantSlug, externalUserId))?.facts ?? []
+    async getForUser(
+      tenantSlug: string,
+      externalUserId: string,
+      options?: ContextFactLookupOptions,
+    ): Promise<ContextFactResult[]> {
+      const query = buildQuery({
+        tenantSlug,
+        attributeKey: options?.attributeKey,
+        page: options?.page,
+        pageSize: options?.pageSize,
+      })
+      const page = await pipeline.request<PageResult<ContextFactResult>>(
+        `/api/v1/context/users/${encodeURIComponent(externalUserId)}/facts${query}`,
+        {
+          method: 'GET',
+        },
+      )
+      return page.items
     },
-    async getForAccount(tenantSlug: string, externalAccountId: string): Promise<ContextFactResult[]> {
-      await accounts.getContext(tenantSlug, externalAccountId)
-      return []
+    async getForAccount(
+      tenantSlug: string,
+      externalAccountId: string,
+      options?: ContextFactLookupOptions,
+    ): Promise<ContextFactResult[]> {
+      const query = buildQuery({
+        tenantSlug,
+        attributeKey: options?.attributeKey,
+        page: options?.page,
+        pageSize: options?.pageSize,
+      })
+      const page = await pipeline.request<PageResult<ContextFactResult>>(
+        `/api/v1/context/accounts/${encodeURIComponent(externalAccountId)}/facts${query}`,
+        {
+          method: 'GET',
+        },
+      )
+      return page.items
     },
   }
 
@@ -460,53 +547,17 @@ export function createContextLayerClient(options: ContextLayerClientOptions): Co
       externalUserId: string,
       salesObjective: string,
     ): Promise<SalesContextPackageResult | null> {
-      return pipeline.graphql<SalesContextPackageResult>(
-        'GetSalesContextPackage',
-        `
-          query GetSalesContextPackage($input: SalesContextPackageInput!) {
-            salesContextPackage(input: $input) {
-              snapshotId
-              tenantSlug
-              externalUserId
-              fullName
-              companyName
-              jobTitle
-              segment
-              salesObjective
-              summary
-              overallConfidence
-              generatedAtUtc
-              isStale
-              humanReviewRecommended
-              missingInformation
-              weakSignalMessages
-              facts {
-                citationId
-                factId
-                attributeKey
-                displayName
-                valueJson
-                valueType
-                confidence
-                observedAtUtc
-                freshUntilUtc
-                isFresh
-                isLowConfidence
-                explanation
-                provenanceJson
-              }
-              contextPackageJson
-            }
-          }
-        `,
+      return pipeline.request<SalesContextPackageResult>(
+        `/api/v1/context/users/${encodeURIComponent(externalUserId)}/ai-safe-context-package?tenantSlug=${encodeURIComponent(tenantSlug)}`,
         {
-          input: {
-            tenantSlug,
-            externalUserId,
-            salesObjective,
+          method: 'POST',
+          body: JSON.stringify({
+            objective: salesObjective,
+          }),
+          headers: {
+            'Content-Type': 'application/json',
           },
         },
-        'salesContextPackage',
       )
     },
   }
@@ -540,9 +591,36 @@ export function createContextLayerClient(options: ContextLayerClientOptions): Co
     },
   }
 
+  const events = {
+    ingestSourceSystemEvent(
+      tenantSlug: string,
+      input: SourceSystemEventRequest,
+    ): Promise<SourceSystemEventAcceptedResult> {
+      return pipeline.request<SourceSystemEventAcceptedResult>(
+        `/api/v1/events/source-system?tenantSlug=${encodeURIComponent(tenantSlug)}`,
+        {
+          method: 'POST',
+          body: JSON.stringify(input),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+    },
+  }
+
   const auth = {
     login(input: LoginRequest): Promise<AuthSession> {
       return pipeline.request<AuthSession>('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify(input),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+    },
+    getMachineToken(input: MachineTokenRequest): Promise<MachineTokenResponse> {
+      return pipeline.request<MachineTokenResponse>('/api/auth/token', {
         method: 'POST',
         body: JSON.stringify(input),
         headers: {
@@ -567,6 +645,7 @@ export function createContextLayerClient(options: ContextLayerClientOptions): Co
     recompute,
     packages,
     audit,
+    events,
     forTenant(tenantSlug: string): TenantScopedContextLayerClient {
       return {
         tenantSlug,
@@ -592,11 +671,11 @@ export function createContextLayerClient(options: ContextLayerClientOptions): Co
           },
         },
         facts: {
-          getForUser(externalUserId: string) {
-            return facts.getForUser(tenantSlug, externalUserId)
+          getForUser(externalUserId: string, options?: ContextFactLookupOptions) {
+            return facts.getForUser(tenantSlug, externalUserId, options)
           },
-          getForAccount(externalAccountId: string) {
-            return facts.getForAccount(tenantSlug, externalAccountId)
+          getForAccount(externalAccountId: string, options?: ContextFactLookupOptions) {
+            return facts.getForAccount(tenantSlug, externalAccountId, options)
           },
         },
         recompute: {
@@ -612,6 +691,11 @@ export function createContextLayerClient(options: ContextLayerClientOptions): Co
         audit: {
           getEvents() {
             return audit.getEvents(tenantSlug)
+          },
+        },
+        events: {
+          ingestSourceSystemEvent(input: SourceSystemEventRequest) {
+            return events.ingestSourceSystemEvent(tenantSlug, input)
           },
         },
       }

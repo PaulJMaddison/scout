@@ -30,6 +30,10 @@ public sealed class ConnectorPluginModelTests
         Assert.True(registry.TryGetPlugin("csvUpload", out var csvUpload));
         Assert.NotNull(csvUpload);
         Assert.Equal("csvUpload", csvUpload.ConnectorType);
+
+        Assert.True(registry.TryGetPlugin("postgresql", out var postgresql));
+        Assert.NotNull(postgresql);
+        Assert.Equal("sqlDatabase", postgresql.ConnectorType);
     }
 
     [Fact]
@@ -43,6 +47,9 @@ public sealed class ConnectorPluginModelTests
         Assert.Contains("mockBilling", registeredTypes);
         Assert.Contains("mockSupport", registeredTypes);
         Assert.Contains("csvUpload", registeredTypes);
+        Assert.DoesNotContain("sqlServer", registeredTypes);
+        Assert.DoesNotContain("billing-system", registeredTypes);
+        Assert.DoesNotContain("legacy-dotnet-handlers", registeredTypes);
         Assert.DoesNotContain("salesforce", registeredTypes);
         Assert.DoesNotContain("hubspot", registeredTypes);
         Assert.DoesNotContain("dynamics", registeredTypes);
@@ -69,7 +76,7 @@ public sealed class ConnectorPluginModelTests
     }
 
     [Fact]
-    public async Task ConnectorCatalogue_SeedsPaidEnterprisePlaceholders_WithoutExecutablePlugins()
+    public async Task ConnectorCatalogue_SeedsPublicFamiliesAndPaidPlaceholders_WithoutExecutablePlugins()
     {
         await using var provider = CreateServices().BuildServiceProvider();
         await using var scope = provider.CreateAsyncScope();
@@ -77,17 +84,35 @@ public sealed class ConnectorPluginModelTests
         await dbContext.Database.EnsureCreatedAsync();
 
         await ConnectorCatalogueSeeder.SeedAsync(dbContext, new DateTime(2026, 05, 11, 12, 0, 0, DateTimeKind.Utc), CancellationToken.None);
-        var placeholders = await dbContext.ConnectorCatalogueEntries
-            .Where(x => EnterprisePlaceholderTypes.Contains(x.ConnectorType))
-            .ToListAsync();
+        var entries = await dbContext.ConnectorCatalogueEntries.ToListAsync();
         var registry = scope.ServiceProvider.GetRequiredService<IConnectorRegistry>();
 
-        Assert.Equal(16, placeholders.Count);
-        Assert.All(placeholders, entry =>
+        foreach (var connectorType in RequiredPublicCatalogueTypes)
+        {
+            Assert.Contains(entries, entry => entry.ConnectorType == connectorType);
+        }
+
+        var openCoreTypes = entries
+            .Where(x => x.Availability == ConnectorCatalogueAvailability.OpenCore)
+            .Select(x => x.ConnectorType)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        Assert.Contains("postgresql", openCoreTypes);
+        Assert.Contains("productTelemetryEvents", openCoreTypes);
+        Assert.Contains("firstPartyConversionEvents", openCoreTypes);
+
+        var privatePlaceholders = entries
+            .Where(x => PrivatePlaceholderTypes.Contains(x.ConnectorType))
+            .ToList();
+        Assert.Equal(PrivatePlaceholderTypes.Length, privatePlaceholders.Count);
+        Assert.All(privatePlaceholders, entry =>
         {
             Assert.True(entry.IsPlaceholder);
-            Assert.Equal(ConnectorCatalogueAvailability.Enterprise, entry.Availability);
-            Assert.Contains("public repo does not include", entry.Description.ToLowerInvariant());
+            var description = entry.Description.ToLowerInvariant();
+            Assert.True(
+                description.Contains("public repo does not include", StringComparison.Ordinal)
+                || description.Contains("ships in this repo", StringComparison.Ordinal)
+                || description.Contains("not included publicly", StringComparison.Ordinal),
+                $"Connector '{entry.ConnectorType}' should state that implementation code is not public.");
             Assert.False(registry.TryGetPlugin(entry.ConnectorType, out _));
         });
     }
@@ -208,8 +233,40 @@ public sealed class ConnectorPluginModelTests
         return services;
     }
 
-    private static readonly string[] EnterprisePlaceholderTypes =
+    private static readonly string[] RequiredPublicCatalogueTypes =
     [
+        "sqlDatabase",
+        "postgresql",
+        "sqlServer",
+        "restApi",
+        "csvUpload",
+        "mockCrm",
+        "hubspot",
+        "salesforce",
+        "dynamics",
+        "sharepoint",
+        "microsoft365-outlook",
+        "gmail",
+        "zendesk",
+        "netsuite",
+        "billing-system",
+        "productTelemetryEvents",
+        "firstPartyConversionEvents",
+        "legacy-dotnet-handlers"
+    ];
+
+    private static readonly string[] PrivatePlaceholderTypes =
+    [
+        "sqlServer",
+        "billing-system",
+        "legacy-dotnet-handlers",
+        "salesforce",
+        "hubspot",
+        "dynamics",
+        "snowflake",
+        "bigquery",
+        "zendesk",
+        "netsuite",
         "microsoft365-outlook",
         "gmail",
         "slack",

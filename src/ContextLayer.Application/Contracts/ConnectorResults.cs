@@ -16,6 +16,7 @@ public sealed record ConnectorCatalogueEntryResult(
     string DisplayName,
     string Description,
     string Category,
+    string PublicStatus,
     string Availability,
     bool IsIncludedInOpenCore,
     bool RequiresCommercialAgreement,

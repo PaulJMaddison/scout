@@ -2,6 +2,8 @@
 
 Universal Context Layer turns existing business data into trusted semantic context that any AI tool, workflow, application, report, copilot, or agent can use.
 
+We do not build the brain. We build the nervous system: the governed layer that carries business context from existing systems to customer-owned consumers.
+
 The buyer message is simple:
 
 - customers keep CRM, ERP, support desk, billing, warehouse, product databases, spreadsheets, and legacy systems

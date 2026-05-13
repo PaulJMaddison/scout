@@ -21,7 +21,7 @@ internal sealed class SqlConnectorPlugin(
 
     public override string Description => "Fetches subject rows from the current context database, customer operations database, or an external PostgreSQL connection.";
 
-    public override IReadOnlyList<string> Aliases => ["sqlTable"];
+    public override IReadOnlyList<string> Aliases => ["sqlTable", "postgresql"];
 
     public override IReadOnlyList<DataSourceKind> SupportedDataSourceKinds => [DataSourceKind.SqlMetric, DataSourceKind.Crm, DataSourceKind.ProductUsage];
 

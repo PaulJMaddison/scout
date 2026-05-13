@@ -277,7 +277,10 @@ svg {
 .role-grid,
 .signal-grid,
 .selector-layout,
+.data-plane-layout,
 .ai-layout,
+.api-layout,
+.roi-grid,
 .three-column,
 .architecture-grid,
 .faq-grid {
@@ -308,12 +311,17 @@ svg {
 .fact-card,
 .selector-card,
 .builder-panel,
+.data-plane-map,
+.contract-panel,
+.integration-card,
+.proof-card,
 .package-panel,
 .strategy-panel,
 .email-panel,
 .guardrail-panel,
 .followup-panel,
 .info-panel,
+.outcome-panel,
 .faq-item,
 .audit-strip article {
   min-width: 0;
@@ -332,12 +340,17 @@ svg {
 .fact-card,
 .selector-card,
 .builder-panel,
+.data-plane-map,
+.contract-panel,
+.integration-card,
+.proof-card,
 .package-panel,
 .strategy-panel,
 .email-panel,
 .guardrail-panel,
 .followup-panel,
 .info-panel,
+.outcome-panel,
 .faq-item {
   padding: clamp(1rem, 2vw, 1.35rem);
 }
@@ -615,6 +628,135 @@ details summary {
   line-height: 1.6;
 }
 
+.data-plane-layout {
+  grid-template-columns: minmax(0, 1.15fr) minmax(19rem, 0.85fr);
+  align-items: start;
+}
+
+.data-plane-map {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) auto minmax(0, 1.1fr) auto minmax(0, 0.8fr);
+  gap: 0.75rem;
+  align-items: center;
+  min-height: 21rem;
+  background:
+    linear-gradient(135deg, rgba(85, 99, 79, 0.12), transparent),
+    rgba(255, 253, 248, 0.84);
+}
+
+.source-stack,
+.consumer-stack,
+.data-plane-steps,
+.integration-list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.source-stack span,
+.consumer-stack span {
+  border-radius: 8px;
+  background: rgba(23, 19, 15, 0.07);
+  padding: 0.65rem 0.75rem;
+  color: var(--ink-800);
+  font-size: 0.88rem;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.data-plane-core {
+  border-radius: 8px;
+  background: var(--ink-950);
+  padding: 1.2rem;
+  color: var(--ivory-25);
+}
+
+.data-plane-core p {
+  color: var(--ivory-100);
+}
+
+.data-plane-map > svg {
+  color: var(--copper-500);
+}
+
+.api-layout {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+
+.contract-panel {
+  background: var(--ink-950);
+  color: var(--ivory-25);
+}
+
+.contract-panel.package {
+  background: #263024;
+}
+
+.contract-panel pre,
+.integration-card pre,
+.email-panel pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.contract-panel pre,
+.integration-card pre {
+  margin: 1rem 0 0;
+  border-radius: 8px;
+  padding: 1rem;
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.contract-panel pre {
+  max-height: 26rem;
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--ivory-100);
+}
+
+.integration-card pre {
+  background: rgba(23, 19, 15, 0.06);
+  color: var(--ink-800);
+}
+
+.integration-list,
+.outcome-panel {
+  grid-column: 1 / -1;
+}
+
+.integration-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.roi-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.proof-card strong {
+  display: block;
+  margin: 0.65rem 0;
+  color: var(--ink-950);
+  font-family: 'Space Grotesk Variable', sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1;
+}
+
+.buyer-value {
+  border-top: 1px solid var(--border);
+  margin-bottom: 0;
+  padding-top: 0.85rem;
+  color: var(--ink-800);
+  font-weight: 800;
+}
+
+.commercial-outcome {
+  margin-top: 1rem;
+}
+
+.outcome-panel {
+  background: rgba(200, 155, 61, 0.13);
+}
+
 .ai-layout {
   grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
 }
@@ -738,6 +880,7 @@ details summary {
   .hero,
   .split,
   .selector-layout,
+  .data-plane-layout,
   .architecture-grid,
   .context-layout,
   .architecture-diagram {
@@ -746,6 +889,7 @@ details summary {
 
   .signal-grid,
   .role-grid,
+  .roi-grid,
   .three-column,
   .audit-strip {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -757,6 +901,19 @@ details summary {
 
   .interaction-time {
     grid-row: span 5;
+  }
+
+  .data-plane-map {
+    grid-template-columns: 1fr;
+  }
+
+  .data-plane-map > svg {
+    justify-self: center;
+    transform: rotate(90deg);
+  }
+
+  .integration-list {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -796,6 +953,8 @@ details summary {
   .fact-grid,
   .mapping-grid,
   .ai-layout,
+  .api-layout,
+  .roi-grid,
   .audit-strip,
   .faq-grid {
     grid-template-columns: 1fr;

@@ -231,6 +231,9 @@ Convert to ongoing support, enterprise connectors, private cloud, or managed ope
 
 - [First Paid Pilot One-Pager](first-paid-pilot-one-pager.md)
 - [Pilot SOW Template](pilot-sow-template.md)
+- [Customer Data Plane](customer-data-plane.md)
+- [Buyer FAQ](buyer-faq.md)
+- [Public API Contract](public-api-contract.md)
 - [Production Install Rehearsal](production-install-rehearsal.md)
 - [First Real Connector Proof](first-real-connector-proof.md)
 - [Pilot Agreement Outline](legal/pilot-agreement-outline.md)

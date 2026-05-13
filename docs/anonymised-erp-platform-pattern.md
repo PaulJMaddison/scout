@@ -2,6 +2,8 @@
 
 This document describes an anonymised implementation pattern from a recent ERP platform engagement. It is not a named case study, formal endorsement, or disclosure of confidential customer architecture.
 
+The pattern illustrates the UCL product story: do not replace the customer's brain or systems of record, build the nervous system that carries trusted context between them.
+
 ## Problem
 
 A business had valuable operational data spread across legacy databases, CRM-style records, operational systems, and fragmented business records. A new web platform needed to make that data useful for AI-enabled workflows and business processes, but the source estate was not designed around a clean modern product API.

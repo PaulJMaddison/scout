@@ -2,6 +2,8 @@
 
 This rehearsal checks whether a Universal Context Layer customer data plane is configured like a first paid pilot environment. It is not a production deployment and does not prove customer go-live readiness by itself.
 
+The rehearsal protects the open-core boundary: it checks a customer-owned data plane that can feed the customer's own tools, not a self-serve hosted SaaS or paid enterprise connector suite.
+
 ## Rehearsal Command
 
 PowerShell:

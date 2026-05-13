@@ -36,9 +36,21 @@ public sealed class V1RestApiIntegrationTests
         var health = await client.GetAsync("/api/v1/health");
         Assert.Equal(HttpStatusCode.OK, health.StatusCode);
 
-        var publicCatalogue = await ReadJsonAsync(client.GetAsync("/api/v1/connectors/catalogue?pageSize=25"));
+        var publicCatalogue = await ReadJsonAsync(client.GetAsync("/api/v1/connectors/catalogue?pageSize=100"));
         var catalogueItems = publicCatalogue.Payload["items"]!.AsArray();
         Assert.Contains(catalogueItems, item => item?["connectorType"]?.GetValue<string>() == "mockCrm");
+        Assert.Contains(catalogueItems, item =>
+            item?["connectorType"]?.GetValue<string>() == "postgresql"
+            && item?["publicStatus"]?.GetValue<string>() == "PublicGenericExample"
+            && item?["isIncludedInOpenCore"]?.GetValue<bool>() == true);
+        Assert.Contains(catalogueItems, item =>
+            item?["connectorType"]?.GetValue<string>() == "sqlServer"
+            && item?["publicStatus"]?.GetValue<string>() == "PaidEnterpriseImplementation"
+            && item?["isPlaceholder"]?.GetValue<bool>() == true);
+        Assert.Contains(catalogueItems, item =>
+            item?["connectorType"]?.GetValue<string>() == "legacy-dotnet-handlers"
+            && item?["publicStatus"]?.GetValue<string>() == "CustomerSpecificConnector"
+            && item?["isPlaceholder"]?.GetValue<bool>() == true);
         Assert.Contains(catalogueItems, item =>
             item?["connectorType"]?.GetValue<string>() == "salesforce"
             && item?["isPlaceholder"]?.GetValue<bool>() == true
@@ -51,6 +63,7 @@ public sealed class V1RestApiIntegrationTests
                 query ConnectorCatalogue {
                   connectorCatalogue {
                     connectorType
+                    publicStatus
                     availability
                     isIncludedInOpenCore
                     requiresCommercialAgreement
@@ -65,6 +78,7 @@ public sealed class V1RestApiIntegrationTests
         Assert.Contains(graphQlCatalogue, item => item?["connectorType"]?.GetValue<string>() == "csvUpload");
         Assert.Contains(graphQlCatalogue, item =>
             item?["connectorType"]?.GetValue<string>() == "hubspot"
+            && item?["publicStatus"]?.GetValue<string>() == "PaidEnterpriseImplementation"
             && item?["requiresCommercialAgreement"]?.GetValue<bool>() == true);
 
         var blueprintJson = CreateBlueprintJson();
@@ -125,9 +139,44 @@ public sealed class V1RestApiIntegrationTests
         Assert.Equal("acct-123", accountContext.Payload["externalAccountId"]!.GetValue<string>());
         Assert.Single(accountContext.Payload["users"]!.AsArray());
 
+        var userFacts = await ReadJsonAsync(client.GetAsync("/api/v1/context/users/user-123/facts?attributeKey=accountHealth&pageSize=5"));
+        Assert.Single(userFacts.Payload["items"]!.AsArray());
+
+        var graphQlFactsResponse = await client.PostAsJsonAsync("/graphql", new
+        {
+            query = """
+                query FactLookup {
+                  contextFacts(
+                    tenantSlug: "demo"
+                    externalUserId: "user-123"
+                    externalAccountId: null
+                    attributeKey: "accountHealth"
+                    skip: 0
+                    take: 5
+                  ) {
+                    attributeKey
+                    confidence
+                    provenanceJson
+                  }
+                }
+                """
+        });
+        Assert.Equal(HttpStatusCode.OK, graphQlFactsResponse.StatusCode);
+        var graphQlFactsPayload = JsonNode.Parse(await graphQlFactsResponse.Content.ReadAsStringAsync())!.AsObject();
+        Assert.Single(graphQlFactsPayload["data"]!["contextFacts"]!.AsArray());
+
+        var accountFacts = await ReadJsonAsync(client.GetAsync("/api/v1/context/accounts/acct-123/facts?pageSize=5"));
+        Assert.Single(accountFacts.Payload["items"]!.AsArray());
+
         var snapshot = await ReadJsonAsync(client.GetAsync($"/api/v1/context/snapshots/{snapshotId}"));
         Assert.Equal(snapshotId, snapshot.Payload["snapshotId"]!.GetValue<Guid>());
         Assert.Single(snapshot.Payload["facts"]!.AsArray());
+
+        var contextPackage = await ReadJsonAsync(client.PostAsJsonAsync(
+            "/api/v1/context/users/user-123/ai-safe-context-package",
+            new V1AiSafeContextPackageRequest("Book a discovery call for enterprise rollout.")));
+        Assert.Equal("user-123", contextPackage.Payload["externalUserId"]!.GetValue<string>());
+        Assert.Equal("Book a discovery call for enterprise rollout.", contextPackage.Payload["salesObjective"]!.GetValue<string>());
 
         var attributes = await ReadJsonAsync(client.GetAsync("/api/v1/semantic-attributes?q=accountHealth&pageSize=5"));
         Assert.Single(attributes.Payload["items"]!.AsArray());

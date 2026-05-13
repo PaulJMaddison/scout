@@ -19,6 +19,20 @@ export interface AuthSession {
   operator: AuthenticatedOperator
 }
 
+export interface MachineTokenRequest {
+  grantType: 'client_credentials'
+  clientId: string
+  clientSecret: string
+  scope?: string | null
+}
+
+export interface MachineTokenResponse {
+  accessToken: string
+  tokenType: 'Bearer' | string
+  expiresIn: number
+  scope: string
+}
+
 export interface ContextFactResult {
   id: string
   attributeKey: string
@@ -30,6 +44,45 @@ export interface ContextFactResult {
   sourceSelectorDefinitionId: string
   explanation: string
   provenanceJson: string
+}
+
+export interface ContextFactLookupOptions {
+  attributeKey?: string | null
+  page?: number | null
+  pageSize?: number | null
+}
+
+export interface PageResult<T> {
+  items: T[]
+  page: number
+  pageSize: number
+  totalCount: number
+  hasMore: boolean
+}
+
+export interface SourceSystemEventRequest {
+  eventId?: string | null
+  workspaceSlug?: string | null
+  sourceSystem: string
+  eventType: string
+  payload?: unknown
+  payloadJson?: string | null
+  externalUserId?: string | null
+  externalAccountId?: string | null
+  observedAtUtc?: string | null
+}
+
+export interface SourceSystemEventAcceptedResult {
+  eventId: string
+  tenantId: string
+  tenantSlug: string
+  workspaceId?: string | null
+  userProfileId?: string | null
+  storedSignalCount: number
+  matchedSelectorCount: number
+  status: string
+  isDuplicate: boolean
+  acceptedAtUtc: string
 }
 
 export interface OperationalHighlightResult {

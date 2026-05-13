@@ -6,6 +6,24 @@ The format is inspired by Keep a Changelog and this project follows semantic ver
 
 ## [Unreleased]
 
+## [2.6.0] - 2026-05-13
+
+### Added
+
+- Added buyer-facing docs for the customer data plane, public API contract, integration layer, and buyer FAQ.
+- Expanded the static GitHub Pages demo with a richer fictional data-plane story, connector catalogue framing, and proof/caveat copy.
+- Added REST, GraphQL, TypeScript SDK, and .NET SDK coverage for context facts, context snapshots, AI-safe context packages, selector preview/validation, source-system events, pagination, errors, and machine-to-machine auth.
+
+### Changed
+
+- Strengthened README and product docs around the nervous-system narrative, existing systems staying in place, bring-your-own AI, paid-pilot path, and open-core versus paid/private boundaries.
+- Updated public release metadata to `2.6.0`.
+
+### Security
+
+- Reconfirmed that paid enterprise connector implementations, cloud billing/control-plane implementation, customer-specific code, secrets, and raw customer data are not part of the public repository.
+- Reconfirmed that the public static demo uses fictional data and is not live backend or SaaS functionality.
+
 ## [2.5.1] - 2026-05-12
 
 ### Added

@@ -6,6 +6,7 @@ using ContextLayer.Application.Abstractions;
 using ContextLayer.Application.Contracts;
 using ContextLayer.Domain.Entities;
 using ContextLayer.Domain.Enums;
+using ContextLayer.Domain.Saas;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.EntityFrameworkCore;
@@ -99,6 +100,7 @@ public sealed class ContextLayerService(
                 entry.DisplayName,
                 entry.Description,
                 entry.Category,
+                GetConnectorPublicStatus(entry),
                 entry.Availability.ToString(),
                 entry.Availability == ConnectorCatalogueAvailability.OpenCore,
                 entry.Availability is ConnectorCatalogueAvailability.Enterprise or ConnectorCatalogueAvailability.SaaSManaged,
@@ -110,6 +112,28 @@ public sealed class ContextLayerService(
                 entry.CredentialSchemaJson,
                 entry.HealthCheckMode))
             .ToList();
+    }
+
+    private static string GetConnectorPublicStatus(ConnectorCatalogueEntry entry)
+    {
+        if (entry.Availability == ConnectorCatalogueAvailability.OpenCore)
+        {
+            return "PublicGenericExample";
+        }
+
+        if (entry.Availability == ConnectorCatalogueAvailability.ComingSoon)
+        {
+            return "PlannedConnector";
+        }
+
+        if (entry.ConnectorType.Contains("customer", StringComparison.OrdinalIgnoreCase)
+            || entry.ConnectorType.Contains("legacy-dotnet", StringComparison.OrdinalIgnoreCase)
+            || entry.ConnectorType.Contains("billing-system", StringComparison.OrdinalIgnoreCase))
+        {
+            return "CustomerSpecificConnector";
+        }
+
+        return "PaidEnterpriseImplementation";
     }
 
     public async Task<IReadOnlyList<SemanticAttributeDefinition>> GetSemanticAttributesAsync(string tenantSlug, CancellationToken cancellationToken)

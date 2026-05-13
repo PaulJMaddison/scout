@@ -201,11 +201,15 @@ const connectorCatalogue: ConnectorCatalogueEntry[] = [
     'Generic SQL connector for local demo databases and PostgreSQL deployments.',
     'Opens configured database connections for health checks.',
   ]),
+  connectorCatalogueEntry('postgresql', 'PostgreSQL', 'Database', 'OpenCore', false, [
+    'Public generic alias for the SQL Database connector when an approved PostgreSQL table or view is used.',
+    'Resolves to the open-core sqlDatabase implementation.',
+  ]),
   connectorCatalogueEntry('restApi', 'REST API', 'API', 'OpenCore', false, [
     'Generic REST connector for JSON source payloads.',
     'Supports static responses for safe demos and previews.',
   ]),
-  connectorCatalogueEntry('csvUpload', 'CSV upload', 'File', 'OpenCore', false, [
+  connectorCatalogueEntry('csvUpload', 'CSV / file import', 'File', 'OpenCore', false, [
     'Demo-safe parsed rows for CSV and spreadsheet onboarding.',
     'Production file storage belongs behind a separate extension point.',
   ]),
@@ -221,6 +225,26 @@ const connectorCatalogue: ConnectorCatalogueEntry[] = [
     'Fictional support tickets and satisfaction signals.',
     'Safe local implementation included.',
   ]),
+  connectorCatalogueEntry('productTelemetryEvents', 'Product telemetry events', 'Event contract', 'OpenCore', false, [
+    'Public event-contract entry for product usage rollups.',
+    'Uses the source-system event API rather than a paid analytics connector.',
+  ]),
+  connectorCatalogueEntry('firstPartyConversionEvents', 'First-party conversion events', 'Event contract', 'OpenCore', false, [
+    'Public event-contract entry for customer-owned web conversion events.',
+    'Useful for pricing visits, form submissions, and journey milestones.',
+  ]),
+  connectorCatalogueEntry('sqlServer', 'SQL Server placeholder', 'Database', 'Enterprise', true, [
+    'Catalogue metadata only.',
+    'No SQL Server-specific handler or customer schema pack ships in the public repo.',
+  ]),
+  connectorCatalogueEntry('billing-system', 'Billing system connector', 'Billing', 'Enterprise', true, [
+    'Customer-specific connector placeholder.',
+    'No production invoice, payment, or finance sync client ships in the public repo.',
+  ]),
+  connectorCatalogueEntry('legacy-dotnet-handlers', 'Legacy .NET web handlers', '.NET', 'Enterprise', true, [
+    'Customer-specific connector placeholder.',
+    'Paid .NET handler packages are not included publicly.',
+  ]),
   connectorCatalogueEntry('salesforce', 'Salesforce placeholder', 'CRM', 'SaaSManaged', true, [
     'Catalogue metadata only.',
     'No Salesforce implementation ships in the public repo.',
@@ -233,11 +257,11 @@ const connectorCatalogue: ConnectorCatalogueEntry[] = [
     'Catalogue metadata only.',
     'No Dynamics implementation ships in the public repo.',
   ]),
-  connectorCatalogueEntry('snowflake', 'Snowflake placeholder', 'Warehouse', 'Enterprise', true, [
+  connectorCatalogueEntry('snowflake', 'Snowflake placeholder', 'Warehouse', 'ComingSoon', true, [
     'Catalogue metadata only.',
     'No Snowflake implementation ships in the public repo.',
   ]),
-  connectorCatalogueEntry('bigquery', 'BigQuery placeholder', 'Warehouse', 'Enterprise', true, [
+  connectorCatalogueEntry('bigquery', 'BigQuery placeholder', 'Warehouse', 'ComingSoon', true, [
     'Catalogue metadata only.',
     'No BigQuery implementation ships in the public repo.',
   ]),
@@ -2394,11 +2418,21 @@ function connectorCatalogueEntry(
   isPlaceholder: boolean,
   descriptionParts: string[],
 ): ConnectorCatalogueEntry {
+  const publicStatus =
+    availability === 'OpenCore'
+      ? 'PublicGenericExample'
+      : availability === 'ComingSoon'
+        ? 'PlannedConnector'
+        : connectorType.includes('legacy-dotnet') || connectorType.includes('billing-system')
+          ? 'CustomerSpecificConnector'
+          : 'PaidEnterpriseImplementation'
+
   return {
     connectorType,
     displayName,
     description: descriptionParts.join(' '),
     category,
+    publicStatus,
     availability,
     isIncludedInOpenCore: availability === 'OpenCore',
     requiresCommercialAgreement: availability === 'Enterprise' || availability === 'SaaSManaged',
@@ -2409,6 +2443,8 @@ function connectorCatalogueEntry(
         ? ['SqlMetric', 'ProductUsage']
         : category === 'File'
           ? ['Crm', 'SqlMetric', 'ProductUsage', 'EventStream']
+          : category === 'Event contract'
+            ? ['ProductUsage', 'EventStream']
           : ['Crm', 'EventStream'],
     capabilities: isPlaceholder
       ? ['catalogueOnly', 'configurationSchema', 'futureHealthCheck', 'futureCredentialStorage']

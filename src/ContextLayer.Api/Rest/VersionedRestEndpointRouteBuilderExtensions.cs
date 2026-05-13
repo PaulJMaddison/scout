@@ -181,6 +181,72 @@ public static class VersionedRestEndpointRouteBuilderExtensions
             }))
             .WithName("V1GetAccountContext");
 
+        reader.MapGet("/context/users/{externalUserId}/facts", async (
+                string externalUserId,
+                string? tenantSlug,
+                string? attributeKey,
+                int? page,
+                int? pageSize,
+                IContextLayerService service,
+                ICurrentActorService actorService,
+                CancellationToken cancellationToken) =>
+            await ExecuteAsync(async httpContext =>
+            {
+                var resolvedTenantSlug = ResolveTenantSlug(actorService, tenantSlug);
+                var context = await service.GetUserContextAsync(new UserContextLookupInput(resolvedTenantSlug, externalUserId), cancellationToken);
+                if (context is null)
+                {
+                    return NotFound(httpContext, "context.user_not_found", "User context was not found.");
+                }
+
+                var facts = context.Facts.AsEnumerable();
+                if (!string.IsNullOrWhiteSpace(attributeKey))
+                {
+                    facts = facts.Where(x => x.AttributeKey.Contains(attributeKey.Trim(), StringComparison.OrdinalIgnoreCase));
+                }
+
+                return Results.Ok(Page(facts.ToList(), page, pageSize));
+            }))
+            .WithName("V1ListUserContextFacts");
+
+        reader.MapGet("/context/accounts/{externalAccountId}/facts", async (
+                string externalAccountId,
+                string? tenantSlug,
+                string? attributeKey,
+                int? page,
+                int? pageSize,
+                IContextLayerService service,
+                ICurrentActorService actorService,
+                CancellationToken cancellationToken) =>
+            await ExecuteAsync(async httpContext =>
+            {
+                var resolvedTenantSlug = ResolveTenantSlug(actorService, tenantSlug);
+                var account = await service.GetAccountContextAsync(resolvedTenantSlug, externalAccountId, cancellationToken);
+                if (account is null)
+                {
+                    return NotFound(httpContext, "context.account_not_found", "Account context was not found.");
+                }
+
+                var facts = new List<ContextFactResult>();
+                foreach (var user in account.Users.Where(x => x.LatestSnapshotId.HasValue))
+                {
+                    var snapshot = await service.GetContextSnapshotAsync(resolvedTenantSlug, user.LatestSnapshotId!.Value, cancellationToken);
+                    if (snapshot is not null)
+                    {
+                        facts.AddRange(snapshot.Facts);
+                    }
+                }
+
+                var filtered = facts.AsEnumerable();
+                if (!string.IsNullOrWhiteSpace(attributeKey))
+                {
+                    filtered = filtered.Where(x => x.AttributeKey.Contains(attributeKey.Trim(), StringComparison.OrdinalIgnoreCase));
+                }
+
+                return Results.Ok(Page(filtered.ToList(), page, pageSize));
+            }))
+            .WithName("V1ListAccountContextFacts");
+
         reader.MapGet("/context/snapshots/{snapshotId:guid}", async (
                 Guid snapshotId,
                 string? tenantSlug,
@@ -194,6 +260,23 @@ public static class VersionedRestEndpointRouteBuilderExtensions
                 return result is null ? NotFound(httpContext, "context.snapshot_not_found", "Context snapshot was not found.") : Results.Ok(result);
             }))
             .WithName("V1GetContextSnapshot");
+
+        reader.MapPost("/context/users/{externalUserId}/ai-safe-context-package", async (
+                string externalUserId,
+                V1AiSafeContextPackageRequest request,
+                string? tenantSlug,
+                IContextLayerService service,
+                ICurrentActorService actorService,
+                CancellationToken cancellationToken) =>
+            await ExecuteAsync(async httpContext =>
+            {
+                var resolvedTenantSlug = ResolveTenantSlug(actorService, tenantSlug);
+                var result = await service.GetSalesContextPackageAsync(
+                    new SalesContextPackageInput(resolvedTenantSlug, externalUserId, request.Objective),
+                    cancellationToken);
+                return result is null ? NotFound(httpContext, "context.package_not_found", "AI-safe context package was not found.") : Results.Ok(result);
+            }))
+            .WithName("V1GetAiSafeContextPackage");
 
         writer.MapPost("/context/recompute", async (
                 V1RecomputeRequest request,

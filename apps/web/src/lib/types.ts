@@ -83,11 +83,18 @@ export interface DataSource {
 
 export type ConnectorCatalogueAvailability = 'OpenCore' | 'Enterprise' | 'SaaSManaged' | 'ComingSoon'
 
+export type ConnectorPublicStatus =
+  | 'PublicGenericExample'
+  | 'PaidEnterpriseImplementation'
+  | 'PlannedConnector'
+  | 'CustomerSpecificConnector'
+
 export interface ConnectorCatalogueEntry {
   connectorType: string
   displayName: string
   description: string
   category: string
+  publicStatus: ConnectorPublicStatus
   availability: ConnectorCatalogueAvailability
   isIncludedInOpenCore: boolean
   requiresCommercialAgreement: boolean

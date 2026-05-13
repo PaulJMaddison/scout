@@ -63,6 +63,65 @@ query DemoContextViewer {
   }
 }
 
+query DemoAccountContext {
+  accountContext(tenantSlug: "demo", externalAccountId: "acct-123") {
+    tenantSlug
+    externalAccountId
+    accountName
+    domain
+    industry
+    segment
+    lifecycleStage
+    users {
+      externalUserId
+      fullName
+      latestSnapshotId
+      summary
+      overallConfidence
+      isStale
+    }
+  }
+}
+
+query DemoContextSnapshot($snapshotId: UUID!) {
+  contextSnapshot(tenantSlug: "demo", snapshotId: $snapshotId) {
+    snapshotId
+    snapshotVersion
+    summary
+    overallConfidence
+    generatedAtUtc
+    isStale
+    facts {
+      attributeKey
+      valueJson
+      confidence
+      explanation
+      provenanceJson
+    }
+  }
+}
+
+query DemoSemanticFactLookup {
+  contextFacts(
+    tenantSlug: "demo"
+    externalUserId: "123"
+    externalAccountId: null
+    attributeKey: "conversion"
+    skip: 0
+    take: 10
+  ) {
+    id
+    attributeKey
+    valueJson
+    valueType
+    confidence
+    observedAtUtc
+    freshUntilUtc
+    explanation
+    provenanceJson
+  }
+}
+
 query DemoSemanticCatalog {
   dataSources(tenantSlug: "demo") {
     id
@@ -100,6 +159,37 @@ query DemoSemanticCatalog {
   }
 }
 
+mutation ValidatePreferredChannelSelector {
+  validateSelector(
+    input: {
+      tenantSlug: "demo"
+      externalUserId: "123"
+      draftSelector: {
+        id: null
+        tenantSlug: "demo"
+        dataSourceId: "REPLACE_WITH_CONTACT_SIGNAL_SOURCE_ID"
+        targetAttributeDefinitionId: "REPLACE_WITH_PREFERRED_CHANNEL_ATTRIBUTE_ID"
+        name: "Preferred Channel from Contact Preference"
+        description: "Validate direct mapping from customer_ops_db contact signals."
+        mappingKind: DIRECT_FIELD_MAPPING
+        expressionJson: "{ \"transforms\": [{ \"path\": \"preferred_channel\", \"type\": \"lower\" }], \"rule\": { \"valuePath\": \"preferred_channel\" } }"
+        explanationTemplate: "Preferred channel resolved from the contact record as {{sourceValue}}."
+        validationSchemaJson: "{ \"requiredPaths\": [\"preferred_channel\"] }"
+        defaultConfidence: 0.96
+        freshnessWindowMinutes: 1440
+        priority: 10
+        scheduleIntervalMinutes: 120
+      }
+    }
+  ) {
+    isValid
+    validationErrors
+    rawSourceDataJson
+    normalizedSourceDataJson
+    pipelineTraceJson
+  }
+}
+
 mutation PreviewPreferredChannelSelector {
   previewSelector(
     input: {
@@ -133,6 +223,18 @@ mutation PreviewPreferredChannelSelector {
     explanation
     provenanceJson
     pipelineTraceJson
+  }
+}
+
+query DemoAuditEvents {
+  auditEvents(tenantSlug: "demo") {
+    actor
+    action
+    entityType
+    entityId
+    correlationId
+    metadataJson
+    createdAtUtc
   }
 }
 

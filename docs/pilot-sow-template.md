@@ -6,6 +6,8 @@ This template is a commercial and delivery starting point only. It is not legal 
 
 This Statement of Work is between `[Customer legal name]` and `[Supplier legal name]` for a time-boxed Universal Context Layer paid pilot. The pilot will prove one agreed workflow using a customer-owned UCL data plane and the source systems listed in this SOW.
 
+UCL is the nervous system, not the brain: the pilot supplies governed context to the customer's selected AI tool, workflow, app, report, or agent rather than requiring the customer to use a UCL-owned AI stack.
+
 The pilot does not create a general self-serve SaaS subscription unless a separate agreement says so.
 
 ## 2. Pilot Objectives

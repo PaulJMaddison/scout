@@ -2,6 +2,8 @@
 
 The static GitHub Pages demo is a backend-free Universal Context Layer brochure, sales, and marketing site. It uses fixed TypeScript fixtures to show how existing business data becomes semantic context for AI, applications, reports, and workflows.
 
+The demo leads with the product narrative: we do not build the brain, we build the nervous system. UCL sits beside customer systems and exposes governed context to the customer's own tools.
+
 It is deliberately separate from the full product experience. The public repository still contains the functional React application, backend, APIs, SDKs, selectors, seeded demo, and local setup path that teams can download and run to use the product.
 
 Live demo URL: [https://pauljmaddison.github.io/universalcontextlayer/](https://pauljmaddison.github.io/universalcontextlayer/)
@@ -77,12 +79,16 @@ The fixture data includes:
 - a fictional featured account, `Northstar Logistics`
 - a fictional featured person, `User 123 / Avery Stone`
 - raw operational signals from CRM, product usage, support, billing, email engagement, and web events
+- a SQL/customer record signal showing that legacy database rollups can contribute context without replatforming
 - semantic attributes such as `conversionProbability`, `preferredChannel`, `planInterest`, `engagementLevel`, `churnRisk`, `expansionPotential`, `budgetReadiness`, `decisionMakerLikelihood`, `productFit`, and `recommendedSalesMotion`
 - context facts with value, type, confidence, timestamp, provenance, freshness, explanation, and source selector
+- a context snapshot with tenant, workspace, freshness, governance, and source-system metadata
 - selector definitions for direct mapping, enum mapping, weighted scoring, threshold classification, formula-derived metrics, and composite classification
-- a static AI recommendation with outreach strategy, personalised email, follow-up recommendations, citations, confidence notes, and hallucination guardrails
+- an AI-safe context package that explicitly says UCL does not need to call an AI model
+- a static downstream workflow decision, business outcome, outreach strategy, personalised email, follow-up recommendations, citations, confidence notes, and hallucination guardrails
 - audit and provenance timeline entries
 - an interaction timeline showing raw signal, semantic interpretation, AI advice, action, and result
+- ROI and commercial proof points covering pilot scope, integration reuse, governance proof, and legacy preservation
 
 ## What is fictional
 
@@ -94,8 +100,11 @@ The static demo proves the product story can be understood without local setup:
 
 - existing business systems can stay in place
 - selectors can turn raw operational signals into governed semantic facts
+- the customer data plane owns source access, selectors, facts, snapshots, provenance, and audit by default
 - context facts can carry confidence, provenance, freshness, masking, and explanations
-- downstream AI and workflow consumers can receive grounded context packages instead of raw records
+- downstream AI, workflow, product, and reporting consumers can receive grounded context packages instead of raw records
+- GraphQL, REST, SDK, and context package contracts can explain how another system consumes the context
+- a paid pilot can prove one useful workflow before wider enterprise connector work
 - the open-core and paid-pilot boundary can be explained clearly
 
 ## What it does not prove

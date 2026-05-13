@@ -44,6 +44,25 @@ export interface InteractionBeat {
   result: string
 }
 
+export interface DataPlaneStep {
+  label: string
+  description: string
+}
+
+export interface IntegrationExample {
+  name: string
+  consumer: string
+  contract: string
+  sample: string
+}
+
+export interface CommercialProofPoint {
+  label: string
+  metric: string
+  evidence: string
+  buyerValue: string
+}
+
 export const featuredAccount = {
   accountId: 'ACC-DEMO-0123',
   accountName: 'Northstar Logistics',
@@ -94,6 +113,15 @@ export const rawSignals: RawSignal[] = [
     interpretation: 'High activity across multiple workspaces indicates the account is testing repeatable rollout.',
   },
   {
+    id: 'sql-01',
+    system: 'SQL warehouse',
+    source: 'warehouse.account_context_rollup.implementation_phase',
+    timestamp: '2026-05-12T07:55:00Z',
+    rawField: 'implementation_phase',
+    rawValue: 'cross-region rollout planning',
+    interpretation: 'A legacy warehouse rollup adds operational rollout context without requiring the source estate to be replaced.',
+  },
+  {
     id: 'support-01',
     system: 'Support',
     source: 'support.tickets.open_critical',
@@ -128,6 +156,29 @@ export const rawSignals: RawSignal[] = [
     rawField: 'pricing_page_visits_30d',
     rawValue: '11',
     interpretation: 'Repeated enterprise pricing visits are a strong timing and budget-readiness signal.',
+  },
+]
+
+export const customerDataPlaneSteps: DataPlaneStep[] = [
+  {
+    label: 'Source access stays customer-controlled',
+    description:
+      'CRM, ERP, SQL, support, billing, email, telemetry, spreadsheets, SharePoint, and old applications stay where they are while UCL reads approved signals.',
+  },
+  {
+    label: 'Selectors create governed semantics',
+    description:
+      'Mappings turn raw fields and events into facts with confidence, freshness windows, explanations, masking expectations, and provenance.',
+  },
+  {
+    label: 'Snapshots become the stable contract',
+    description:
+      'Context facts are versioned into snapshots that downstream tools can cite instead of rebuilding joins or sending raw records into prompts.',
+  },
+  {
+    label: 'APIs expose context to customer consumers',
+    description:
+      'GraphQL, REST, SDKs, and package retrieval let customer-owned apps, workflows, reports, copilots, and agents use the same business meaning.',
   },
 ]
 
@@ -327,6 +378,101 @@ export const selectors: SelectorDefinition[] = [
   },
 ]
 
+export const contextSnapshot = {
+  snapshotId: 'SNAP-DEMO-0007',
+  tenantSlug: 'demo',
+  workspaceSlug: 'primary',
+  externalAccountId: featuredAccount.accountId,
+  externalUserId: featuredPerson.externalUserId,
+  version: 7,
+  generatedAtUtc: '2026-05-12T08:30:00Z',
+  overallConfidence: 0.9,
+  freshness: '3 hours',
+  factCount: contextFacts.length,
+  sourceSystems: ['CRM', 'SQL warehouse', 'Product usage', 'Support', 'Billing', 'Email', 'Web'],
+  governance: ['tenant-scoped', 'masked contact data', 'provenance required', 'human review for outbound action'],
+}
+
+export const aiSafeContextPackage = {
+  packageId: 'PKG-SALES-0007',
+  purpose: 'Book an enterprise rollout discovery call',
+  tenantSlug: 'demo',
+  externalUserId: featuredPerson.externalUserId,
+  generatedFromSnapshot: contextSnapshot.snapshotId,
+  sentToConsumer: 'customer-owned sales workflow',
+  uclCallsAiModel: false,
+  allowedFacts: ['FACT-01', 'FACT-02', 'FACT-05', 'FACT-06', 'FACT-07', 'FACT-09', 'FACT-10'],
+  redactions: ['masked email address', 'no message bodies', 'no named internal users', 'no raw support transcript'],
+  guardrails: ['cite every recommendation', 'do not invent contract terms', 'pause if support risk changes'],
+}
+
+export const integrationExamples: IntegrationExample[] = [
+  {
+    name: 'GraphQL context lookup',
+    consumer: 'internal account workspace',
+    contract: 'userContext(input: { tenantSlug, externalUserId })',
+    sample: `query {
+  userContext(input: { tenantSlug: "demo", externalUserId: "123" }) {
+    summary
+    overallConfidence
+    facts { attributeKey valueJson confidence provenanceJson }
+  }
+}`,
+  },
+  {
+    name: 'REST snapshot retrieval',
+    consumer: 'workflow automation',
+    contract: 'GET /api/v1/context/snapshots/{snapshotId}?tenantSlug=demo',
+    sample: `curl -H "Authorization: Bearer $TOKEN" \\
+  "https://ucl.example/api/v1/context/snapshots/SNAP-DEMO-0007?tenantSlug=demo"`,
+  },
+  {
+    name: 'AI-safe context package',
+    consumer: 'customer-owned AI tool',
+    contract: 'salesContextPackage or SDK packages.getAiContextForUser',
+    sample: `const pkg = await ucl.packages.getAiContextForUser(
+  "demo",
+  "123",
+  "Book a 20-minute enterprise rollout call."
+)`,
+  },
+]
+
+export const downstreamWorkflowDecision = {
+  decision: 'Queue human-reviewed email-first enterprise rollout motion.',
+  reason:
+    'Conversion probability, budget readiness, usage depth, and support stability are all fresh enough to act on, but outbound copy still needs human review.',
+  businessOutcome:
+    'The team can prove one revenue workflow without replacing CRM, billing, support, product telemetry, or the legacy warehouse.',
+}
+
+export const commercialProofPoints: CommercialProofPoint[] = [
+  {
+    label: 'Pilot scope',
+    metric: '1 workflow',
+    evidence: 'Enterprise rollout motion from seven source families into one governed context package.',
+    buyerValue: 'A buyer can fund a focused paid pilot before committing to a replatforming programme.',
+  },
+  {
+    label: 'Integration reuse',
+    metric: '4 contracts',
+    evidence: 'GraphQL, REST, SDK usage, and AI-safe context packages expose the same semantic facts.',
+    buyerValue: 'The same customer context can feed apps, reports, workflows, and customer-owned AI tools.',
+  },
+  {
+    label: 'Governance proof',
+    metric: '10 cited facts',
+    evidence: 'Each fact carries confidence, freshness, provenance, masking notes, and selector explanation.',
+    buyerValue: 'A CTO can inspect why a recommendation was made instead of accepting an opaque AI output.',
+  },
+  {
+    label: 'Legacy preservation',
+    metric: '0 replacements',
+    evidence: 'CRM, SQL warehouse, support, billing, telemetry, email, and web signals remain source systems.',
+    buyerValue: 'The commercial value is implementation speed and operational confidence, not ripping out working systems.',
+  },
+]
+
 export const semanticTimeline = [
   {
     time: '2026-05-09 10:05',
@@ -464,6 +610,11 @@ export const auditTimeline = [
 
 export const faqItems = [
   {
+    question: 'Is UCL the brain or the AI model?',
+    answer:
+      'No. UCL is the nervous system: it carries trusted business context from existing systems to the customer-owned tools, workflows, reports, apps, and AI stack that need it.',
+  },
+  {
     question: 'Does this replace our CRM?',
     answer:
       'No. UCL sits beside CRM, billing, support, product, warehouse, spreadsheet, and legacy systems. It turns selected signals into reusable semantic facts while systems of record continue doing their existing jobs.',
@@ -512,5 +663,20 @@ export const faqItems = [
     question: 'How does it help ROI?',
     answer:
       'UCL reduces duplicated integration work and helps teams ship better-grounded AI or workflow decisions sooner. A paid pilot should prove one high-value workflow with measurable time saved, improved conversion, reduced risk, or clearer operational decisions.',
+  },
+  {
+    question: 'What should a CEO care about?',
+    answer:
+      'A CEO should see a practical path to value: prove one workflow, keep existing systems in place, avoid a replatforming programme, and decide whether the context layer is worth expanding.',
+  },
+  {
+    question: 'What should a CTO verify?',
+    answer:
+      'A CTO should verify tenant scoping, API contracts, source boundaries, selector governance, provenance, audit events, machine-to-machine auth, backup expectations, and the open-core versus private enterprise boundary.',
+  },
+  {
+    question: 'What should an enterprise architect check?',
+    answer:
+      'An enterprise architect should check how the customer data plane sits beside existing systems, which data crosses boundaries, how context packages are scoped, and which future connector or control-plane capabilities need commercial scope.',
   },
 ]

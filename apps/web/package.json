@@ -1,7 +1,7 @@
 {
   "name": "universal-context-layer-web",
   "private": true,
-  "version": "2.5.1",
+  "version": "2.6.0",
   "description": "Open core marketing site and self-hosted admin console for Universal Context Layer.",
   "license": "MIT",
   "author": "Paul Maddison and contributors",

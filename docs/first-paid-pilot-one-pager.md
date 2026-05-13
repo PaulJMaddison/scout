@@ -2,6 +2,8 @@
 
 Universal Context Layer turns existing business data into trusted semantic context that customer-owned AI tools, workflows, apps, reports, and agents can use.
 
+We do not build the brain. We build the nervous system: the customer-controlled layer that carries trusted context from existing systems to the tools the customer already owns or wants to build.
+
 ## Who The Pilot Is For
 
 The first paid pilot is for organisations that already have valuable operational data in CRM, support, billing, product usage, data warehouse, PostgreSQL/SQL databases, spreadsheets, or legacy systems, but cannot safely reuse that data as business meaning in AI-enabled workflows without brittle point-to-point integration.
@@ -78,6 +80,12 @@ The buyer should finish the pilot with:
 An anonymised ERP platform pattern has already shown the commercial shape: existing operational systems stayed in place while a semantic layer translated fragmented records into reusable business meaning for a new web platform and AI-enabled workflows. The lesson for UCL is that buyers do not need to replace their core estate first; they can prove value by placing a governed context layer beside it.
 
 See [Anonymised ERP Platform Pattern](anonymised-erp-platform-pattern.md).
+
+Related buyer and technical proof:
+
+- [Customer Data Plane](customer-data-plane.md)
+- [Buyer FAQ](buyer-faq.md)
+- [Public API Contract](public-api-contract.md)
 
 ## Success Criteria
 

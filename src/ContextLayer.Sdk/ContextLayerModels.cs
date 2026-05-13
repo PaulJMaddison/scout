@@ -15,6 +15,18 @@ public sealed record AuthSession(
     DateTime ExpiresAtUtc,
     AuthenticatedOperator Operator);
 
+public sealed record MachineTokenRequest(
+    string GrantType,
+    string ClientId,
+    string ClientSecret,
+    string? Scope);
+
+public sealed record MachineTokenResponse(
+    string AccessToken,
+    string TokenType,
+    int ExpiresIn,
+    string Scope);
+
 public sealed record UserContextLookupInput(string TenantSlug, string ExternalUserId);
 
 public sealed record SalesContextPackageInput(string TenantSlug, string ExternalUserId, string SalesObjective);
@@ -59,6 +71,41 @@ public sealed record ContextFactResult(
     Guid SourceSelectorDefinitionId,
     string Explanation,
     string ProvenanceJson);
+
+public sealed record ContextFactLookupOptions(
+    string? AttributeKey = null,
+    int? Page = null,
+    int? PageSize = null);
+
+public sealed record PageResult<T>(
+    IReadOnlyList<T> Items,
+    int Page,
+    int PageSize,
+    int TotalCount,
+    bool HasMore);
+
+public sealed record SourceSystemEventRequest(
+    string? EventId,
+    string? WorkspaceSlug,
+    string SourceSystem,
+    string EventType,
+    object? Payload,
+    string? PayloadJson,
+    string? ExternalUserId,
+    string? ExternalAccountId,
+    DateTime? ObservedAtUtc);
+
+public sealed record SourceSystemEventAcceptedResult(
+    string EventId,
+    Guid TenantId,
+    string TenantSlug,
+    Guid? WorkspaceId,
+    Guid? UserProfileId,
+    int StoredSignalCount,
+    int MatchedSelectorCount,
+    string Status,
+    bool IsDuplicate,
+    DateTime AcceptedAtUtc);
 
 public sealed record OperationalHighlightResult(string Label, string Value, string Explanation);
 

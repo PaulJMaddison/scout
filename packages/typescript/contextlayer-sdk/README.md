@@ -2,7 +2,7 @@
 
 Typed TypeScript SDK scaffold for Universal Context Layer. It gives application teams a stable client surface for the local/private product API instead of requiring them to hand-roll REST and GraphQL calls during pilots.
 
-This package lives in the private product workspace today. Treat it as local/private scaffolding until npm publishing is deliberately configured and reviewed.
+This package is public open-core scaffolding for pilots and local integration work. Treat npm publishing, semantic version promises, and managed support as deliberate future release work.
 
 ## SDK Folder Structure
 
@@ -24,14 +24,16 @@ packages/typescript/contextlayer-sdk/
 ## Supported Capabilities
 
 - authentication
+- machine-to-machine token exchange
 - tenant scoping
 - user context lookup
 - account context lookup
 - context snapshot retrieval
-- semantic fact lookup
+- semantic fact lookup with REST filtering and pagination options
 - selector preview and validation
 - context recompute requests
 - AI context package retrieval
+- provider-neutral source-system event ingestion
 - audit event lookup
 - typed error handling
 - retries for transient failures
@@ -54,7 +56,11 @@ const contextLayer = createContextLayerClient({
 })
 
 const context = await contextLayer.users.getContext('demo', '123')
-const facts = await contextLayer.facts.getForUser('demo', '123')
+const facts = await contextLayer.facts.getForUser('demo', '123', {
+  attributeKey: 'health',
+  page: 1,
+  pageSize: 25,
+})
 const snapshot = await contextLayer.snapshots.getLatestForUser('demo', '123')
 const snapshotById = await contextLayer.snapshots.getById('demo', snapshot!.snapshotId)
 const account = await contextLayer.accounts.getContext('demo', 'ACC-123')
@@ -67,7 +73,7 @@ const demo = contextLayer.forTenant('demo')
 
 const context = await demo.users.getContext('123')
 const account = await demo.accounts.getContext('ACC-123')
-const facts = await demo.facts.getForUser('123')
+const facts = await demo.facts.getForUser('123', { attributeKey: 'health' })
 const auditEvents = await demo.audit.getEvents()
 ```
 
@@ -78,6 +84,17 @@ const session = await contextLayer.auth.login({
   tenantSlug: 'demo',
   email: 'admin@contextlayer.local',
   password: 'DemoAdmin123!',
+})
+```
+
+Machine-to-machine clients can exchange credentials for a scoped bearer token:
+
+```ts
+const token = await contextLayer.auth.getMachineToken({
+  grantType: 'client_credentials',
+  clientId: process.env.UCL_CLIENT_ID!,
+  clientSecret: process.env.UCL_CLIENT_SECRET!,
+  scope: 'context:read context:write audit:read',
 })
 ```
 
@@ -118,7 +135,36 @@ const preview = await contextLayer.selectors.preview({
 const queued = await contextLayer.recompute.queueForUser('demo', '123', 'crm-webhook')
 ```
 
+## Source-System Events
+
+This posts to the open-core provider-neutral event endpoint. It does not implement paid vendor handlers or customer-specific .NET adapters.
+
+```ts
+const accepted = await contextLayer.events.ingestSourceSystemEvent('demo', {
+  eventId: 'evt-demo-001',
+  sourceSystem: 'product',
+  eventType: 'source.product_usage.rollup_ready',
+  externalUserId: '123',
+  payload: {
+    activeDays30: 22,
+    lastFeature: 'renewal-report',
+  },
+})
+
+const scopedAccepted = await demo.events.ingestSourceSystemEvent({
+  eventId: 'evt-demo-002',
+  sourceSystem: 'web',
+  eventType: 'source.web_conversion.received',
+  externalAccountId: 'ACC-123',
+  payload: {
+    pricingPageVisits30d: 4,
+  },
+})
+```
+
 ## AI Context Package
+
+This retrieves a scoped context package only. UCL does not call an AI model in this method.
 
 ```ts
 const pkg = await contextLayer.packages.getAiContextForUser(
@@ -177,6 +223,8 @@ Run the local API first:
 Current tests cover:
 
 - REST v1 user, account, and snapshot route construction
+- REST v1 semantic fact filtering
+- source-system event ingestion route construction
 - tenant-scoped delegation
 - transient retry handling
 - typed problem-details error mapping

@@ -3,6 +3,7 @@ using ContextLayer.Application.Services;
 using ContextLayer.Domain.Entities;
 using ContextLayer.Domain.Enums;
 using ContextLayer.Infrastructure.Auth;
+using HotChocolate;
 using HotChocolate.Authorization;
 using Microsoft.AspNetCore.Http;
 
@@ -195,6 +196,98 @@ public sealed class Query
     {
         GraphQlScopeGuard.RequireApiClientScope(httpContextAccessor, ApiScopes.ContextRead);
         return service.GetUserContextAsync(input, cancellationToken);
+    }
+
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst, RoleNames.SalesUser, RoleNames.ReadOnly, RoleNames.ApiClient })]
+    public Task<AccountContextResult?> AccountContext(
+        string tenantSlug,
+        string externalAccountId,
+        [Service] IHttpContextAccessor httpContextAccessor,
+        [Service] IContextLayerService service,
+        CancellationToken cancellationToken)
+    {
+        GraphQlScopeGuard.RequireApiClientScope(httpContextAccessor, ApiScopes.ContextRead);
+        return service.GetAccountContextAsync(tenantSlug, externalAccountId, cancellationToken);
+    }
+
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst, RoleNames.SalesUser, RoleNames.ReadOnly, RoleNames.ApiClient })]
+    public Task<ContextSnapshotResult?> ContextSnapshot(
+        string tenantSlug,
+        Guid snapshotId,
+        [Service] IHttpContextAccessor httpContextAccessor,
+        [Service] IContextLayerService service,
+        CancellationToken cancellationToken)
+    {
+        GraphQlScopeGuard.RequireApiClientScope(httpContextAccessor, ApiScopes.ContextRead);
+        return service.GetContextSnapshotAsync(tenantSlug, snapshotId, cancellationToken);
+    }
+
+    [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.IntegrationAdmin, RoleNames.Analyst, RoleNames.SalesUser, RoleNames.ReadOnly, RoleNames.ApiClient })]
+    public async Task<IReadOnlyList<ContextFactResult>> ContextFacts(
+        string tenantSlug,
+        string? externalUserId,
+        string? externalAccountId,
+        string? attributeKey,
+        int? skip,
+        int? take,
+        [Service] IHttpContextAccessor httpContextAccessor,
+        [Service] IContextLayerService service,
+        CancellationToken cancellationToken)
+    {
+        GraphQlScopeGuard.RequireApiClientScope(httpContextAccessor, ApiScopes.ContextRead);
+        if (string.IsNullOrWhiteSpace(externalUserId) && string.IsNullOrWhiteSpace(externalAccountId))
+        {
+            throw new GraphQLException(ErrorBuilder.New()
+                .SetMessage("Provide externalUserId or externalAccountId.")
+                .SetCode("context.subject_required")
+                .Build());
+        }
+
+        if (!string.IsNullOrWhiteSpace(externalUserId) && !string.IsNullOrWhiteSpace(externalAccountId))
+        {
+            throw new GraphQLException(ErrorBuilder.New()
+                .SetMessage("Provide only one of externalUserId or externalAccountId.")
+                .SetCode("context.subject_ambiguous")
+                .Build());
+        }
+
+        var facts = new List<ContextFactResult>();
+        if (!string.IsNullOrWhiteSpace(externalUserId))
+        {
+            var context = await service.GetUserContextAsync(new UserContextLookupInput(tenantSlug, externalUserId), cancellationToken);
+            if (context is not null)
+            {
+                facts.AddRange(context.Facts);
+            }
+        }
+        else
+        {
+            var account = await service.GetAccountContextAsync(tenantSlug, externalAccountId!, cancellationToken);
+            if (account is not null)
+            {
+                foreach (var user in account.Users.Where(static user => user.LatestSnapshotId.HasValue))
+                {
+                    var snapshot = await service.GetContextSnapshotAsync(tenantSlug, user.LatestSnapshotId!.Value, cancellationToken);
+                    if (snapshot is not null)
+                    {
+                        facts.AddRange(snapshot.Facts);
+                    }
+                }
+            }
+        }
+
+        var filtered = facts.AsEnumerable();
+        if (!string.IsNullOrWhiteSpace(attributeKey))
+        {
+            filtered = filtered.Where(fact => fact.AttributeKey.Contains(attributeKey.Trim(), StringComparison.OrdinalIgnoreCase));
+        }
+
+        var safeSkip = Math.Max(0, skip ?? 0);
+        var safeTake = Math.Clamp(take ?? 50, 1, 200);
+        return filtered
+            .Skip(safeSkip)
+            .Take(safeTake)
+            .ToList();
     }
 
     [Authorize(Roles = new[] { RoleNames.PlatformOwner, RoleNames.TenantAdmin, RoleNames.Analyst, RoleNames.SalesUser, RoleNames.ApiClient })]

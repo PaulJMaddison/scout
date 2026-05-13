@@ -24,16 +24,23 @@ import {
 } from 'lucide-react'
 import {
   aiRecommendation,
+  aiSafeContextPackage,
   auditTimeline,
+  commercialProofPoints,
   contextFacts,
+  contextSnapshot,
+  customerDataPlaneSteps,
+  downstreamWorkflowDecision,
   faqItems,
   featuredAccount,
   featuredPerson,
+  integrationExamples,
   interactionTimeline,
   rawSignals,
   selectors,
   semanticTimeline,
   type ContextFact,
+  type CommercialProofPoint,
   type RawSignal,
   type SelectorDefinition,
 } from './data'
@@ -41,12 +48,17 @@ import './styles.css'
 
 const sectionLinks = [
   ['Home', 'home'],
-  ['Why UCL', 'why-ucl'],
-  ['Signals', 'legacy-signals'],
-  ['Timeline', 'semantic-timeline'],
+  ['What UCL does', 'what-ucl-does'],
+  ['Legacy data blocks', 'legacy-ai-block'],
+  ['Existing sources', 'existing-data-sources'],
+  ['Semantic timeline', 'semantic-timeline'],
+  ['Workflow timeline', 'ai-interaction-timeline'],
   ['Context', 'context-viewer'],
-  ['Selectors', 'selector-builder'],
-  ['AI', 'ai-playground'],
+  ['Selector mapping', 'selector-builder'],
+  ['Data plane', 'customer-data-plane'],
+  ['API package', 'api-layer'],
+  ['ROI proof', 'roi-commercial-proof'],
+  ['Open core', 'open-core'],
   ['Architecture', 'architecture'],
   ['FAQ', 'faq'],
 ] as const
@@ -72,13 +84,17 @@ function App() {
       <Header />
       <main>
         <HomeSection />
-        <WhySection />
+        <WhatUclDoesSection />
+        <LegacyAiBlockSection />
         <LegacySignalsSection />
         <SemanticTimelineSection />
         <AiInteractionTimelineSection />
         <CustomerContextSection />
         <SelectorBuilderSection />
+        <CustomerDataPlaneSection />
+        <ApiIntegrationSection />
         <AiPlaygroundSection />
+        <RoiCommercialProofSection />
         <OpenCoreSection />
         <ArchitectureSection />
         <FaqSection />
@@ -138,12 +154,12 @@ function HomeSection() {
     <section id="home" className="hero">
       <div className="hero-copy">
         <p className="eyebrow">Static brochure and sales demo</p>
-        <h1>Universal Context Layer turns existing business data into trusted semantic context for AI, apps, reports, and workflows.</h1>
+        <h1>Universal Context Layer turns existing business data into trusted semantic context for AI tools, workflows, apps, reports, and agents.</h1>
         <p>
-          This static site is the public demo, brochure, and marketing walkthrough. The full downloadable product is still the functional React application and backend that teams can run to use UCL with real connectors, selectors, APIs, and context workflows.
+          We do not build the brain. We build the nervous system. This public demo shows how UCL sits beside customer systems, maps raw operational signals into governed facts, and exposes context to the customer's own tools without a replatforming programme.
         </p>
         <div className="hero-actions">
-          <a className="button primary" href="#legacy-signals">
+          <a className="button primary" href="#existing-data-sources">
             Explore the data story <ArrowRight aria-hidden="true" />
           </a>
           <a className="button secondary" href="#ai-playground">
@@ -164,7 +180,7 @@ function HomeSection() {
         <ArrowRight className="flow-arrow" aria-hidden="true" />
         <div className="flow-node outcome">
           <Bot aria-hidden="true" />
-          <span>Grounded AI advice and workflow actions</span>
+          <span>Customer-owned AI, workflow, product, and reporting consumers</span>
         </div>
         <div className="hero-proof">
           <Metric label="Fictional profile" value="User 123" />
@@ -176,31 +192,30 @@ function HomeSection() {
   )
 }
 
-function WhySection() {
+function WhatUclDoesSection() {
   return (
     <Section
-      id="why-ucl"
-      eyebrow="Why UCL"
-      title="AI is only as strong as the business context it receives."
-      firstSentence="Fragmented legacy data makes AI weak because each workflow receives partial records, stale interpretation, and little evidence."
+      id="what-ucl-does"
+      eyebrow="What UCL does"
+      title="UCL gives existing systems a governed semantic layer."
+      firstSentence="Universal Context Layer maps selected operational data into trusted context facts that customer-owned systems can use through GraphQL, REST, SDKs, context packages, and internal services."
     >
-      <div className="split">
-        <div className="panel danger">
-          <h3>Before UCL</h3>
-          <ul className="story-list">
-            <li>CRM notes, product events, invoices, support tickets, and web visits sit in separate systems.</li>
-            <li>Replacing those systems is expensive, slow, and usually unrealistic for a first AI workflow.</li>
-            <li>Teams compensate with copied exports, brittle joins, and prompts that cannot prove why they made a recommendation.</li>
-          </ul>
-        </div>
-        <div className="panel success">
-          <h3>With UCL</h3>
-          <ul className="story-list">
-            <li>Existing systems stay in place while selectors translate selected signals into shared business meaning.</li>
-            <li>Facts carry confidence, freshness, provenance, masking, and explanations.</li>
-            <li>Downstream apps and AI consumers receive a governed context package instead of raw operational sprawl.</li>
-          </ul>
-        </div>
+      <div className="three-column">
+        <article className="info-panel">
+          <Database aria-hidden="true" />
+          <h3>Sit beside legacy systems</h3>
+          <p>CRM, ERP, SQL databases, support desks, billing tools, files, emails, product telemetry, and old applications remain systems of record.</p>
+        </article>
+        <article className="info-panel">
+          <SlidersHorizontal aria-hidden="true" />
+          <h3>Map signals into facts</h3>
+          <p>Selectors convert approved source fields and events into semantic facts with confidence, freshness, provenance, explanations, and governance metadata.</p>
+        </article>
+        <article className="info-panel">
+          <Network aria-hidden="true" />
+          <h3>Expose context contracts</h3>
+          <p>Customer-owned products, workflows, agents, reports, and AI tools consume the same context through GraphQL, REST, SDKs, and scoped packages.</p>
+        </article>
       </div>
       <div className="role-grid">
         {[
@@ -219,13 +234,43 @@ function WhySection() {
   )
 }
 
+function LegacyAiBlockSection() {
+  return (
+    <Section
+      id="legacy-ai-block"
+      eyebrow="Why legacy systems block AI"
+      title="Raw operational records are a poor interface for useful decisions."
+      firstSentence="Fragmented legacy data makes AI and workflow automation weak because each consumer receives partial records, stale interpretation, and little evidence."
+    >
+      <div className="split">
+        <div className="panel danger">
+          <h3>Before UCL</h3>
+          <ul className="story-list">
+            <li>CRM notes, product events, invoices, support tickets, SQL rollups, emails, and web visits sit in separate systems.</li>
+            <li>Replacing those systems is expensive, slow, and usually unrealistic for a first AI or workflow project.</li>
+            <li>Teams compensate with copied exports, brittle joins, and prompts that cannot prove why they made a recommendation.</li>
+          </ul>
+        </div>
+        <div className="panel success">
+          <h3>With UCL</h3>
+          <ul className="story-list">
+            <li>Existing systems stay in place while selectors translate selected signals into shared business meaning.</li>
+            <li>Facts carry confidence, freshness, provenance, masking, and explanations.</li>
+            <li>Downstream consumers receive a governed context package instead of raw operational sprawl.</li>
+          </ul>
+        </div>
+      </div>
+    </Section>
+  )
+}
+
 function LegacySignalsSection() {
   return (
     <Section
-      id="legacy-signals"
-      eyebrow="Legacy data signals"
-      title="The demo starts with static snapshots of operational data."
-      firstSentence="Raw CRM, product usage, billing, support, email, and web signals stay recognisable before UCL turns them into semantic facts."
+      id="existing-data-sources"
+      eyebrow="Existing data sources"
+      title="The demo starts with fragmented operational data already living in customer systems."
+      firstSentence="Static SQL customer records, CRM fields, email engagement, support tickets, billing metrics, product usage, and web conversion events stay recognisable before UCL turns them into semantic facts."
     >
       <div className="signal-grid">
         {rawSignals.map((signal) => (
@@ -284,7 +329,7 @@ function AiInteractionTimelineSection() {
   return (
     <Section
       id="ai-interaction-timeline"
-      eyebrow="AI interaction timeline"
+      eyebrow="AI/workflow interaction timeline"
       title="Grounded context changes what the AI and workflow decide next."
       firstSentence="The static interaction timeline shows raw data, UCL semantic interpretation, AI advice, human or workflow action, and business result."
     >
@@ -404,7 +449,7 @@ function SelectorBuilderSection() {
   return (
     <Section
       id="selector-builder"
-      eyebrow="Selector builder demo"
+      eyebrow="Selector mapping"
       title="A static mapping studio shows how raw fields become semantic facts."
       firstSentence="The selector builder preview includes field mapping, weighted scoring, threshold classification, formula-derived metrics, confidence, freshness, and output preview."
     >
@@ -475,6 +520,132 @@ function SelectorCard({ selector }: { selector: SelectorDefinition }) {
           <dd>{previewValue}</dd>
         </div>
       </dl>
+    </article>
+  )
+}
+
+function CustomerDataPlaneSection() {
+  return (
+    <Section
+      id="customer-data-plane"
+      eyebrow="Customer data plane"
+      title="The customer data plane is where operational context is generated and governed."
+      firstSentence="UCL's customer data plane runs beside the customer's systems, owns connector access and selector execution, and keeps raw operational data under customer control by default."
+    >
+      <div className="data-plane-layout">
+        <article className="data-plane-map">
+          <div className="source-stack">
+            {contextSnapshot.sourceSystems.map((source) => (
+              <span key={source}>{source}</span>
+            ))}
+          </div>
+          <ArrowRight aria-hidden="true" />
+          <div className="data-plane-core">
+            <h3>UCL data plane</h3>
+            <p>Connectors, selectors, semantic schema, context facts, snapshots, provenance, audit, masking, API clients, and local operational configuration.</p>
+          </div>
+          <ArrowRight aria-hidden="true" />
+          <div className="consumer-stack">
+            {['Apps', 'Workflows', 'Reports', 'Agents', 'Customer AI'].map((consumer) => (
+              <span key={consumer}>{consumer}</span>
+            ))}
+          </div>
+        </article>
+        <div className="data-plane-steps">
+          {customerDataPlaneSteps.map((step) => (
+            <article className="mini-card" key={step.label}>
+              <ShieldCheck aria-hidden="true" />
+              <h3>{step.label}</h3>
+              <p>{step.description}</p>
+            </article>
+          ))}
+        </div>
+      </div>
+    </Section>
+  )
+}
+
+function ApiIntegrationSection() {
+  return (
+    <Section
+      id="api-layer"
+      eyebrow="API/context package consumed by another system"
+      title="Other systems consume context through stable contracts."
+      firstSentence="The API layer lets customer-owned products, workflows, reports, and AI tools retrieve context without UCL calling an AI model on their behalf."
+    >
+      <div className="api-layout">
+        <article className="contract-panel">
+          <div className="builder-header">
+            <Braces aria-hidden="true" />
+            <div>
+              <span className="tag">Context snapshot</span>
+              <h3>{contextSnapshot.snapshotId}</h3>
+            </div>
+          </div>
+          <pre>{JSON.stringify(contextSnapshot, null, 2)}</pre>
+        </article>
+        <article className="contract-panel package">
+          <div className="builder-header">
+            <FileText aria-hidden="true" />
+            <div>
+              <span className="tag">AI-safe package</span>
+              <h3>{aiSafeContextPackage.packageId}</h3>
+            </div>
+          </div>
+          <pre>{JSON.stringify(aiSafeContextPackage, null, 2)}</pre>
+        </article>
+        <div className="integration-list">
+          {integrationExamples.map((example) => (
+            <article className="integration-card" key={example.name}>
+              <span className="tag">{example.consumer}</span>
+              <h3>{example.name}</h3>
+              <p>{example.contract}</p>
+              <pre>{example.sample}</pre>
+            </article>
+          ))}
+        </div>
+        <article className="outcome-panel">
+          <span className="tag">Downstream decision</span>
+          <h3>{downstreamWorkflowDecision.decision}</h3>
+          <p>{downstreamWorkflowDecision.reason}</p>
+          <p>{downstreamWorkflowDecision.businessOutcome}</p>
+        </article>
+      </div>
+    </Section>
+  )
+}
+
+function RoiCommercialProofSection() {
+  return (
+    <Section
+      id="roi-commercial-proof"
+      eyebrow="ROI and commercial proof"
+      title="The proof is one useful workflow, not a risky replacement programme."
+      firstSentence="The static ROI section shows how a paid pilot can prove business value through governed context, reusable integration contracts, and measurable workflow improvement."
+    >
+      <div className="roi-grid">
+        {commercialProofPoints.map((proof) => (
+          <CommercialProofCard key={proof.label} proof={proof} />
+        ))}
+      </div>
+      <article className="outcome-panel commercial-outcome">
+        <span className="tag">Business result</span>
+        <h3>{downstreamWorkflowDecision.businessOutcome}</h3>
+        <p>
+          A commercial buyer can now ask UCL to prove one workflow using approved signals, selector mapping, context packages, and a customer-owned consumer before expanding the semantic layer across more systems.
+        </p>
+      </article>
+    </Section>
+  )
+}
+
+function CommercialProofCard({ proof }: { proof: CommercialProofPoint }) {
+  return (
+    <article className="proof-card">
+      <span className="tag">{proof.label}</span>
+      <strong>{proof.metric}</strong>
+      <p>{proof.evidence}</p>
+      <p className="buyer-value">{proof.buyerValue}</p>
     </article>
   )
 }
@@ -554,7 +725,7 @@ function OpenCoreSection() {
   return (
     <Section
       id="open-core"
-      eyebrow="Open core and paid pilot"
+      eyebrow="Open core versus paid enterprise"
       title="The public repo proves the customer data plane, not a pretend self-serve SaaS."
       firstSentence="The static site is a polished sales and marketing layer, while the open-core repo still contains the functional downloadable product and reusable data-plane foundations."
     >

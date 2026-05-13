@@ -21,6 +21,9 @@ public sealed record V1RecomputeRequest(
     string ExternalUserId,
     string? TriggeredBy);
 
+public sealed record V1AiSafeContextPackageRequest(
+    string Objective);
+
 public sealed record V1SelectorPreviewRequest(
     string ExternalUserId,
     Guid? SelectorDefinitionId,

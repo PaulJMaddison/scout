@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { AlertTriangle, CheckCircle2, LockKeyhole, PlugZap, ShieldCheck, Sparkles } from 'lucide-react'
 import { Badge, Button, Card, PageHeader, Panel } from '@/components/ui/primitives'
 import { api } from '@/lib/api'
-import type { ConnectorCatalogueAvailability, ConnectorCatalogueEntry } from '@/lib/types'
+import type { ConnectorCatalogueAvailability, ConnectorCatalogueEntry, ConnectorPublicStatus } from '@/lib/types'
 import { cn, prettyJson, safeJsonParse } from '@/lib/utils'
 
 const availabilityLabels: Record<ConnectorCatalogueAvailability, string> = {
@@ -18,6 +18,20 @@ const availabilityTones: Record<ConnectorCatalogueAvailability, 'success' | 'war
   Enterprise: 'warning',
   SaaSManaged: 'accent',
   ComingSoon: 'neutral',
+}
+
+const publicStatusLabels: Record<ConnectorPublicStatus, string> = {
+  PublicGenericExample: 'Public generic example',
+  PaidEnterpriseImplementation: 'Paid enterprise implementation',
+  PlannedConnector: 'Planned connector',
+  CustomerSpecificConnector: 'Customer-specific connector',
+}
+
+const publicStatusTones: Record<ConnectorPublicStatus, 'success' | 'warning' | 'accent' | 'neutral'> = {
+  PublicGenericExample: 'success',
+  PaidEnterpriseImplementation: 'warning',
+  PlannedConnector: 'neutral',
+  CustomerSpecificConnector: 'accent',
 }
 
 const filters: Array<ConnectorCatalogueAvailability | 'All'> = [
@@ -168,7 +182,10 @@ function ConnectorCard({ entry }: { entry: ConnectorCatalogueEntry }) {
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sage-700">{entry.category}</p>
             <h2 className="mt-2 font-display text-2xl text-ink-950">{entry.displayName}</h2>
           </div>
-          <Badge tone={availabilityTones[entry.availability]}>{availabilityLabels[entry.availability]}</Badge>
+          <div className="flex flex-wrap justify-end gap-2">
+            <Badge tone={publicStatusTones[entry.publicStatus]}>{publicStatusLabels[entry.publicStatus]}</Badge>
+            <Badge tone={availabilityTones[entry.availability]}>{availabilityLabels[entry.availability]}</Badge>
+          </div>
         </div>
 
         <p className="mt-4 text-sm leading-7 text-ink-700">{entry.description}</p>

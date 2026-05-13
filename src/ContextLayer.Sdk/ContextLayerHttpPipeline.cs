@@ -150,6 +150,43 @@ internal sealed class ContextLayerHttpPipeline(HttpClient httpClient, ContextLay
             await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
             using var document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken);
             var root = document.RootElement;
+            if (root.TryGetProperty("error", out var errorElement))
+            {
+                var message = errorElement.TryGetProperty("message", out var messageElement)
+                    ? messageElement.GetString() ?? $"Request failed with status {(int)response.StatusCode}."
+                    : $"Request failed with status {(int)response.StatusCode}.";
+                var v1Code = errorElement.TryGetProperty("code", out var v1CodeElement) ? v1CodeElement.GetString() : null;
+                var v1CorrelationId = errorElement.TryGetProperty("correlationId", out var v1CorrelationElement)
+                    ? v1CorrelationElement.GetString()
+                    : null;
+                correlationId = v1CorrelationId ?? correlationId;
+
+                var v1Details = new List<ContextLayerErrorDetail>();
+                if (errorElement.TryGetProperty("details", out var detailsElement) && detailsElement.ValueKind == JsonValueKind.Object)
+                {
+                    foreach (var property in detailsElement.EnumerateObject())
+                    {
+                        if (property.Value.ValueKind != JsonValueKind.Array)
+                        {
+                            continue;
+                        }
+
+                        foreach (var item in property.Value.EnumerateArray())
+                        {
+                            v1Details.Add(new ContextLayerErrorDetail(null, property.Name, item.GetString() ?? "Unknown error."));
+                        }
+                    }
+                }
+
+                return new ContextLayerException(
+                    message,
+                    response.StatusCode,
+                    correlationId,
+                    v1Code,
+                    retryable: false,
+                    v1Details);
+            }
+
             var title = root.TryGetProperty("title", out var titleElement) ? titleElement.GetString() : null;
             var detail = root.TryGetProperty("detail", out var detailElement) ? detailElement.GetString() : null;
             var code = root.TryGetProperty("code", out var codeElement) ? codeElement.GetString() : null;

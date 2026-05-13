@@ -24,11 +24,12 @@ public sealed class ContextLayerClient : IContextLayerClient, IDisposable
         Users = new ContextLayerUsersClient(pipeline);
         Accounts = new ContextLayerAccountsClient(pipeline);
         Snapshots = new ContextLayerSnapshotsClient(Users, Accounts, pipeline);
-        Facts = new ContextLayerFactsClient(Users, Accounts);
+        Facts = new ContextLayerFactsClient(pipeline);
         Selectors = new ContextLayerSelectorsClient(pipeline);
         Recompute = new ContextLayerRecomputeClient(pipeline);
         Packages = new ContextLayerPackagesClient(pipeline);
         Audit = new ContextLayerAuditClient(pipeline);
+        Events = new ContextLayerEventsClient(pipeline);
     }
 
     public IContextLayerAuthClient Auth { get; }
@@ -49,6 +50,8 @@ public sealed class ContextLayerClient : IContextLayerClient, IDisposable
 
     public IContextLayerAuditClient Audit { get; }
 
+    public IContextLayerEventsClient Events { get; }
+
     public IContextLayerTenantClient ForTenant(string tenantSlug)
         => new ContextLayerTenantClient(
             tenantSlug,
@@ -58,7 +61,8 @@ public sealed class ContextLayerClient : IContextLayerClient, IDisposable
             Facts,
             Recompute,
             Packages,
-            Audit);
+            Audit,
+            Events);
 
     public void Dispose()
     {
@@ -73,6 +77,9 @@ internal sealed class ContextLayerAuthClient(ContextLayerHttpPipeline pipeline) 
 {
     public Task<AuthSession> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default)
         => pipeline.SendAsync<AuthSession>(HttpMethod.Post, "/api/auth/login", request, cancellationToken);
+
+    public Task<MachineTokenResponse> GetMachineTokenAsync(MachineTokenRequest request, CancellationToken cancellationToken = default)
+        => pipeline.SendAsync<MachineTokenResponse>(HttpMethod.Post, "/api/auth/token", request, cancellationToken);
 
     public Task<AuthenticatedOperator> GetCurrentOperatorAsync(CancellationToken cancellationToken = default)
         => pipeline.SendAsync<AuthenticatedOperator>(HttpMethod.Get, "/api/auth/me", null, cancellationToken);
@@ -166,17 +173,56 @@ internal sealed class ContextLayerSnapshotsClient(
     }
 }
 
-internal sealed class ContextLayerFactsClient(
-    IContextLayerUsersClient usersClient,
-    IContextLayerAccountsClient accountsClient) : IContextLayerFactsClient
+internal sealed class ContextLayerFactsClient(ContextLayerHttpPipeline pipeline) : IContextLayerFactsClient
 {
-    public async Task<IReadOnlyList<ContextFactResult>> GetForUserAsync(string tenantSlug, string externalUserId, CancellationToken cancellationToken = default)
-        => (await usersClient.GetContextAsync(tenantSlug, externalUserId, cancellationToken))?.Facts ?? Array.Empty<ContextFactResult>();
-
-    public async Task<IReadOnlyList<ContextFactResult>> GetForAccountAsync(string tenantSlug, string externalAccountId, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<ContextFactResult>> GetForUserAsync(
+        string tenantSlug,
+        string externalUserId,
+        ContextFactLookupOptions? options = null,
+        CancellationToken cancellationToken = default)
     {
-        var context = await accountsClient.GetContextAsync(tenantSlug, externalAccountId, cancellationToken);
-        return context is null ? Array.Empty<ContextFactResult>() : Array.Empty<ContextFactResult>();
+        var page = await pipeline.SendAsync<PageResult<ContextFactResult>>(
+            HttpMethod.Get,
+            $"/api/v1/context/users/{Uri.EscapeDataString(externalUserId)}/facts{BuildFactQuery(tenantSlug, options)}",
+            null,
+            cancellationToken);
+        return page.Items;
+    }
+
+    public async Task<IReadOnlyList<ContextFactResult>> GetForAccountAsync(
+        string tenantSlug,
+        string externalAccountId,
+        ContextFactLookupOptions? options = null,
+        CancellationToken cancellationToken = default)
+    {
+        var page = await pipeline.SendAsync<PageResult<ContextFactResult>>(
+            HttpMethod.Get,
+            $"/api/v1/context/accounts/{Uri.EscapeDataString(externalAccountId)}/facts{BuildFactQuery(tenantSlug, options)}",
+            null,
+            cancellationToken);
+        return page.Items;
+    }
+
+    private static string BuildFactQuery(string tenantSlug, ContextFactLookupOptions? options)
+    {
+        var values = new List<string>
+        {
+            "tenantSlug=" + Uri.EscapeDataString(tenantSlug)
+        };
+        if (!string.IsNullOrWhiteSpace(options?.AttributeKey))
+        {
+            values.Add("attributeKey=" + Uri.EscapeDataString(options.AttributeKey));
+        }
+        if (options?.Page is not null)
+        {
+            values.Add("page=" + options.Page.Value.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        }
+        if (options?.PageSize is not null)
+        {
+            values.Add("pageSize=" + options.PageSize.Value.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        }
+
+        return "?" + string.Join("&", values);
     }
 }
 
@@ -254,47 +300,10 @@ internal sealed class ContextLayerRecomputeClient(ContextLayerHttpPipeline pipel
 internal sealed class ContextLayerPackagesClient(ContextLayerHttpPipeline pipeline) : IContextLayerPackagesClient
 {
     public Task<SalesContextPackageResult?> GetAiContextForUserAsync(string tenantSlug, string externalUserId, string salesObjective, CancellationToken cancellationToken = default)
-        => pipeline.SendGraphQlAsync<SalesContextPackageResult>(
-            "GetSalesContextPackage",
-            """
-            query GetSalesContextPackage($input: SalesContextPackageInput!) {
-              salesContextPackage(input: $input) {
-                snapshotId
-                tenantSlug
-                externalUserId
-                fullName
-                companyName
-                jobTitle
-                segment
-                salesObjective
-                summary
-                overallConfidence
-                generatedAtUtc
-                isStale
-                humanReviewRecommended
-                missingInformation
-                weakSignalMessages
-                facts {
-                  citationId
-                  factId
-                  attributeKey
-                  displayName
-                  valueJson
-                  valueType
-                  confidence
-                  observedAtUtc
-                  freshUntilUtc
-                  isFresh
-                  isLowConfidence
-                  explanation
-                  provenanceJson
-                }
-                contextPackageJson
-              }
-            }
-            """,
-            new { input = new SalesContextPackageInput(tenantSlug, externalUserId, salesObjective) },
-            "salesContextPackage",
+        => pipeline.SendAsync<SalesContextPackageResult?>(
+            HttpMethod.Post,
+            $"/api/v1/context/users/{Uri.EscapeDataString(externalUserId)}/ai-safe-context-package?tenantSlug={Uri.EscapeDataString(tenantSlug)}",
+            new { objective = salesObjective },
             cancellationToken);
 }
 
@@ -329,6 +338,19 @@ internal sealed class ContextLayerAuditClient(ContextLayerHttpPipeline pipeline)
     }
 }
 
+internal sealed class ContextLayerEventsClient(ContextLayerHttpPipeline pipeline) : IContextLayerEventsClient
+{
+    public Task<SourceSystemEventAcceptedResult> IngestSourceSystemEventAsync(
+        string tenantSlug,
+        SourceSystemEventRequest request,
+        CancellationToken cancellationToken = default)
+        => pipeline.SendAsync<SourceSystemEventAcceptedResult>(
+            HttpMethod.Post,
+            $"/api/v1/events/source-system?tenantSlug={Uri.EscapeDataString(tenantSlug)}",
+            request,
+            cancellationToken);
+}
+
 internal sealed class ContextLayerTenantClient : IContextLayerTenantClient
 {
     public ContextLayerTenantClient(
@@ -339,7 +361,8 @@ internal sealed class ContextLayerTenantClient : IContextLayerTenantClient
         IContextLayerFactsClient factsClient,
         IContextLayerRecomputeClient recomputeClient,
         IContextLayerPackagesClient packagesClient,
-        IContextLayerAuditClient auditClient)
+        IContextLayerAuditClient auditClient,
+        IContextLayerEventsClient eventsClient)
     {
         TenantSlug = tenantSlug;
         Users = new ScopedUsersClient(tenantSlug, usersClient);
@@ -349,6 +372,7 @@ internal sealed class ContextLayerTenantClient : IContextLayerTenantClient
         Recompute = new ScopedRecomputeClient(tenantSlug, recomputeClient);
         Packages = new ScopedPackagesClient(tenantSlug, packagesClient);
         Audit = new ScopedAuditClient(tenantSlug, auditClient);
+        Events = new ScopedEventsClient(tenantSlug, eventsClient);
     }
 
     public string TenantSlug { get; }
@@ -366,6 +390,8 @@ internal sealed class ContextLayerTenantClient : IContextLayerTenantClient
     public IScopedPackagesClient Packages { get; }
 
     public IScopedAuditClient Audit { get; }
+
+    public IScopedEventsClient Events { get; }
 }
 
 internal sealed class ScopedUsersClient(string tenantSlug, IContextLayerUsersClient inner) : IScopedUsersClient
@@ -394,11 +420,11 @@ internal sealed class ScopedSnapshotsClient(string tenantSlug, IContextLayerSnap
 
 internal sealed class ScopedFactsClient(string tenantSlug, IContextLayerFactsClient inner) : IScopedFactsClient
 {
-    public Task<IReadOnlyList<ContextFactResult>> GetForUserAsync(string externalUserId, CancellationToken cancellationToken = default)
-        => inner.GetForUserAsync(tenantSlug, externalUserId, cancellationToken);
+    public Task<IReadOnlyList<ContextFactResult>> GetForUserAsync(string externalUserId, ContextFactLookupOptions? options = null, CancellationToken cancellationToken = default)
+        => inner.GetForUserAsync(tenantSlug, externalUserId, options, cancellationToken);
 
-    public Task<IReadOnlyList<ContextFactResult>> GetForAccountAsync(string externalAccountId, CancellationToken cancellationToken = default)
-        => inner.GetForAccountAsync(tenantSlug, externalAccountId, cancellationToken);
+    public Task<IReadOnlyList<ContextFactResult>> GetForAccountAsync(string externalAccountId, ContextFactLookupOptions? options = null, CancellationToken cancellationToken = default)
+        => inner.GetForAccountAsync(tenantSlug, externalAccountId, options, cancellationToken);
 }
 
 internal sealed class ScopedRecomputeClient(string tenantSlug, IContextLayerRecomputeClient inner) : IScopedRecomputeClient
@@ -417,4 +443,10 @@ internal sealed class ScopedAuditClient(string tenantSlug, IContextLayerAuditCli
 {
     public Task<IReadOnlyList<AuditEvent>> GetEventsAsync(CancellationToken cancellationToken = default)
         => inner.GetEventsAsync(tenantSlug, cancellationToken);
+}
+
+internal sealed class ScopedEventsClient(string tenantSlug, IContextLayerEventsClient inner) : IScopedEventsClient
+{
+    public Task<SourceSystemEventAcceptedResult> IngestSourceSystemEventAsync(SourceSystemEventRequest request, CancellationToken cancellationToken = default)
+        => inner.IngestSourceSystemEventAsync(tenantSlug, request, cancellationToken);
 }

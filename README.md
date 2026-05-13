@@ -1,13 +1,15 @@
 # Universal Context Layer
 
-Universal Context Layer turns existing business data into trusted semantic context that customer-owned AI tools, workflows, apps, and reports can use.
+Universal Context Layer turns existing business data into trusted semantic context that customer-owned AI tools, workflows, apps, reports, and agents can use.
 
-Release: `2.5.1`
+Release: `2.6.0`
 License: [MIT](LICENSE)
 Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
 Security: [SECURITY.md](SECURITY.md)
 
 UCL is context infrastructure for AI-enabled products, workflows, apps, reports, and agents. It does not replace your CRM, ERP, support desk, warehouse, product database, billing system, spreadsheets, or legacy databases. It sits beside those systems and creates the missing semantic layer above them.
+
+We do not build the brain. We build the nervous system: the governed customer data plane that carries trusted business context from existing systems to the customer's own AI tools, workflows, reports, apps, and agents.
 
 ## Current Maturity
 
@@ -24,8 +26,22 @@ The current sellable motion is a supported paid pilot, not a fully hands-off Saa
 
 Use these documents before offering a first commercial pilot:
 
+- [First paid pilot one-pager](docs/first-paid-pilot-one-pager.md)
+  A buyer-friendly summary of the supported pilot offer, scope, outcomes, pricing anchors, and commercial proof.
 - [Paid pilot offer](docs/paid-pilot.md)
   Explains the first commercial package, buyer profile, pilot workflow, deliverables, boundaries, and success criteria.
+- [Buyer FAQ](docs/buyer-faq.md)
+  Answers CEO, CTO, product leader, and enterprise architect questions without overclaiming SaaS or paid connector readiness.
+- [Customer data plane](docs/customer-data-plane.md)
+  Explains where operational data, selectors, facts, snapshots, provenance, audit, APIs, and optional control-plane metadata belong.
+- [Public API contract](docs/public-api-contract.md)
+  Documents GraphQL, REST, SDK, auth, context package, selector, audit, pagination, scoping, and error response contracts.
+- [Integration layer](docs/integration-layer.md)
+  Explains how SQL, CRM, support, billing, telemetry, email metadata, web events, legacy .NET applications, reports, workflows, and customer-owned AI tools integrate with UCL.
+- [Connector catalogue](docs/connector-marketplace.md)
+  Labels public generic examples, paid enterprise implementations, planned connectors, placeholders, and customer-specific connector work.
+- [Static GitHub Pages demo](docs/static-github-pages-demo.md)
+  Shows how the backend-free public demo tells the product story under a GitHub Pages base path.
 - [Production install checklist](docs/production-install-checklist.md)
   Covers secrets, PostgreSQL, demo fallback, Data Protection keys, connector credentials, privacy, audit, backups, logs, and support.
 
@@ -292,6 +308,8 @@ The data is internally consistent on purpose. For example:
 ## Static GitHub Pages Demo
 
 The repository includes a backend-free static demo that can be published to GitHub Pages from `apps/web/dist-static-demo`. It is a brochure, sales, and marketing walkthrough using the same professional brand direction as the React site, with fixed fictional snapshots instead of live API calls, databases, Docker, or setup scripts.
+
+The static demo tells the five-minute product story: fragmented operational data, selectors, semantic facts, customer data plane, API/context package consumption, workflow or AI usefulness, and why legacy systems can stay in place.
 
 The full downloadable product still lives in this repo as the functional React application, backend, APIs, SDKs, selector engine, seeded demo, and local setup path.
 
@@ -631,6 +649,7 @@ curl -X POST "http://127.0.0.1:5198/api/v1/context/recompute?tenantSlug=demo" \
   -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" \
   -d '{
+    "externalUserId": "123",
     "triggeredBy": "crm-webhook"
   }'
 ```
@@ -679,7 +698,10 @@ Core endpoints:
 - `GET /api/v1/workspaces`
 - `GET /api/v1/context/users/{externalUserId}`
 - `GET /api/v1/context/accounts/{externalAccountId}`
+- `GET /api/v1/context/users/{externalUserId}/facts`
+- `GET /api/v1/context/accounts/{externalAccountId}/facts`
 - `GET /api/v1/context/snapshots/{snapshotId}`
+- `POST /api/v1/context/users/{externalUserId}/ai-safe-context-package`
 - `POST /api/v1/context/recompute`
 - `POST /api/v1/selectors/preview`
 - `POST /api/v1/selectors/validate`
@@ -697,6 +719,8 @@ Core endpoints:
 
 Pagination is available on list endpoints with `page` and `pageSize`. Filters include examples such as `status` on workspaces, `q` and `dataType` on semantic attributes, and `action`, `entityType`, `fromUtc`, and `toUtc` on audit events.
 
+See [Public API Contract](docs/public-api-contract.md) for context lookup, account lookup, semantic fact lookup, context snapshot retrieval, recomputation, selector preview, selector validation, audit/provenance lookup, AI-safe context package retrieval, tenant/workspace scoping, machine-to-machine auth, error envelopes, pagination, GraphQL examples, and SDK examples.
+
 List the connector catalogue:
 
 ```bash
@@ -710,7 +734,7 @@ curl "http://127.0.0.1:5198/api/v1/connectors/catalogue?availability=OpenCore"
 curl "http://127.0.0.1:5198/api/v1/connectors/catalogue?q=salesforce"
 ```
 
-The catalogue includes executable open-core connectors for SQL, REST API, CSV upload, and local mock CRM/billing/support. Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, NetSuite, Microsoft 365 / Outlook, Gmail / Google Workspace, Slack, Microsoft Teams, Outlook Calendar, Google Calendar, Segment, Amplitude, Mixpanel, PostHog, Jira, Linear, Confluence, Notion, SharePoint, and Google Drive are labelled as placeholders only; their paid enterprise implementations are intentionally not included in this public repo.
+The catalogue includes executable open-core connectors and contracts for SQL, PostgreSQL via the generic SQL connector alias, REST API, CSV upload, local mock CRM/billing/support, product telemetry events, and first-party conversion events. REST and GraphQL catalogue responses include `publicStatus` so consumers can distinguish `PublicGenericExample`, `PaidEnterpriseImplementation`, `PlannedConnector`, and `CustomerSpecificConnector`. SQL Server, Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, NetSuite, billing-system, Microsoft 365 / Outlook, Gmail / Google Workspace, Slack, Microsoft Teams, Outlook Calendar, Google Calendar, Segment, Amplitude, Mixpanel, PostHog, Jira, Linear, Confluence, Notion, SharePoint, Google Drive, and legacy .NET web handlers are labelled as placeholders or paid/private entries only; their paid enterprise implementations are intentionally not included in this public repo.
 
 Validate and preview an AI-generated UCL blueprint:
 
@@ -753,6 +777,30 @@ curl "http://127.0.0.1:5198/api/v1/context/users/123" \
   -H "X-Request-Id: crm-context-read-123"
 ```
 
+Read account context and semantic facts:
+
+```bash
+curl "http://127.0.0.1:5198/api/v1/context/accounts/acct-123?tenantSlug=demo" \
+  -H "Authorization: Bearer <token>"
+
+curl "http://127.0.0.1:5198/api/v1/context/users/123/facts?tenantSlug=demo&attributeKey=health&page=1&pageSize=25" \
+  -H "Authorization: Bearer <token>"
+```
+
+Retrieve a context snapshot and an AI-safe context package without UCL calling an AI model:
+
+```bash
+curl "http://127.0.0.1:5198/api/v1/context/snapshots/<snapshot-id>?tenantSlug=demo" \
+  -H "Authorization: Bearer <token>"
+
+curl -X POST "http://127.0.0.1:5198/api/v1/context/users/123/ai-safe-context-package?tenantSlug=demo" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "objective": "Prepare a renewal-risk brief for the account team."
+  }'
+```
+
 List semantic attributes with pagination and filtering:
 
 ```bash
@@ -791,6 +839,8 @@ curl -X POST "http://127.0.0.1:5198/api/v1/events/source-system" \
 ```
 
 Webhook event ingestion supports signature validation, idempotency by event ID, tenant/workspace routing, event storage, selector trigger matching, recomputation job creation, dead-letter records, audit events, and GraphQL event-history inspection. See [docs/webhook-events.md](docs/webhook-events.md) for the provider-neutral contract and JSON examples for `customer.created`, `customer.updated`, `account.updated`, `opportunity.stage_changed`, `product_usage.updated`, `support_ticket.created`, `billing.payment_failed`, `email.engaged`, `lifecycle.converted`, and `source_record.deleted`.
+
+The TypeScript and .NET SDKs wrap filtered semantic fact lookup and the same source-system event endpoint. This is enough for a customer-owned app, report, workflow, or AI tool to consume context or notify UCL about approved source changes without UCL becoming the AI model or a vendor data lake.
 
 Errors use a consistent shape:
 

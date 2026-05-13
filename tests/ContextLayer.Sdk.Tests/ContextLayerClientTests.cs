@@ -128,6 +128,40 @@ public sealed class ContextLayerClientTests
     }
 
     [Fact]
+    public async Task AuthGetMachineTokenAsync_UsesTokenEndpoint()
+    {
+        var handler = new StubHttpMessageHandler(request =>
+        {
+            Assert.Equal(HttpMethod.Post, request.Method);
+            Assert.Equal(
+                "http://127.0.0.1:5198/api/auth/token",
+                request.RequestUri!.ToString());
+
+            const string json = """
+            {
+              "accessToken": "machine-token",
+              "tokenType": "Bearer",
+              "expiresIn": 3600,
+              "scope": "context:read"
+            }
+            """;
+            return Task.FromResult(CreateJsonResponse(HttpStatusCode.OK, json));
+        });
+
+        using var httpClient = new HttpClient(handler);
+        using var client = new ContextLayerClient(httpClient, new ContextLayerClientOptions
+        {
+            BaseUrl = "http://127.0.0.1:5198"
+        });
+
+        var token = await client.Auth.GetMachineTokenAsync(
+            new MachineTokenRequest("client_credentials", "workflow-client", "secret", "context:read"));
+
+        Assert.Equal("machine-token", token.AccessToken);
+        Assert.Equal("Bearer", token.TokenType);
+    }
+
+    [Fact]
     public async Task SnapshotsGetByIdAsync_UsesV1RestPath_WithoutDoublePrefix()
     {
         var snapshotId = Guid.Parse("8e22fcf4-6640-4fba-8992-14bd208b89fa");
@@ -168,6 +202,154 @@ public sealed class ContextLayerClientTests
 
         Assert.NotNull(result);
         Assert.Equal(3, result!.SnapshotVersion);
+    }
+
+    [Fact]
+    public async Task PackagesGetAiContextForUserAsync_UsesRestPackagePath()
+    {
+        var handler = new StubHttpMessageHandler(request =>
+        {
+            Assert.Equal(HttpMethod.Post, request.Method);
+            Assert.Equal(
+                "http://127.0.0.1:5198/api/v1/context/users/123/ai-safe-context-package?tenantSlug=demo",
+                request.RequestUri!.ToString());
+
+            const string json = """
+            {
+              "snapshotId": "8e22fcf4-6640-4fba-8992-14bd208b89fa",
+              "tenantSlug": "demo",
+              "externalUserId": "123",
+              "fullName": "Avery Stone",
+              "companyName": "Larkspur Logistics Group",
+              "jobTitle": "VP Revenue",
+              "segment": "enterprise",
+              "salesObjective": "Prepare a renewal-risk brief.",
+              "summary": "Grounded context package.",
+              "overallConfidence": 0.91,
+              "generatedAtUtc": "2026-05-11T10:00:00Z",
+              "isStale": false,
+              "humanReviewRecommended": true,
+              "missingInformation": [],
+              "weakSignalMessages": [],
+              "facts": [],
+              "contextPackageJson": "{}"
+            }
+            """;
+            return Task.FromResult(CreateJsonResponse(HttpStatusCode.OK, json));
+        });
+
+        using var httpClient = new HttpClient(handler);
+        using var client = new ContextLayerClient(httpClient, new ContextLayerClientOptions
+        {
+            BaseUrl = "http://127.0.0.1:5198"
+        });
+
+        var result = await client.Packages.GetAiContextForUserAsync("demo", "123", "Prepare a renewal-risk brief.");
+
+        Assert.NotNull(result);
+        Assert.Equal("{}", result!.ContextPackageJson);
+    }
+
+    [Fact]
+    public async Task FactsGetForUserAsync_UsesRestFactLookupPath_WithFilters()
+    {
+        var handler = new StubHttpMessageHandler(request =>
+        {
+            Assert.Equal(HttpMethod.Get, request.Method);
+            Assert.Equal(
+                "http://127.0.0.1:5198/api/v1/context/users/123/facts?tenantSlug=demo&attributeKey=health&page=2&pageSize=10",
+                request.RequestUri!.ToString());
+
+            const string json = """
+            {
+              "items": [
+                {
+                  "id": "8e22fcf4-6640-4fba-8992-14bd208b89fa",
+                  "attributeKey": "accountHealth",
+                  "valueJson": "\"green\"",
+                  "valueType": "string",
+                  "confidence": 0.9,
+                  "observedAtUtc": "2026-05-11T10:00:00Z",
+                  "freshUntilUtc": null,
+                  "sourceSelectorDefinitionId": "0f864ac6-dcbf-4850-bd98-1d13975d7813",
+                  "explanation": "Healthy account.",
+                  "provenanceJson": "[]"
+                }
+              ],
+              "page": 2,
+              "pageSize": 10,
+              "totalCount": 11,
+              "hasMore": false
+            }
+            """;
+            return Task.FromResult(CreateJsonResponse(HttpStatusCode.OK, json));
+        });
+
+        using var httpClient = new HttpClient(handler);
+        using var client = new ContextLayerClient(httpClient, new ContextLayerClientOptions
+        {
+            BaseUrl = "http://127.0.0.1:5198"
+        });
+
+        var facts = await client.Facts.GetForUserAsync(
+            "demo",
+            "123",
+            new ContextFactLookupOptions("health", 2, 10));
+
+        Assert.Single(facts);
+        Assert.Equal("accountHealth", facts[0].AttributeKey);
+    }
+
+    [Fact]
+    public async Task EventsIngestSourceSystemEventAsync_UsesRestEventContractPath()
+    {
+        var handler = new StubHttpMessageHandler(async request =>
+        {
+            Assert.Equal(HttpMethod.Post, request.Method);
+            Assert.Equal(
+                "http://127.0.0.1:5198/api/v1/events/source-system?tenantSlug=demo",
+                request.RequestUri!.ToString());
+            var body = await request.Content!.ReadAsStringAsync();
+            Assert.Contains("evt-sdk-001", body, StringComparison.Ordinal);
+            Assert.Contains("source.product_usage.rollup_ready", body, StringComparison.Ordinal);
+
+            const string json = """
+            {
+              "eventId": "evt-sdk-001",
+              "tenantId": "5e9cdd48-b71c-4eb7-92fd-d29bfbe99731",
+              "tenantSlug": "demo",
+              "workspaceId": null,
+              "userProfileId": "0f864ac6-dcbf-4850-bd98-1d13975d7813",
+              "storedSignalCount": 1,
+              "matchedSelectorCount": 2,
+              "status": "Processed",
+              "isDuplicate": false,
+              "acceptedAtUtc": "2026-05-11T10:00:00Z"
+            }
+            """;
+            return CreateJsonResponse(HttpStatusCode.Accepted, json);
+        });
+
+        using var httpClient = new HttpClient(handler);
+        using var client = new ContextLayerClient(httpClient, new ContextLayerClientOptions
+        {
+            BaseUrl = "http://127.0.0.1:5198"
+        });
+
+        var result = await client.Events.IngestSourceSystemEventAsync(
+            "demo",
+            new SourceSystemEventRequest(
+                "evt-sdk-001",
+                "primary",
+                "product",
+                "source.product_usage.rollup_ready",
+                new { activeDays30 = 22 },
+                null,
+                "123",
+                "acct-123",
+                DateTime.Parse("2026-05-11T10:00:00Z")));
+
+        Assert.Equal("Processed", result.Status);
     }
 
     [Fact]
@@ -260,6 +442,42 @@ public sealed class ContextLayerClientTests
         Assert.Equal("validation_failed", exception.Code);
         Assert.Single(exception.Details);
         Assert.Equal("tenantSlug", exception.Details[0].Target);
+    }
+
+    [Fact]
+    public async Task UsersGetContextAsync_ThrowsTypedError_FromV1ErrorEnvelope()
+    {
+        var handler = new StubHttpMessageHandler(_ =>
+        {
+            var response = CreateJsonResponse(HttpStatusCode.NotFound, """
+            {
+              "error": {
+                "code": "context.user_not_found",
+                "message": "User context was not found.",
+                "correlationId": "corr-v1",
+                "details": {
+                  "externalUserId": ["No context exists for this user."]
+                }
+              }
+            }
+            """);
+            return Task.FromResult(response);
+        });
+
+        using var httpClient = new HttpClient(handler);
+        using var client = new ContextLayerClient(httpClient, new ContextLayerClientOptions
+        {
+            BaseUrl = "http://127.0.0.1:5198"
+        });
+
+        var exception = await Assert.ThrowsAsync<ContextLayerException>(() =>
+            client.Users.GetContextAsync("demo", "missing"));
+
+        Assert.Equal(HttpStatusCode.NotFound, exception.StatusCode);
+        Assert.Equal("corr-v1", exception.CorrelationId);
+        Assert.Equal("context.user_not_found", exception.Code);
+        Assert.Single(exception.Details);
+        Assert.Equal("externalUserId", exception.Details[0].Target);
     }
 
     private static HttpResponseMessage CreateJsonResponse(HttpStatusCode statusCode, string json)
