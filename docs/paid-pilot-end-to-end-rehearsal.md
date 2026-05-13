@@ -12,6 +12,7 @@ This is a local-only rehearsal runbook. It proves the supported paid pilot flow 
 
 ```powershell
 cd C:\UCL
+.\scripts\paid-pilot-local-rehearsal.ps1
 .\scripts\paid-pilot-rehearsal-check.ps1
 .\scripts\check-release-alignment.ps1
 .\scripts\check-production-env.ps1 -EnvFile .env.production.local
@@ -87,6 +88,16 @@ Use placeholder local files only. Do not paste real customer credentials into th
 14. No raw operational data is sent to cloud.
    - Review registration metadata, usage payloads, support case text, logs, and screenshots.
    - Anything containing source rows, message bodies, documents, attachments, prompt packages, local database dumps, keys, or connector credentials fails the rehearsal.
+
+15. M2M and webhook smoke is exercised locally.
+   - Run `.\scripts\m2m-and-webhook-smoke.ps1` only against a local seeded backend.
+   - Confirm machine token request, scoped API call, signed event acceptance, bad signature rejection, and replay rejection.
+
+16. Licence install rehearsal is checked.
+   - Download a development licence from the local cloud portal.
+   - Place it in an ignored local path.
+   - Run `.\scripts\licence-install-rehearsal.ps1`.
+   - Verify the public data plane licence status endpoint, or record the schema mismatch before the first customer install.
 
 ## Evidence To Keep
 

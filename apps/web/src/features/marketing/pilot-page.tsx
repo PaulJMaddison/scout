@@ -374,6 +374,9 @@ export function PilotPage() {
               {submitState === 'submitting' ? 'Submitting request' : 'Request paid pilot scope'}
             </Button>
           </div>
+          <p className="text-sm leading-7 text-ink-700">
+            The form collects your name, work email, company, source-system summary, target workflow, attribution metadata, and abuse-prevention signals so we can assess pilot fit and reply commercially. Do not submit raw operational data, credentials, source exports, support logs, documents, attachments, prompt content, or secrets. By submitting, you consent to commercial contact about the paid pilot. The <a className="font-semibold text-copper-800 underline" href="/privacy">privacy notice</a>, <a className="font-semibold text-copper-800 underline" href="/terms">terms</a>, cookie/event consent draft, pilot agreement outline, and data-processing assumptions are drafts pending solicitor review.
+          </p>
         </form>
       </Panel>
     </div>

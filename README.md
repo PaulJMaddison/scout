@@ -46,6 +46,10 @@ Use these documents before offering a first commercial pilot:
   Covers secrets, PostgreSQL, demo fallback, Data Protection keys, connector credentials, privacy, audit, backups, logs, and support.
 - [Paid pilot end-to-end rehearsal](docs/paid-pilot-end-to-end-rehearsal.md)
   Walks the local cross-repo commercial flow without real hosting, payment credentials, production licence keys, or customer data.
+- [M2M and webhook smoke](docs/m2m-and-webhook-smoke.md)
+  Proves local machine-client and signed event seams before customer integration work.
+- [Licence install rehearsal](docs/licence-install-rehearsal.md)
+  Documents the local cloud licence download to data-plane file path check.
 - [Commercial readiness summary](docs/commercial-readiness-summary.md)
   States what is ready to show, what is ready for paid pilot conversations, what remains, and what claims not to make yet.
 - [Release and hosting alignment](docs/release-and-hosting-alignment.md)
