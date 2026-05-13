@@ -41,7 +41,10 @@ public static class ProductionEnvironmentReadinessValidator
             DemoSeedCheck(bootstrap, productionShapeRequired),
             DemoExperienceCheck(featureFlags, productionShapeRequired),
             DataProtectionCheck(dataProtection, productionShapeRequired),
-            AuthSigningKeyCheck(auth, productionShapeRequired)
+            AuthSigningKeyCheck(auth, productionShapeRequired),
+            OpenApiExposureCheck(platform, productionShapeRequired),
+            CorsOriginsCheck(configuration, productionShapeRequired),
+            SecurityHeadersCheck(configuration, productionShapeRequired)
         };
 
         return new ProductionReadinessReport(
@@ -192,6 +195,70 @@ public static class ProductionEnvironmentReadinessValidator
             : Check("auth-signing-key", Blocked, true, $"Auth:SigningKey must be a non-placeholder secret of at least {minimumLength} characters.", "missing-placeholder-or-short");
     }
 
+    private static ProductionReadinessCheck OpenApiExposureCheck(PlatformOptions platform, bool required)
+    {
+        if (!required)
+        {
+            return Check("openapi-exposure", Ready, false, "Production shape is not required in this environment.", platform.EnableOpenApi.ToString());
+        }
+
+        return platform.EnableOpenApi
+            ? Check("openapi-exposure", Blocked, true, "Platform:EnableOpenApi must be false for production-style deployments unless deliberately fronted by separate authenticated tooling.", "enabled")
+            : Check("openapi-exposure", Ready, true, "OpenAPI/Swagger exposure is disabled by default.", "disabled");
+    }
+
+    private static ProductionReadinessCheck CorsOriginsCheck(IConfiguration configuration, bool required)
+    {
+        var origins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+        var normalised = origins
+            .Where(origin => !string.IsNullOrWhiteSpace(origin))
+            .Select(origin => origin.Trim().TrimEnd('/'))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+        if (!required)
+        {
+            return Check("cors-origins", Ready, false, "Production shape is not required in this environment.", normalised.Length == 0 ? "(none)" : string.Join(',', normalised));
+        }
+
+        if (normalised.Length == 0)
+        {
+            return Check("cors-origins", Blocked, true, "Cors:AllowedOrigins must list exact production origins.", "(missing)");
+        }
+
+        if (normalised.Any(origin => origin == "*" || origin.Contains('*', StringComparison.Ordinal)))
+        {
+            return Check("cors-origins", Blocked, true, "Cors:AllowedOrigins must not contain wildcards.", "wildcard");
+        }
+
+        if (normalised.Any(IsInsecureProductionOrigin))
+        {
+            return Check("cors-origins", Blocked, true, "Production CORS origins must use HTTPS except explicit localhost development values.", "insecure-origin");
+        }
+
+        return Check("cors-origins", Ready, true, "Exact HTTPS CORS origins are configured.", string.Join(',', normalised));
+    }
+
+    private static ProductionReadinessCheck SecurityHeadersCheck(IConfiguration configuration, bool required)
+    {
+        var options = configuration.GetSection(SecurityHeadersOptions.SectionName).Get<SecurityHeadersOptions>() ?? new SecurityHeadersOptions();
+        if (!required)
+        {
+            return Check("security-headers", Ready, false, "Production shape is not required in this environment.", options.Enabled.ToString());
+        }
+
+        if (!options.Enabled)
+        {
+            return Check("security-headers", Blocked, true, "SecurityHeaders:Enabled must be true for production-style deployments.", "disabled");
+        }
+
+        if (string.IsNullOrWhiteSpace(options.ContentSecurityPolicy) || !options.ContentSecurityPolicy.Contains("frame-ancestors", StringComparison.OrdinalIgnoreCase))
+        {
+            return Check("security-headers", Blocked, true, "SecurityHeaders:ContentSecurityPolicy must be configured and include frame-ancestors.", "missing-csp");
+        }
+
+        return Check("security-headers", Ready, true, "Security headers are enabled.", "enabled");
+    }
+
     private static ProductionReadinessCheck Check(string key, string status, bool blocksProduction, string message, string evidence) =>
         new(key, status, blocksProduction, message, evidence);
 
@@ -215,4 +282,9 @@ public static class ProductionEnvironmentReadinessValidator
         || value.Contains(Path.GetTempPath(), StringComparison.OrdinalIgnoreCase)
         || value.Contains("/tmp/", StringComparison.OrdinalIgnoreCase)
         || value.Contains("\\Temp\\", StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsInsecureProductionOrigin(string origin) =>
+        origin.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+        && !origin.Contains("localhost", StringComparison.OrdinalIgnoreCase)
+        && !origin.Contains("127.0.0.1", StringComparison.OrdinalIgnoreCase);
 }

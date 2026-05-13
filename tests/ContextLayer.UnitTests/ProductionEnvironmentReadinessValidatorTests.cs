@@ -24,6 +24,10 @@ public sealed class ProductionEnvironmentReadinessValidatorTests
                 ["Auth:SigningKey"] = new string('a', 64),
                 ["Auth:MinimumSigningKeyLength"] = "48",
                 ["Auth:RequireSecureSigningKey"] = "true",
+                ["Platform:EnableOpenApi"] = "false",
+                ["Cors:AllowedOrigins:0"] = "https://app.example.invalid",
+                ["SecurityHeaders:Enabled"] = "true",
+                ["SecurityHeaders:ContentSecurityPolicy"] = "default-src 'none'; frame-ancestors 'none'",
                 ["VITE_DEMO_FALLBACK"] = "false"
             }),
             new TestHostEnvironment("Production"));
@@ -85,6 +89,24 @@ public sealed class ProductionEnvironmentReadinessValidatorTests
     }
 
     [Fact]
+    public void Production_shape_blocks_openapi_wildcard_cors_and_missing_security_headers()
+    {
+        var report = ProductionEnvironmentReadinessValidator.GetReport(
+            SafeProductionSettings(new Dictionary<string, string?>
+            {
+                ["Platform:EnableOpenApi"] = "true",
+                ["Cors:AllowedOrigins:0"] = "*",
+                ["SecurityHeaders:Enabled"] = "false"
+            }),
+            new TestHostEnvironment("Production"));
+
+        Assert.False(report.ReadyForProductionStyleDeployment);
+        Assert.Contains(report.Checks, check => check.Key == "openapi-exposure" && check.Status == "Blocked");
+        Assert.Contains(report.Checks, check => check.Key == "cors-origins" && check.Status == "Blocked");
+        Assert.Contains(report.Checks, check => check.Key == "security-headers" && check.Status == "Blocked");
+    }
+
+    [Fact]
     public void Development_local_demo_does_not_block_startup()
     {
         var report = ProductionEnvironmentReadinessValidator.GetReport(
@@ -117,6 +139,10 @@ public sealed class ProductionEnvironmentReadinessValidatorTests
             ["Auth:SigningKey"] = new string('a', 64),
             ["Auth:MinimumSigningKeyLength"] = "48",
             ["Auth:RequireSecureSigningKey"] = "true",
+            ["Platform:EnableOpenApi"] = "false",
+            ["Cors:AllowedOrigins:0"] = "https://app.example.invalid",
+            ["SecurityHeaders:Enabled"] = "true",
+            ["SecurityHeaders:ContentSecurityPolicy"] = "default-src 'none'; frame-ancestors 'none'",
             ["VITE_DEMO_FALLBACK"] = "false"
         };
 

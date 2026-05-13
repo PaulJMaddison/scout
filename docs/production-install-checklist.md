@@ -90,6 +90,11 @@ The preflight refuses demo fallback, placeholder signing keys, SQLite/local demo
 - Give event-ingestion clients only event-ingestion scopes.
 - Give downstream readers only context-read scopes.
 - Confirm REST and GraphQL endpoints reject cross-tenant access.
+- Set `Platform__EnableOpenApi=false` for public production unless Swagger is separately protected behind authenticated operator tooling.
+- Keep `GraphQl__DisableIntrospectionInProduction=true`, `GraphQl__EnableGetRequestsInProduction=false`, and bounded GraphQL depth, timeout, batch, and concurrency settings.
+- Keep `SecurityHeaders__Enabled=true` and review the CSP before adding browser-facing integrations.
+- Configure exact HTTPS CORS origins; do not use wildcard origins in production.
+- Treat browser bearer-token storage as a local/admin MVP control; before broad customer users, move to a hardened HttpOnly cookie/session flow or an equivalent protected access pattern.
 
 ## Observability
 

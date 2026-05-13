@@ -26,10 +26,15 @@ public sealed class CommercialReadinessDeliverablesTests
             "scripts/check-production-env.ps1",
             "scripts/check-production-env.sh",
             "scripts/paid-pilot-rehearsal-check.ps1",
+            "scripts/paid-pilot-local-rehearsal.ps1",
+            "scripts/licence-install-rehearsal.ps1",
+            "scripts/m2m-and-webhook-smoke.ps1",
             "src/ContextLayer.Infrastructure/Configuration/ProductionEnvironmentReadinessValidator.cs",
             "docs/release-and-hosting-alignment.md",
             "docs/production-install-checklist.md",
             "docs/paid-pilot-end-to-end-rehearsal.md",
+            "docs/licence-install-rehearsal.md",
+            "docs/m2m-and-webhook-smoke.md",
             "docs/commercial-readiness-summary.md",
             "docs/customer-data-plane-install-runbook.md",
             "docs/windows-install-runbook.md",
@@ -52,6 +57,16 @@ public sealed class CommercialReadinessDeliverablesTests
         var rehearsalCheck = File.ReadAllText(Path.Combine(root, "scripts", "paid-pilot-rehearsal-check.ps1"));
         Assert.Contains("real SQL/PostgreSQL connector preview requires customer-approved endpoint", rehearsalCheck, StringComparison.Ordinal);
         Assert.Contains("No raw operational data is sent to cloud", rehearsalCheck, StringComparison.Ordinal);
+
+        var licenceRehearsal = File.ReadAllText(Path.Combine(root, "scripts", "licence-install-rehearsal.ps1"));
+        Assert.Contains("Licence__PublicKeyPem", licenceRehearsal, StringComparison.Ordinal);
+        Assert.Contains("/api/v1/licence/status", licenceRehearsal, StringComparison.Ordinal);
+        Assert.Contains("No local licence file found", licenceRehearsal, StringComparison.Ordinal);
+
+        var licenceReader = File.ReadAllText(Path.Combine(root, "src", "ContextLayer.Infrastructure", "Services", "LocalLicenceService.cs"));
+        Assert.Contains("UCL-LICENCE-v1", licenceReader, StringComparison.Ordinal);
+        Assert.Contains("VerifyCloudEnvelope", licenceReader, StringComparison.Ordinal);
+        Assert.Contains("Licence:PublicKeyPem", licenceReader, StringComparison.Ordinal);
     }
 
     [Theory]
@@ -79,6 +94,19 @@ public sealed class CommercialReadinessDeliverablesTests
         Assert.Contains("not ready for complete self-serve SaaS", summary, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("Do not claim vendor-certified connectors", summary, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("We do not build the brain. We build the nervous system.", summary, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Paid_pilot_lead_capture_has_visible_privacy_and_data_boundary_copy()
+    {
+        var page = File.ReadAllText(Path.Combine(RepoRoot(), "apps", "web", "src", "features", "marketing", "pilot-page.tsx"));
+
+        Assert.Contains("The form collects your name, work email, company", page, StringComparison.Ordinal);
+        Assert.Contains("Do not submit raw operational data", page, StringComparison.Ordinal);
+        Assert.Contains("commercial contact", page, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("privacy notice", page, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("terms", page, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("drafts pending solicitor review", page, StringComparison.OrdinalIgnoreCase);
     }
 
     private static string Normalise(string relativePath) =>

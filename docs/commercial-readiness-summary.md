@@ -63,3 +63,51 @@ Remaining before first customer install:
 ## Best CEO Wording
 
 "You do not need to replace your systems or bet the company on a new AI app. UCL makes the data you already have usable, governed, and reusable across the AI and workflow tools you choose."
+
+## Completed Before Live Hosting
+
+- public lead capture copy links to privacy/terms drafts and warns against raw operational data
+- cloud portal same-origin topology, security headers, CORS policy, auth caveats, build/env guidance, and migration scripts are documented
+- enterprise disposable PostgreSQL proof and private package dry-run scripts are ready locally
+- cross-repo paid-pilot rehearsal, M2M/webhook smoke, and licence-install rehearsal scripts are present
+
+## Still Requires Live Environment Next Week
+
+- real hosting platform, domains, DNS, TLS, reverse proxy, and HSTS validation
+- managed PostgreSQL, backup schedule, restore evidence, and monitoring
+- production secret-store references for JWT, licence signing, SMTP, billing, and lead challenges
+- exact CORS/CSP values for the chosen topology
+- legal review of privacy, cookie/event consent, terms, paid pilot agreement, and data processing assumptions
+
+## Still Requires First Customer Pilot
+
+- customer-approved source system, owner, fields in/out of scope, read-only route, and credential vault reference
+- connector dry-run and preview against customer-approved data
+- package entitlement, licence install, data-plane registration, support workflow, and backup/restore evidence for that customer
+- signed support/data handling process for any exceptional diagnostic transfer
+
+## Still Not Ready To Promise
+
+- complete self-serve SaaS
+- vendor-certified connectors
+- hands-off live billing and automated entitlement fulfilment
+- managed customer data-plane hosting
+- cloud storage of raw customer operational data by default
+- SLA-backed support without a signed process and named rota
+
+## Public Marketing Launch Go/No-Go
+
+- static site build passes
+- privacy and terms draft links are visible
+- paid-pilot wording avoids complete SaaS and vendor-certified connector claims
+- no private enterprise code or secrets are present in public artefacts
+- production environment check passes for the selected host
+
+## Paid Pilot Delivery Go/No-Go
+
+- cloud live-hosting preflight passes
+- backup and restore rehearsal evidence exists
+- licence signing keys and JWT secrets are in a secret store
+- customer connector proof pack is approved
+- support owner, incident owner, and redaction checklist are agreed
+- licence install and data-plane registration are rehearsed without raw operational data leaving the customer data plane

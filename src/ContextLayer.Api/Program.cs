@@ -16,6 +16,7 @@ using ContextLayer.Infrastructure.Configuration;
 using ContextLayer.Infrastructure.Persistence;
 using ContextLayer.Infrastructure.Seed;
 using FluentValidation;
+using HotChocolate.AspNetCore;
 using HotChocolate.AspNetCore.Authorization;
 using HotChocolate.Types;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -39,6 +40,8 @@ var licenceOptions = builder.Configuration.GetSection(LicenceOptions.SectionName
 var configuredAuthOptions = builder.Configuration.GetSection(AuthOptions.SectionName).Get<AuthOptions>() ?? new AuthOptions();
 var telemetryOptions = builder.Configuration.GetSection(TelemetryOptions.SectionName).Get<TelemetryOptions>() ?? new TelemetryOptions();
 var rateLimitOptions = builder.Configuration.GetSection(RateLimitOptions.SectionName).Get<RateLimitOptions>() ?? new RateLimitOptions();
+var graphQlOptions = builder.Configuration.GetSection(GraphQlOptions.SectionName).Get<GraphQlOptions>() ?? new GraphQlOptions();
+var securityHeadersOptions = builder.Configuration.GetSection(SecurityHeadersOptions.SectionName).Get<SecurityHeadersOptions>() ?? new SecurityHeadersOptions();
 var hostedMode = builder.Environment.IsProduction()
     || string.Equals(platformOptions.Mode, PlatformModes.SaaS, StringComparison.OrdinalIgnoreCase);
 
@@ -70,7 +73,10 @@ allowedOrigins = allowedOrigins
     .Select(static origin => origin.Trim().TrimEnd('/'))
     .Distinct(StringComparer.OrdinalIgnoreCase)
     .ToArray();
+ValidateAllowedOrigins(allowedOrigins, hostedMode);
 
+builder.Services.Configure<GraphQlOptions>(builder.Configuration.GetSection(GraphQlOptions.SectionName));
+builder.Services.Configure<SecurityHeadersOptions>(builder.Configuration.GetSection(SecurityHeadersOptions.SectionName));
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("WebApp", policy =>
@@ -183,9 +189,24 @@ builder.Services
     .AddMutationType<Mutation>()
     .AddType<DateTimeType>()
     .AddAuthorization()
+    .AddMaxExecutionDepthRule(
+        Math.Max(1, graphQlOptions.MaxExecutionDepth),
+        skipIntrospectionFields: true,
+        allowRequestOverrides: false,
+        (_, _) => true)
+    .DisableIntrospection(hostedMode && graphQlOptions.DisableIntrospectionInProduction)
     .ModifyRequestOptions(options =>
     {
         options.IncludeExceptionDetails = builder.Environment.IsDevelopment();
+        options.ExecutionTimeout = TimeSpan.FromSeconds(Math.Clamp(graphQlOptions.ExecutionTimeoutSeconds, 1, 120));
+    })
+    .ModifyServerOptions(options =>
+    {
+        options.EnableGetRequests = !hostedMode || graphQlOptions.EnableGetRequestsInProduction;
+        options.EnableSchemaRequests = !hostedMode || graphQlOptions.EnableSchemaRequestsInProduction;
+        options.EnableMultipartRequests = graphQlOptions.EnableMultipartRequests;
+        options.MaxBatchSize = Math.Max(1, graphQlOptions.MaxBatchSize);
+        options.MaxConcurrentExecutions = Math.Max(1, graphQlOptions.MaxConcurrentExecutions);
     })
     .AddErrorFilter<GraphQlErrorFilter>();
 
@@ -257,7 +278,24 @@ var resolvedBootstrapOptions = new BootstrapOptions
 
 app.UseExceptionHandler();
 app.UseForwardedHeaders();
-if (hostedMode)
+if (securityHeadersOptions.Enabled)
+{
+    app.Use(async (context, next) =>
+    {
+        context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+        context.Response.Headers["Referrer-Policy"] = securityHeadersOptions.ReferrerPolicy;
+        context.Response.Headers["Permissions-Policy"] = securityHeadersOptions.PermissionsPolicy;
+        context.Response.Headers["X-Frame-Options"] = securityHeadersOptions.FrameOptions;
+        if (!string.IsNullOrWhiteSpace(securityHeadersOptions.ContentSecurityPolicy))
+        {
+            context.Response.Headers["Content-Security-Policy"] = securityHeadersOptions.ContentSecurityPolicy;
+        }
+
+        await next();
+    });
+}
+
+if (hostedMode && securityHeadersOptions.EnableHsts)
 {
     app.UseHsts();
 }
@@ -700,5 +738,28 @@ static Dictionary<string, string[]> ToValidationErrors(ValidationException excep
         .ToDictionary(
             group => group.Key,
             group => group.Select(error => error.ErrorMessage).ToArray());
+
+static void ValidateAllowedOrigins(string[] origins, bool hostedMode)
+{
+    if (origins.Any(origin => origin == "*" || origin.Contains('*', StringComparison.Ordinal)))
+    {
+        throw new InvalidOperationException("Cors:AllowedOrigins must contain exact origins only. Wildcards are not allowed.");
+    }
+
+    if (hostedMode && origins.Length == 0)
+    {
+        throw new InvalidOperationException("Cors:AllowedOrigins must list the production frontend origin before running in Production or SaaS mode.");
+    }
+
+    if (hostedMode && origins.Any(IsInsecureProductionOrigin))
+    {
+        throw new InvalidOperationException("Production CORS origins must use HTTPS except localhost development entries.");
+    }
+}
+
+static bool IsInsecureProductionOrigin(string origin) =>
+    origin.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+    && !origin.Contains("localhost", StringComparison.OrdinalIgnoreCase)
+    && !origin.Contains("127.0.0.1", StringComparison.OrdinalIgnoreCase);
 
 public partial class Program;
