@@ -11,7 +11,7 @@ using Microsoft.Extensions.Options;
 
 namespace ContextLayer.Infrastructure.Services;
 
-public sealed class LocalLicenceService(
+public sealed partial class LocalLicenceService(
     IOptions<LicenceOptions> licenceOptions,
     IOptions<ControlPlaneOptions> controlPlaneOptions,
     IContextLayerDbContext dbContext,
@@ -35,7 +35,7 @@ public sealed class LocalLicenceService(
             try
             {
                 var json = await File.ReadAllTextAsync(licence.FilePath, cancellationToken);
-                document = JsonSerializer.Deserialize<LocalLicenceDocument>(json, JsonOptions);
+                document = ParseLicenceDocument(json, licence, warnings);
                 if (document is null)
                 {
                     warnings.Add("The local licence file could not be parsed.");
@@ -105,8 +105,7 @@ public sealed class LocalLicenceService(
             warnings.Add("The local licence has expired. Paid-only modules should remain disabled until a new licence is installed.");
         }
 
-        var isWellFormed = !string.IsNullOrWhiteSpace(document.LicenceKey)
-            && document.LicenceKey.StartsWith("ucl_", StringComparison.OrdinalIgnoreCase)
+        var isWellFormed = IsRecognisedLicenceKey(document.LicenceKey)
             && !string.IsNullOrWhiteSpace(document.Plan)
             && !string.IsNullOrWhiteSpace(document.LicensedTo);
 
@@ -221,8 +220,7 @@ public sealed class OfflineLicenceValidator : ILicenceValidator
     {
         var warnings = new List<string>();
         var isExpired = document.ExpiresAtUtc.HasValue && document.ExpiresAtUtc.Value < utcNow;
-        var isValid = !string.IsNullOrWhiteSpace(document.LicenceKey)
-            && document.LicenceKey.StartsWith("ucl_", StringComparison.OrdinalIgnoreCase)
+        var isValid = LocalLicenceService.IsRecognisedLicenceKey(document.LicenceKey)
             && !string.IsNullOrWhiteSpace(document.Plan)
             && !string.IsNullOrWhiteSpace(document.LicensedTo)
             && !isExpired;
@@ -233,5 +231,150 @@ public sealed class OfflineLicenceValidator : ILicenceValidator
         }
 
         return new LicenceValidationResult(isValid, isExpired, warnings);
+    }
+}
+
+public sealed partial class LocalLicenceService
+{
+    internal static bool IsRecognisedLicenceKey(string licenceKey)
+        => licenceKey.StartsWith("ucl_", StringComparison.OrdinalIgnoreCase)
+           || licenceKey.StartsWith("UCL-", StringComparison.OrdinalIgnoreCase);
+
+    private static LocalLicenceDocument? ParseLicenceDocument(string json, LicenceOptions licence, List<string> warnings)
+    {
+        using var document = JsonDocument.Parse(json);
+        if (document.RootElement.TryGetProperty("payload", out var payloadElement)
+            && document.RootElement.TryGetProperty("signature", out var signatureElement))
+        {
+            var format = document.RootElement.TryGetProperty("format", out var formatElement)
+                ? formatElement.GetString()
+                : "";
+            if (!string.Equals(format, "UCL-LICENCE-v1", StringComparison.Ordinal))
+            {
+                warnings.Add("The cloud licence envelope format is not recognised.");
+                return null;
+            }
+
+            var payload = payloadElement.GetString();
+            var signature = signatureElement.GetString();
+            if (string.IsNullOrWhiteSpace(payload) || string.IsNullOrWhiteSpace(signature))
+            {
+                warnings.Add("The cloud licence envelope is missing its payload or signature.");
+                return null;
+            }
+
+            if (!string.IsNullOrWhiteSpace(licence.PublicKeyPem))
+            {
+                if (!VerifyCloudEnvelope(payload, signature, licence.PublicKeyPem, warnings))
+                {
+                    return null;
+                }
+            }
+            else
+            {
+                warnings.Add("The cloud licence envelope signature was not verified because Licence:PublicKeyPem is not configured. Use this only for local development rehearsal.");
+            }
+
+            return ParseCloudPayload(payload);
+        }
+
+        return JsonSerializer.Deserialize<LocalLicenceDocument>(json, JsonOptions);
+    }
+
+    private static bool VerifyCloudEnvelope(string payload, string signature, string publicKeyPem, List<string> warnings)
+    {
+        try
+        {
+            using var rsa = RSA.Create();
+            rsa.ImportFromPem(publicKeyPem);
+            var signatureBytes = Convert.FromBase64String(signature);
+            var payloadBytes = Encoding.UTF8.GetBytes(payload);
+            if (rsa.VerifyData(payloadBytes, signatureBytes, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1))
+            {
+                return true;
+            }
+
+            warnings.Add("The cloud licence envelope signature is invalid.");
+            return false;
+        }
+        catch (Exception exception) when (exception is CryptographicException or FormatException)
+        {
+            warnings.Add("The cloud licence envelope signature could not be verified.");
+            return false;
+        }
+    }
+
+    private static LocalLicenceDocument ParseCloudPayload(string payload)
+    {
+        using var cloudPayload = JsonDocument.Parse(payload);
+        var root = cloudPayload.RootElement;
+        var entitlements = ReadCloudEntitlements(root.TryGetProperty("entitlements", out var value) ? value : default);
+        var plan = entitlements.TryGetValue("plan", out var planValue) ? planValue : "Cloud";
+        return new LocalLicenceDocument(
+            LicenceKey: GetString(root, "licenceKey"),
+            Plan: plan,
+            LicensedTo: GetString(root, "issuedTo"),
+            IssuedAtUtc: GetDate(root, "issuedAt") ?? DateTime.UtcNow,
+            ExpiresAtUtc: GetDate(root, "expiresAt"),
+            Entitlements: entitlements);
+    }
+
+    private static IReadOnlyDictionary<string, string> ReadCloudEntitlements(JsonElement entitlements)
+    {
+        var values = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (entitlements.ValueKind != JsonValueKind.Object)
+        {
+            return values;
+        }
+
+        foreach (var property in entitlements.EnumerateObject())
+        {
+            values[property.Name] = property.Name.Equals("plan", StringComparison.OrdinalIgnoreCase)
+                ? CloudEnumName(property.Value, ["Free", "Pro", "Business", "Enterprise", "PrivateCloud"])
+                : property.Name.Equals("updateChannel", StringComparison.OrdinalIgnoreCase)
+                    ? CloudEnumName(property.Value, ["Stable", "Preview", "EnterpriseLTS", "SecurityOnly"])
+                    : JsonScalar(property.Value);
+        }
+
+        return values;
+    }
+
+    private static string CloudEnumName(JsonElement value, string[] names)
+    {
+        if (value.ValueKind == JsonValueKind.Number && value.TryGetInt32(out var index) && index >= 0 && index < names.Length)
+        {
+            return names[index];
+        }
+
+        return JsonScalar(value);
+    }
+
+    private static string JsonScalar(JsonElement value) => value.ValueKind switch
+    {
+        JsonValueKind.String => value.GetString() ?? "",
+        JsonValueKind.Number => value.GetRawText(),
+        JsonValueKind.True => "true",
+        JsonValueKind.False => "false",
+        JsonValueKind.Array => string.Join(",", value.EnumerateArray().Select(JsonScalar)),
+        JsonValueKind.Object => value.GetRawText(),
+        _ => ""
+    };
+
+    private static string GetString(JsonElement root, string propertyName)
+        => root.TryGetProperty(propertyName, out var value) ? value.GetString() ?? "" : "";
+
+    private static DateTime? GetDate(JsonElement root, string propertyName)
+    {
+        if (!root.TryGetProperty(propertyName, out var value))
+        {
+            return null;
+        }
+
+        if (value.TryGetDateTimeOffset(out var offset))
+        {
+            return offset.UtcDateTime;
+        }
+
+        return value.TryGetDateTime(out var date) ? DateTime.SpecifyKind(date, DateTimeKind.Utc) : null;
     }
 }

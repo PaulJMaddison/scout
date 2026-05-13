@@ -25,6 +25,7 @@ C:\UCL\.local\licences\pilot.ucl-licence.json
 ```text
 Licence__Mode=Licensed
 Licence__FilePath=C:\UCL\.local\licences\pilot.ucl-licence.json
+Licence__PublicKeyPem=<cloud licence public verification key from local config or secret store>
 ```
 
 8. Verify:
@@ -33,6 +34,13 @@ Licence__FilePath=C:\UCL\.local\licences\pilot.ucl-licence.json
 GET /api/v1/licence/status
 ```
 
-## Known Gap To Check
+## Local Code Path
 
-The public open-core data plane has a local licence-file seam. If the cloud-generated signed envelope differs from the current public local reader schema, record that mismatch before the first customer install and do not promise automated licence installation until the schema is aligned.
+The open-core data plane now supports both:
+
+- the older local `LocalLicenceDocument` shape used by open-core demos
+- the cloud control-plane `UCL-LICENCE-v1` signed envelope shape
+
+When `Licence__PublicKeyPem` is set, the data plane verifies the cloud envelope signature before treating it as active. For local development only, the reader can parse an envelope without a public key and returns a warning on `/api/v1/licence/status`; do not use that warning state for a customer install.
+
+The rehearsal script checks the local file path, prints the required environment values, and, when the backend is running, signs in with seeded local credentials and calls the licence status endpoint without printing tokens or licence content.

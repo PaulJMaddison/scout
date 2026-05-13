@@ -105,6 +105,8 @@ public sealed class LicenceOptions
 
     public string FilePath { get; set; } = ".demo-data/ucl-demo.licence.json";
 
+    public string PublicKeyPem { get; set; } = string.Empty;
+
     public bool RequireValidLicence { get; set; } = false;
 
     public int OfflineGracePeriodDays { get; set; } = 30;
