@@ -260,7 +260,8 @@ internal sealed class ContextLayerHttpPipeline(HttpClient httpClient, ContextLay
 
     private Uri BuildUri(string relativePath)
     {
-        if (Uri.TryCreate(relativePath, UriKind.Absolute, out var absolute))
+        if (Uri.TryCreate(relativePath, UriKind.Absolute, out var absolute)
+            && absolute.Scheme != Uri.UriSchemeFile)
         {
             return absolute;
         }
