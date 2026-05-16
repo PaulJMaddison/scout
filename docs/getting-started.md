@@ -98,38 +98,50 @@ Once the API is running, try these requests to verify everything works.
 curl http://localhost:8080/health/ready
 ```
 
-Expected response: `Healthy`
+Expected response:
 
-### List Tenants
-
-```bash
-curl http://localhost:8080/api/v1/tenants
+```json
+{"status":"ok","service":"ContextLayer.Api","checks":[{"name":"context-layer-db","status":"ok"},{"name":"customer-ops-db","status":"ok"}]}
 ```
 
-Returns the available tenants (the demo seed creates `demo` and `summit`).
-
-### GraphQL Introspection
+### Platform Configuration
 
 ```bash
-curl -X POST http://localhost:8080/graphql \
-  -H "Content-Type: application/json" \
-  -d '{"query":"{ __schema { queryType { name } types { name } } }"}'
+curl http://localhost:8080/api/platform/config
 ```
 
-Or open [http://localhost:8080/graphql](http://localhost:8080/graphql) in a browser for the Banana Cake Pop GraphQL IDE.
+Returns the effective runtime mode, enabled features, and endpoint configuration.
 
-### Get User Context (authenticated)
+### Authenticate and Query Context
+
+Most API and GraphQL endpoints require a JWT token. Log in first:
 
 ```bash
-# 1. Obtain a token
-TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/token \
+# 1. Log in with demo credentials
+TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"grantType":"client_credentials","clientId":"crm-service","clientSecret":"replace-me","scope":"context:read context:write"}' \
+  -d '{"tenantSlug":"demo","email":"admin@contextlayer.local","password":"DemoAdmin123!"}' \
   | jq -r '.accessToken')
 
-# 2. Fetch user context
-curl "http://localhost:8080/api/v1/context/users/123?tenantSlug=demo" \
+# 2. Fetch user context (REST)
+curl http://localhost:8080/api/rest/tenants/demo/users/123/context \
   -H "Authorization: Bearer $TOKEN"
+
+# 3. GraphQL introspection
+curl -X POST http://localhost:8080/graphql \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"query":"{ __schema { queryType { name } } }"}'
+```
+
+Or open [http://localhost:8080/graphql](http://localhost:8080/graphql) in a browser for the Banana Cake Pop GraphQL IDE (you will need to set the `Authorization: Bearer <token>` header).
+
+### OpenAPI / Swagger
+
+When `Platform__EnableOpenApi=true` (the default for development), browse the full API reference at:
+
+```
+http://localhost:8080/swagger
 ```
 
 ---
@@ -184,6 +196,8 @@ Console.WriteLine($"{context.FullName} — confidence: {context.OverallConfidenc
 docker build -t ucl-api -f src/ContextLayer.Api/Dockerfile .
 docker run --rm -p 8080:8080 \
   -e Database__Provider=Sqlite \
+  -e "ConnectionStrings__ContextLayer=Data Source=/var/lib/ucl/context_layer.db" \
+  -e "ConnectionStrings__CustomerOps=Data Source=/var/lib/ucl/customer_ops.db" \
   -e Bootstrap__ApplyMigrationsOnStartup=true \
   -e Bootstrap__SeedDemoData=true \
   -e "Auth__SigningKey=change-me-to-at-least-32-bytes-random" \
