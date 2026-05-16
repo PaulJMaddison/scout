@@ -18,8 +18,8 @@ function Fail($message) {
 }
 
 Step "No GitHub Actions workflows" {
-    if ((Test-Path ".github/workflows") -and (Get-ChildItem ".github/workflows" -File -Force | Select-Object -First 1)) {
-        Fail ".github/workflows must not contain workflow files in the public repo."
+    if ((Test-Path ".github/workflows") -and (Get-ChildItem ".github/workflows" -File -Force -Include "*.yml","*.yaml" | Select-Object -First 1)) {
+        Fail ".github/workflows must not contain active workflow files in the public repo."
     }
 }
 

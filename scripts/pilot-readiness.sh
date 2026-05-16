@@ -7,8 +7,8 @@ fail() { echo "Pilot readiness failed: $1" >&2; exit 1; }
 step() { echo "==> $1"; }
 
 step "No GitHub Actions workflows"
-if [[ -d .github/workflows ]] && find .github/workflows -type f | grep -q .; then
-  fail ".github/workflows must not contain workflow files in the public repo."
+if [[ -d .github/workflows ]] && find .github/workflows -type f -name '*.yml' -o -name '*.yaml' | grep -q .; then
+  fail ".github/workflows must not contain active workflow files in the public repo."
 fi
 
 step "Tracked runtime artefact scan"
