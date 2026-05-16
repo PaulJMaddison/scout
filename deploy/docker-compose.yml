@@ -23,6 +23,8 @@ services:
       Platform__EnableRest: "true"
       Platform__EnableOpenApi: "true"
       Database__Provider: Sqlite
+      ConnectionStrings__ContextLayer: Data Source=/var/lib/ucl/context_layer.db
+      ConnectionStrings__CustomerOps: Data Source=/var/lib/ucl/customer_ops.db
       Bootstrap__ApplyMigrationsOnStartup: "true"
       Bootstrap__SeedDemoData: ${SEED_DEMO_DATA:-true}
       Auth__Issuer: ContextLayer
