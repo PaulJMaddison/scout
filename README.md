@@ -429,6 +429,30 @@ See [docs/open-core-boundary.md](docs/open-core-boundary.md) and [docs/enterpris
 
 ---
 
+## Releases
+
+UCL uses coordinated [semantic versioning](https://semver.org/) across all three repositories (open-source, enterprise, cloud). Every release is tagged with the same `vX.Y.Z` version.
+
+| Resource | Description |
+|---|---|
+| [Release Process](docs/releases/release-process.md) | Full release workflow, checklists, and hotfix process |
+| [Cross-Repo Changelog](docs/releases/CHANGELOG.md) | Consolidated changelog across all three repos |
+| [GitHub Releases](https://github.com/PaulJMaddison/universalcontextlayer/releases) | Published releases with auto-generated notes |
+
+### Release Scripts
+
+```bash
+# Preview a version bump (no files modified)
+./scripts/bump-version.sh 2.8.0 --dry-run
+
+# Preview a tag creation (no tag created)
+./scripts/tag-release.sh v2.8.0 --dry-run
+```
+
+See [docs/releases/release-process.md](docs/releases/release-process.md) for the complete step-by-step release guide.
+
+---
+
 ## Contributing
 
 We welcome contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on development setup, code style, and the pull request process.
