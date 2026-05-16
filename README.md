@@ -419,7 +419,7 @@ sh ./scripts/reset-demo.sh --skip-recreate     # stop without reseeding
 
 This repository is the **public open-source core** of Universal Context Layer. It is designed to be useful on its own: teams can run it locally, explore the APIs and SDKs, test integration patterns, and build context consumers without needing paid features.
 
--# Commercial & Enterprise Solutions
+# Commercial & Enterprise Solutions
 
 For organizations requiring extreme performance, absolute data sovereignty and the full power of the KynticAI Substrate, we offer a proprietary Enterprise Edition.
 
