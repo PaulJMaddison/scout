@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  We don't build the brain. We build the nervous system: the governed customer data plane that carries trusted business context from existing systems to the customer's own AI tools, workflows, reports, apps, and agents.
+  We don't build the brain. We build the nervous system: the governed customer data plane that carries trusted business context from existing systems to the customer's own AI tools, workflows, reports, apps, and agents. 
 </p>
 
 ---
@@ -419,13 +419,45 @@ sh ./scripts/reset-demo.sh --skip-recreate     # stop without reseeding
 
 This repository is the **public open-source core** of Universal Context Layer. It is designed to be useful on its own: teams can run it locally, explore the APIs and SDKs, test integration patterns, and build context consumers without needing paid features.
 
-Paid enterprise options -- available separately through KynticAI -- include:
+-# Commercial & Enterprise Solutions
 
-- Enterprise connectors (CRM, ERP, warehouse, support, email, chat, analytics, and more)
-- Private cloud / single-tenant / on-prem deployment
-- SSO, SCIM, advanced governance, and compliance
-- Implementation-led paid pilots with delivery support
-- Commercial support and SLAs
+For organizations requiring extreme performance, absolute data sovereignty and the full power of the KynticAI Substrate, we offer a proprietary Enterprise Edition.
+
+## The Enterprise Advantage
+
+### High-Velocity Rust Engine
+Access to our proprietary, implementation specific Rust binary designed for sub-millisecond context retrieval across billion-point datasets.
+
+### The Sovereign "Bunker" Deployment
+Full support for private cloud, single-tenant, or true "Air Gapped" on premise deployments. Your data never leaves your physical or virtual perimeter.
+
+### Universal Context Connectors
+Native, high throughput integration for the entire enterprise stack including CRM, ERP, Warehouse, Support, Email, Chat and Analytics platforms.
+
+### Architectural Governance
+Full SSO/SCIM integration, granular RBAC (Role-Based Access Control) and automated compliance auditing for regulated industries.
+
+### Groundbreaking Contextual Intelligence
+Advanced UCL features for predictive analytics and cross-domain reasoning that go beyond standard RAG (Retrieval-Augmented Generation).
+
+### Mission-Critical Support
+Implementation-led paid pilots with full delivery support and commercial SLAs for production-grade environments.
+
+---
+
+# Access & Licensing
+
+## UCL Cloud & Managed Hosting
+Private repository for cloud UCL hosting and sign-ups.
+
+Repository:  
+https://github.com/PaulJMaddison/universalcontextlayer-cloud
+
+## UCL Enterprise Features
+Private repository for proprietary features and the High-Velocity engine.
+
+Repository:  
+https://github.com/PaulJMaddison/universalcontextlayer-enterprise
 
 See [docs/open-core-boundary.md](docs/open-core-boundary.md) and [docs/enterprise-extension-points.md](docs/enterprise-extension-points.md) for the detailed boundary.
 
