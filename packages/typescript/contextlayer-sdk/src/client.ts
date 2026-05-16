@@ -45,53 +45,86 @@ interface PageResult<T> {
   hasMore: boolean
 }
 
+/**
+ * Top-level SDK client exposing all Context Layer API surfaces.
+ *
+ * Create an instance with {@link createContextLayerClient}.
+ */
 export interface ContextLayerClient {
+  /** Authentication and token management. */
   auth: {
+    /** Log in as an interactive operator and receive a session with a JWT. */
     login(input: LoginRequest): Promise<AuthSession>
+    /** Exchange client credentials for a scoped machine token. */
     getMachineToken(input: MachineTokenRequest): Promise<MachineTokenResponse>
+    /** Retrieve the currently authenticated operator. */
     getCurrentOperator(): Promise<AuthenticatedOperator>
   }
+  /** User context lookups. */
   users: {
+    /** Retrieve the full context profile for a user. */
     getContext(tenantSlug: string, externalUserId: string): Promise<ContextProfileResult | null>
   }
+  /** Account (company) context lookups. */
   accounts: {
+    /** Retrieve the aggregated context for a business account. */
     getContext(tenantSlug: string, externalAccountId: string): Promise<AccountContextResult | null>
   }
+  /** Context snapshot retrieval. */
   snapshots: {
+    /** Retrieve a snapshot by its identifier. */
     getById(tenantSlug: string, snapshotId: string): Promise<ContextSnapshotResult | null>
+    /** Retrieve the latest snapshot summary for a user. */
     getLatestForUser(tenantSlug: string, externalUserId: string): Promise<ContextSnapshotSummary | null>
+    /** Retrieve the latest snapshot summary for an account. */
     getLatestForAccount(tenantSlug: string, externalAccountId: string): Promise<ContextSnapshotSummary | null>
   }
+  /** Semantic fact lookups with filtering and pagination. */
   facts: {
+    /** Retrieve semantic facts for a user, optionally filtered by attribute key. */
     getForUser(tenantSlug: string, externalUserId: string, options?: ContextFactLookupOptions): Promise<ContextFactResult[]>
+    /** Retrieve semantic facts for an account, optionally filtered by attribute key. */
     getForAccount(tenantSlug: string, externalAccountId: string, options?: ContextFactLookupOptions): Promise<ContextFactResult[]>
   }
+  /** Selector preview and validation (via GraphQL). */
   selectors: {
+    /** Preview a selector definition against live source data. */
     preview(input: PreviewSelectorInput): Promise<SelectorExecutionPreviewResult>
+    /** Validate a selector definition without executing it. */
     validate(input: ValidateSelectorInput): Promise<SelectorValidationResult>
   }
+  /** Context recomputation. */
   recompute: {
+    /** Queue a context recomputation for a user. */
     queueForUser(tenantSlug: string, externalUserId: string, triggeredBy: string): Promise<QueueRecomputeResult>
   }
+  /** AI-safe context packages (UCL does not call an AI model). */
   packages: {
+    /** Retrieve a scoped AI-safe context package for a user and sales objective. */
     getAiContextForUser(
       tenantSlug: string,
       externalUserId: string,
       salesObjective: string,
     ): Promise<SalesContextPackageResult | null>
   }
+  /** Audit event log. */
   audit: {
+    /** Retrieve audit events for a tenant. */
     getEvents(tenantSlug: string): Promise<AuditEvent[]>
   }
+  /** Source-system event ingestion. */
   events: {
+    /** Ingest a provider-neutral source-system event. */
     ingestSourceSystemEvent(
       tenantSlug: string,
       input: SourceSystemEventRequest,
     ): Promise<SourceSystemEventAcceptedResult>
   }
+  /** Return a tenant-scoped client that omits the `tenantSlug` parameter from every call. */
   forTenant(tenantSlug: string): TenantScopedContextLayerClient
 }
 
+/** A tenant-scoped view of the SDK client. All methods omit the `tenantSlug` parameter. */
 export interface TenantScopedContextLayerClient {
   tenantSlug: string
   users: {
@@ -305,6 +338,19 @@ class HttpPipeline {
   }
 }
 
+/**
+ * Create a new Context Layer SDK client.
+ *
+ * @example
+ * ```ts
+ * const ucl = createContextLayerClient({
+ *   baseUrl: 'http://127.0.0.1:5198',
+ *   accessToken: process.env.CONTEXT_LAYER_TOKEN,
+ * })
+ *
+ * const context = await ucl.users.getContext('demo', '123')
+ * ```
+ */
 export function createContextLayerClient(options: ContextLayerClientOptions): ContextLayerClient {
   const pipeline = new HttpPipeline(options)
 
