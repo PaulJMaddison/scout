@@ -1,8 +1,8 @@
 # @universalcontextlayer/sdk
 
-Typed TypeScript SDK scaffold for Universal Context Layer. It gives application teams a stable client surface for the local/private product API instead of requiring them to hand-roll REST and GraphQL calls during pilots.
+Typed TypeScript client for the [Universal Context Layer](https://github.com/PaulJMaddison/universalcontextlayer) API. It gives application teams a stable, fully-typed surface for REST and GraphQL calls instead of hand-rolling HTTP requests.
 
-This package is public open-core scaffolding for pilots and local integration work. Treat npm publishing, semantic version promises, and managed support as deliberate future release work.
+This package is part of the public open-core. It covers authentication, context lookups, semantic facts, snapshots, selector preview, recompute, AI-safe context packages, source-system event ingestion, and audit.
 
 ## SDK Folder Structure
 
@@ -202,7 +202,9 @@ npm run pack:dry-run
 Run the local API first:
 
 ```bash
-./scripts/start-demo.ps1
+# From the repo root
+sh ./scripts/start-demo.sh      # Linux / macOS
+./scripts/start-demo.ps1         # Windows
 ```
 
 ## Versioning
@@ -216,7 +218,7 @@ Run the local API first:
 - package name: `@universalcontextlayer/sdk`
 - published files: `dist/` and `README.md`
 - module format: ESM with type declarations
-- Publishing is not configured as part of this private hardening pass.
+- Publishing is not yet configured for the public npm registry.
 
 ## Tests
 
