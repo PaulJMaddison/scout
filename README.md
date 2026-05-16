@@ -49,6 +49,10 @@ cd universalcontextlayer
 
 No Docker, PostgreSQL, global .NET SDK, or global Node.js install required. The scripts download repo-local runtimes automatically.
 
+**Prefer Docker?** Run `docker compose -f deploy/docker-compose.yml up ucl-api --build` for a single-container demo with SQLite and seeded data on [http://localhost:8080](http://localhost:8080).
+
+See the **[Getting Started Guide](docs/getting-started.md)** for Docker Compose with PostgreSQL, first API calls, SDK examples, and production setup.
+
 ---
 
 ## What Is UCL?
