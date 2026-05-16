@@ -1,10 +1,10 @@
-# Contributing
+# Contributing to Universal Context Layer
 
-Thanks for your interest in improving Universal Context Layer.
+Thanks for your interest in improving Universal Context Layer. This guide covers everything you need to get started.
 
-## Open core boundary
+## Open Core Boundary
 
-This repository is the public open source core of Universal Context Layer. Contributions here should strengthen the core platform, developer experience, documentation, demo flows, SDKs, and public extension points.
+This repository is the public open-source core of Universal Context Layer. Contributions here should strengthen the core platform, developer experience, documentation, demo flows, SDKs, and public extension points.
 
 Please do not add paid enterprise implementation code to this repository. In particular, the public repo should not contain:
 
@@ -16,25 +16,109 @@ Please do not add paid enterprise implementation code to this repository. In par
 
 It is fine for the public repo to define stable extension interfaces for future enterprise modules. It is not fine to quietly ship the paid implementations here.
 
-## Getting started
+See [docs/open-core-boundary.md](docs/open-core-boundary.md) and [docs/enterprise-extension-points.md](docs/enterprise-extension-points.md) for the detailed boundary.
 
-1. Read the [README](README.md) for the product overview and local setup.
-2. Run the demo bootstrap:
-   - Windows: `./scripts/setup-demo.ps1`
-   - macOS/Linux: `sh ./scripts/setup-demo.sh`
-3. Start the stack:
-   - Windows: `./scripts/start-demo.ps1`
-   - macOS/Linux: `sh ./scripts/start-demo.sh`
+## Getting Started
 
-## Development workflow
+### Prerequisites
 
-- Keep changes focused and explain the business reason as well as the code change.
-- Prefer adding tests for new backend behavior and meaningful UI verification for frontend changes.
-- If you touch setup, seed, or demo flows, verify the happy path end to end.
+The setup scripts download repo-local runtimes automatically, so you do **not** need global installs of .NET or Node.js. You only need:
+
+- **Git**
+- **bash** (Linux/macOS) or **PowerShell** (Windows)
+- **curl** (used by the runtime download scripts)
+
+### Clone and Bootstrap
+
+```bash
+git clone https://github.com/PaulJMaddison/universalcontextlayer.git
+cd universalcontextlayer
+
+# Linux / macOS
+sh ./scripts/setup-demo.sh
+sh ./scripts/start-demo.sh
+
+# Windows
+./scripts/setup-demo.ps1
+./scripts/start-demo.ps1
+```
+
+This downloads .NET 10 and Node.js into the repo, restores packages, seeds SQLite demo data, and starts the API (port 5198) and web app (port 5173).
+
+### Verified Local URLs
+
+| Service | URL |
+|---|---|
+| Web app | http://127.0.0.1:5173 |
+| API base | http://127.0.0.1:5198 |
+| GraphQL | http://127.0.0.1:5198/graphql |
+| Health check | http://127.0.0.1:5198/health |
+| Swagger (when enabled) | http://127.0.0.1:5198/swagger |
+
+### Demo Credentials
+
+| Tenant | Email | Password |
+|---|---|---|
+| `demo` | `admin@contextlayer.local` | `DemoAdmin123!` |
+| `demo` | `rep@contextlayer.local` | `DemoSales123!` |
+
+## Development Workflow
+
+1. **Create a branch** from `main` with a descriptive name (e.g. `fix/selector-preview-null-check`, `docs/update-api-contract`).
+2. **Make focused changes** and explain the business reason as well as the code change.
+3. **Run quality checks** before pushing (see below).
+4. **Open a pull request** against `main`.
+
+### Quality Checks
+
+```bash
+# Backend build and tests
+dotnet build ContextLayer.slnx
+dotnet test ContextLayer.slnx
+
+# Frontend (from apps/web)
+cd apps/web
+npm run lint
+npm test
+npm run build
+
+# TypeScript SDK (from packages/typescript/contextlayer-sdk)
+cd packages/typescript/contextlayer-sdk
+npm test
+```
+
+If you touch setup, seed, or demo flows, verify the happy path end to end by running `setup-demo.sh` followed by `start-demo.sh`.
+
+## Code Style
+
+### C# / .NET
+
+- Follow the existing conventions in the `src/` directory.
+- Use `dotnet format` if available; the project uses standard .NET formatting rules.
+- Prefer explicit types over `var` for public API surfaces.
+- XML doc comments on public types and methods are appreciated but not required for small fixes.
+
+### TypeScript / React
+
+- The frontend uses React 19 with TypeScript, TanStack Router, and Tailwind CSS.
+- Run `npm run lint` from `apps/web` to check ESLint rules.
+- Prefer named exports over default exports.
+- Use the existing TanStack Query patterns for data fetching.
+
+### TypeScript SDK
+
+- The SDK is in `packages/typescript/contextlayer-sdk/`.
+- All public types live in `src/types.ts`; all public API methods in `src/client.ts`.
+- Add JSDoc comments to any new public API surface.
+- Run `npm test` to execute vitest.
+
+### General
+
+- Keep changes focused. Avoid PRs that mix unrelated refactors.
 - Prefer improving public extension points over adding hard-coded enterprise behaviour.
-- If you are unsure whether a feature belongs in the public repo, treat it as a boundary question first and document the decision in your pull request.
+- Do not commit secrets, credentials, or customer-specific data.
 
-## What belongs in the public repo
+## What Belongs in the Public Repo
 
 Good contribution areas include:
 
@@ -44,8 +128,9 @@ Good contribution areas include:
 - local self-hosting and demo usability
 - mock connectors, generic connector contracts, and safe default implementations
 - public documentation, samples, and tests
+- accessibility and internationalisation improvements
 
-## What should stay outside the public repo
+## What Should Stay Outside the Public Repo
 
 These normally belong in a future private enterprise repo, a future managed SaaS codebase, or professional services materials:
 
@@ -55,22 +140,23 @@ These normally belong in a future private enterprise repo, a future managed SaaS
 - advanced policy packs or compliance report packs
 - entitlement, billing, or commercial packaging logic
 
-See [docs/open-core-boundary.md](docs/open-core-boundary.md) and [docs/enterprise-extension-points.md](docs/enterprise-extension-points.md) for the detailed boundary.
+## Pull Requests
 
-## Quality checks
-
-- Backend: `dotnet test ContextLayer.slnx`
-- Frontend lint: `npm run lint` from `apps/web`
-- Frontend tests: `npm test` from `apps/web`
-- Frontend build: `npm run build` from `apps/web`
-
-## Pull requests
-
-- Use clear commit messages.
+- Use clear, descriptive commit messages.
 - Describe the user or business scenario the change improves.
 - Call out any new environment variables, scripts, or data migrations.
 - Call out any new extension interfaces and explain whether they are intended for OSS use, future enterprise use, or both.
 - Avoid PRs that mix boundary cleanup, product messaging changes, and unrelated functional refactors in one change set.
+- Link any related issues.
+- Ensure all quality checks pass before requesting review.
+
+## Issue Templates
+
+When opening an issue, please include:
+
+- **Bug reports**: steps to reproduce, expected behaviour, actual behaviour, runtime mode (LocalDemo/BackendOnly/SaaS), OS, and .NET version.
+- **Feature requests**: describe the use case and how it fits with the open-core boundary.
+- **Documentation issues**: link to the page and describe what is incorrect or missing.
 
 ## Conduct
 
