@@ -1,0 +1,117 @@
+# Universal Context Layer — Getting Started Docker Compose
+#
+# Quick demo (SQLite, no external dependencies):
+#   docker compose -f deploy/docker-compose.yml up ucl-api
+#
+# Production-like setup (PostgreSQL + pgvector):
+#   docker compose -f deploy/docker-compose.yml --profile postgres up
+#
+# Copy deploy/.env.example to deploy/.env and customise as needed.
+
+services:
+  # ─── SQLite demo mode (default) ───────────────────────────────────────────────
+  ucl-api:
+    build:
+      context: ..
+      dockerfile: src/ContextLayer.Api/Dockerfile
+    container_name: ucl-api
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      Platform__Mode: ${PLATFORM_MODE:-BackendOnly}
+      Platform__EnableGraphQl: "true"
+      Platform__EnableRest: "true"
+      Platform__EnableOpenApi: "true"
+      Database__Provider: Sqlite
+      ConnectionStrings__ContextLayer: Data Source=/var/lib/ucl/context_layer.db
+      ConnectionStrings__CustomerOps: Data Source=/var/lib/ucl/customer_ops.db
+      Bootstrap__ApplyMigrationsOnStartup: "true"
+      Bootstrap__SeedDemoData: ${SEED_DEMO_DATA:-true}
+      Auth__Issuer: ContextLayer
+      Auth__Audience: ContextLayer.Console
+      Auth__SigningKey: ${AUTH_SIGNING_KEY:-context-layer-development-only-change-before-production}
+      Auth__AccessTokenMinutes: ${AUTH_ACCESS_TOKEN_MINUTES:-120}
+      DataProtection__ApplicationName: UniversalContextLayer
+      DataProtection__KeyRingPath: /var/lib/ucl/data-protection-keys
+      DataProtection__RequirePersistentKeys: "false"
+      Llm__DefaultProvider: mock
+    ports:
+      - "${UCL_PORT:-8080}:8080"
+    volumes:
+      - ucl-data-protection-keys:/var/lib/ucl/data-protection-keys
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://127.0.0.1:8080/health/ready"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+
+  # ─── PostgreSQL mode (optional profile) ───────────────────────────────────────
+  ucl-api-pg:
+    build:
+      context: ..
+      dockerfile: src/ContextLayer.Api/Dockerfile
+    container_name: ucl-api-pg
+    restart: unless-stopped
+    profiles:
+      - postgres
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      Platform__Mode: ${PLATFORM_MODE:-BackendOnly}
+      Platform__EnableGraphQl: "true"
+      Platform__EnableRest: "true"
+      Platform__EnableOpenApi: ${ENABLE_OPENAPI:-false}
+      Database__Provider: Postgres
+      Bootstrap__ApplyMigrationsOnStartup: "true"
+      Bootstrap__SeedDemoData: ${SEED_DEMO_DATA:-false}
+      Auth__Issuer: ContextLayer
+      Auth__Audience: ContextLayer.Console
+      Auth__SigningKey: ${AUTH_SIGNING_KEY:-context-layer-development-only-change-before-production}
+      Auth__AccessTokenMinutes: ${AUTH_ACCESS_TOKEN_MINUTES:-30}
+      DataProtection__ApplicationName: UniversalContextLayer
+      DataProtection__KeyRingPath: /var/lib/ucl/data-protection-keys
+      DataProtection__RequirePersistentKeys: "true"
+      ConnectionStrings__ContextLayer: Host=postgres;Port=5432;Database=${CONTEXT_LAYER_DB:-context_layer_db};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}
+      ConnectionStrings__CustomerOps: Host=postgres;Port=5432;Database=${CUSTOMER_OPS_DB:-customer_ops_db};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}
+      Llm__DefaultProvider: mock
+    ports:
+      - "${UCL_PORT:-8080}:8080"
+    volumes:
+      - ucl-pg-data-protection-keys:/var/lib/ucl/data-protection-keys
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://127.0.0.1:8080/health/ready"]
+      interval: 30s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+
+  # ─── PostgreSQL 16 with pgvector (optional profile) ───────────────────────────
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: ucl-postgres
+    restart: unless-stopped
+    profiles:
+      - postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      CUSTOMER_OPS_DB: ${CUSTOMER_OPS_DB:-customer_ops_db}
+      CONTEXT_LAYER_DB: ${CONTEXT_LAYER_DB:-context_layer_db}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - ucl-postgres-data:/var/lib/postgresql/data
+      - ../deploy/docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-postgres} -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  ucl-data-protection-keys:
+  ucl-pg-data-protection-keys:
+  ucl-postgres-data:
