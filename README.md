@@ -1,6 +1,6 @@
 <p align="center">
   <strong>Universal Context Layer</strong><br/>
-  <em>by <a href="https://kyntic.com">Kyntic</a></em>
+  <em>KynticAI</em>
 </p>
 
 <p align="center">
