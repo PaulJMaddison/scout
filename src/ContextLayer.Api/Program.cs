@@ -29,6 +29,7 @@ using Microsoft.IdentityModel.Tokens;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 var platformOptions = builder.Configuration.GetSection(PlatformOptions.SectionName).Get<PlatformOptions>() ?? new PlatformOptions();
@@ -315,6 +316,13 @@ if (platformOptions.EnableOpenApi && platformOptions.EnableRest)
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "Universal Context Layer REST API v1");
         options.RoutePrefix = "swagger";
+    });
+    app.MapScalarApiReference("/api-docs", options =>
+    {
+        options
+            .WithTitle("Universal Context Layer API")
+            .ExpandAllTags()
+            .AddDocument("v1", routePattern: "/swagger/v1/swagger.json");
     });
 }
 
@@ -622,7 +630,7 @@ app.MapGet("/", () =>
 {
     if (platformOptions.EnableOpenApi && platformOptions.EnableRest)
     {
-        return Results.Redirect("/swagger");
+        return Results.Redirect("/api-docs");
     }
 
     if (platformOptions.EnableGraphQl)
