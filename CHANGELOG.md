@@ -6,6 +6,34 @@ The format is inspired by Keep a Changelog and this project follows semantic ver
 
 ## [Unreleased]
 
+## [2.8.0] - 2026-05-29
+
+### Added
+
+- Merged the v2-next public core, establishing the foundational v2.x open-source codebase with domain entities, selectors, context snapshots, GraphQL/REST API, React frontend, and TypeScript/C# SDKs.
+- Overhauled the README, CONTRIBUTING guide, SDK JSDoc documentation, GitHub issue and pull request templates, and `.editorconfig` for open-source community readiness.
+- Added GitHub Actions CI and release workflows for automated build, test, and packaging (currently disabled to conserve Actions minutes).
+- Added a getting started guide with Docker Compose deployment configuration and `.env.example` for streamlined onboarding.
+- Added release process documentation, cross-repository changelog coordination, and release automation scripts.
+- Added Scalar API documentation UI at `/api-docs` with OpenAPI specification export tooling, preserving the existing Swagger UI at `/swagger`.
+- Added a comprehensive end-to-end integration test suite bringing the total to 127 tests (54 E2E, 32 unit, 30 integration, 11 SDK).
+
+### Fixed
+
+- Fixed a cross-platform SDK URI resolution bug and added Bash equivalents for previously PowerShell-only scripts.
+- Updated pilot-readiness scripts to ignore `.disabled` workflow files when scanning for CI configuration.
+- Corrected `find` command precedence and PowerShell `-Include` parameter usage in pilot-readiness scripts.
+- Fixed Content Security Policy blocking JavaScript and CSS on Scalar and Swagger documentation paths.
+
+### Changed
+
+- Added a testing skill for the UCL open-source repository to improve session reproducibility.
+- Updated the testing-ucl-backend skill with Scalar documentation paths and CSP troubleshooting guidance.
+
+### Chores
+
+- Disabled GitHub Actions workflows (renamed `.yml` to `.yml.disabled`) to conserve Actions minutes during pre-launch development.
+
 ## [2.7.0] - 2026-05-13
 
 ### Added
