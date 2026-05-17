@@ -138,11 +138,14 @@ Or open [http://localhost:8080/graphql](http://localhost:8080/graphql) in a brow
 
 ### OpenAPI / Swagger
 
-When `Platform__EnableOpenApi=true` (the default for development), browse the full API reference at:
+When `Platform__EnableOpenApi=true` (the default for development), browse the full API reference:
 
-```
-http://localhost:8080/swagger
-```
+| UI | URL |
+|---|---|
+| **Scalar** (recommended) | [http://localhost:8080/api-docs](http://localhost:8080/api-docs) |
+| **Swagger UI** | [http://localhost:8080/swagger](http://localhost:8080/swagger) |
+
+See [API Documentation](api/README.md) for details on exporting the spec and authentication.
 
 ---
 
@@ -232,7 +235,7 @@ Key settings:
 | `Database__Provider` | `Sqlite` or `Postgres` | `Sqlite` |
 | `Bootstrap__SeedDemoData` | Seed fictional demo data on startup | `false` |
 | `Auth__SigningKey` | JWT signing key (48+ bytes for production) | dev placeholder |
-| `Platform__EnableOpenApi` | Enable Swagger UI at `/swagger` | `true` |
+| `Platform__EnableOpenApi` | Enable API docs at `/api-docs` and `/swagger` | `true` |
 | `Platform__EnableGraphQl` | Enable GraphQL endpoint at `/graphql` | `true` |
 
 ---

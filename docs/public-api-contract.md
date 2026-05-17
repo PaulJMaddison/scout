@@ -334,6 +334,17 @@ var accepted = await ucl.Events.IngestSourceSystemEventAsync(
         ObservedAtUtc: null));
 ```
 
+## Interactive API Documentation
+
+When `Platform__EnableOpenApi=true` (the default in Development), interactive API documentation is available:
+
+| UI | URL | Notes |
+|---|---|---|
+| **Scalar** (recommended) | `/api-docs` | Modern, searchable API reference |
+| **Swagger UI** | `/swagger` | Classic OpenAPI explorer |
+
+See [docs/api/README.md](api/README.md) for full details on viewing docs locally, exporting the OpenAPI spec, and authentication.
+
 ## Honest Gaps
 
 The current public API is strong enough for local demos, backend-only integration tests, SDK examples, and first paid-pilot discovery. It is not yet a complete self-serve SaaS contract.
@@ -342,5 +353,4 @@ Known next steps:
 
 - add first-class workspace scoping to context facts and snapshots if a customer pilot needs workspace-level isolation
 - move more GraphQL list operations to explicit pagination contracts
-- document production-grade OpenAPI publishing and versioning rules before promising public API stability
 - keep enterprise connector implementations, managed deployment code, and customer-specific mappings outside this public repo
