@@ -20,7 +20,7 @@ dotnet build ContextLayer.slnx
 
 ## Test Suite
 
-Three test projects, 73+ tests total:
+Four test projects, 127+ tests total:
 
 ```bash
 # All tests
@@ -32,8 +32,11 @@ dotnet test tests/ContextLayer.Sdk.Tests/
 # Unit tests
 dotnet test tests/ContextLayer.UnitTests/
 
-# Integration tests (slowest, ~1 min, uses WebApplicationFactory)
+# Integration tests (uses WebApplicationFactory)
 dotnet test tests/ContextLayer.IntegrationTests/
+
+# E2E tests (requires running API; start with start-backend.sh first)
+dotnet test tests/ContextLayer.E2ETests/
 ```
 
 ## Running the Backend Locally
@@ -45,21 +48,49 @@ SQLite mode (no Docker needed):
 
 This starts the API at `http://127.0.0.1:5198` with demo data seeded.
 
-- Health: `GET /health`
+- Health: `GET /health` and `GET /health/live`
 - REST API: `GET /api/v1/...`
 - GraphQL: `POST /graphql`
+- Scalar docs: `GET /api-docs` (interactive API docs UI)
 - Swagger: `GET /swagger`
+- Root `/` redirects to `/api-docs`
 
 ### Demo Credentials
-- Email: `admin@contextlayer.local`
-- Password: `DemoAdmin123!`
-- Tenant: `demo`
+
+See `README.md` in the repo root for demo tenant, email, and password.
 
 ### Login to get a token
 ```bash
 curl -X POST http://127.0.0.1:5198/api/auth/login \
   -H 'Content-Type: application/json' \
-  -d '{"tenantSlug":"demo","email":"admin@contextlayer.local","password":"DemoAdmin123!"}'
+  -d '{"tenantSlug":"<TENANT>","email":"<EMAIL>","password":"<PASSWORD>"}'
+```
+
+Replace `<TENANT>`, `<EMAIL>`, and `<PASSWORD>` with the demo credentials from the README.
+
+## Verifying API Documentation
+
+Scalar (at `/api-docs`) and Swagger (at `/swagger`) need CSP to be skipped for their paths so JS/CSS can load. The CSP exemption is in `Program.cs` — it skips `Content-Security-Policy` for `/api-docs` and `/swagger` prefixes while preserving it for all other paths.
+
+To verify docs are working:
+```bash
+# CSP should be ABSENT on docs paths
+curl -s -D - -o /dev/null http://127.0.0.1:5198/api-docs/ | grep -i content-security-policy
+# (should return nothing)
+
+# CSP should be PRESENT on API paths
+curl -s -D - -o /dev/null http://127.0.0.1:5198/health/live | grep -i content-security-policy
+# Content-Security-Policy: default-src 'none'; ...
+
+# Other security headers should be present on ALL paths
+curl -s -D - -o /dev/null http://127.0.0.1:5198/api-docs/ | grep -i x-content-type-options
+# X-Content-Type-Options: nosniff
+```
+
+If `dotnet run` or `start-backend.sh` uses stale build artifacts, clean and rebuild:
+```bash
+find src tests -name obj -type d -exec rm -rf {} + 2>/dev/null
+dotnet build ContextLayer.slnx
 ```
 
 ## Script Permissions
