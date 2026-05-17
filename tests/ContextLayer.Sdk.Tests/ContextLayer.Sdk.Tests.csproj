@@ -21,8 +21,4 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\ContextLayer.Sdk\ContextLayer.Sdk.csproj" />
-  </ItemGroup>
-
 </Project>

@@ -30,7 +30,6 @@
     <ProjectReference Include="..\..\src\ContextLayer.Application\ContextLayer.Application.csproj" />
     <ProjectReference Include="..\..\src\ContextLayer.Domain\ContextLayer.Domain.csproj" />
     <ProjectReference Include="..\..\src\ContextLayer.Infrastructure\ContextLayer.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\src\ContextLayer.Sdk\ContextLayer.Sdk.csproj" />
   </ItemGroup>
 
 </Project>
