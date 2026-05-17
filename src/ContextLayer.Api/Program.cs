@@ -281,6 +281,10 @@ app.UseExceptionHandler();
 app.UseForwardedHeaders();
 if (securityHeadersOptions.Enabled)
 {
+    var docsPrefixes = platformOptions.EnableOpenApi && platformOptions.EnableRest
+        ? new[] { "/api-docs", "/swagger" }
+        : Array.Empty<string>();
+
     app.Use(async (context, next) =>
     {
         context.Response.Headers["X-Content-Type-Options"] = "nosniff";
@@ -289,7 +293,13 @@ if (securityHeadersOptions.Enabled)
         context.Response.Headers["X-Frame-Options"] = securityHeadersOptions.FrameOptions;
         if (!string.IsNullOrWhiteSpace(securityHeadersOptions.ContentSecurityPolicy))
         {
-            context.Response.Headers["Content-Security-Policy"] = securityHeadersOptions.ContentSecurityPolicy;
+            var isDocsPath = docsPrefixes.Any(p =>
+                context.Request.Path.StartsWithSegments(p, StringComparison.OrdinalIgnoreCase));
+
+            if (!isDocsPath)
+            {
+                context.Response.Headers["Content-Security-Policy"] = securityHeadersOptions.ContentSecurityPolicy;
+            }
         }
 
         await next();
