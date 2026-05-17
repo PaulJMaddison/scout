@@ -9,10 +9,10 @@
     <InvariantGlobalization>true</InvariantGlobalization>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
-    <Version>2.6.0</Version>
-    <AssemblyVersion>2.6.0.0</AssemblyVersion>
-    <FileVersion>2.6.0.0</FileVersion>
-    <InformationalVersion>2.6.0</InformationalVersion>
+    <Version>2.8.0</Version>
+    <AssemblyVersion>2.8.0.0</AssemblyVersion>
+    <FileVersion>2.8.0.0</FileVersion>
+    <InformationalVersion>2.8.0</InformationalVersion>
     <Product>Context Layer</Product>
     <Authors>Paul Maddison and contributors</Authors>
     <Company>Universal Context Layer</Company>
@@ -22,6 +22,6 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/PaulJMaddison/universalcontextlayer</PackageProjectUrl>
     <PackageTags>context-infrastructure;graphql;rest;dotnet;react;semantic-layer;context-engineering;open-core</PackageTags>
-    <PackageReleaseNotes>2.6.0 strengthens the open-core product story, static demo, customer data-plane positioning, public integration contracts, SDK coverage, and paid-pilot documentation while keeping paid enterprise connectors and complete SaaS outside the public repo.</PackageReleaseNotes>
+    <PackageReleaseNotes>2.8.0 adds CI/release workflows, Scalar API documentation, comprehensive E2E test coverage, cross-platform fixes, getting started guide, and release process documentation for the open-core public launch.</PackageReleaseNotes>
   </PropertyGroup>
 </Project>
