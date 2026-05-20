@@ -14,6 +14,27 @@
   <strong>Universal Context Layer turns existing business data into trusted semantic context for AI.</strong>
 </p>
 
+---
+
+### 🛡️ Pre-Ignition Status: The Transition to KynticAI
+
+**Current Phase:** Sovereign Substrate Hardening (Pre-Launch)
+**Release Date:** 29 May 2026 (Public Ignition)
+
+This repository is currently undergoing a structural transition from the **Universal Context Layer** prototype to the **KynticAI Sovereign Infrastructure** suite. 
+
+**What is happening now:**
+* **Forensic Hardening:** We are currently stabilizing CI/CD pipelines and hardening the Rust CDC engine for enterprise-grade deployments (NHS/MoD standards).
+* **Brand Migration:** Namespaces and documentation are being refactored to align with the **KynticAI** flagship architecture.
+* **Agent Integration:** We are deploying `AGENTS.md` protocols to allow autonomous discovery by high-bandwidth AI tools (Devin, Claude Code).
+
+**Notice to Developers & Investors:**
+While the code is public and functional, we are currently operating a **Waiting List** for the full KynticAI dashboard and enterprise connectors. Access to the "Bunker" environment and the integrated Importance Engine will be granted in waves starting May 29.
+
+👉 **[Join the Waiting List at Kyntic.ai](https://kynticai.com)**
+
+---
+
 <p align="center">
   We don't build the brain. We build the nervous system: the governed customer data plane that carries trusted business context from existing systems to the customer's own AI tools, workflows, reports, apps, and agents. 
 </p>
