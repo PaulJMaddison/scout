@@ -31,7 +31,7 @@ This repository is currently undergoing a structural transition from the **Unive
 **Notice to Developers & Investors:**
 While the code is public and functional, we are currently operating a **Waiting List** for the full KynticAI dashboard and enterprise connectors. Access to the "Bunker" environment and the integrated Importance Engine will be granted in waves starting May 29.
 
-👉 **[Join the Waiting List at KynticAI.ai](https://kynticai.com)**
+👉 **[Join the Waiting List at KynticAI.com](https://kynticai.com)**
 
 ---
 
