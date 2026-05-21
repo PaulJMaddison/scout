@@ -4,9 +4,9 @@ This template is a commercial and delivery starting point only. It is not legal 
 
 ## 1. Parties And Scope
 
-This Statement of Work is between `[Customer legal name]` and `[Supplier legal name]` for a time-boxed Universal Context Layer paid pilot. The pilot will prove one agreed workflow using a customer-owned UCL data plane and the source systems listed in this SOW.
+This Statement of Work is between `[Customer legal name]` and `[Supplier legal name]` for a time-boxed KynticAI Scout paid pilot. The pilot will prove one agreed workflow using a customer-owned Scout data plane and the source systems listed in this SOW.
 
-UCL is the nervous system, not the brain: the pilot supplies governed context to the customer's selected AI tool, workflow, app, report, or agent rather than requiring the customer to use a UCL-owned AI stack.
+Scout is the nervous system, not the brain: the pilot supplies governed context to the customer's selected AI tool, workflow, app, report, or agent rather than requiring the customer to use a Scout-owned AI stack.
 
 The pilot does not create a general self-serve SaaS subscription unless a separate agreement says so.
 
@@ -77,7 +77,7 @@ Attributes must include confidence, freshness, explanation, and provenance in th
 
 ## 9. Supplier Responsibilities
 
-- configure and support the UCL pilot implementation within the agreed scope
+- configure and support the Scout pilot implementation within the agreed scope
 - implement or configure agreed open-core connector paths
 - document selectors, semantic attributes, provenance, and API access
 - avoid committing customer secrets, raw operational data, logs, support bundles, or generated licence files
@@ -87,7 +87,7 @@ Attributes must include confidence, freshness, explanation, and provenance in th
 ## 10. Security And Privacy Responsibilities
 
 - Customer remains controller or owner of its operational data unless the legal agreement states otherwise.
-- UCL data-plane source records, credentials, context facts, snapshots, and local audit logs remain in the customer-controlled data plane by default.
+- Scout data-plane source records, credentials, context facts, snapshots, and local audit logs remain in the customer-controlled data plane by default.
 - Hosted or private control-plane services should receive commercial metadata only by default, such as account, licence, support, download, update, entitlement, and optional aggregate usage metadata.
 - Both parties will agree masking, retention, audit access, and support bundle handling before customer-facing use.
 

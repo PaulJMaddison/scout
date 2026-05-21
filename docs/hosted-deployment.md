@@ -1,24 +1,24 @@
 # Hosted PostgreSQL Deployment
 
-This guide describes the first production-like deployment shape for the public Universal Context Layer repo: React as a static site, ASP.NET Core as a Docker web service, PostgreSQL as managed databases, and SQLite only for local demo mode.
+This guide describes the first production-like deployment shape for the public KynticAI Scout repo: React as a static site, ASP.NET Core as a Docker web service, PostgreSQL as managed databases, and SQLite only for local demo mode.
 
 It is not the full future managed control plane. The open-core backend still operates as the customer data plane: connectors, selectors, context facts, provenance, audit logs, and credentials stay in the customer-controlled environment unless the customer explicitly exports them.
 
 ## Target Architecture
 
 - `apps/web` builds to static files with `npm run build` and can be hosted by Render Static Sites, Netlify, Cloudflare Pages, S3/CloudFront, or the bundled nginx image.
-- `src/ContextLayer.Api` builds with `src/ContextLayer.Api/Dockerfile` and listens on port `8080`.
-- Hosted mode uses PostgreSQL for both `ContextLayerDbContext` and `CustomerOpsDbContext`.
+- `src/KynticAI.Scout.Api` builds with `src/KynticAI.Scout.Api/Dockerfile` and listens on port `8080`.
+- Hosted mode uses PostgreSQL for both `ScoutDbContext` and `CustomerOpsDbContext`.
 - Local demo mode remains SQLite-backed and does not require Docker.
 
 ## Render Deployment
 
 The repository includes a root `render.yaml` blueprint with:
 
-- `universal-context-layer-web`: static React site built from `apps/web`.
-- `universal-context-layer-api`: Docker web service with `/health/ready` as the readiness check.
-- `ucl-context-layer-db`: managed PostgreSQL database for tenants, users, workspaces, selectors, audit, billing, onboarding, API clients, and context snapshots.
-- `ucl-customer-ops-db`: managed PostgreSQL database for source/demo operational data.
+- `kynticai-scout-web`: static React site built from `apps/web`.
+- `kynticai-scout-api`: Docker web service with `/health/ready` as the readiness check.
+- `scout-db`: managed PostgreSQL database for tenants, users, workspaces, selectors, audit, billing, onboarding, API clients, and context snapshots.
+- `scout-customer-ops-db`: managed PostgreSQL database for source/demo operational data.
 
 After creating the Render Blueprint, set these secrets and verify generated service URLs:
 
@@ -28,8 +28,8 @@ Cors__AllowedOrigins__0=https://<frontend-domain>
 SaaS__PublicBaseUrl=https://<api-domain>
 ControlPlane__Enabled=false
 Licence__Mode=Community
-Licence__FilePath=/var/lib/ucl/licence.json
-DataProtection__KeyRingPath=/var/lib/ucl/data-protection-keys
+Licence__FilePath=/var/lib/scout/licence.json
+DataProtection__KeyRingPath=/var/lib/scout/data-protection-keys
 DataProtection__RequirePersistentKeys=true
 VITE_API_BASE_URL=https://<api-domain>
 VITE_GRAPHQL_ENDPOINT=https://<api-domain>/graphql
@@ -46,7 +46,7 @@ Render supports Blueprint fields such as `runtime: docker`, `runtime: static`, `
 Build locally:
 
 ```powershell
-docker build -f src/ContextLayer.Api/Dockerfile -t contextlayer-api .
+docker build -f src/KynticAI.Scout.Api/Dockerfile -t scout-api .
 ```
 
 Run in hosted-style mode:
@@ -58,16 +58,16 @@ docker run --rm -p 8080:8080 `
   -e Database__Provider=Postgres `
   -e Bootstrap__ApplyMigrationsOnStartup=false `
   -e Bootstrap__SeedDemoData=false `
-  -e ConnectionStrings__ContextLayer="<managed PostgreSQL connection string>" `
+  -e ConnectionStrings__Scout="<managed PostgreSQL connection string>" `
   -e ConnectionStrings__CustomerOps="<managed PostgreSQL connection string>" `
-  -e Auth__Issuer=ContextLayer `
-  -e Auth__Audience=ContextLayer.Api `
+  -e Auth__Issuer=Scout `
+  -e Auth__Audience=KynticAI.Scout.Api `
   -e Auth__SigningKey="<48+ byte random secret>" `
-  -e DataProtection__KeyRingPath="/var/lib/ucl/data-protection-keys" `
+  -e DataProtection__KeyRingPath="/var/lib/scout/data-protection-keys" `
   -e DataProtection__RequirePersistentKeys=true `
-  -v ucl-data-protection-keys:/var/lib/ucl/data-protection-keys `
+  -v scout-data-protection-keys:/var/lib/scout/data-protection-keys `
   -e Cors__AllowedOrigins__0="https://<frontend-domain>" `
-  contextlayer-api
+  scout-api
 ```
 
 ## Database Migration Command
@@ -81,13 +81,13 @@ docker run --rm `
   -e Database__Provider=Postgres `
   -e Bootstrap__ApplyMigrationsOnStartup=true `
   -e Bootstrap__SeedDemoData=false `
-  -e ConnectionStrings__ContextLayer="<managed PostgreSQL connection string>" `
+  -e ConnectionStrings__Scout="<managed PostgreSQL connection string>" `
   -e ConnectionStrings__CustomerOps="<managed PostgreSQL connection string>" `
   -e Auth__SigningKey="<48+ byte random secret>" `
-  -e DataProtection__KeyRingPath="/var/lib/ucl/data-protection-keys" `
+  -e DataProtection__KeyRingPath="/var/lib/scout/data-protection-keys" `
   -e DataProtection__RequirePersistentKeys=true `
-  -v ucl-data-protection-keys:/var/lib/ucl/data-protection-keys `
-  contextlayer-api migrate
+  -v scout-data-protection-keys:/var/lib/scout/data-protection-keys `
+  scout-api migrate
 ```
 
 The `migrate` command applies EF Core migrations and seeds safe connector catalogue metadata only. It does not seed demo accounts or fictional customer records.
@@ -108,7 +108,7 @@ Platform__Mode=LocalDemo `
 Database__Provider=Sqlite `
 Bootstrap__ApplyMigrationsOnStartup=true `
 Bootstrap__SeedDemoData=true `
-dotnet run --project src/ContextLayer.Api -- seed-demo
+dotnet run --project src/KynticAI.Scout.Api -- seed-demo
 ```
 
 Do not set `Bootstrap__SeedDemoData=true` in hosted SaaS deployments.
@@ -163,7 +163,7 @@ The bundled web nginx image sets `X-Content-Type-Options`, `Referrer-Policy`, `P
 
 Connector secrets are stored through `IConnectorCredentialStore` as protected references, not plaintext configuration. ASP.NET Data Protection encrypts those stored values. In container or self-hosted deployments the key ring must be persisted, otherwise a restart or new container may be unable to decrypt existing connector credentials.
 
-Use a mounted directory such as `/var/lib/ucl/data-protection-keys` and keep it backed up with the application database. Do not copy the key ring into source control or support bundles.
+Use a mounted directory such as `/var/lib/scout/data-protection-keys` and keep it backed up with the application database. Do not copy the key ring into source control or support bundles.
 
 ## Logging And OpenTelemetry
 
@@ -176,14 +176,14 @@ For managed PostgreSQL, prefer the provider's scheduled backups and point-in-tim
 Manual backup:
 
 ```bash
-pg_dump "$CONTEXT_LAYER_DATABASE_URL" --format=custom --file=context-layer.dump
+pg_dump "$SCOUT_DATABASE_URL" --format=custom --file=scout-context.dump
 pg_dump "$CUSTOMER_OPS_DATABASE_URL" --format=custom --file=customer-ops.dump
 ```
 
 Manual restore into empty databases:
 
 ```bash
-pg_restore --clean --if-exists --dbname "$CONTEXT_LAYER_DATABASE_URL" context-layer.dump
+pg_restore --clean --if-exists --dbname "$SCOUT_DATABASE_URL" scout-context.dump
 pg_restore --clean --if-exists --dbname "$CUSTOMER_OPS_DATABASE_URL" customer-ops.dump
 ```
 
@@ -195,11 +195,11 @@ The public repo does not ship private SLA tooling, but a safe support bundle can
 
 ```bash
 mkdir -p support-bundle
-curl -H "Authorization: Bearer $ADMIN_TOKEN" "$UCL_API/api/platform/config" > support-bundle/platform-config.json
-curl -H "Authorization: Bearer $ADMIN_TOKEN" "$UCL_API/api/v1/licence/status" > support-bundle/licence-status.json
-curl -H "Authorization: Bearer $ADMIN_TOKEN" "$UCL_API/api/v1/health" > support-bundle/health.json
-curl -H "Authorization: Bearer $ADMIN_TOKEN" "$UCL_API/api/v1/audit-events?pageSize=200" > support-bundle/audit-events-redacted.json
-tar -czf ucl-support-bundle.tgz support-bundle
+curl -H "Authorization: Bearer $ADMIN_TOKEN" "$SCOUT_API/api/platform/config" > support-bundle/platform-config.json
+curl -H "Authorization: Bearer $ADMIN_TOKEN" "$SCOUT_API/api/v1/licence/status" > support-bundle/licence-status.json
+curl -H "Authorization: Bearer $ADMIN_TOKEN" "$SCOUT_API/api/v1/health" > support-bundle/health.json
+curl -H "Authorization: Bearer $ADMIN_TOKEN" "$SCOUT_API/api/v1/audit-events?pageSize=200" > support-bundle/audit-events-redacted.json
+tar -czf scout-support-bundle.tgz support-bundle
 ```
 
 Review the bundle before sharing it. Do not include `.env`, connector credential stores, database dumps, raw source event payloads, context packages, or customer-specific blueprint files unless the customer has explicitly approved that transfer.

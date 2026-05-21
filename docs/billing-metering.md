@@ -1,6 +1,6 @@
 # SaaS Billing And Usage Metering
 
-Universal Context Layer now includes billing foundations without bundling a payment provider.
+KynticAI Scout now includes billing foundations without bundling a payment provider.
 
 ## Plans
 
@@ -93,7 +93,7 @@ No Stripe or Paddle code is included in the public repository. The clean extensi
 
 A provider module should:
 
-- map UCL plans to provider price IDs
+- map Scout plans to provider price IDs
 - create or reconcile provider customers
 - create checkout and billing portal sessions
 - receive provider webhooks in a SaaS-only module

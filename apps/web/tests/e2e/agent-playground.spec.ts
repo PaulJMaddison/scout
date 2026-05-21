@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 test('sales rep can generate a grounded outreach recommendation', async ({ page }) => {
   await page.goto('/login')
   await page.getByLabel('Tenant slug').fill('demo')
-  await page.getByLabel('Email').fill('rep@contextlayer.local')
+  await page.getByLabel('Email').fill('rep@scout.local')
   await page.getByLabel('Password').fill('DemoSales123!')
   await page.getByRole('button', { name: 'Enter console' }).click()
 
@@ -13,7 +13,7 @@ test('sales rep can generate a grounded outreach recommendation', async ({ page 
   await expect(
     page.getByRole('heading', {
       level: 1,
-      name: 'Intelligent Sales Support uses UCL context to generate grounded sales recommendations.',
+      name: 'Intelligent Sales Support uses Scout context to generate grounded sales recommendations.',
     }),
   ).toBeVisible()
 

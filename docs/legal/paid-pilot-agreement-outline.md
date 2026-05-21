@@ -4,7 +4,7 @@ This is a non-lawyer commercial/legal outline for solicitor review. It is not le
 
 ## Pilot Purpose
 
-Universal Context Layer turns existing business data into trusted semantic context that customer-owned AI tools, workflows, apps, reports, and agents can use. The paid pilot proves the customer data-plane pattern in a controlled scope.
+KynticAI Scout turns existing business data into trusted semantic context that customer-owned AI tools, workflows, apps, reports, and agents can use. The paid pilot proves the customer data-plane pattern in a controlled scope.
 
 ## Scope To Define
 

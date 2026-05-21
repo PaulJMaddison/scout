@@ -1,6 +1,6 @@
 # Production Install Checklist
 
-This checklist is for a first paid pilot or production-style self-hosted deployment of the Universal Context Layer customer data plane.
+This checklist is for a first paid pilot or production-style self-hosted deployment of the KynticAI Scout customer data plane.
 
 The safest default is that customer operational data stays in the customer's environment. The hosted control plane, if used later, should manage account, licence, download, support, and update-channel concerns without requiring raw source records, connector credentials, context facts, or prompt packages to leave the data plane.
 
@@ -51,8 +51,8 @@ The preflight refuses demo fallback, placeholder signing keys, SQLite/local demo
 
 ## Databases
 
-- Use separate PostgreSQL databases or schemas for operational source data and context-layer data where possible.
-- Back up both the customer operations source database and the context-layer database.
+- Use separate PostgreSQL databases or schemas for operational source data and scout data where possible.
+- Back up both the customer operations source database and the scout database.
 - Test restore before calling the deployment production ready.
 - Run EF Core migrations before starting a new application version.
 - Do not enable demo seeding in hosted or customer environments.
@@ -61,7 +61,7 @@ The preflight refuses demo fallback, placeholder signing keys, SQLite/local demo
 
 - Persist ASP.NET Data Protection keys in a mounted, backed-up location.
 - Set `DataProtection__RequirePersistentKeys=true` in production-style deployments.
-- Back up the key ring with the context-layer database.
+- Back up the key ring with the scout database.
 - Treat the key ring as sensitive because protected connector credentials depend on it.
 - Never commit the key ring or include it in public support bundles.
 

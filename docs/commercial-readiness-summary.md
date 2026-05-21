@@ -1,12 +1,12 @@
 # Commercial Readiness Summary
 
-Universal Context Layer is ready to show publicly and ready for paid pilot conversations. It is nearly ready for paid pilot delivery after live hosting configuration, legal review, and first-customer operational setup. It is not ready for complete self-serve SaaS and must not be sold that way.
+KynticAI Scout is ready to show publicly and ready for paid pilot conversations. It is nearly ready for paid pilot delivery after live hosting configuration, legal review, and first-customer operational setup. It is not ready for complete self-serve SaaS and must not be sold that way.
 
 ## Ready To Show Publicly
 
 - product narrative: "We do not build the brain. We build the nervous system."
 - open-core local demo and customer data-plane story
-- static public demo and marketing pages
+- public company website, local demo, and marketing pages
 - customer data-plane boundary
 - REST/GraphQL/SDK foundations
 - supported paid pilot positioning
@@ -54,15 +54,15 @@ Remaining before first customer install:
 
 ## Best Sales Wording
 
-"Universal Context Layer helps teams turn existing operational data into trusted context for their own AI tools, workflows, apps, reports, and agents. The first offer is a supported paid pilot that keeps customer operational data in the customer data plane by default."
+"KynticAI Scout helps teams turn existing operational data into trusted context for their own AI tools, workflows, apps, reports, and agents. The first offer is a supported paid pilot that keeps customer operational data in the customer data plane by default."
 
 ## Best CTO Wording
 
-"UCL is a governed semantic data plane beside your existing systems. It exposes context through REST, GraphQL, SDKs, and events, with provenance, freshness, masking, audit, scoped machine clients, and a clear control-plane metadata boundary."
+"Scout is a governed semantic data plane beside your existing systems. It exposes context through REST, GraphQL, SDKs, and events, with provenance, freshness, masking, audit, scoped machine clients, and a clear control-plane metadata boundary."
 
 ## Best CEO Wording
 
-"You do not need to replace your systems or bet the company on a new AI app. UCL makes the data you already have usable, governed, and reusable across the AI and workflow tools you choose."
+"You do not need to replace your systems or bet the company on a new AI app. Scout makes the data you already have usable, governed, and reusable across the AI and workflow tools you choose."
 
 ## Completed Before Live Hosting
 
@@ -97,7 +97,7 @@ Remaining before first customer install:
 
 ## Public Marketing Launch Go/No-Go
 
-- static site build passes
+- public website build passes
 - privacy and terms draft links are visible
 - paid-pilot wording avoids complete SaaS and vendor-certified connector claims
 - no private enterprise code or secrets are present in public artefacts

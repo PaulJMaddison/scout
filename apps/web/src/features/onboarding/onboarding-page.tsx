@@ -38,7 +38,7 @@ const steps: StepDefinition[] = [
     key: 'systems',
     title: 'Existing systems',
     eyebrow: 'Step 2',
-    description: 'Tell UCL where useful business context already lives.',
+    description: 'Tell Scout where useful business context already lives.',
     icon: DatabaseZap,
   },
   {
@@ -307,7 +307,7 @@ function AiStep({
       </Field>
       <ChoiceGroup
         title="AI use cases to power"
-        description="UCL turns source-specific fields into reusable semantic context for these workflows."
+        description="Scout turns source-specific fields into reusable semantic context for these workflows."
         options={aiUseCaseOptions}
         selected={form.aiUseCases}
         onToggle={(value) => onUpdate('aiUseCases', toggle(form.aiUseCases, value))}
@@ -522,7 +522,7 @@ function SuccessScreen({
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Workspace provisioned"
-        title="Your starter context layer is ready."
+        title="Your starter data plane is ready."
         description="The backend created a tenant, workspace, admin account, starter semantic schema, published starter selectors, setup state, and audit events. Connector entries are safe placeholders only."
         actions={<Badge tone="success">Tenant: {result.tenantSlug}</Badge>}
       />

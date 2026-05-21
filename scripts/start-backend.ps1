@@ -75,7 +75,7 @@ function Wait-ForUrl {
 function Get-BackendEnvironment {
     param([bool]$SeedDemo)
 
-    $contextDbPath = [System.IO.Path]::GetFullPath((Join-Path $backendDataDirectory 'context_layer.db'))
+    $contextDbPath = [System.IO.Path]::GetFullPath((Join-Path $backendDataDirectory 'scout_context.db'))
     $customerOpsDbPath = [System.IO.Path]::GetFullPath((Join-Path $backendDataDirectory 'customer_ops.db'))
 
     return @{
@@ -85,7 +85,7 @@ function Get-BackendEnvironment {
         'Bootstrap__ApplyMigrationsOnStartup' = 'true'
         'Bootstrap__SeedDemoData' = $SeedDemo.ToString().ToLowerInvariant()
         'Database__Provider' = 'Sqlite'
-        'ConnectionStrings__ContextLayer' = "Data Source=$contextDbPath"
+        'ConnectionStrings__Scout' = "Data Source=$contextDbPath"
         'ConnectionStrings__CustomerOps' = "Data Source=$customerOpsDbPath"
         'Telemetry__OtlpEndpoint' = ''
     }
@@ -121,7 +121,7 @@ if ($UseDocker) {
         'Bootstrap__ApplyMigrationsOnStartup' = 'true'
         'Bootstrap__SeedDemoData' = $SeedDemoData.ToString().ToLowerInvariant()
         'Database__Provider' = 'Postgres'
-        'ConnectionStrings__ContextLayer' = 'Host=localhost;Port=5432;Database=context_layer_db;Username=postgres;Password=postgres'
+        'ConnectionStrings__Scout' = 'Host=localhost;Port=5432;Database=scout_context_db;Username=postgres;Password=postgres'
         'ConnectionStrings__CustomerOps' = 'Host=localhost;Port=5432;Database=customer_ops_db;Username=postgres;Password=postgres'
     }
 }
@@ -138,7 +138,7 @@ foreach ($entry in $environmentVariables.GetEnumerator()) {
     $backendScript += "`n`$env:$($entry.Key) = '$escapedValue'"
 }
 
-$backendScript += "`n& '$dotnetCommand' run --project src/ContextLayer.Api"
+$backendScript += "`n& '$dotnetCommand' run --project src/KynticAI.Scout.Api"
 
 $apiProcess = Start-Process -FilePath 'powershell' `
     -ArgumentList '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', $backendScript `
@@ -152,7 +152,7 @@ $apiProcess.Id | Set-Content -LiteralPath $apiPidPath
 Wait-ForUrl -Url 'http://127.0.0.1:5198/health'
 
 Write-Host ''
-Write-Host 'Context Layer backend is running.' -ForegroundColor Green
+Write-Host 'Scout backend is running.' -ForegroundColor Green
 Write-Host 'API:      http://127.0.0.1:5198'
 Write-Host 'GraphQL:  http://127.0.0.1:5198/graphql'
 Write-Host 'REST doc: http://127.0.0.1:5198/swagger'

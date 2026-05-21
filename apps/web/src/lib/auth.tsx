@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from 'react'
 import type { AuthSession } from '@/lib/types'
 
-const storageKey = 'context-layer.console.session'
+const storageKey = 'scout.console.session'
 
 class AuthStore {
   private session: AuthSession | null

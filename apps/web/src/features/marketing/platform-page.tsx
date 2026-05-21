@@ -13,7 +13,7 @@ export function PlatformPage() {
   return (
     <div className="grid gap-8">
       <PageHeader
-        eyebrow="Universal Context Layer"
+        eyebrow="KynticAI Scout"
         title="Turn existing business data into trusted context that any AI tool, workflow, or product can use."
         description="It does not replace your systems. It gives CRM, ERP, warehouse, support, billing, telemetry, SharePoint, spreadsheets, SQL databases, and internal applications a shared semantic layer."
         actions={
@@ -45,13 +45,13 @@ export function PlatformPage() {
             <div>
               <p className="text-xs uppercase tracking-[0.22em] text-copper-300">What it does</p>
               <h2 className="mt-4 max-w-4xl font-display text-5xl leading-[1.02] text-ivory-50">
-                UCL is context infrastructure for AI-enabled products, workflows, and agents.
+                Scout is context infrastructure for AI-enabled products, workflows, and agents.
               </h2>
               <p className="mt-4 max-w-3xl text-base leading-8 text-ivory-200">
-                Universal Context Layer sits beside the systems you already run, maps raw fields and events into semantic
+                KynticAI Scout sits beside the systems you already run, maps raw fields and events into semantic
                 business meaning, and publishes that context through APIs, SDKs, governed context packages, and internal
                 services. The React UI in this repository is the public site, demo, and admin console. The durable product
-                value is the backend context layer.
+                value is the backend data plane.
               </p>
             </div>
             <div className="grid gap-3 md:grid-cols-3">
@@ -80,7 +80,7 @@ export function PlatformPage() {
           </div>
         </Card>
 
-        <Panel eyebrow="Who this is for" title="A shared context layer for business systems and platform teams">
+        <Panel eyebrow="Who this is for" title="a shared data plane for business systems and platform teams">
           <div className="grid gap-3">
             <Card className="bg-ivory-25">
               <div className="flex items-start gap-3">
@@ -167,17 +167,17 @@ export function PlatformPage() {
 
       <Panel eyebrow="Anonymised ERP platform pattern" title="Existing systems can stay while the new platform consumes meaning">
         <p className="text-sm leading-7 text-ink-700">
-          A recent ERP platform engagement showed the same architectural pattern: legacy databases, CRM-style records, operational systems, and fragmented business data stayed in place while a semantic context layer helped a new web platform and AI-enabled workflows consume business meaning rather than raw records. The details remain anonymised and customer-specific, but the repeatable pattern is what UCL productises.
+          A recent ERP platform engagement showed the same architectural pattern: legacy databases, CRM-style records, operational systems, and fragmented business data stayed in place while a semantic data plane helped a new web platform and AI-enabled workflows consume business meaning rather than raw records. The details remain anonymised and customer-specific, but the repeatable pattern is what Scout productises.
         </p>
       </Panel>
 
       <section className="grid gap-4 2xl:grid-cols-[0.95fr_1.05fr]">
-        <Panel eyebrow="Bring your own AI" title="UCL supplies the governed business context">
+        <Panel eyebrow="Bring your own AI" title="Scout supplies the governed business context">
           <div className="grid gap-3">
             {[
-              ['Not another AI app', 'UCL does not need to own the model, agent, copilot, or orchestration layer. Customers can use their own AI stack.'],
+              ['Not another AI app', 'Scout does not need to own the model, agent, copilot, or orchestration layer. Customers can use their own AI stack.'],
               ['Useful beyond AI', 'The same semantic facts can feed internal apps, workflow automation, dashboards, and decision systems.'],
-              ['Safer model inputs', 'AI fails when it only sees raw IDs, stale tables, or disconnected records. UCL gives it business meaning, evidence, confidence, and guardrails.'],
+              ['Safer model inputs', 'AI fails when it only sees raw IDs, stale tables, or disconnected records. Scout gives it business meaning, evidence, confidence, and guardrails.'],
             ].map(([title, body]) => (
               <Card key={title} className="bg-ivory-25">
                 <div className="flex items-start gap-3">
@@ -192,7 +192,7 @@ export function PlatformPage() {
           </div>
         </Panel>
 
-        <Panel eyebrow="Context consumers" title="UCL creates the context. Your systems consume it.">
+        <Panel eyebrow="Context consumers" title="Scout creates the context. Your systems consume it.">
           <div className="grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
             {[
               ['Apps', 'Internal and customer-facing products can show trusted account, customer, product, and billing meaning.'],
@@ -251,7 +251,7 @@ export function PlatformPage() {
       </section>
 
       <section className="grid gap-4 2xl:grid-cols-[0.95fr_1.05fr]">
-        <Panel eyebrow="AI-assisted onboarding" title="Use AI to turn source system evidence into a UCL blueprint">
+        <Panel eyebrow="AI-assisted onboarding" title="Use AI to turn source system evidence into a Scout blueprint">
           <p className="text-sm leading-7 text-ink-700">
             Teams can analyse schema exports, sample rows, API payloads, CRM field lists, warehouse descriptions,
             support tickets, billing records, usage events, and KPI notes with Codex, Claude, or another engineering tool.
@@ -274,7 +274,7 @@ export function PlatformPage() {
               <div>
                 <p className="font-semibold text-ink-950">No rip-and-replace requirement</p>
                 <p className="mt-2 text-sm leading-7 text-ink-700">
-                  UCL is an add-on layer beside the systems you already have, which makes the rollout path far more realistic.
+                  Scout is an add-on layer beside the systems you already have, which makes the rollout path far more realistic.
                 </p>
               </div>
             </div>

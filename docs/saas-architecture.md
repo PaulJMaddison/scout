@@ -1,6 +1,6 @@
 # SaaS And Self-Hosted Architecture
 
-Universal Context Layer is now structured so the local open source demo can keep working while the backend can support self-hosted data-plane deployments and future hosted control-plane services.
+KynticAI Scout is now structured so the local open source demo can keep working while the backend can support self-hosted data-plane deployments and future hosted control-plane services.
 
 ## Product shape
 
@@ -99,7 +99,7 @@ The `/api/platform/config` endpoint returns the effective mode, enabled feature 
 
 ## Database model
 
-The SaaS control plane adds these tables to `context_layer_db`:
+The SaaS control plane adds these tables to `scout_context_db`:
 
 - `saas_workspaces`
 - `saas_workspace_members`

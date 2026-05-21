@@ -3,7 +3,7 @@ set -euo pipefail
 
 BASE_URL="${1:-http://127.0.0.1:5173}"
 TENANT_SLUG="${2:-demo}"
-EMAIL="${3:-admin@contextlayer.local}"
+EMAIL="${3:-admin@scout.local}"
 PASSWORD="${4:-DemoAdmin123!}"
 TARGET_PATH="${5:-/demo}"
 

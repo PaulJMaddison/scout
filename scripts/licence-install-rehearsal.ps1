@@ -1,9 +1,9 @@
 [CmdletBinding()]
 param(
-    [string]$LicencePath = ".local\licences\pilot.ucl-licence.json",
+    [string]$LicencePath = ".local\licences\pilot.scout-licence.json",
     [string]$BaseUrl = "http://localhost:5198",
     [string]$TenantSlug = "demo",
-    [string]$AdminEmail = "admin@contextlayer.local",
+    [string]$AdminEmail = "admin@scout.local",
     [string]$AdminPassword = "DemoAdmin123!",
     [switch]$SkipEndpointCheck,
     [switch]$CheckOnly
@@ -20,7 +20,7 @@ if (-not $resolvedLicencePath.StartsWith($repoRoot.Path, [System.StringCompariso
 if (-not (Test-Path $resolvedLicencePath)) {
     Write-Host "No local licence file found at $resolvedLicencePath"
     Write-Host "Download a development licence from the cloud portal, then place it here outside git."
-    Write-Host "Cloud doc: C:\universalcontextlayer-cloud\docs\licence-download-to-data-plane.md"
+    Write-Host "Cloud doc: C:\scout-cloud\docs\licence-download-to-data-plane.md"
     if ($CheckOnly) { exit 1 }
     New-Item -ItemType Directory -Force -Path (Split-Path -Parent $resolvedLicencePath) | Out-Null
     Write-Host "Directory created. Licence file still needs to be downloaded manually."
@@ -63,7 +63,7 @@ try {
 } catch {
     Write-Host "Backend is not reachable at $BaseUrl."
     Write-Host "Start it with:"
-    Write-Host "  `$env:Licence__Mode='Licensed'; `$env:Licence__FilePath='$resolvedLicencePath'; dotnet run --project .\src\ContextLayer.Api\ContextLayer.Api.csproj --urls $BaseUrl"
+    Write-Host "  `$env:Licence__Mode='Licensed'; `$env:Licence__FilePath='$resolvedLicencePath'; dotnet run --project .\src\KynticAI.Scout.Api\KynticAI.Scout.Api.csproj --urls $BaseUrl"
     exit 2
 }
 

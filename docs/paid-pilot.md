@@ -1,8 +1,8 @@
 # Paid Pilot
 
-Universal Context Layer can be sold today as a supported paid pilot for teams that want to turn existing business data into trusted semantic context without replacing their current systems.
+KynticAI Scout can be sold today as a supported paid pilot for teams that want to turn existing business data into trusted semantic context without replacing their current systems.
 
-The strongest first commercial motion is not a hands-off SaaS signup. It is an implementation-led pilot where the customer runs the UCL data plane in their own environment, keeps operational data local, and receives hands-on support to prove one valuable workflow.
+The strongest first commercial motion is not a hands-off SaaS signup. It is an implementation-led pilot where the customer runs the Scout data plane in their own environment, keeps operational data local, and receives hands-on support to prove one valuable workflow.
 
 ## Who It Is For
 
@@ -20,7 +20,7 @@ Good first buyers include:
 
 The recommended pilot delivers:
 
-- a self-hosted UCL data-plane deployment in the customer's environment
+- a self-hosted Scout data-plane deployment in the customer's environment
 - one tenant and one primary workspace configured for the pilot
 - one to three connected source systems or safe exported source datasets
 - a first semantic schema for the chosen workflow
@@ -30,7 +30,7 @@ The recommended pilot delivers:
 - an executive walkthrough showing the before and after business value
 - technical handover documentation for the customer's team
 
-The customer can bring their own AI tools, agents, apps, reports, or workflow engine. UCL creates the governed context those systems consume.
+The customer can bring their own AI tools, agents, apps, reports, or workflow engine. Scout creates the governed context those systems consume.
 
 ## Recommended Timeline
 
@@ -102,7 +102,7 @@ Technical scope should be explicit before work starts:
 ## What We Provide
 
 - architecture and workflow discovery
-- UCL data-plane setup guidance
+- Scout data-plane setup guidance
 - semantic schema and selector implementation support
 - connector configuration support for generic SQL, REST, CSV, or commercially scoped private connectors
 - provenance, confidence, freshness, and masking review
@@ -112,7 +112,7 @@ Technical scope should be explicit before work starts:
 
 ## Recommended Pilot Workflow
 
-The sharpest first vertical wedge is energy buying and pricing: contract records, supplier terms, usage signals, pricing spreadsheets, ERP exports, and support context are often scattered across systems, yet pricing and procurement decisions need trustworthy context. UCL can still serve the general platform story, but paid adverts should lead with a concrete workflow such as trusted context for energy pricing, procurement, and operational AI workflows.
+The sharpest first vertical wedge is energy buying and pricing: contract records, supplier terms, usage signals, pricing spreadsheets, ERP exports, and support context are often scattered across systems, yet pricing and procurement decisions need trustworthy context. Scout can still serve the general platform story, but paid adverts should lead with a concrete workflow such as trusted context for energy pricing, procurement, and operational AI workflows.
 
 1. Discovery workshop
 
@@ -120,7 +120,7 @@ The sharpest first vertical wedge is energy buying and pricing: contract records
 
 2. Data-plane setup
 
-   Deploy UCL locally, in the customer's cloud, or in a private environment. Disable demo fallback, configure production secrets, and use PostgreSQL for production-style pilots.
+   Deploy Scout locally, in the customer's cloud, or in a private environment. Disable demo fallback, configure production secrets, and use PostgreSQL for production-style pilots.
 
 3. Source onboarding
 
@@ -160,7 +160,7 @@ Those belong in private enterprise or cloud/control-plane work and should be sco
 
 A pilot is successful when:
 
-- the customer can explain what the UCL data plane does
+- the customer can explain what the Scout data plane does
 - source systems remain in place
 - at least one business entity resolves into a useful semantic profile
 - every context fact has provenance, confidence, freshness, and audit history

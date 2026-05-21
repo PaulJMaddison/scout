@@ -1,6 +1,6 @@
-# Universal Context Layer First Paid Pilot
+# KynticAI Scout First Paid Pilot
 
-Universal Context Layer turns existing business data into trusted semantic context that customer-owned AI tools, workflows, apps, reports, and agents can use.
+KynticAI Scout turns existing business data into trusted semantic context that customer-owned AI tools, workflows, apps, reports, and agents can use.
 
 We do not build the brain. We build the nervous system: the customer-controlled layer that carries trusted context from existing systems to the tools the customer already owns or wants to build.
 
@@ -12,7 +12,7 @@ Good first buyers are CTOs, product leaders, RevOps, customer success, support, 
 
 ## Customer Data Plane
 
-The pilot is based on a customer-owned data plane. UCL runs beside the customer's systems, inside an agreed customer-controlled environment or private pilot environment. Source records, connector credentials, selectors, context facts, context snapshots, provenance, and local audit logs stay in that data plane by default.
+The pilot is based on a customer-owned data plane. Scout runs beside the customer's systems, inside an agreed customer-controlled environment or private pilot environment. Source records, connector credentials, selectors, context facts, context snapshots, provenance, and local audit logs stay in that data plane by default.
 
 A future hosted/private control plane may manage commercial metadata such as accounts, licences, downloads, support cases, and update channels. It does not need raw operational customer data by default.
 
@@ -77,7 +77,7 @@ The buyer should finish the pilot with:
 
 ## Commercial Proof
 
-An anonymised ERP platform pattern has already shown the commercial shape: existing operational systems stayed in place while a semantic layer translated fragmented records into reusable business meaning for a new web platform and AI-enabled workflows. The lesson for UCL is that buyers do not need to replace their core estate first; they can prove value by placing a governed context layer beside it.
+An anonymised ERP platform pattern has already shown the commercial shape: existing operational systems stayed in place while a semantic layer translated fragmented records into reusable business meaning for a new web platform and AI-enabled workflows. The lesson for Scout is that buyers do not need to replace their core estate first; they can prove value by placing a governed data plane beside it.
 
 See [Anonymised ERP Platform Pattern](anonymised-erp-platform-pattern.md).
 

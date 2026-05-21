@@ -612,7 +612,7 @@ export const api = {
       fileName:
         response.headers
           .get('content-disposition')
-          ?.match(/filename="?([^"]+)"?/)?.[1] ?? `ucl-audit.${format}`,
+          ?.match(/filename="?([^"]+)"?/)?.[1] ?? `scout-audit.${format}`,
       contentType: response.headers.get('content-type') ?? (format === 'json' ? 'application/json' : 'text/csv'),
     }
   },

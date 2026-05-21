@@ -1,12 +1,12 @@
 # Release Process
 
-This document describes the coordinated release process for the three Universal Context Layer repositories:
+This document describes the coordinated release process for the three KynticAI Scout repositories:
 
 | Repository | Visibility | Purpose |
 |---|---|---|
-| [universalcontextlayer](https://github.com/PaulJMaddison/universalcontextlayer) | Public | Open-source core: domain, APIs, SDKs, React frontend |
-| [universalcontextlayer-enterprise](https://github.com/PaulJMaddison/universalcontextlayer-enterprise) | Private | Enterprise extensions: connectors, governance, identity, deployment |
-| [universalcontextlayer-cloud](https://github.com/PaulJMaddison/universalcontextlayer-cloud) | Private | Hosted control plane: accounts, licensing, billing, portal |
+| [scout](https://github.com/PaulJMaddison/scout) | Public | Open-source core: domain, APIs, SDKs, React frontend |
+| [scout-enterprise](https://github.com/PaulJMaddison/scout-enterprise) | Private | Enterprise extensions: connectors, governance, identity, deployment |
+| [scout-cloud](https://github.com/PaulJMaddison/scout-cloud) | Private | Hosted control plane: accounts, licensing, billing, portal |
 
 All three repositories **must** be versioned together. A release is not complete until every repo has been tagged with the same version.
 
@@ -14,7 +14,7 @@ All three repositories **must** be versioned together. A release is not complete
 
 ## Version Numbering
 
-UCL follows [Semantic Versioning 2.0.0](https://semver.org/):
+Scout follows [Semantic Versioning 2.0.0](https://semver.org/):
 
 ```
 vMAJOR.MINOR.PATCH
@@ -47,7 +47,7 @@ The open-source, enterprise, and cloud repositories are released as a coordinate
 
 | Repository | Files |
 |---|---|
-| Open-source | `Directory.Build.props` (`<Version>`, `<AssemblyVersion>`, `<FileVersion>`, `<InformationalVersion>`), `apps/web/package.json`, `packages/typescript/contextlayer-sdk/package.json` |
+| Open-source | `Directory.Build.props` (`<Version>`, `<AssemblyVersion>`, `<FileVersion>`, `<InformationalVersion>`), `apps/web/package.json`, `packages/typescript/scout-sdk/package.json` |
 | Enterprise | `Directory.Build.props` (same properties) |
 | Cloud | `Directory.Build.props` (same properties), `apps/cloud-portal/package.json`, `deploy/helm/Chart.yaml` |
 
@@ -118,13 +118,13 @@ Follow the [Keep a Changelog](https://keepachangelog.com/) format with categorie
 
 ```bash
 # Open-source
-dotnet test ContextLayer.slnx --configuration Release
+dotnet test KynticAI.Scout.slnx --configuration Release
 
 # Enterprise
-dotnet test UniversalContextLayer.Enterprise.slnx --configuration Release
+dotnet test KynticAIScout.Enterprise.slnx --configuration Release
 
 # Cloud
-dotnet test UclCloudControlPlane.slnx --configuration Release
+dotnet test ScoutCloudControlPlane.slnx --configuration Release
 ```
 
 All tests must pass. Do not proceed if any test fails.
@@ -144,7 +144,7 @@ Repeat for all three repos.
 ### 6. Tag the open-source repo first
 
 ```bash
-cd /path/to/universalcontextlayer
+cd /path/to/scout
 ./scripts/tag-release.sh vX.Y.Z
 ```
 
@@ -157,7 +157,7 @@ This creates an annotated tag and pushes it to origin. The GitHub Actions `relea
 ### 7. Tag the enterprise repo
 
 ```bash
-cd /path/to/universalcontextlayer-enterprise
+cd /path/to/scout-enterprise
 git tag -a vX.Y.Z -m "Release vX.Y.Z"
 git push origin vX.Y.Z
 ```
@@ -165,14 +165,14 @@ git push origin vX.Y.Z
 ### 8. Tag the cloud repo
 
 ```bash
-cd /path/to/universalcontextlayer-cloud
+cd /path/to/scout-cloud
 git tag -a vX.Y.Z -m "Release vX.Y.Z"
 git push origin vX.Y.Z
 ```
 
 ### 9. Verify the GitHub Release (open-source)
 
-- Navigate to [GitHub Releases](https://github.com/PaulJMaddison/universalcontextlayer/releases)
+- Navigate to [GitHub Releases](https://github.com/PaulJMaddison/scout/releases)
 - Confirm the release was created by the workflow
 - Review the auto-generated release notes
 - Edit the release notes if needed to add cross-repo context
@@ -181,24 +181,24 @@ git push origin vX.Y.Z
 
 ```bash
 # Enterprise
-docker build -t ucl-enterprise:vX.Y.Z .
-docker tag ucl-enterprise:vX.Y.Z <registry>/ucl-enterprise:vX.Y.Z
-docker tag ucl-enterprise:vX.Y.Z <registry>/ucl-enterprise:latest
-docker push <registry>/ucl-enterprise:vX.Y.Z
-docker push <registry>/ucl-enterprise:latest
+docker build -t scout-enterprise:vX.Y.Z .
+docker tag scout-enterprise:vX.Y.Z <registry>/scout-enterprise:vX.Y.Z
+docker tag scout-enterprise:vX.Y.Z <registry>/scout-enterprise:latest
+docker push <registry>/scout-enterprise:vX.Y.Z
+docker push <registry>/scout-enterprise:latest
 
 # Cloud
-docker build -t ucl-cloud-api:vX.Y.Z -f src/Ucl.Cloud.Api/Dockerfile .
-docker tag ucl-cloud-api:vX.Y.Z <registry>/ucl-cloud-api:vX.Y.Z
-docker tag ucl-cloud-api:vX.Y.Z <registry>/ucl-cloud-api:latest
-docker push <registry>/ucl-cloud-api:vX.Y.Z
-docker push <registry>/ucl-cloud-api:latest
+docker build -t scout-cloud-api:vX.Y.Z -f src/Scout.Cloud.Api/Dockerfile .
+docker tag scout-cloud-api:vX.Y.Z <registry>/scout-cloud-api:vX.Y.Z
+docker tag scout-cloud-api:vX.Y.Z <registry>/scout-cloud-api:latest
+docker push <registry>/scout-cloud-api:vX.Y.Z
+docker push <registry>/scout-cloud-api:latest
 ```
 
 ### 11. Verify packages are accessible
 
 - [ ] GitHub Release page shows the correct tag and release notes
-- [ ] Docker images are pullable: `docker pull <registry>/ucl-enterprise:vX.Y.Z`
+- [ ] Docker images are pullable: `docker pull <registry>/scout-enterprise:vX.Y.Z`
 - [ ] NuGet packages (if published) are available
 - [ ] npm packages (if published) are available
 
@@ -211,11 +211,10 @@ docker push <registry>/ucl-cloud-api:latest
 - [ ] Marketing site version references updated (README badges, landing page)
 - [ ] `docs/roadmap.md` updated if the release closes planned milestones
 - [ ] Announce the release internally and to any active pilot customers
-- [ ] Update the static GitHub Pages demo if frontend changes were included:
+- [ ] Build and verify the production web app if frontend changes were included:
   ```bash
-  cd apps/web && npm run build:static-demo
+  cd apps/web && npm run build
   ```
-- [ ] Verify the live demo at https://pauljmaddison.github.io/universalcontextlayer/ reflects the new version
 
 ---
 

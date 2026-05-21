@@ -62,7 +62,7 @@ Import-EnvFile $EnvFile
 
 $platformMode = Get-Setting "Platform__Mode"
 $databaseProvider = Get-Setting "Database__Provider"
-$contextConnection = Get-Setting "ConnectionStrings__ContextLayer"
+$contextConnection = Get-Setting "ConnectionStrings__Scout"
 $customerConnection = Get-Setting "ConnectionStrings__CustomerOps"
 $signingKey = Get-Setting "Auth__SigningKey"
 $demoFallback = Get-Setting "VITE_DEMO_FALLBACK"
@@ -92,11 +92,11 @@ if ($contextConnection -match "Data Source=|Sqlite|\.db|\.sqlite" -or $customerC
 }
 
 if ([string]::IsNullOrWhiteSpace($contextConnection) -or [string]::IsNullOrWhiteSpace($customerConnection)) {
-    $failures.Add("ConnectionStrings__ContextLayer and ConnectionStrings__CustomerOps must both be configured.")
+    $failures.Add("ConnectionStrings__Scout and ConnectionStrings__CustomerOps must both be configured.")
 }
 
 if ($contextConnection -notmatch "Host=|Server=|Database=" -or $customerConnection -notmatch "Host=|Server=|Database=") {
-    $failures.Add("PostgreSQL connection strings must be supplied for both context-layer and customer-ops stores.")
+    $failures.Add("PostgreSQL connection strings must be supplied for both scout and customer-ops stores.")
 }
 
 if (-not $AllowDemoData) {

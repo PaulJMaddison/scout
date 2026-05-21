@@ -1,7 +1,7 @@
 param(
   [string]$BaseUrl = "http://127.0.0.1:5173",
   [string]$TenantSlug = "demo",
-  [string]$Email = "admin@contextlayer.local",
+  [string]$Email = "admin@scout.local",
   [string]$Password = "DemoAdmin123!",
   [string]$TargetPath = "/demo"
 )

@@ -28,7 +28,7 @@ const selectorMappingKindSchema = z.enum([
   'FORMULA_METRIC',
 ] satisfies SelectorMappingKind[])
 
-export const contextLayerBlueprintSchema = z.object({
+export const scoutBlueprintSchema = z.object({
   version: z.string().min(1),
   name: z.string().min(3),
   tenantSlug: z.string().min(1),
@@ -104,7 +104,7 @@ export const contextLayerBlueprintSchema = z.object({
   rolloutNotes: z.array(z.string()).default([]),
 })
 
-export type ContextLayerBlueprint = z.infer<typeof contextLayerBlueprintSchema>
+export type ScoutBlueprint = z.infer<typeof scoutBlueprintSchema>
 
 export const bootstrapArtifacts = [
   {
@@ -129,19 +129,19 @@ export const bootstrapArtifacts = [
   },
 ] as const
 
-export const codexBootstrapPrompt = `You are creating a Context Layer import blueprint for a governed Universal Context Layer rollout.
+export const codexBootstrapPrompt = `You are creating a Scout import blueprint for a governed KynticAI Scout rollout.
 
 Inputs you will receive:
 1. Operational schemas from CRMs, warehouses, billing, support, product telemetry, or other source systems.
 2. Sample rows and KPI definitions from those systems.
-3. Commercial goals for the AI or product workflows this UCL should support.
+3. Commercial goals for the AI or product workflows this Scout should support.
 
 Your job:
-1. Identify the source systems that should become Context Layer data sources.
+1. Identify the source systems that should become Scout data sources.
 2. Propose canonical semantic attributes that describe customer state in business language.
 3. Draft selectors that map source signals into those semantic attributes.
 4. Draft at least one grounded AI prompt template for Intelligent Sales Support.
-5. Return one JSON file that exactly follows the ContextLayerBlueprint format below.
+5. Return one JSON file that exactly follows the ScoutBlueprint format below.
 
 Important rules:
 - Do not invent source columns that are not evidenced in the uploaded material.
@@ -230,7 +230,7 @@ export const chatGptBootstrapPrompt = `${codexBootstrapPrompt}
 
 If you are ChatGPT, do not call tools or browse. Work only from the files and pasted samples in this chat. Return valid JSON only, with no Markdown fences.`
 
-export const sampleBlueprint: ContextLayerBlueprint = {
+export const sampleBlueprint: ScoutBlueprint = {
   version: '1.0',
   name: 'Larkspur Logistics Group intelligent sales blueprint',
   tenantSlug: 'demo',
@@ -494,14 +494,14 @@ export const sampleBlueprint: ContextLayerBlueprint = {
   ],
   promptTemplates: [
     {
-      name: 'AI-Assisted UCL Bootstrap',
-      description: 'Template used by Context Layer to import an AI-drafted semantic blueprint into the workspace.',
+      name: 'AI-Assisted Scout Bootstrap',
+      description: 'Template used by Scout to import an AI-drafted semantic blueprint into the workspace.',
       systemPrompt:
-        'You are Context Layer’s bootstrap architect. Use only the provided source materials and return governed JSON only.',
+        'You are Scout’s bootstrap architect. Use only the provided source materials and return governed JSON only.',
       developerPrompt:
         'Draft canonical business attributes, deterministic selectors, and import-ready configuration. Do not invent source fields or undocumented business logic.',
       userPromptTemplate:
-        'Create a ContextLayerBlueprint for {{tenant.slug}} using the uploaded schemas, CRM extracts, KPI notes, and product workflow goals.',
+        'Create a ScoutBlueprint for {{tenant.slug}} using the uploaded schemas, CRM extracts, KPI notes, and product workflow goals.',
       outputSchema: {
         type: 'object',
         required: ['version', 'name', 'tenantSlug', 'dataSources', 'semanticAttributes', 'selectors'],

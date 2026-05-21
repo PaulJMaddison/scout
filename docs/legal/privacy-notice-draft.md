@@ -4,7 +4,7 @@ This is a non-lawyer drafting aid for legal review. It is not legal advice and m
 
 ## Product Boundary
 
-Universal Context Layer turns existing business data into trusted semantic context that customer-owned AI tools, workflows, apps, reports, and agents can use. We do not build the brain. We build the nervous system.
+KynticAI Scout turns existing business data into trusted semantic context that customer-owned AI tools, workflows, apps, reports, and agents can use. We do not build the brain. We build the nervous system.
 
 The customer data plane is designed to run beside the customer's systems. Raw operational data, connector credentials, selectors, context facts, snapshots, provenance, local audit logs, and customer-specific configuration stay in the customer data plane by default.
 
@@ -39,7 +39,7 @@ If exceptional support access is needed, agree the scope, retention, redaction, 
 
 ## Draft Wording To Validate
 
-Universal Context Layer processes limited account, lead, support, licence, download, update-channel, and aggregate usage metadata to operate supported paid pilots. Customer operational data remains in the customer data plane by default and is not sent to the cloud control plane unless a separate written support or managed-service arrangement says otherwise.
+KynticAI Scout processes limited account, lead, support, licence, download, update-channel, and aggregate usage metadata to operate supported paid pilots. Customer operational data remains in the customer data plane by default and is not sent to the cloud control plane unless a separate written support or managed-service arrangement says otherwise.
 
 ## Mandatory Legal Review Notes
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# bump-version.sh -- Update version numbers across all relevant files in a UCL repo.
+# bump-version.sh -- Update version numbers across all relevant files in a Scout repo.
 #
 # Usage:
 #   ./scripts/bump-version.sh X.Y.Z [--dry-run]
@@ -52,7 +52,7 @@ if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
   exit 1
 fi
 
-echo "Universal Context Layer — Bump Version"
+echo "KynticAI Scout — Bump Version"
 echo "======================================="
 echo "New version: $VERSION"
 echo "Repo:        $REPO_ROOT"

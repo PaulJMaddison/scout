@@ -1,8 +1,8 @@
 # Connector Catalogue
 
-The connector catalogue explains which UCL integration paths are public open-core examples, which are paid/private enterprise implementations, and which entries are roadmap placeholders.
+The connector catalogue explains which Scout integration paths are public open-core examples, which are paid/private enterprise implementations, and which entries are roadmap placeholders.
 
-UCL is the nervous system, not the brain. Connectors bring approved operational signals into the customer data plane so selectors can create semantic context for customer-owned AI tools, workflows, apps, reports, and agents. This public repository must therefore show the integration shape without shipping paid enterprise connector logic.
+Scout is the nervous system, not the brain. Connectors bring approved operational signals into the customer data plane so selectors can create semantic context for customer-owned AI tools, workflows, apps, reports, and agents. This public repository must therefore show the integration shape without shipping paid enterprise connector logic.
 
 ## Labels
 
@@ -34,7 +34,7 @@ UCL is the nervous system, not the brain. Connectors bring approved operational 
 | Billing | Placeholder / customer-specific connector | Mock billing signals and semantic examples. | Stripe, Paddle, NetSuite billing, ERP finance integrations, or invoice/payment sync clients. |
 | Product telemetry | Public generic example / customer-specific connector | Executable source-system event contract entry for product usage rollups plus mock activity scores. | Customer analytics warehouses, proprietary product event schemas, or managed telemetry pipelines. |
 | First-party conversion events | Public generic example | Executable source-system event contract entry and fictional web-conversion signals. | Customer web trackers, tag-manager deployments, or production marketing attribution logic. |
-| Legacy .NET web handlers | Paid enterprise implementation / customer-specific connector | Interface docs describing how old .NET applications can call UCL or emit approved events. | Paid .NET handler packages, IIS deployment modules, customer code adapters, or private network installers. |
+| Legacy .NET web handlers | Paid enterprise implementation / customer-specific connector | Interface docs describing how old .NET applications can call Scout or emit approved events. | Paid .NET handler packages, IIS deployment modules, customer code adapters, or private network installers. |
 
 ## Public Repo Boundary
 

@@ -19,7 +19,7 @@ Title: Turn existing business data into trusted context for AI workflows in 2-6 
 
 Positioning:
 
-- UCL sits beside CRM, ERP, SQL databases, warehouses, support, billing, product, spreadsheets, and internal workflow systems.
+- Scout sits beside CRM, ERP, SQL databases, warehouses, support, billing, product, spreadsheets, and internal workflow systems.
 - It maps raw source fields into governed semantic facts that reports, apps, workflows, copilots, and agents can consume.
 - The first paid pilot focuses on one high-value workflow and one customer-owned data plane.
 
@@ -53,7 +53,7 @@ Book a pilot scope call with a named workflow, source systems, and buyer outcome
 
 ```mermaid
 flowchart LR
-    A["Customer source systems<br/>CRM, ERP, SQL, warehouse, support, billing, spreadsheets"] --> B["Customer-owned UCL data plane<br/>connectors, selectors, facts, snapshots, audit"]
+    A["Customer source systems<br/>CRM, ERP, SQL, warehouse, support, billing, spreadsheets"] --> B["Customer-owned Scout data plane<br/>connectors, selectors, facts, snapshots, audit"]
     B --> C["Customer consumers<br/>apps, reports, workflows, copilots, agents"]
     D["Cloud/control plane<br/>accounts, licences, downloads, support, lead CRM"] -. "commercial metadata only" .-> B
     B -. "no raw operational data by default" .-> D
@@ -73,4 +73,4 @@ Redact email addresses, names, customer identifiers, credentials, and any operat
 
 ## Anonymised ERP Pattern
 
-The case-style story is simple: an ERP platform kept existing operational systems in place, added a semantic layer beside them, and used that layer to power new web and AI-enabled workflows. UCL productises that pattern for repeatable delivery: source data in, selectors in the customer data plane, trusted context out.
+The case-style story is simple: an ERP platform kept existing operational systems in place, added a semantic layer beside them, and used that layer to power new web and AI-enabled workflows. Scout productises that pattern for repeatable delivery: source data in, selectors in the customer data plane, trusted context out.

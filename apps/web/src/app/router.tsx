@@ -188,12 +188,12 @@ const storySourceSignalsRoute = createRoute({
   ),
 })
 
-const storyContextLayerRoute = createRoute({
+const storyScoutRoute = createRoute({
   getParentRoute: () => appRoute,
-  path: '/story/context-layer',
+  path: '/story/scout',
   component: lazyRouteComponent(
-    () => import('@/features/demo/story-context-layer-page'),
-    'StoryContextLayerPage',
+    () => import('@/features/demo/story-scout-page'),
+    'StoryScoutPage',
   ),
 })
 
@@ -444,7 +444,7 @@ const routeTree = rootRoute.addChildren([
   ]),
   appRoute.addChildren([
     storySourceSignalsRoute,
-    storyContextLayerRoute,
+    storyScoutRoute,
     storyAiWorkflowRoute,
     storyOutcomesRoute,
     overviewRoute,

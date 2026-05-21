@@ -43,7 +43,7 @@ docker_available() {
 
 mkdir -p "$BACKEND_DATA_DIR"
 run_repo_command "\"$DOTNET_CMD\" tool restore"
-run_repo_command "\"$DOTNET_CMD\" restore ContextLayer.slnx"
+run_repo_command "\"$DOTNET_CMD\" restore KynticAI.Scout.slnx"
 
 if [ "$USE_DOCKER" -eq 1 ]; then
   if ! docker_available; then
@@ -52,11 +52,11 @@ if [ "$USE_DOCKER" -eq 1 ]; then
   fi
 
   run_repo_command "docker compose up -d postgres"
-  run_repo_command "Database__Provider=Postgres ConnectionStrings__ContextLayer='Host=localhost;Port=5432;Database=context_layer_db;Username=postgres;Password=postgres' ConnectionStrings__CustomerOps='Host=localhost;Port=5432;Database=customer_ops_db;Username=postgres;Password=postgres' \"$DOTNET_CMD\" tool run dotnet-ef database update --project src/ContextLayer.Infrastructure --startup-project src/ContextLayer.Api --context CustomerOpsDbContext"
-  run_repo_command "Database__Provider=Postgres ConnectionStrings__ContextLayer='Host=localhost;Port=5432;Database=context_layer_db;Username=postgres;Password=postgres' ConnectionStrings__CustomerOps='Host=localhost;Port=5432;Database=customer_ops_db;Username=postgres;Password=postgres' \"$DOTNET_CMD\" tool run dotnet-ef database update --project src/ContextLayer.Infrastructure --startup-project src/ContextLayer.Api --context ContextLayerDbContext"
+  run_repo_command "Database__Provider=Postgres ConnectionStrings__Scout='Host=localhost;Port=5432;Database=scout_context_db;Username=postgres;Password=postgres' ConnectionStrings__CustomerOps='Host=localhost;Port=5432;Database=customer_ops_db;Username=postgres;Password=postgres' \"$DOTNET_CMD\" tool run dotnet-ef database update --project src/KynticAI.Scout.Infrastructure --startup-project src/KynticAI.Scout.Api --context CustomerOpsDbContext"
+  run_repo_command "Database__Provider=Postgres ConnectionStrings__Scout='Host=localhost;Port=5432;Database=scout_context_db;Username=postgres;Password=postgres' ConnectionStrings__CustomerOps='Host=localhost;Port=5432;Database=customer_ops_db;Username=postgres;Password=postgres' \"$DOTNET_CMD\" tool run dotnet-ef database update --project src/KynticAI.Scout.Infrastructure --startup-project src/KynticAI.Scout.Api --context ScoutDbContext"
 
   if [ "$SEED_DEMO_DATA" -eq 1 ]; then
-    run_repo_command "Platform__Mode=BackendOnly Bootstrap__ApplyMigrationsOnStartup=true Bootstrap__SeedDemoData=true Database__Provider=Postgres ConnectionStrings__ContextLayer='Host=localhost;Port=5432;Database=context_layer_db;Username=postgres;Password=postgres' ConnectionStrings__CustomerOps='Host=localhost;Port=5432;Database=customer_ops_db;Username=postgres;Password=postgres' \"$DOTNET_CMD\" run --project src/ContextLayer.Api -- bootstrap"
+    run_repo_command "Platform__Mode=BackendOnly Bootstrap__ApplyMigrationsOnStartup=true Bootstrap__SeedDemoData=true Database__Provider=Postgres ConnectionStrings__Scout='Host=localhost;Port=5432;Database=scout_context_db;Username=postgres;Password=postgres' ConnectionStrings__CustomerOps='Host=localhost;Port=5432;Database=customer_ops_db;Username=postgres;Password=postgres' \"$DOTNET_CMD\" run --project src/KynticAI.Scout.Api -- bootstrap"
   fi
 else
   seed_value=false
@@ -64,12 +64,12 @@ else
     seed_value=true
   fi
 
-  run_repo_command "Platform__Mode=BackendOnly Bootstrap__ApplyMigrationsOnStartup=true Bootstrap__SeedDemoData=$seed_value Database__Provider=Sqlite ConnectionStrings__ContextLayer='Data Source=$BACKEND_DATA_DIR/context_layer.db' ConnectionStrings__CustomerOps='Data Source=$BACKEND_DATA_DIR/customer_ops.db' Telemetry__OtlpEndpoint='' \"$DOTNET_CMD\" run --project src/ContextLayer.Api -- bootstrap"
+  run_repo_command "Platform__Mode=BackendOnly Bootstrap__ApplyMigrationsOnStartup=true Bootstrap__SeedDemoData=$seed_value Database__Provider=Sqlite ConnectionStrings__Scout='Data Source=$BACKEND_DATA_DIR/scout_context.db' ConnectionStrings__CustomerOps='Data Source=$BACKEND_DATA_DIR/customer_ops.db' Telemetry__OtlpEndpoint='' \"$DOTNET_CMD\" run --project src/KynticAI.Scout.Api -- bootstrap"
 fi
 
 cat <<EOF
 
-Context Layer backend bootstrap complete.
+Scout backend bootstrap complete.
 
 Start locally:
   sh ./scripts/start-backend.sh

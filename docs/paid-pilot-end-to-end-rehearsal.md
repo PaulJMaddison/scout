@@ -4,25 +4,25 @@ This is a local-only rehearsal runbook. It proves the supported paid pilot flow 
 
 ## Repositories
 
-- Public open-core/customer data plane: `C:\UCL`
-- Private enterprise extensions: `C:\universalcontextlayer-enterprise`
-- Private cloud control plane: `C:\universalcontextlayer-cloud`
+- Public open-core/customer data plane: `C:\Scout`
+- Private enterprise extensions: `C:\scout-enterprise`
+- Private cloud control plane: `C:\scout-cloud`
 
 ## Preflight
 
 ```powershell
-cd C:\UCL
+cd C:\Scout
 .\scripts\paid-pilot-local-rehearsal.ps1
 .\scripts\paid-pilot-rehearsal-check.ps1
 .\scripts\check-release-alignment.ps1
 .\scripts\check-production-env.ps1 -EnvFile .env.production.local
 
-cd C:\universalcontextlayer-cloud
+cd C:\scout-cloud
 .\scripts\check-release-alignment.ps1
 .\scripts\check-cloud-production-env.ps1 -EnvFile .env.production.local
 .\scripts\live-hosting-preflight.ps1 -SkipApiCheck
 
-cd C:\universalcontextlayer-enterprise
+cd C:\scout-enterprise
 .\scripts\check-release-alignment.ps1
 ```
 
@@ -30,8 +30,8 @@ Use placeholder local files only. Do not paste real customer credentials into th
 
 ## Rehearsal Steps
 
-1. Public site/static demo explains the product.
-   - Run the public local demo or static build.
+1. Public website and local demo explain the product.
+   - Run the company website build and the public local demo.
    - Confirm the narrative says: we do not build the brain, we build the nervous system.
    - Confirm it presents a supported paid pilot, not complete self-serve SaaS.
 
@@ -67,7 +67,7 @@ Use placeholder local files only. Do not paste real customer credentials into th
 
 9. SQL/PostgreSQL connector dry-run runs.
    - Use fictional local configs.
-   - Run `C:\universalcontextlayer-enterprise\scripts\connector-smoke-test.ps1`.
+   - Run `C:\scout-enterprise\scripts\connector-smoke-test.ps1`.
    - Never print connection strings or inline credentials.
 
 10. Selector/context snapshot path is exercised.

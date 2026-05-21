@@ -1,6 +1,6 @@
 # Cross-Repository Changelog
 
-All notable changes across the three Universal Context Layer repositories are documented in this file.
+All notable changes across the three KynticAI Scout repositories are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -17,11 +17,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.8.0] - 2026-05-21
+
+### Open-Source (`scout`)
+
+#### Changed
+- Rebranded the public open-source repository, SDKs, docs, local demo, admin console, package metadata, and screenshots to KynticAI Scout.
+- Removed the temporary website build path from the open-source repo so the main company website can become the public web presence.
+- Aligned default release readiness checks with `main` as the public readiness branch.
+
+#### Security
+- Removed personal contact details from public product surfaces and kept company-level contact defaults.
+
+---
+
 ## [2.7.0] - 2026-05-13
 
 Coordinated release across all three repositories.
 
-### Open-Source (`universalcontextlayer`)
+### Open-Source (`scout`)
 
 #### Added
 - Customer data-plane installation and production-readiness runbooks for paid-pilot delivery.
@@ -32,12 +46,12 @@ Coordinated release across all three repositories.
 
 #### Changed
 - Updated public release metadata to `2.7.0`.
-- Strengthened the public open-core story around demos, static demo caveats, install runbooks, public API/SDK/context package docs, and paid-pilot boundaries.
+- Strengthened the public open-core story around demos, install runbooks, public API/SDK/context package docs, and paid-pilot boundaries.
 
 #### Security
 - Reconfirmed that the public repo does not include paid enterprise implementations, private cloud/control-plane implementation, real licence signing keys, customer-specific code, or raw customer operational data.
 
-### Enterprise (`universalcontextlayer-enterprise`)
+### Enterprise (`scout-enterprise`)
 
 #### Added
 - 25+ vendor adapter seams for connectors: SQL Server, PostgreSQL, REST/CRM, email, chat, calendar, product analytics, work management, and knowledge systems.
@@ -54,7 +68,7 @@ Coordinated release across all three repositories.
 - Maintained metadata-first ingestion defaults across all connector families.
 - Ensured support bundles are PII-redacted and secret-free.
 
-### Cloud (`universalcontextlayer-cloud`)
+### Cloud (`scout-cloud`)
 
 #### Added
 - Account management, licensing, and subscription workflows.
@@ -77,7 +91,7 @@ Coordinated release across all three repositories.
 
 Coordinated release across all three repositories.
 
-### Open-Source (`universalcontextlayer`)
+### Open-Source (`scout`)
 
 #### Added
 - First-class webhook signing secrets with create, list, rotate, and revoke REST endpoints.
@@ -93,7 +107,7 @@ Coordinated release across all three repositories.
 - Kept the public repository limited to open-core code, public interfaces, and fictional data.
 - Extended local artefact ignore coverage for runtime data, logs, keys, and certificates.
 
-### Enterprise (`universalcontextlayer-enterprise`)
+### Enterprise (`scout-enterprise`)
 
 #### Added
 - SQL Server and PostgreSQL connector implementations with query plan validation.
@@ -103,7 +117,7 @@ Coordinated release across all three repositories.
 #### Changed
 - Standardised selector contract definitions with provenance and freshness metadata.
 
-### Cloud (`universalcontextlayer-cloud`)
+### Cloud (`scout-cloud`)
 
 #### Added
 - Account provisioning and subscription lifecycle APIs.
@@ -124,7 +138,7 @@ Use this template when adding a new release entry:
 
 Coordinated release across all three repositories.
 
-### Open-Source (`universalcontextlayer`)
+### Open-Source (`scout`)
 
 #### Added
 - Description of new features or capabilities.
@@ -144,7 +158,7 @@ Coordinated release across all three repositories.
 #### Breaking Changes
 - Description of breaking changes with migration guidance.
 
-### Enterprise (`universalcontextlayer-enterprise`)
+### Enterprise (`scout-enterprise`)
 
 #### Added
 -
@@ -158,7 +172,7 @@ Coordinated release across all three repositories.
 #### Security
 -
 
-### Cloud (`universalcontextlayer-cloud`)
+### Cloud (`scout-cloud`)
 
 #### Added
 -

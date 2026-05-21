@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/KynticAI.Scout.Api/KynticAI.Scout.Api.csproj" />
+    <Project Path="src/KynticAI.Scout.Application/KynticAI.Scout.Application.csproj" />
+    <Project Path="src/KynticAI.Scout.Domain/KynticAI.Scout.Domain.csproj" />
+    <Project Path="src/KynticAI.Scout.Infrastructure/KynticAI.Scout.Infrastructure.csproj" />
+    <Project Path="src/KynticAI.Scout.Sdk/KynticAI.Scout.Sdk.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/KynticAI.Scout.EndToEndTests/KynticAI.Scout.EndToEndTests.csproj" />
+    <Project Path="tests/KynticAI.Scout.IntegrationTests/KynticAI.Scout.IntegrationTests.csproj" />
+    <Project Path="tests/KynticAI.Scout.Sdk.Tests/KynticAI.Scout.Sdk.Tests.csproj" />
+    <Project Path="tests/KynticAI.Scout.UnitTests/KynticAI.Scout.UnitTests.csproj" />
+  </Folder>
+</Solution>

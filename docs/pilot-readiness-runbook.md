@@ -14,7 +14,7 @@ Remove `-SkipBuild` and `-SkipTests` when the required .NET SDK is installed.
 
 ## PostgreSQL Smoke
 
-- Set `ConnectionStrings__ContextLayer` and `ConnectionStrings__CustomerOps`.
+- Set `ConnectionStrings__Scout` and `ConnectionStrings__CustomerOps`.
 - Run the readiness script with `-ProductionMode`.
 - Confirm migrations, health checks, context reads, source event ingest, audit reads, and rollback notes.
 

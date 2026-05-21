@@ -16,4 +16,4 @@ create_database() {
 }
 
 create_database "${CUSTOMER_OPS_DB:-customer_ops_db}"
-create_database "${CONTEXT_LAYER_DB:-context_layer_db}"
+create_database "${SCOUT_DB:-scout_context_db}"

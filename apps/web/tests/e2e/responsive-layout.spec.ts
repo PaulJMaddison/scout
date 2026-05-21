@@ -3,7 +3,7 @@ import { expect, test, type Page } from '@playwright/test'
 const adminRoutes = [
   '/demo',
   '/story/source-signals',
-  '/story/context-layer',
+  '/story/scout',
   '/story/ai-workflow',
   '/story/outcomes',
   '/overview',
@@ -19,7 +19,7 @@ const adminRoutes = [
 async function signInAsDemoAdmin(page: Page) {
   await page.goto('/login')
   await page.getByLabel('Tenant slug').fill('demo')
-  await page.getByLabel('Email').fill('admin@contextlayer.local')
+  await page.getByLabel('Email').fill('admin@scout.local')
   await page.getByLabel('Password').fill('DemoAdmin123!')
   await page.getByRole('button', { name: 'Enter console' }).click()
   await expect(page).toHaveURL(/\/demo/)

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# tag-release.sh -- Create an annotated git tag for a UCL release and push it.
+# tag-release.sh -- Create an annotated git tag for a Scout release and push it.
 #
 # Usage:
 #   ./scripts/tag-release.sh vX.Y.Z [--dry-run]
@@ -49,7 +49,7 @@ if ! echo "$VERSION" | grep -qE '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
   exit 1
 fi
 
-echo "Universal Context Layer — Tag Release"
+echo "KynticAI Scout — Tag Release"
 echo "======================================"
 echo "Version:  $VERSION"
 echo "Repo:     $REPO_ROOT"
@@ -86,15 +86,15 @@ else
 fi
 
 if [ -n "$DOTNET_CMD" ]; then
-  if [ -f "$REPO_ROOT/ContextLayer.slnx" ]; then
-    echo "Running: $DOTNET_CMD test ContextLayer.slnx --configuration Release"
-    if ! $DOTNET_CMD test "$REPO_ROOT/ContextLayer.slnx" --configuration Release; then
+  if [ -f "$REPO_ROOT/KynticAI.Scout.slnx" ]; then
+    echo "Running: $DOTNET_CMD test KynticAI.Scout.slnx --configuration Release"
+    if ! $DOTNET_CMD test "$REPO_ROOT/KynticAI.Scout.slnx" --configuration Release; then
       echo "ERROR: Tests failed. Fix test failures before tagging." >&2
       exit 1
     fi
     echo "All tests passed."
   else
-    echo "WARNING: ContextLayer.slnx not found. Skipping test run." >&2
+    echo "WARNING: KynticAI.Scout.slnx not found. Skipping test run." >&2
   fi
 fi
 
@@ -124,14 +124,14 @@ echo "Tag $VERSION created and pushed."
 echo ""
 echo "Next steps:"
 echo "  1. Wait for the GitHub Actions release workflow to complete."
-echo "     https://github.com/PaulJMaddison/universalcontextlayer/actions"
+echo "     https://github.com/PaulJMaddison/scout/actions"
 echo "  2. Verify the GitHub Release was created:"
-echo "     https://github.com/PaulJMaddison/universalcontextlayer/releases/tag/$VERSION"
+echo "     https://github.com/PaulJMaddison/scout/releases/tag/$VERSION"
 echo "  3. Tag the enterprise repo:"
-echo "     cd /path/to/universalcontextlayer-enterprise"
+echo "     cd /path/to/scout-enterprise"
 echo "     git tag -a $VERSION -m \"Release $VERSION\" && git push origin $VERSION"
 echo "  4. Tag the cloud repo:"
-echo "     cd /path/to/universalcontextlayer-cloud"
+echo "     cd /path/to/scout-cloud"
 echo "     git tag -a $VERSION -m \"Release $VERSION\" && git push origin $VERSION"
 echo "  5. Build and push Docker images for enterprise and cloud."
 echo "  6. Complete the post-release checklist in docs/releases/release-process.md."

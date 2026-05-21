@@ -104,7 +104,7 @@ export function BeforeAfter({
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <Card className="border-rosewood-500/16 bg-rosewood-500/8">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-rosewood-800">Before UCL</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-rosewood-800">Before Scout</p>
         <div className="mt-4 grid gap-3">
           {before.map((line) => (
             <p key={line} className="rounded-2xl bg-white/60 px-4 py-3 text-sm leading-6 text-ink-800">
@@ -114,7 +114,7 @@ export function BeforeAfter({
         </div>
       </Card>
       <Card className="border-sage-600/16 bg-sage-600/10">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sage-800">After UCL</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-sage-800">After Scout</p>
         <div className="mt-4 grid gap-3">
           {after.map((line) => (
             <p key={line} className="rounded-2xl bg-white/60 px-4 py-3 text-sm leading-6 text-ink-800">

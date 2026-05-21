@@ -1,12 +1,12 @@
 # Customer Data Plane
 
-This page explains how Universal Context Layer runs beside customer systems as a customer-controlled data plane for semantic context.
+This page explains how KynticAI Scout runs beside customer systems as a customer-controlled data plane for semantic context.
 
-We do not build the brain. We build the nervous system. UCL carries trusted business context from existing operational systems to the customer's own AI tools, workflows, reports, apps, and agents.
+We do not build the brain. We build the nervous system. Scout carries trusted business context from existing operational systems to the customer's own AI tools, workflows, reports, apps, and agents.
 
 ## What It Is
 
-The customer data plane is the part of UCL that runs near the customer's source systems. It owns:
+The customer data plane is the part of Scout that runs near the customer's source systems. It owns:
 
 - source access and connector configuration
 - selector definitions and selector execution
@@ -20,9 +20,9 @@ The customer data plane is the thing a paid pilot proves.
 
 ## What It Sits Beside
 
-UCL can sit beside CRM, ERP, SQL databases, data warehouses, support desks, billing systems, product telemetry, spreadsheets, SharePoint, email exports, old .NET systems, and other operational sources.
+Scout can sit beside CRM, ERP, SQL databases, data warehouses, support desks, billing systems, product telemetry, spreadsheets, SharePoint, email exports, old .NET systems, and other operational sources.
 
-Those systems remain systems of record. UCL does not require the customer to replace them before proving value.
+Those systems remain systems of record. Scout does not require the customer to replace them before proving value.
 
 ## What Leaves The Data Plane By Default
 

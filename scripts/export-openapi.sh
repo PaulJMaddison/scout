@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ---------------------------------------------------------------------------
-# export-openapi.sh — Start the UCL API, download the OpenAPI spec, and stop.
+# export-openapi.sh — Start the Scout API, download the OpenAPI spec, and stop.
 #
 # Usage:
 #   sh ./scripts/export-openapi.sh
@@ -12,7 +12,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-API_PROJECT="$REPO_ROOT/src/ContextLayer.Api"
+API_PROJECT="$REPO_ROOT/src/KynticAI.Scout.Api"
 OUTPUT_DIR="$REPO_ROOT/docs/api"
 OUTPUT_FILE="$OUTPUT_DIR/openapi.json"
 API_URL="http://127.0.0.1:5198"
@@ -36,7 +36,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-echo "Starting UCL API in Development mode..."
+echo "Starting Scout API in Development mode..."
 ASPNETCORE_ENVIRONMENT=Development \
   Platform__EnableOpenApi=true \
   Platform__EnableRest=true \

@@ -21,7 +21,7 @@ export function DemoModePage() {
       <PageHeader
         eyebrow="Step 1 of 5"
         title="This demo page shows how raw customer data becomes better AI sales recommendations."
-        description="Universal Context Layer turns fragmented CRM, product, billing, support, and warehouse data into a governed semantic layer that your own systems can consume."
+        description="KynticAI Scout turns fragmented CRM, product, billing, support, and warehouse data into a governed semantic layer that your own systems can consume."
         actions={
           <Link to={executiveStorySteps[1].to}>
             <Button>
@@ -33,12 +33,17 @@ export function DemoModePage() {
       />
 
       <section className="grid gap-5 xl:grid-cols-[1.08fr_0.92fr]">
-        <Card className="overflow-hidden border-none bg-[radial-gradient(circle_at_top_left,rgba(220,180,145,0.18),transparent_28%),linear-gradient(135deg,#16110d_0%,#1f1712_45%,#2e2118_100%)] px-8 py-8 text-ivory-50 shadow-[0_28px_80px_rgba(24,18,15,0.28)]">
+        <Card className="overflow-hidden border-none bg-[linear-gradient(135deg,#1A1818_0%,#2f2433_45%,#4A2E19_100%)] px-8 py-8 text-ivory-50 shadow-[0_28px_80px_rgba(24,18,15,0.28)]">
           <div className="grid gap-6">
+            <img
+              src="/brand/kynticai-logo-primary-horizontal-dark.svg"
+              alt="KynticAI"
+              className="h-12 w-auto max-w-[210px]"
+            />
             <div className="flex flex-wrap items-center gap-2">
               <Badge tone="accent">Legacy systems stay in place</Badge>
               <ArrowRight className="size-4 text-copper-300" />
-              <Badge tone="neutral">Context Layer interprets the signals</Badge>
+              <Badge tone="neutral">Scout interprets the signals</Badge>
               <ArrowRight className="size-4 text-copper-300" />
               <Badge tone="success">Consumers get reusable business context</Badge>
             </div>
@@ -47,10 +52,10 @@ export function DemoModePage() {
               <p className="text-xs uppercase tracking-[0.22em] text-copper-300">Executive framing</p>
               <h2 className="max-w-4xl font-display text-5xl leading-[1.02] text-ivory-50">
                 Your existing systems already contain the signals AI needs.
-                UCL turns them into meaning your systems can use.
+                Scout turns them into meaning your systems can use.
               </h2>
               <p className="max-w-3xl text-base leading-8 text-ivory-200">
-                Universal Context Layer reads the operational estate exactly where it already lives, converts
+                KynticAI Scout reads the operational estate exactly where it already lives, converts
                 disconnected events into governed business meaning, and gives product workflows, analytics, copilots, and agents a
                 shared semantic contract they can cite, trust, and reuse.
               </p>
@@ -131,7 +136,7 @@ export function DemoModePage() {
                   <div>
                     <p className="font-semibold text-ink-950">Trust and governance stay intact</p>
                     <p className="mt-2 text-sm leading-7 text-ink-700">
-                      Confidence, freshness, provenance, masking, and audit are part of the context layer, not an afterthought after the example demo.
+                      Confidence, freshness, provenance, masking, and audit are part of the data plane, not an afterthought after the example demo.
                     </p>
                   </div>
                 </div>
@@ -209,7 +214,7 @@ export function DemoModePage() {
           </div>
         </Panel>
 
-        <Panel eyebrow="Commercial contact" title="Talk to Paul about pilots, deployment, or licensing support">
+        <Panel eyebrow="Commercial contact" title="Talk to KynticAI about pilots, deployment, or licensing support">
           <Card className="bg-[linear-gradient(180deg,rgba(255,248,240,0.96),rgba(252,246,239,0.96))]">
             <p className="text-sm leading-7 text-ink-700">
               The MIT-licensed core stays open source. Paid engagement is available now for discovery workshops, starter pilots, production pilots, private connector scoping, and commercially supported implementation.
@@ -218,19 +223,19 @@ export function DemoModePage() {
               <div className="rounded-[20px] border border-ink-900/8 bg-white/70 px-4 py-4">
                 <p className="text-xs uppercase tracking-[0.18em] text-sage-700">Email</p>
                 <a
-                  href="mailto:paul.maddison.delimeg@gmail.com"
+                  href="mailto:paul@kyticai.com"
                   className="mt-2 block text-base font-semibold text-ink-950 underline decoration-copper-300 underline-offset-4"
                 >
-                  paul.maddison.delimeg@gmail.com
+                  paul@kyticai.com
                 </a>
               </div>
               <div className="rounded-[20px] border border-ink-900/8 bg-white/70 px-4 py-4">
-                <p className="text-xs uppercase tracking-[0.18em] text-sage-700">Phone</p>
+                <p className="text-xs uppercase tracking-[0.18em] text-sage-700">Website</p>
                 <a
-                  href="tel:+447742031553"
+                  href="https://kynticai.com"
                   className="mt-2 block text-base font-semibold text-ink-950 underline decoration-copper-300 underline-offset-4"
                 >
-                  +44 7742 031553
+                  kynticai.com
                 </a>
               </div>
             </div>
@@ -250,7 +255,7 @@ export function DemoModePage() {
             <Card className="bg-ivory-25">
               <p className="font-semibold text-ink-950">3. Semantic Timeline</p>
               <p className="mt-2 text-sm leading-7 text-ink-700">
-                How Context Layer maps those events into canonical facts with confidence, freshness, provenance, and selector logic.
+                How Scout maps those events into canonical facts with confidence, freshness, provenance, and selector logic.
               </p>
             </Card>
             <Card className="bg-ivory-25">

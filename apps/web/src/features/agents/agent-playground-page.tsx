@@ -135,8 +135,8 @@ export function AgentPlaygroundPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Example consumer"
-        title="Intelligent Sales Support uses UCL context to generate grounded sales recommendations."
-        description="This playground is one consumer of the context layer. Build a context package for a sales objective, then produce a strategy, email draft, and follow-up plan that cite the exact facts behind the advice."
+        title="Intelligent Sales Support uses Scout context to generate grounded sales recommendations."
+        description="This playground is one consumer of the data plane. Build a context package for a sales objective, then produce a strategy, email draft, and follow-up plan that cite the exact facts behind the advice."
         actions={
           <Button
             type="button"
@@ -199,7 +199,7 @@ export function AgentPlaygroundPage() {
                 <div>
                   <p className="font-display text-2xl">Guardrails in effect</p>
                   <p className="mt-2 text-sm leading-7 text-ivory-200">
-                    The selected model only sees the governed package below, must cite facts, and should recommend human review whenever the evidence gets thin. UCL supplies the context; the customer can bring the AI.
+                    The selected model only sees the governed package below, must cite facts, and should recommend human review whenever the evidence gets thin. Scout supplies the context; the customer can bring the AI.
                   </p>
                 </div>
               </div>

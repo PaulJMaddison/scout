@@ -30,7 +30,7 @@ failures=()
 
 platform_mode="$(get_setting Platform__Mode || true)"
 database_provider="$(get_setting Database__Provider || true)"
-context_connection="$(get_setting ConnectionStrings__ContextLayer || true)"
+context_connection="$(get_setting ConnectionStrings__Scout || true)"
 customer_connection="$(get_setting ConnectionStrings__CustomerOps || true)"
 signing_key="$(get_setting Auth__SigningKey || true)"
 demo_fallback="$(get_setting VITE_DEMO_FALLBACK || true)"
@@ -52,8 +52,8 @@ if printf '%s\n%s' "$context_connection" "$customer_connection" | grep -Eiq 'Dat
   failures+=("SQLite/local database connection strings are not acceptable for production-style deployment.")
 fi
 
-[ -n "$context_connection" ] && [ -n "$customer_connection" ] || failures+=("ConnectionStrings__ContextLayer and ConnectionStrings__CustomerOps must both be configured.")
-printf '%s' "$context_connection" | grep -Eq 'Host=|Server=|Database=' || failures+=("ConnectionStrings__ContextLayer must look like a PostgreSQL connection string.")
+[ -n "$context_connection" ] && [ -n "$customer_connection" ] || failures+=("ConnectionStrings__Scout and ConnectionStrings__CustomerOps must both be configured.")
+printf '%s' "$context_connection" | grep -Eq 'Host=|Server=|Database=' || failures+=("ConnectionStrings__Scout must look like a PostgreSQL connection string.")
 printf '%s' "$customer_connection" | grep -Eq 'Host=|Server=|Database=' || failures+=("ConnectionStrings__CustomerOps must look like a PostgreSQL connection string.")
 
 if [ "${ALLOW_DEMO_DATA:-false}" != "true" ]; then

@@ -72,11 +72,11 @@ Assert-Setting "Bootstrap__SeedDemoData" "false" $seedDemo
 Assert-Setting "VITE_DEMO_FALLBACK" "false" $demoFallback
 Assert-Setting "DataProtection__RequirePersistentKeys" "true" $dataProtectionRequired
 if ([string]::IsNullOrWhiteSpace($env:DataProtection__KeyRingPath)) {
-    Write-Warning "DataProtection__KeyRingPath is not set in this shell. Use /var/lib/ucl/data-protection-keys or another mounted, backed-up path."
+    Write-Warning "DataProtection__KeyRingPath is not set in this shell. Use /var/lib/scout/data-protection-keys or another mounted, backed-up path."
 }
 Assert-NotPlaceholder "Auth__SigningKey" $env:Auth__SigningKey 48
-if ([string]::IsNullOrWhiteSpace($env:ConnectionStrings__ContextLayer) -or [string]::IsNullOrWhiteSpace($env:ConnectionStrings__CustomerOps)) {
-    throw "ConnectionStrings__ContextLayer and ConnectionStrings__CustomerOps must both be set to PostgreSQL connection strings."
+if ([string]::IsNullOrWhiteSpace($env:ConnectionStrings__Scout) -or [string]::IsNullOrWhiteSpace($env:ConnectionStrings__CustomerOps)) {
+    throw "ConnectionStrings__Scout and ConnectionStrings__CustomerOps must both be set to PostgreSQL connection strings."
 }
 
 Write-Host "Configuration checks passed."
@@ -85,26 +85,26 @@ Write-Step ".NET build check"
 $dotnet = Resolve-Dotnet
 Invoke-Native $dotnet --info | Select-Object -First 20
 if (-not $SkipBuild) {
-    Invoke-Native $dotnet build .\ContextLayer.slnx --disable-build-servers
+    Invoke-Native $dotnet build .\KynticAI.Scout.slnx --disable-build-servers
 }
 
 Write-Step "Migration path"
 Write-Host "Migration command:"
-Write-Host "dotnet run --project .\src\ContextLayer.Api\ContextLayer.Api.csproj -- migrate"
+Write-Host "dotnet run --project .\src\KynticAI.Scout.Api\KynticAI.Scout.Api.csproj -- migrate"
 if ($RunMigrations) {
-    Invoke-Native $dotnet run --project .\src\ContextLayer.Api\ContextLayer.Api.csproj -- migrate
+    Invoke-Native $dotnet run --project .\src\KynticAI.Scout.Api\KynticAI.Scout.Api.csproj -- migrate
 } else {
     Write-Host "Not running migrations because -RunMigrations was not supplied."
 }
 
 Write-Step "Backup and restore commands"
 Write-Host "Backup:"
-Write-Host "pg_dump --format=custom --file .\backup\context_layer_db.dump context_layer_db"
+Write-Host "pg_dump --format=custom --file .\backup\scout_context_db.dump scout_context_db"
 Write-Host "pg_dump --format=custom --file .\backup\customer_ops_db.dump customer_ops_db"
 Write-Host "Restore into disposable databases:"
-Write-Host "createdb context_layer_restore_check"
+Write-Host "createdb scout_context_restore_check"
 Write-Host "createdb customer_ops_restore_check"
-Write-Host "pg_restore --clean --if-exists --dbname context_layer_restore_check .\backup\context_layer_db.dump"
+Write-Host "pg_restore --clean --if-exists --dbname scout_context_restore_check .\backup\scout_context_db.dump"
 Write-Host "pg_restore --clean --if-exists --dbname customer_ops_restore_check .\backup\customer_ops_db.dump"
 
 Write-Step "Docker/PostgreSQL rehearsal"

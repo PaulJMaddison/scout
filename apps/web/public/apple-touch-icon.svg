@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none">
+  <title>KynticAI — Apple Touch Icon</title>
+  <desc>iOS home-screen icon. Rounded-square Desert Sand background with the Sovereign Rust K mark. v1.1</desc>
+  <defs>
+    <filter id="rust" color-interpolation-filters="sRGB" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" seed="23" result="noise"/>
+      <feColorMatrix type="matrix"
+        values="0.926 0 0 0 0.290
+                0.392 0 0 0 0.180
+                0.027 0 0 0 0.098
+                0 0 0 1 0"
+        in="noise" result="rustTex"/>
+      <feComposite in="rustTex" in2="SourceGraphic" operator="in"/>
+    </filter>
+  </defs>
+
+  <rect width="180" height="180" rx="36" ry="36" fill="#FDF6E3"/>
+
+  <!-- K mark (offset 20,20 to centre in 180x180) -->
+  <g transform="translate(20, 20)">
+    <g filter="url(#rust)">
+      <rect x="14" y="18" width="26" height="104" fill="#C06014"/>
+      <polygon points="40,30 116,18 116,48 40,58" fill="#C06014"/>
+      <polygon points="40,82 116,92 116,122 40,110" fill="#C06014"/>
+    </g>
+    <circle cx="50" cy="70" r="16" fill="#FDF6E3"/>
+    <circle cx="50" cy="70" r="8" fill="#C06014" filter="url(#rust)"/>
+  </g>
+</svg>

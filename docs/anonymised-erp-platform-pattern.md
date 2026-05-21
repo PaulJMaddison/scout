@@ -2,7 +2,7 @@
 
 This document describes an anonymised implementation pattern from a recent ERP platform engagement. It is not a named case study, formal endorsement, or disclosure of confidential customer architecture.
 
-The pattern illustrates the UCL product story: do not replace the customer's brain or systems of record, build the nervous system that carries trusted context between them.
+The pattern illustrates the Scout product story: do not replace the customer's brain or systems of record, build the nervous system that carries trusted context between them.
 
 ## Problem
 
@@ -18,11 +18,11 @@ Replacing the existing systems first would have slowed the platform work and inc
 
 The practical route was to add a semantic layer above the existing estate rather than forcing an immediate replatforming programme.
 
-## Context Layer Approach
+## Scout Approach
 
-The new platform used a universal context layer pattern over existing operational data. The layer interpreted source records into business meaning that the new web platform could consume without every feature learning the legacy data model directly.
+The new platform used a semantic data-plane pattern over existing operational data. The layer interpreted source records into business meaning that the new web platform could consume without every feature learning the legacy data model directly.
 
-This is the same architectural pattern Universal Context Layer productises:
+This is the same architectural pattern KynticAI Scout productises:
 
 - keep systems of record in place
 - add a customer-owned data plane beside them
@@ -40,13 +40,13 @@ Instead of downstream features asking for raw fragments, they could ask for busi
 
 The new web platform consumed the semantic layer as an integration and interpretation boundary. That made it easier to build AI-enabled workflows and product features because the platform received structured business context rather than scattered source records.
 
-The context layer did not need to own every system. It provided a reusable contract over the systems the business already had.
+the data plane did not need to own every system. It provided a reusable contract over the systems the business already had.
 
 ## Why AI Became More Useful
 
 AI-enabled workflows became more useful because they received business meaning, not just raw records. The system could provide context with evidence, freshness, and governance expectations, which made recommendations easier to inspect and safer to use.
 
-The lesson is simple: AI features are much stronger when a semantic context layer prepares the business facts first.
+The lesson is simple: AI features are much stronger when a semantic data plane prepares the business facts first.
 
 ## Governance Lessons
 
@@ -60,9 +60,9 @@ Important governance lessons from the pattern:
 - separate demo data from customer data
 - keep implementation-specific mappings customer-specific
 
-## What UCL Productises
+## What Scout Productises
 
-Universal Context Layer productises the repeatable parts of this pattern:
+KynticAI Scout productises the repeatable parts of this pattern:
 
 - semantic attributes
 - selector definitions

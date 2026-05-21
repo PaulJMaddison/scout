@@ -7,7 +7,7 @@ export function PrivacyPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Privacy"
-        title="Privacy policy for Universal Context Layer enquiries."
+        title="Privacy policy for KynticAI Scout enquiries."
         description="This policy covers the public website and paid-pilot enquiries. It is a practical template for the current project stage and must be reviewed by a solicitor before being used as a final customer-facing legal document."
       />
 
@@ -30,7 +30,7 @@ export function PrivacyPage() {
 
         <Panel eyebrow="Data principle" title="Do not send raw operational data through the public site">
           <p className="text-sm leading-7 text-ink-700">
-            Universal Context Layer is designed around a customer-owned data plane. Paid-pilot discussions may describe source systems, workflows, and desired outcomes, but raw customer operational data, credentials, secrets, production exports, and personal data should not be submitted through the public website or email enquiry flow unless a written agreement and secure transfer route are in place.
+            KynticAI Scout is designed around a customer-owned data plane. Paid-pilot discussions may describe source systems, workflows, and desired outcomes, but raw customer operational data, credentials, secrets, production exports, and personal data should not be submitted through the public website or email enquiry flow unless a written agreement and secure transfer route are in place.
           </p>
         </Panel>
       </section>

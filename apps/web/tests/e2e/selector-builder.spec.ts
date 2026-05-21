@@ -5,7 +5,7 @@ test('tenant admin can create a selector draft', async ({ page }) => {
 
   await page.goto('/login')
   await page.getByLabel('Tenant slug').fill('demo')
-  await page.getByLabel('Email').fill('admin@contextlayer.local')
+  await page.getByLabel('Email').fill('admin@scout.local')
   await page.getByLabel('Password').fill('DemoAdmin123!')
   await page.getByRole('button', { name: 'Enter console' }).click()
 

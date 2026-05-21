@@ -74,7 +74,7 @@ function getAttribution() {
 }
 
 function buildPilotMailto(form: PilotFormState) {
-  const subject = encodeURIComponent(`Paid pilot scope request - ${form.company || 'Universal Context Layer'}`)
+  const subject = encodeURIComponent(`Paid pilot scope request - ${form.company || 'KynticAI Scout'}`)
   const body = encodeURIComponent(
     [
       'Paid pilot scope request',
@@ -182,7 +182,7 @@ export function PilotPage() {
       <PageHeader
         eyebrow="Paid pilot"
         title="Turn existing business data into trusted context for AI workflows in 2-6 weeks."
-        description="Universal Context Layer is for teams that already have useful data in CRM, ERP, SQL databases, warehouses, support, billing, product, spreadsheets, or internal systems, but need a governed semantic layer that apps, workflows, reports, copilots, and agents can safely consume."
+        description="KynticAI Scout is for teams that already have useful data in CRM, ERP, SQL databases, warehouses, support, billing, product, spreadsheets, or internal systems, but need a governed semantic layer that apps, workflows, reports, copilots, and agents can safely consume."
         actions={
           <a href="#pilot-request">
             <Button>
@@ -265,7 +265,7 @@ export function PilotPage() {
 
       <Panel eyebrow="Why now" title="Trusted context for energy pricing, procurement, and operational AI workflows">
         <p className="max-w-5xl text-sm leading-7 text-ink-700">
-          The sharpest first wedge is energy buying and pricing: contract data, usage signals, supplier terms, ERP records, pricing spreadsheets, and support context already exist, but they are often too fragmented for reliable workflow automation. UCL gives those systems a shared semantic layer so pricing reviews, procurement decisions, renewals, and AI-assisted operations can work from governed facts rather than scattered extracts.
+          The sharpest first wedge is energy buying and pricing: contract data, usage signals, supplier terms, ERP records, pricing spreadsheets, and support context already exist, but they are often too fragmented for reliable workflow automation. Scout gives those systems a shared semantic layer so pricing reviews, procurement decisions, renewals, and AI-assisted operations can work from governed facts rather than scattered extracts.
         </p>
       </Panel>
 
@@ -366,7 +366,7 @@ export function PilotPage() {
               {submitState === 'submitted'
                 ? 'Thanks. The pilot request has been captured, and the next step is a scoping reply.'
                 : pilotLeadEndpoint
-                  ? 'Submitting sends this enquiry to the UCL pilot CRM. Do not include secrets, credentials, or raw operational data in the request.'
+                  ? 'Submitting sends this enquiry to the Scout pilot CRM. Do not include secrets, credentials, or raw operational data in the request.'
                   : <>Submitting opens a prefilled email to <a className="font-semibold text-copper-800 underline" href={`mailto:${pilotContactEmail}`}>{pilotContactEmail}</a>. Do not include secrets, credentials, or raw operational data in the request.</>}
               {submitState === 'failed' ? ' The CRM endpoint did not accept the request, so the email fallback will open.' : null}
             </p>

@@ -71,9 +71,9 @@ if (Test-Path $demoRuntimeDirectory) {
 }
 
 Stop-RepoProcessByPattern -Name 'node.exe' -Pattern (Join-Path $repoRoot 'apps\web')
-Stop-RepoProcessByPattern -Name 'dotnet.exe' -Pattern (Join-Path $repoRoot 'src\ContextLayer.Api')
-Stop-RepoProcessByPattern -Name 'dotnet.exe' -Pattern 'ContextLayer.Api'
-Stop-RepoProcessByPattern -Name 'ContextLayer.Api.exe' -Pattern 'ContextLayer.Api'
+Stop-RepoProcessByPattern -Name 'dotnet.exe' -Pattern (Join-Path $repoRoot 'src\KynticAI.Scout.Api')
+Stop-RepoProcessByPattern -Name 'dotnet.exe' -Pattern 'KynticAI.Scout.Api'
+Stop-RepoProcessByPattern -Name 'KynticAI.Scout.Api.exe' -Pattern 'KynticAI.Scout.Api'
 Start-Sleep -Milliseconds 500
 
 if (Test-DockerAvailable) {

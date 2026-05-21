@@ -78,7 +78,7 @@ export function UsageDashboardPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Billing and usage"
-        title="Meter the context layer before a payment provider ever touches it."
+        title="Meter the data plane before a payment provider ever touches it."
         description="This dashboard shows the future control-plane billing foundation: plan limits, current usage, hard enforcement points, retention policy, and the clean seam where a private billing provider can be attached later."
       />
 

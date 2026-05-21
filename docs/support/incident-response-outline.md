@@ -28,7 +28,7 @@ Potential incidents include unauthorised access, secret exposure, unexpected raw
 Collect only what is needed:
 
 - timestamped event summary
-- relevant UCL audit events
+- relevant Scout audit events
 - health check output
 - deployment version
 - redacted configuration

@@ -1,6 +1,6 @@
 # API Documentation
 
-The Universal Context Layer exposes a REST API and a GraphQL endpoint. When OpenAPI is enabled, interactive documentation is available through both Swagger UI and Scalar.
+The KynticAI Scout exposes a REST API and a GraphQL endpoint. When OpenAPI is enabled, interactive documentation is available through both Swagger UI and Scalar.
 
 ## Viewing API Docs Locally
 
@@ -12,7 +12,7 @@ sh ./scripts/setup-demo.sh
 sh ./scripts/start-demo.sh
 
 # Or run the API directly
-dotnet run --project src/ContextLayer.Api
+dotnet run --project src/KynticAI.Scout.Api
 ```
 
 Then open:
@@ -61,7 +61,7 @@ Log in with user credentials to receive a short-lived JWT:
 ```bash
 TOKEN=$(curl -s -X POST http://127.0.0.1:5198/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"tenantSlug":"demo","email":"admin@contextlayer.local","password":"DemoAdmin123!"}' \
+  -d '{"tenantSlug":"demo","email":"admin@scout.local","password":"DemoAdmin123!"}' \
   | jq -r '.accessToken')
 
 curl http://127.0.0.1:5198/api/v1/context/users/123?tenantSlug=demo \

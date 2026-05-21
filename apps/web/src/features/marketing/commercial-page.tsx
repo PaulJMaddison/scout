@@ -57,7 +57,7 @@ export function CommercialPage() {
 
       <Panel eyebrow="Not self-serve SaaS yet" title="Confidence without overclaiming">
         <p className="text-sm leading-7 text-ink-700">
-          Universal Context Layer is sellable today as open core plus implementation-led paid pilot. Fully managed account signup, live billing, licence portal, support portal, automated connector provisioning, and hands-off SaaS operations are future/private cloud-control-plane work.
+          KynticAI Scout is sellable today as open core plus implementation-led paid pilot. Fully managed account signup, live billing, licence portal, support portal, automated connector provisioning, and hands-off SaaS operations are future/private cloud-control-plane work.
         </p>
       </Panel>
 

@@ -6,10 +6,41 @@ import { BeforeAfter, Timeline } from '@/features/marketing/marketing-components
 export function LandingPage() {
   return (
     <div className="grid gap-8">
+      <section className="grid gap-6 rounded-[28px] border border-ink-900/8 bg-ivory-50/82 p-6 shadow-[0_18px_45px_rgba(24,18,15,0.08)] sm:p-8 xl:grid-cols-[0.9fr_1.1fr] xl:items-center">
+        <div className="min-w-0">
+          <img
+            src="/brand/kynticai-logo-primary-horizontal.svg"
+            alt="KynticAI"
+            className="h-14 w-auto max-w-full"
+          />
+          <div className="mt-8 h-0.5 w-24 bg-copper-500" />
+          <p className="mt-6 font-display text-[clamp(2rem,3.3vw,3.25rem)] italic leading-tight text-ink-700">
+            Most systems were designed to manage work, not empower.
+          </p>
+          <p className="mt-4 max-w-xl text-sm leading-7 text-ink-600">
+            Scout is the governed customer data plane from KynticAI: semantic context, provenance, selectors, connectors, and SDKs for enterprise AI workflows.
+          </p>
+        </div>
+        <div className="grid gap-4 rounded-[24px] border border-copper-500/18 bg-ivory-25 p-5 md:grid-cols-[14rem_1fr] md:items-center">
+          <img
+            src="/brand/sovereign-rust-mark.jpg"
+            alt="KynticAI Sovereign Rust K mark"
+            className="aspect-square w-full max-w-[14rem] rounded-[18px] object-cover"
+          />
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-copper-700">Sovereign Rust identity</p>
+            <h2 className="mt-3 font-display text-4xl leading-tight text-ink-950">Aged book discipline, industrial data infrastructure.</h2>
+            <p className="mt-3 text-sm leading-7 text-ink-700">
+              The KynticAI mark now anchors the demo in the same visual language as the company site: parchment surfaces, amethyst text, copper action states, and sober enterprise proof.
+            </p>
+          </div>
+        </div>
+      </section>
+
       <PageHeader
-        eyebrow="Universal Context Layer"
-        title="Trusted context infrastructure for AI workflows, apps, reports, and agents."
-        description="Businesses do not need to rip out legacy systems or use our AI. UCL sits beside CRM, billing, support, product, warehouse, spreadsheets, and older SQL systems, then maps raw data into trusted facts that apps, workflows, reports, copilots, and agents can use."
+        eyebrow="KynticAI Scout"
+        title="The governed customer data plane for enterprise AI."
+        description="Your SAP. Your Postgres. Your CRM. Made AI-ready without replatforming. Scout sits beside existing systems, maps raw data into trusted semantic facts, and serves governed context to apps, workflows, reports, copilots, and agents."
         actions={
           <>
             <Link to="/pilot">
@@ -32,7 +63,7 @@ export function LandingPage() {
       />
 
       <section className="grid gap-5 xl:grid-cols-[1.12fr_0.88fr]">
-        <Card className="overflow-hidden border-none bg-[radial-gradient(circle_at_15%_10%,rgba(220,180,145,0.22),transparent_28%),radial-gradient(circle_at_90%_0%,rgba(130,152,126,0.18),transparent_28%),linear-gradient(135deg,#16110d_0%,#231912_48%,#39291d_100%)] px-7 py-8 text-ivory-50 shadow-[0_28px_80px_rgba(24,18,15,0.28)] sm:px-9">
+        <Card className="overflow-hidden border-none bg-[linear-gradient(135deg,#1A1818_0%,#2f2433_52%,#4A2E19_100%)] px-7 py-8 text-ivory-50 shadow-[0_28px_80px_rgba(24,18,15,0.28)] sm:px-9">
           <div className="grid gap-7">
             <div className="flex flex-wrap gap-2">
               <Badge tone="accent">No rip-and-replace</Badge>
@@ -45,7 +76,7 @@ export function LandingPage() {
                 Existing systems stay. Meaning becomes reusable.
               </h2>
               <p className="mt-5 max-w-3xl text-base leading-8 text-ivory-200">
-                Universal Context Layer gives CEOs, CTOs, product leaders, and integration teams a practical route from scattered operational data to structured context with confidence, provenance, freshness, and masking.
+                KynticAI Scout gives CEOs, CTOs, product leaders, and integration teams a practical route from scattered operational data to structured context with confidence, provenance, freshness, and masking. Built by an Enterprise Architect with 26 years across 100+ commercial projects.
               </p>
             </div>
             <div className="grid gap-3 lg:grid-cols-3">
@@ -89,12 +120,12 @@ export function LandingPage() {
         <div className="grid gap-4 lg:grid-cols-[1fr_0.9fr]">
           <Card className="bg-ivory-25 shadow-none">
             <p className="text-sm leading-7 text-ink-700">
-              A recent ERP platform engagement involved legacy databases, CRM-style records, operational systems, and fragmented business data. The customer did not need to rip out those systems first. A semantic context layer over existing operational data let a new web platform and AI-enabled workflows consume business meaning rather than raw records.
+              A recent ERP platform engagement involved legacy databases, CRM-style records, operational systems, and fragmented business data. The customer did not need to rip out those systems first. A semantic data plane over existing operational data let a new web platform and AI-enabled workflows consume business meaning rather than raw records.
             </p>
           </Card>
           <Card className="bg-ivory-25 shadow-none">
             <p className="text-sm leading-7 text-ink-700">
-              This is an anonymised implementation pattern, not a named case study. It supports the paid pilot motion: prove one valuable workflow, keep customer operational data controlled, and expand the context layer once the value is clear.
+              This is an anonymised implementation pattern, not a named case study. It supports the paid pilot motion: prove one valuable workflow, keep customer operational data controlled, and expand the data plane once the value is clear.
             </p>
           </Card>
         </div>
@@ -143,7 +174,7 @@ export function LandingPage() {
               {
                 label: 'Use',
                 title: 'Power better workflows and AI recommendations',
-                body: 'Sales, support, onboarding, product, marketing, and internal copilots can work from the same governed context layer.',
+                body: 'Sales, support, onboarding, product, marketing, and internal copilots can work from the same governed data plane.',
               },
             ]}
           />
@@ -179,7 +210,7 @@ export function LandingPage() {
             ['Self-hosted backend', 'Deploy GraphQL, REST, SDKs, API clients, and webhooks around your systems.'],
             ['Future control plane', 'Use private cloud/control-plane services later for account, licence, and operational workflows.'],
             ['Private cloud', 'Use single-tenant isolation, regional control, and enterprise governance.'],
-            ['Integration layer', 'Embed UCL behind a product or platform as the semantic contract.'],
+            ['Integration layer', 'Embed Scout behind a product or platform as the semantic contract.'],
           ].map(([title, body]) => (
             <Card key={title} className="bg-ivory-25 shadow-none">
               <GitBranch className="size-5 text-copper-700" />

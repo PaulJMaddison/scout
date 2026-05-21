@@ -12,7 +12,7 @@ export function StoryAiWorkflowPage() {
       <PageHeader
         eyebrow="Step 4 of 5"
         title="Show one example consumer using governed context."
-        description="In this sales support example, a model receives grounded business context, produces a recommendation, and the product explains why that recommendation was made. Other consumers can use the same context layer."
+        description="In this sales support example, a model receives grounded business context, produces a recommendation, and the product explains why that recommendation was made. Other consumers can use the same data plane."
         actions={
           <Link to={executiveStorySteps[4].to}>
             <Button>
@@ -32,7 +32,7 @@ export function StoryAiWorkflowPage() {
                 <div>
                   <p className="font-display text-3xl">Grounded context in, explainable action out.</p>
                   <p className="mt-3 text-sm leading-7 text-ivory-200">
-                    This recommendation engine works from a structured context package with {salesPackageQuery.data?.facts.length ?? 0} cited facts, confidence metadata, and freshness rules. UCL creates the context; the sales assistant is just one consumer.
+                    This recommendation engine works from a structured context package with {salesPackageQuery.data?.facts.length ?? 0} cited facts, confidence metadata, and freshness rules. Scout creates the context; the sales assistant is just one consumer.
                   </p>
                 </div>
               </div>

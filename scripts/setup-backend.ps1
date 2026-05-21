@@ -68,7 +68,7 @@ function Test-DockerAvailable {
 function Get-BackendEnvironment {
     param([bool]$SeedDemo)
 
-    $contextDbPath = [System.IO.Path]::GetFullPath((Join-Path $backendDataDirectory 'context_layer.db'))
+    $contextDbPath = [System.IO.Path]::GetFullPath((Join-Path $backendDataDirectory 'scout_context.db'))
     $customerOpsDbPath = [System.IO.Path]::GetFullPath((Join-Path $backendDataDirectory 'customer_ops.db'))
 
     return @{
@@ -77,7 +77,7 @@ function Get-BackendEnvironment {
         'Bootstrap__ApplyMigrationsOnStartup' = 'true'
         'Bootstrap__SeedDemoData' = $SeedDemo.ToString().ToLowerInvariant()
         'Database__Provider' = 'Sqlite'
-        'ConnectionStrings__ContextLayer' = "Data Source=$contextDbPath"
+        'ConnectionStrings__Scout' = "Data Source=$contextDbPath"
         'ConnectionStrings__CustomerOps' = "Data Source=$customerOpsDbPath"
         'Telemetry__OtlpEndpoint' = ''
     }
@@ -89,7 +89,7 @@ if (-not (Test-Path $backendDataDirectory)) {
 }
 
 Invoke-RepoCommand -DisplayCommand 'dotnet tool restore' -Action { & $dotnetCommand tool restore }
-Invoke-RepoCommand -DisplayCommand 'dotnet restore ContextLayer.slnx' -Action { & $dotnetCommand restore ContextLayer.slnx }
+Invoke-RepoCommand -DisplayCommand 'dotnet restore KynticAI.Scout.slnx' -Action { & $dotnetCommand restore KynticAI.Scout.slnx }
 
 if ($UseDocker) {
     if (-not (Test-DockerAvailable)) {
@@ -102,38 +102,38 @@ if ($UseDocker) {
 
     Invoke-RepoCommand -DisplayCommand 'dotnet tool run dotnet-ef database update --context CustomerOpsDbContext' -Action {
         $env:Database__Provider = 'Postgres'
-        $env:ConnectionStrings__ContextLayer = 'Host=localhost;Port=5432;Database=context_layer_db;Username=postgres;Password=postgres'
+        $env:ConnectionStrings__Scout = 'Host=localhost;Port=5432;Database=scout_context_db;Username=postgres;Password=postgres'
         $env:ConnectionStrings__CustomerOps = 'Host=localhost;Port=5432;Database=customer_ops_db;Username=postgres;Password=postgres'
-        & $dotnetCommand tool run dotnet-ef database update --project src/ContextLayer.Infrastructure --startup-project src/ContextLayer.Api --context CustomerOpsDbContext
+        & $dotnetCommand tool run dotnet-ef database update --project src/KynticAI.Scout.Infrastructure --startup-project src/KynticAI.Scout.Api --context CustomerOpsDbContext
     }
-    Invoke-RepoCommand -DisplayCommand 'dotnet tool run dotnet-ef database update --context ContextLayerDbContext' -Action {
+    Invoke-RepoCommand -DisplayCommand 'dotnet tool run dotnet-ef database update --context ScoutDbContext' -Action {
         $env:Database__Provider = 'Postgres'
-        $env:ConnectionStrings__ContextLayer = 'Host=localhost;Port=5432;Database=context_layer_db;Username=postgres;Password=postgres'
+        $env:ConnectionStrings__Scout = 'Host=localhost;Port=5432;Database=scout_context_db;Username=postgres;Password=postgres'
         $env:ConnectionStrings__CustomerOps = 'Host=localhost;Port=5432;Database=customer_ops_db;Username=postgres;Password=postgres'
-        & $dotnetCommand tool run dotnet-ef database update --project src/ContextLayer.Infrastructure --startup-project src/ContextLayer.Api --context ContextLayerDbContext
+        & $dotnetCommand tool run dotnet-ef database update --project src/KynticAI.Scout.Infrastructure --startup-project src/KynticAI.Scout.Api --context ScoutDbContext
     }
 
     if ($SeedDemoData) {
-        Invoke-RepoCommand -DisplayCommand 'dotnet run --project src/ContextLayer.Api -- bootstrap' -Action {
+        Invoke-RepoCommand -DisplayCommand 'dotnet run --project src/KynticAI.Scout.Api -- bootstrap' -Action {
             $env:Platform__Mode = 'BackendOnly'
             $env:Bootstrap__ApplyMigrationsOnStartup = 'true'
             $env:Bootstrap__SeedDemoData = 'true'
             $env:Database__Provider = 'Postgres'
-            $env:ConnectionStrings__ContextLayer = 'Host=localhost;Port=5432;Database=context_layer_db;Username=postgres;Password=postgres'
+            $env:ConnectionStrings__Scout = 'Host=localhost;Port=5432;Database=scout_context_db;Username=postgres;Password=postgres'
             $env:ConnectionStrings__CustomerOps = 'Host=localhost;Port=5432;Database=customer_ops_db;Username=postgres;Password=postgres'
-            & $dotnetCommand run --project src/ContextLayer.Api -- bootstrap
+            & $dotnetCommand run --project src/KynticAI.Scout.Api -- bootstrap
         }
     }
 }
 else {
     $environmentVariables = Get-BackendEnvironment -SeedDemo:$SeedDemoData
-    Invoke-WithEnvironment -Variables $environmentVariables -DisplayCommand 'dotnet run --project src/ContextLayer.Api -- bootstrap' -Action {
-        & $dotnetCommand run --project src/ContextLayer.Api -- bootstrap
+    Invoke-WithEnvironment -Variables $environmentVariables -DisplayCommand 'dotnet run --project src/KynticAI.Scout.Api -- bootstrap' -Action {
+        & $dotnetCommand run --project src/KynticAI.Scout.Api -- bootstrap
     }
 }
 
 Write-Host ''
-Write-Host 'Context Layer backend bootstrap complete.' -ForegroundColor Green
+Write-Host 'Scout backend bootstrap complete.' -ForegroundColor Green
 Write-Host ''
 Write-Host 'Start locally:' -ForegroundColor Yellow
 Write-Host '  .\scripts\start-backend.ps1'

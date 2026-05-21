@@ -3,7 +3,7 @@ set -euo pipefail
 
 BASE_URL="${1:-http://localhost:5198}"
 TENANT_SLUG="${2:-demo}"
-ADMIN_EMAIL="${3:-admin@contextlayer.local}"
+ADMIN_EMAIL="${3:-admin@scout.local}"
 ADMIN_PASSWORD="${4:-DemoAdmin123!}"
 
 invoke_json() {
@@ -45,7 +45,7 @@ if ! curl -sfS "$BASE_URL/api/v1/health" > /dev/null 2>&1; then
   echo "Start it with:"
   echo "  ./scripts/start-demo.sh"
   echo "or:"
-  echo "  dotnet run --project ./src/ContextLayer.Api/ContextLayer.Api.csproj --urls $BASE_URL"
+  echo "  dotnet run --project ./src/KynticAI.Scout.Api/KynticAI.Scout.Api.csproj --urls $BASE_URL"
   exit 2
 fi
 
@@ -82,10 +82,10 @@ SIGNATURE=$(compute_webhook_signature "$SECRET_VALUE" "$TIMESTAMP" "$EVENT_ID" "
 
 SIGNED_HEADERS="X-API-Client-Id: $CLIENT_ID
 X-API-Key: $API_KEY
-X-UCL-Webhook-Secret-Id: $SECRET_ID
-X-UCL-Webhook-Secret: $SECRET_VALUE
-X-UCL-Webhook-Timestamp: $TIMESTAMP
-X-UCL-Webhook-Signature: $SIGNATURE"
+X-Scout-Webhook-Secret-Id: $SECRET_ID
+X-Scout-Webhook-Secret: $SECRET_VALUE
+X-Scout-Webhook-Timestamp: $TIMESTAMP
+X-Scout-Webhook-Signature: $SIGNATURE"
 
 ACCEPTED=$(invoke_status POST "$BASE_URL/api/v1/events/source-system" "$EVENT_BODY" "$SIGNED_HEADERS")
 REPLAY=$(invoke_status POST "$BASE_URL/api/v1/events/source-system" "$EVENT_BODY" "$SIGNED_HEADERS")
@@ -95,10 +95,10 @@ BAD_EVENT_BODY="{\"eventId\":\"$BAD_EVENT_ID\",\"workspaceSlug\":\"primary\",\"s
 
 BAD_HEADERS="X-API-Client-Id: $CLIENT_ID
 X-API-Key: $API_KEY
-X-UCL-Webhook-Secret-Id: $SECRET_ID
-X-UCL-Webhook-Secret: $SECRET_VALUE
-X-UCL-Webhook-Timestamp: $TIMESTAMP
-X-UCL-Webhook-Signature: sha256=bad"
+X-Scout-Webhook-Secret-Id: $SECRET_ID
+X-Scout-Webhook-Secret: $SECRET_VALUE
+X-Scout-Webhook-Timestamp: $TIMESTAMP
+X-Scout-Webhook-Signature: sha256=bad"
 
 BAD=$(invoke_status POST "$BASE_URL/api/v1/events/source-system" "$BAD_EVENT_BODY" "$BAD_HEADERS")
 

@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
-    [string]$EnterpriseRepo = "C:\universalcontextlayer-enterprise",
-    [string]$CloudRepo = "C:\universalcontextlayer-cloud",
+    [string]$EnterpriseRepo = "C:\scout-enterprise",
+    [string]$CloudRepo = "C:\scout-cloud",
     [switch]$SkipEnterpriseConnectorSmoke
 )
 

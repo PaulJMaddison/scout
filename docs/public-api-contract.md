@@ -1,8 +1,8 @@
 # Public API Contract
 
-This page explains the public Universal Context Layer API contract for context consumers, selector tooling, provenance review, machine-to-machine access, and SDK usage.
+This page explains the public KynticAI Scout API contract for context consumers, selector tooling, provenance review, machine-to-machine access, and SDK usage.
 
-UCL does not need to call an AI model to be useful. The core contract is that a customer-owned data plane turns approved operational signals into governed semantic context, then exposes that context to customer-owned apps, reports, workflows, agents, and AI tools through GraphQL, REST, SDKs, and context packages.
+Scout does not need to call an AI model to be useful. The core contract is that a customer-owned data plane turns approved operational signals into governed semantic context, then exposes that context to customer-owned apps, reports, workflows, agents, and AI tools through GraphQL, REST, SDKs, and context packages.
 
 ## Boundary
 
@@ -141,7 +141,7 @@ curl -X POST "http://127.0.0.1:5198/api/v1/selectors/validate?tenantSlug=demo" \
   }'
 ```
 
-Retrieve an AI-safe context package without UCL calling an AI model:
+Retrieve an AI-safe context package without Scout calling an AI model:
 
 ```bash
 curl -X POST "http://127.0.0.1:5198/api/v1/context/users/123/ai-safe-context-package?tenantSlug=demo" \
@@ -216,7 +216,7 @@ Errors use the v1 envelope:
 
 GraphQL samples live in [samples/graphql/demo-queries.graphql](../samples/graphql/demo-queries.graphql). They cover user context, account context, context snapshots, semantic catalogues, selector preview, selector validation, recomputation, audit events, AI-safe context packages, prompt templates, and the mock agent-run path.
 
-Use `salesContextPackage` when the consumer only needs grounded context. Use `createAgentRun` only for the example AI workflow where UCL calls the configured mock or provider-backed structured LLM client.
+Use `salesContextPackage` when the consumer only needs grounded context. Use `createAgentRun` only for the example AI workflow where Scout calls the configured mock or provider-backed structured LLM client.
 
 Direct semantic fact lookup is available when the consumer needs a narrow attribute rather than the full context payload:
 
@@ -244,39 +244,39 @@ query DemoSemanticFactLookup {
 ## TypeScript SDK
 
 ```ts
-import { createContextLayerClient } from '@universalcontextlayer/sdk'
+import { createScoutClient } from '@kynticai/scout-sdk'
 
-const bootstrap = createContextLayerClient({
+const bootstrap = createScoutClient({
   baseUrl: 'http://127.0.0.1:5198',
 })
 
 const token = await bootstrap.auth.getMachineToken({
   grantType: 'client_credentials',
-  clientId: process.env.UCL_CLIENT_ID!,
-  clientSecret: process.env.UCL_CLIENT_SECRET!,
+  clientId: process.env.SCOUT_CLIENT_ID!,
+  clientSecret: process.env.SCOUT_CLIENT_SECRET!,
   scope: 'context:read context:write audit:read',
 })
 
-const ucl = createContextLayerClient({
+const scout = createScoutClient({
   baseUrl: 'http://127.0.0.1:5198',
   accessToken: token.accessToken,
 })
 
-const context = await ucl.users.getContext('demo', '123')
-const account = await ucl.accounts.getContext('demo', 'acct-123')
-const facts = await ucl.facts.getForUser('demo', '123', {
+const context = await scout.users.getContext('demo', '123')
+const account = await scout.accounts.getContext('demo', 'acct-123')
+const facts = await scout.facts.getForUser('demo', '123', {
   attributeKey: 'health',
   page: 1,
   pageSize: 25,
 })
-const accountFacts = await ucl.facts.getForAccount('demo', 'acct-123')
-const snapshot = await ucl.snapshots.getById('demo', context!.snapshotId)
-const packageResult = await ucl.packages.getAiContextForUser(
+const accountFacts = await scout.facts.getForAccount('demo', 'acct-123')
+const snapshot = await scout.snapshots.getById('demo', context!.snapshotId)
+const packageResult = await scout.packages.getAiContextForUser(
   'demo',
   '123',
   'Prepare a renewal-risk brief for the account team.',
 )
-const accepted = await ucl.events.ingestSourceSystemEvent('demo', {
+const accepted = await scout.events.ingestSourceSystemEvent('demo', {
   eventId: 'evt-demo-001',
   sourceSystem: 'product',
   eventType: 'source.product_usage.rollup_ready',
@@ -288,9 +288,9 @@ const accepted = await ucl.events.ingestSourceSystemEvent('demo', {
 ## C# SDK
 
 ```csharp
-using ContextLayer.Sdk;
+using KynticAI.Scout.Sdk;
 
-using var bootstrap = new ContextLayerClient(new ContextLayerClientOptions
+using var bootstrap = new ScoutClient(new ScoutClientOptions
 {
     BaseUrl = "http://127.0.0.1:5198"
 });
@@ -298,29 +298,29 @@ using var bootstrap = new ContextLayerClient(new ContextLayerClientOptions
 var token = await bootstrap.Auth.GetMachineTokenAsync(
     new MachineTokenRequest(
         "client_credentials",
-        Environment.GetEnvironmentVariable("UCL_CLIENT_ID")!,
-        Environment.GetEnvironmentVariable("UCL_CLIENT_SECRET")!,
+        Environment.GetEnvironmentVariable("SCOUT_CLIENT_ID")!,
+        Environment.GetEnvironmentVariable("SCOUT_CLIENT_SECRET")!,
         "context:read context:write audit:read"));
 
-using var ucl = new ContextLayerClient(new ContextLayerClientOptions
+using var scout = new ScoutClient(new ScoutClientOptions
 {
     BaseUrl = "http://127.0.0.1:5198",
     AccessToken = token.AccessToken
 });
 
-var context = await ucl.Users.GetContextAsync("demo", "123");
-var account = await ucl.Accounts.GetContextAsync("demo", "acct-123");
-var facts = await ucl.Facts.GetForUserAsync(
+var context = await scout.Users.GetContextAsync("demo", "123");
+var account = await scout.Accounts.GetContextAsync("demo", "acct-123");
+var facts = await scout.Facts.GetForUserAsync(
     "demo",
     "123",
     new ContextFactLookupOptions("health", 1, 25));
-var accountFacts = await ucl.Facts.GetForAccountAsync("demo", "acct-123");
-var snapshot = await ucl.Snapshots.GetByIdAsync("demo", context!.SnapshotId);
-var packageResult = await ucl.Packages.GetAiContextForUserAsync(
+var accountFacts = await scout.Facts.GetForAccountAsync("demo", "acct-123");
+var snapshot = await scout.Snapshots.GetByIdAsync("demo", context!.SnapshotId);
+var packageResult = await scout.Packages.GetAiContextForUserAsync(
     "demo",
     "123",
     "Prepare a renewal-risk brief for the account team.");
-var accepted = await ucl.Events.IngestSourceSystemEventAsync(
+var accepted = await scout.Events.IngestSourceSystemEventAsync(
     "demo",
     new SourceSystemEventRequest(
         EventId: "evt-demo-001",

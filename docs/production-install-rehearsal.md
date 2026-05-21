@@ -1,6 +1,6 @@
 # Production Install Rehearsal
 
-This rehearsal checks whether a Universal Context Layer customer data plane is configured like a first paid pilot environment. It is not a production deployment and does not prove customer go-live readiness by itself.
+This rehearsal checks whether a KynticAI Scout customer data plane is configured like a first paid pilot environment. It is not a production deployment and does not prove customer go-live readiness by itself.
 
 The rehearsal protects the open-core boundary: it checks a customer-owned data plane that can feed the customer's own tools, not a self-serve hosted SaaS or paid enterprise connector suite.
 
@@ -27,9 +27,9 @@ Add `-RunDocker` on PowerShell or `--run-docker` on Bash only when Docker is ava
 - PostgreSQL configuration: `Database__Provider=Postgres`
 - strong JWT signing key: `Auth__SigningKey` at least 48 characters and not a development placeholder
 - persistent ASP.NET Data Protection keys: `DataProtection__RequirePersistentKeys=true` and a non-empty key ring path
-- database migration path: `dotnet run --project src/ContextLayer.Api/ContextLayer.Api.csproj -- migrate`
+- database migration path: `dotnet run --project src/KynticAI.Scout.Api/KynticAI.Scout.Api.csproj -- migrate`
 - seed data disabled unless explicitly requested: `Bootstrap__SeedDemoData=false`
-- backup command for both context-layer and customer-ops databases
+- backup command for both scout and customer-ops databases
 - restore command for disposable restore validation
 - health check endpoints: `/health/live`, `/health/ready`, `/health`, `/api/v1/health`
 - GraphQL endpoint: `/graphql`
@@ -53,16 +53,16 @@ $env:PGPASSWORD="<from secret store>"
 Backup:
 
 ```powershell
-pg_dump --format=custom --file .\backup\context_layer_db.dump context_layer_db
+pg_dump --format=custom --file .\backup\scout_context_db.dump scout_context_db
 pg_dump --format=custom --file .\backup\customer_ops_db.dump customer_ops_db
 ```
 
 Restore into disposable databases:
 
 ```powershell
-createdb context_layer_restore_check
+createdb scout_context_restore_check
 createdb customer_ops_restore_check
-pg_restore --clean --if-exists --dbname context_layer_restore_check .\backup\context_layer_db.dump
+pg_restore --clean --if-exists --dbname scout_context_restore_check .\backup\scout_context_db.dump
 pg_restore --clean --if-exists --dbname customer_ops_restore_check .\backup\customer_ops_db.dump
 ```
 

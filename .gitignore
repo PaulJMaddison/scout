@@ -16,7 +16,6 @@ dotnet10-layout/
 *.suo
 node_modules/
 dist/
-dist-static-demo/
 playwright-report/
 test-results/
 coverage/
@@ -29,7 +28,7 @@ enterprise-drop/
 private-packages/
 aidocs/
 /aidocs/
-UCL-local-aidocs/
+Kyntic-local-aidocs/
 *-aidocs/
 *.lic
 *.licence.json

@@ -1,10 +1,10 @@
-# Contributing to Universal Context Layer
+# Contributing to KynticAI Scout
 
-Thanks for your interest in improving Universal Context Layer. This guide covers everything you need to get started.
+Thanks for your interest in improving KynticAI Scout. This guide covers everything you need to get started.
 
 ## Open Core Boundary
 
-This repository is the public open-source core of Universal Context Layer. Contributions here should strengthen the core platform, developer experience, documentation, demo flows, SDKs, and public extension points.
+This repository is the public open-source core of KynticAI Scout. Contributions here should strengthen the core platform, developer experience, documentation, demo flows, SDKs, and public extension points.
 
 Please do not add paid enterprise implementation code to this repository. In particular, the public repo should not contain:
 
@@ -31,8 +31,8 @@ The setup scripts download repo-local runtimes automatically, so you do **not** 
 ### Clone and Bootstrap
 
 ```bash
-git clone https://github.com/PaulJMaddison/universalcontextlayer.git
-cd universalcontextlayer
+git clone https://github.com/PaulJMaddison/scout.git
+cd scout
 
 # Linux / macOS
 sh ./scripts/setup-demo.sh
@@ -59,8 +59,8 @@ This downloads .NET 10 and Node.js into the repo, restores packages, seeds SQLit
 
 | Tenant | Email | Password |
 |---|---|---|
-| `demo` | `admin@contextlayer.local` | `DemoAdmin123!` |
-| `demo` | `rep@contextlayer.local` | `DemoSales123!` |
+| `demo` | `admin@scout.local` | `DemoAdmin123!` |
+| `demo` | `rep@scout.local` | `DemoSales123!` |
 
 ## Development Workflow
 
@@ -73,8 +73,8 @@ This downloads .NET 10 and Node.js into the repo, restores packages, seeds SQLit
 
 ```bash
 # Backend build and tests
-dotnet build ContextLayer.slnx
-dotnet test ContextLayer.slnx
+dotnet build KynticAI.Scout.slnx
+dotnet test KynticAI.Scout.slnx
 
 # Frontend (from apps/web)
 cd apps/web
@@ -82,8 +82,8 @@ npm run lint
 npm test
 npm run build
 
-# TypeScript SDK (from packages/typescript/contextlayer-sdk)
-cd packages/typescript/contextlayer-sdk
+# TypeScript SDK (from packages/typescript/scout-sdk)
+cd packages/typescript/scout-sdk
 npm test
 ```
 
@@ -107,7 +107,7 @@ If you touch setup, seed, or demo flows, verify the happy path end to end by run
 
 ### TypeScript SDK
 
-- The SDK is in `packages/typescript/contextlayer-sdk/`.
+- The SDK is in `packages/typescript/scout-sdk/`.
 - All public types live in `src/types.ts`; all public API methods in `src/client.ts`.
 - Add JSDoc comments to any new public API surface.
 - Run `npm test` to execute vitest.

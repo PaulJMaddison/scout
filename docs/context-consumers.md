@@ -1,6 +1,6 @@
 # Context Consumers
 
-Universal Context Layer creates governed semantic context that other systems consume. It does not require customers to use UCL's AI, replace their systems of record, or move raw operational data into a hosted control plane by default.
+KynticAI Scout creates governed semantic context that other systems consume. It does not require customers to use Scout's AI, replace their systems of record, or move raw operational data into a hosted control plane by default.
 
 Common consumers include:
 

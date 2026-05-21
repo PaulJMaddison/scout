@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$ExpectedBranch = "pjm/v2-next-public-core",
+    [string]$ExpectedBranch = "main",
     [ValidateSet("MainAfterPromotion", "TagAfterPromotion", "FeaturePreviewOnly")]
     [string]$HostingPlan = "MainAfterPromotion"
 )
@@ -43,7 +43,7 @@ if (-not [string]::IsNullOrWhiteSpace($upstream)) {
     }
 }
 
-Write-Host "Universal Context Layer public release alignment"
+Write-Host "KynticAI Scout public release alignment"
 Write-Value "Repository" $repoRoot
 Write-Value "Current branch" $branch
 Write-Value "Expected readiness branch" $ExpectedBranch

@@ -4,7 +4,7 @@ This is a non-lawyer security/privacy appendix for legal review. It is not legal
 
 ## Product Boundary
 
-Universal Context Layer does not need to own the customer's AI stack. It provides the governed context layer between existing systems and customer-owned AI tools, workflows, apps, reports, and agents.
+KynticAI Scout does not need to own the customer's AI stack. It provides the governed data plane between existing systems and customer-owned AI tools, workflows, apps, reports, and agents.
 
 ## Customer Data Plane
 
@@ -52,7 +52,7 @@ Audit logs should cover connector registration, selector changes, context recomp
 
 ## Backups And Restore
 
-Backup ownership must be explicit. The context-layer database, source database or approved extract store, and ASP.NET Data Protection key ring must be backed up together where protected credentials depend on the key ring. Restore must be tested into a disposable environment before calling the pilot production-style.
+Backup ownership must be explicit. The scout database, source database or approved extract store, and ASP.NET Data Protection key ring must be backed up together where protected credentials depend on the key ring. Restore must be tested into a disposable environment before calling the pilot production-style.
 
 ## Incident And Offboarding
 

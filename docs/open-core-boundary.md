@@ -1,6 +1,6 @@
 # Open-Core Product Boundary
 
-This document explains what belongs in the public Universal Context Layer product repository and what should remain outside it. UCL is context infrastructure for AI-enabled business systems, so the boundary protects the reusable open core while leaving room for commercial enterprise and hosted-control-plane extensions.
+This document explains what belongs in the public KynticAI Scout product repository and what should remain outside it. Scout is context infrastructure for AI-enabled business systems, so the boundary protects the reusable open core while leaving room for commercial enterprise and hosted-control-plane extensions.
 
 This repository is public-facing. It must not contain private strategy, customer-specific material, secrets, generated runtime artefacts, paid connector implementation code, or overclaiming SaaS copy.
 
@@ -8,11 +8,11 @@ This repository is public-facing. It must not contain private strategy, customer
 
 The intended long-term structure is:
 
-- `universalcontextlayer`
+- `scout`
   The public product core, demo, SDKs, extension contracts, GraphQL and REST APIs, and local/backend-only runtime.
-- `universalcontextlayer-enterprise`
+- `scout-enterprise`
   A future private repository for paid enterprise extensions such as enterprise connectors, SSO, advanced governance, and managed deployment assets
-- `universalcontextlayer-cloud`
+- `scout-cloud`
   An optional future repository for hosted SaaS control plane, billing, operations, and cloud-specific platform concerns
 
 The public repo should define the stable contracts and composition points that let those future codebases depend on the open core without copying it.

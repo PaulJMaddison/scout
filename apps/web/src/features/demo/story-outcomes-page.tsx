@@ -46,7 +46,7 @@ export function StoryOutcomesPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Step 5 of 5"
-        title="Connect the context layer to rollout, governance, and ROI."
+        title="Connect the data plane to rollout, governance, and ROI."
         description="This closing page ties the semantic layer to product value, adoption realism, and the governance posture buyers need before trusting apps, workflows, analytics, copilots, or agents with customer-facing decisions."
       />
 
@@ -140,7 +140,7 @@ export function StoryOutcomesPage() {
                 <div>
                   <p className="font-semibold text-ink-950">Use AI to accelerate discovery, not bypass governance</p>
                   <p className="mt-2 text-sm leading-7 text-ink-700">
-                    Tools like Codex or Claude can inspect schemas, sample CRM exports, KPI definitions, and operational documentation to draft a discovery report that Context Layer can operationalise into attributes and selectors.
+                    Tools like Codex or Claude can inspect schemas, sample CRM exports, KPI definitions, and operational documentation to draft a discovery report that Scout can operationalise into attributes and selectors.
                   </p>
                 </div>
               </div>
@@ -222,7 +222,7 @@ export function StoryOutcomesPage() {
                     <div>
                       <p className="font-semibold text-ink-950">Bootstrap studio</p>
                       <p className="mt-2 text-sm leading-7 text-ink-700">
-                        Show how Codex or Claude can analyse schemas and CRM exports, then generate an import-ready UCL blueprint.
+                        Show how Codex or Claude can analyse schemas and CRM exports, then generate an import-ready Scout blueprint.
                       </p>
                     </div>
                   </div>

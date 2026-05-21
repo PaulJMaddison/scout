@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-LICENCE_PATH="${1:-.local/licences/pilot.ucl-licence.json}"
+LICENCE_PATH="${1:-.local/licences/pilot.scout-licence.json}"
 BASE_URL="${2:-http://localhost:5198}"
 TENANT_SLUG="${3:-demo}"
-ADMIN_EMAIL="${4:-admin@contextlayer.local}"
+ADMIN_EMAIL="${4:-admin@scout.local}"
 ADMIN_PASSWORD="${5:-DemoAdmin123!}"
 SKIP_ENDPOINT_CHECK="${SKIP_ENDPOINT_CHECK:-false}"
 CHECK_ONLY="${CHECK_ONLY:-false}"
@@ -20,7 +20,7 @@ esac
 if [ ! -f "$RESOLVED_LICENCE_PATH" ]; then
   echo "No local licence file found at $RESOLVED_LICENCE_PATH"
   echo "Download a development licence from the cloud portal, then place it here outside git."
-  echo "Cloud doc: see universalcontextlayer-cloud/docs/licence-download-to-data-plane.md"
+  echo "Cloud doc: see scout-cloud/docs/licence-download-to-data-plane.md"
   if [ "$CHECK_ONLY" = "true" ]; then exit 1; fi
   mkdir -p "$(dirname "$RESOLVED_LICENCE_PATH")"
   echo "Directory created. Licence file still needs to be downloaded manually."
@@ -50,7 +50,7 @@ invoke_json() {
 if ! curl -sfS "$BASE_URL/api/v1/health" > /dev/null 2>&1; then
   echo "Backend is not reachable at $BASE_URL."
   echo "Start it with:"
-  echo "  Licence__Mode='Licensed' Licence__FilePath='$RESOLVED_LICENCE_PATH' dotnet run --project ./src/ContextLayer.Api/ContextLayer.Api.csproj --urls $BASE_URL"
+  echo "  Licence__Mode='Licensed' Licence__FilePath='$RESOLVED_LICENCE_PATH' dotnet run --project ./src/KynticAI.Scout.Api/KynticAI.Scout.Api.csproj --urls $BASE_URL"
   exit 2
 fi
 

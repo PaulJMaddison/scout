@@ -1,0 +1,39 @@
+{
+  "name": "@kynticai/scout-sdk",
+  "version": "2.8.0",
+  "description": "Typed TypeScript client SDK for KynticAI Scout.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PaulJMaddison/scout.git",
+    "directory": "packages/typescript/scout-sdk"
+  },
+  "homepage": "https://github.com/PaulJMaddison/scout",
+  "bugs": {
+    "url": "https://github.com/PaulJMaddison/scout/issues"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "pack:dry-run": "npm pack --dry-run"
+  },
+  "devDependencies": {
+    "@types/node": "^24.12.2",
+    "typescript": "~6.0.2",
+    "vitest": "^4.0.8"
+  }
+}

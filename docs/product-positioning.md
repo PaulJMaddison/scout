@@ -1,13 +1,13 @@
 # Product Positioning
 
-Universal Context Layer turns existing business data into trusted semantic context that any AI tool, workflow, application, report, copilot, or agent can use.
+KynticAI Scout turns existing business data into trusted semantic context that any AI tool, workflow, application, report, copilot, or agent can use.
 
 We do not build the brain. We build the nervous system: the governed layer that carries business context from existing systems to customer-owned consumers.
 
 The buyer message is simple:
 
 - customers keep CRM, ERP, support desk, billing, warehouse, product databases, spreadsheets, and legacy systems
-- UCL sits beside those systems and maps raw signals into governed semantic facts
+- Scout sits beside those systems and maps raw signals into governed semantic facts
 - customers can bring their own AI tools or use no AI at all
 - the customer-owned data plane keeps operational data customer-controlled by default
 - the public repo contains the open core, local demo, admin console, APIs, SDKs, extension seams, generic connectors, and mock/demo connectors

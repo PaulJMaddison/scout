@@ -4,7 +4,7 @@ This is a non-lawyer drafting aid for legal review. It is not legal advice. Prod
 
 ## Draft Scope
 
-Universal Context Layer provides open-core context infrastructure and may provide supported paid pilot services. It turns existing business data into governed semantic context for customer-owned AI tools, workflows, apps, reports, and agents.
+KynticAI Scout provides open-core context infrastructure and may provide supported paid pilot services. It turns existing business data into governed semantic context for customer-owned AI tools, workflows, apps, reports, and agents.
 
 The current commercial offer is a supported paid pilot, not a complete self-serve SaaS.
 

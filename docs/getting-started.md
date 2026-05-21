@@ -1,6 +1,6 @@
-# Getting Started with Universal Context Layer
+# Getting Started with KynticAI Scout
 
-This guide covers three ways to get a running UCL instance: local development with the .NET SDK, Docker with SQLite (quickest), and Docker with PostgreSQL (production-like).
+This guide covers three ways to get a running Scout instance: local development with the .NET SDK, Docker with SQLite (quickest), and Docker with PostgreSQL (production-like).
 
 ---
 
@@ -20,8 +20,8 @@ You need **one** of the following:
 Three commands to a running demo:
 
 ```bash
-git clone https://github.com/PaulJMaddison/universalcontextlayer.git
-cd universalcontextlayer
+git clone https://github.com/PaulJMaddison/scout.git
+cd scout
 sh ./scripts/setup-demo.sh   # downloads repo-local runtimes, seeds demo data (~2 min)
 sh ./scripts/start-demo.sh   # starts API on :5198 + web app on :5173
 ```
@@ -31,7 +31,7 @@ Then open [http://127.0.0.1:5173](http://127.0.0.1:5173) and log in:
 | Field | Value |
 |---|---|
 | Tenant | `demo` |
-| Email | `admin@contextlayer.local` |
+| Email | `admin@scout.local` |
 | Password | `DemoAdmin123!` |
 
 > **Windows?** Use `./scripts/setup-demo.ps1` and `./scripts/start-demo.ps1` instead.
@@ -43,9 +43,9 @@ Then open [http://127.0.0.1:5173](http://127.0.0.1:5173) and log in:
 Run the API in a single container with no external dependencies:
 
 ```bash
-git clone https://github.com/PaulJMaddison/universalcontextlayer.git
-cd universalcontextlayer
-docker compose -f deploy/docker-compose.yml up ucl-api --build
+git clone https://github.com/PaulJMaddison/scout.git
+cd scout
+docker compose -f deploy/docker-compose.yml up scout-api --build
 ```
 
 The API starts on [http://localhost:8080](http://localhost:8080) with seeded demo data.
@@ -55,7 +55,7 @@ To customise settings, copy the example environment file first:
 ```bash
 cp deploy/.env.example deploy/.env
 # edit deploy/.env as needed
-docker compose -f deploy/docker-compose.yml --env-file deploy/.env up ucl-api --build
+docker compose -f deploy/docker-compose.yml --env-file deploy/.env up scout-api --build
 ```
 
 ---
@@ -101,7 +101,7 @@ curl http://localhost:8080/health/ready
 Expected response:
 
 ```json
-{"status":"ok","service":"ContextLayer.Api","checks":[{"name":"context-layer-db","status":"ok"},{"name":"customer-ops-db","status":"ok"}]}
+{"status":"ok","service":"KynticAI.Scout.Api","checks":[{"name":"scout-db","status":"ok"},{"name":"customer-ops-db","status":"ok"}]}
 ```
 
 ### Platform Configuration
@@ -120,7 +120,7 @@ Most API and GraphQL endpoints require a JWT token. Log in first:
 # 1. Log in with demo credentials
 TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"tenantSlug":"demo","email":"admin@contextlayer.local","password":"DemoAdmin123!"}' \
+  -d '{"tenantSlug":"demo","email":"admin@scout.local","password":"DemoAdmin123!"}' \
   | jq -r '.accessToken')
 
 # 2. Fetch user context (REST)
@@ -154,37 +154,37 @@ See [API Documentation](api/README.md) for details on exporting the spec and aut
 ### TypeScript
 
 ```bash
-npm install @universalcontextlayer/sdk
+npm install @kynticai/scout-sdk
 ```
 
 ```typescript
-import { createContextLayerClient } from '@universalcontextlayer/sdk'
+import { createScoutClient } from '@kynticai/scout-sdk'
 
-const ucl = createContextLayerClient({
+const scout = createScoutClient({
   baseUrl: 'http://localhost:8080',
-  accessToken: process.env.CONTEXT_LAYER_TOKEN,
+  accessToken: process.env.SCOUT_TOKEN,
 })
 
-const context = await ucl.users.getContext('demo', '123')
+const context = await scout.users.getContext('demo', '123')
 console.log(context?.fullName, context?.overallConfidence)
 
-const facts = await ucl.facts.getForUser('demo', '123', { attributeKey: 'health' })
+const facts = await scout.facts.getForUser('demo', '123', { attributeKey: 'health' })
 console.log(facts)
 ```
 
 ### .NET
 
 ```bash
-dotnet add package ContextLayer.Sdk
+dotnet add package KynticAI.Scout.Sdk
 ```
 
 ```csharp
-using ContextLayer.Sdk;
+using KynticAI.Scout.Sdk;
 
-var client = new ContextLayerClient(new ContextLayerOptions
+var client = new ScoutClient(new ScoutOptions
 {
     BaseUrl = "http://localhost:8080",
-    AccessToken = Environment.GetEnvironmentVariable("CONTEXT_LAYER_TOKEN"),
+    AccessToken = Environment.GetEnvironmentVariable("SCOUT_TOKEN"),
 });
 
 var context = await client.Users.GetContextAsync("demo", "123");
@@ -196,15 +196,15 @@ Console.WriteLine($"{context.FullName} — confidence: {context.OverallConfidenc
 ## Building the Docker Image Manually
 
 ```bash
-docker build -t ucl-api -f src/ContextLayer.Api/Dockerfile .
+docker build -t scout-api -f src/KynticAI.Scout.Api/Dockerfile .
 docker run --rm -p 8080:8080 \
   -e Database__Provider=Sqlite \
-  -e "ConnectionStrings__ContextLayer=Data Source=/var/lib/ucl/context_layer.db" \
-  -e "ConnectionStrings__CustomerOps=Data Source=/var/lib/ucl/customer_ops.db" \
+  -e "ConnectionStrings__Scout=Data Source=/var/lib/scout/scout_context.db" \
+  -e "ConnectionStrings__CustomerOps=Data Source=/var/lib/scout/customer_ops.db" \
   -e Bootstrap__ApplyMigrationsOnStartup=true \
   -e Bootstrap__SeedDemoData=true \
   -e "Auth__SigningKey=change-me-to-at-least-32-bytes-random" \
-  ucl-api
+  scout-api
 ```
 
 ---
@@ -213,10 +213,10 @@ docker run --rm -p 8080:8080 \
 
 ```bash
 # With repo-local .NET SDK
-dotnet test ContextLayer.slnx
+dotnet test KynticAI.Scout.slnx
 
 # Or using the setup script's SDK
-./.dotnet/dotnet test ContextLayer.slnx
+./.dotnet/dotnet test KynticAI.Scout.slnx
 ```
 
 All 73 core tests should pass.

@@ -60,7 +60,7 @@ const navigationSections: NavigationSection[] = [
   {
     title: 'Platform',
     items: [
-      { to: '/platform', label: 'What UCL does', icon: Waypoints, public: true },
+      { to: '/platform', label: 'What Scout does', icon: Waypoints, public: true },
       { to: '/pilot', label: 'Paid pilot', icon: Handshake, public: true },
       { to: '/use-cases', label: 'Use cases', icon: BriefcaseBusiness, public: true },
       { to: '/integrations', label: 'Integrations', icon: DatabaseZap, public: true },
@@ -91,7 +91,7 @@ const navigationSections: NavigationSection[] = [
         roles: ['tenant_admin', 'sales_rep'],
       },
       {
-        to: '/story/context-layer',
+        to: '/story/scout',
         label: executiveStorySteps[2].label,
         icon: Waypoints,
         roles: ['tenant_admin', 'sales_rep'],
@@ -188,12 +188,17 @@ export function AppShell() {
           )}
         >
           <div className="flex items-start justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-copper-300">
-                Context Layer
+            <div className="min-w-0">
+              <img
+                src="/brand/kynticai-logo-primary-horizontal-dark.svg"
+                alt="KynticAI"
+                className="h-10 w-auto max-w-[180px]"
+              />
+              <p className="mt-4 text-xs font-semibold uppercase tracking-[0.22em] text-copper-300">
+                KynticAI Scout
               </p>
-              <h1 className="mt-3 font-display text-2xl text-ivory-50">
-                {isPublicMode ? 'Platform Guide' : 'Semantic Console'}
+              <h1 className="mt-2 font-display text-3xl leading-tight text-ivory-50">
+                {isPublicMode ? 'Platform Guide' : 'Scout Console'}
               </h1>
             </div>
             <button
@@ -277,7 +282,7 @@ export function AppShell() {
                   </Button>
                 </Link>
                 <a
-                  href="https://github.com/PaulJMaddison/universalcontextlayer"
+                  href="https://github.com/PaulJMaddison/scout"
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/12 bg-white/6 px-4 py-2.5 text-sm font-semibold text-ivory-100 transition hover:bg-white/12"
@@ -302,7 +307,7 @@ export function AppShell() {
           </div>
         </aside>
 
-        <div className="console-main-shell flex min-h-[calc(100dvh-1.5rem)] min-w-0 flex-1 flex-col overflow-hidden rounded-[28px] border border-ink-900/8 bg-ivory-100/84 shadow-[0_24px_60px_rgba(24,18,15,0.12)] backdrop-blur sm:min-h-[calc(100dvh-2rem)] sm:rounded-[34px] lg:max-h-[calc(100dvh-2rem)]">
+        <div className="console-main-shell brand-paper flex min-h-[calc(100dvh-1.5rem)] min-w-0 flex-1 flex-col overflow-hidden rounded-[28px] border border-ink-900/8 shadow-[0_24px_60px_rgba(24,18,15,0.12)] backdrop-blur sm:min-h-[calc(100dvh-2rem)] sm:rounded-[34px] lg:max-h-[calc(100dvh-2rem)]">
           <header className="console-shell-header flex flex-wrap items-center justify-between gap-4 border-b border-ink-900/8 px-4 py-4 sm:px-5 lg:px-8">
             <div className="flex min-w-0 items-center gap-3">
               <button
@@ -313,9 +318,15 @@ export function AppShell() {
               >
                 <Menu className="size-5" />
               </button>
+              <img
+                src="/brand/kynticai-logo-mark-only.svg"
+                alt=""
+                className="hidden size-10 shrink-0 sm:block"
+                aria-hidden="true"
+              />
               <div className="min-w-0">
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sage-700">
-                  {isPublicMode ? 'Universal Context Layer' : session.tenantSlug}
+                  {isPublicMode ? 'KynticAI Scout' : session.tenantSlug}
                 </p>
                 <h2 className="mt-1 truncate font-display text-xl text-ink-950">{activeLabel}</h2>
               </div>

@@ -11,7 +11,7 @@ Reason: a generic SQL/PostgreSQL path is commercially useful for first pilots be
 The implementation supports:
 
 - `mode=currentDatabase` for local proof and tests
-- `mode=customerOpsDatabase` for the customer operations database configured with UCL
+- `mode=customerOpsDatabase` for the customer operations database configured with Scout
 - `mode=connectionString` for an external PostgreSQL connection string supplied through configuration or protected credentials
 
 ## Source Data In
@@ -44,7 +44,7 @@ Important fields:
 - `connectorType`: `sqlTable`
 - `mode`: `customerOpsDatabase` or `connectionString`
 - `tableName`: approved source table or view
-- `userIdColumn`: subject key used by UCL
+- `userIdColumn`: subject key used by Scout
 - `tenantSlugColumn`: tenant boundary column when present
 - `observedAtColumn`: freshness timestamp
 - `columns`: approved fields to read
@@ -149,7 +149,7 @@ The proof verifies:
 Run:
 
 ```powershell
-dotnet test .\tests\ContextLayer.IntegrationTests\ContextLayer.IntegrationTests.csproj --filter "FullyQualifiedName~SqlTableConnector_ReadsCurrentDatabaseRow_AndProducesContextSnapshot"
+dotnet test .\tests\KynticAI.Scout.IntegrationTests\KynticAI.Scout.IntegrationTests.csproj --filter "FullyQualifiedName~SqlTableConnector_ReadsCurrentDatabaseRow_AndProducesContextSnapshot"
 ```
 
 This uses SQLite for the test database so it can run without local Docker/PostgreSQL. The same connector code opens external PostgreSQL through Npgsql when `mode=connectionString` is configured.

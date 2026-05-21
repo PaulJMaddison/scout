@@ -37,42 +37,42 @@ Step "Production example toggles" {
             if ($text -notmatch 'VITE_DEMO_FALLBACK=false') { Fail "$file must set VITE_DEMO_FALLBACK=false for production examples." }
         }
     }
-    $apiProduction = Get-Content "src/ContextLayer.Api/appsettings.Production.json" -Raw
+    $apiProduction = Get-Content "src/KynticAI.Scout.Api/appsettings.Production.json" -Raw
     if ($apiProduction -notmatch '"SeedDemoData"\s*:\s*false') { Fail "Production appsettings must keep Bootstrap:SeedDemoData=false." }
 }
 
 Step "Production PostgreSQL configuration" {
     if ($ProductionMode) {
-        if (-not $env:ConnectionStrings__ContextLayer -or -not $env:ConnectionStrings__CustomerOps) {
-            Fail "Production mode requires ConnectionStrings__ContextLayer and ConnectionStrings__CustomerOps."
+        if (-not $env:ConnectionStrings__Scout -or -not $env:ConnectionStrings__CustomerOps) {
+            Fail "Production mode requires ConnectionStrings__Scout and ConnectionStrings__CustomerOps."
         }
     }
 }
 
 if (-not $SkipBuild) {
-    Step "Backend build" { dotnet build .\ContextLayer.slnx }
+    Step "Backend build" { dotnet build .\KynticAI.Scout.slnx }
 }
 
 if (-not $SkipTests) {
     Step "Focused backend tests" {
-        dotnet test .\tests\ContextLayer.IntegrationTests\ContextLayer.IntegrationTests.csproj --filter "FullyQualifiedName~V1RestApiIntegrationTests|FullyQualifiedName~GraphQlAuthorizationIntegrationTests"
-        dotnet test .\tests\ContextLayer.UnitTests\ContextLayer.UnitTests.csproj --filter "FullyQualifiedName~ConnectorPluginModelTests|FullyQualifiedName~SelectorExecutionEngineTests"
+        dotnet test .\tests\KynticAI.Scout.IntegrationTests\KynticAI.Scout.IntegrationTests.csproj --filter "FullyQualifiedName~V1RestApiIntegrationTests|FullyQualifiedName~GraphQlAuthorizationIntegrationTests"
+        dotnet test .\tests\KynticAI.Scout.UnitTests\KynticAI.Scout.UnitTests.csproj --filter "FullyQualifiedName~ConnectorPluginModelTests|FullyQualifiedName~SelectorExecutionEngineTests"
     }
 }
 
 Step "Optional PostgreSQL smoke" {
-    if ($env:ConnectionStrings__ContextLayer -and $env:ConnectionStrings__CustomerOps) {
-        dotnet test .\tests\ContextLayer.IntegrationTests\ContextLayer.IntegrationTests.csproj --filter "FullyQualifiedName~BackendOnlyModeIntegrationTests"
+    if ($env:ConnectionStrings__Scout -and $env:ConnectionStrings__CustomerOps) {
+        dotnet test .\tests\KynticAI.Scout.IntegrationTests\KynticAI.Scout.IntegrationTests.csproj --filter "FullyQualifiedName~BackendOnlyModeIntegrationTests"
     } else {
         Write-Host "Skipped: PostgreSQL connection strings are not set."
     }
 }
 
 Step "Optional backup restore dry run" {
-    if ($env:PGHOST -and $env:PGUSER -and $env:CONTEXT_LAYER_DB) {
-        pg_dump --schema-only --dbname=$env:CONTEXT_LAYER_DB | pg_restore --list | Out-Null
+    if ($env:PGHOST -and $env:PGUSER -and $env:SCOUT_DB) {
+        pg_dump --schema-only --dbname=$env:SCOUT_DB | pg_restore --list | Out-Null
     } else {
-        Write-Host "Skipped: PGHOST, PGUSER, and CONTEXT_LAYER_DB are not set."
+        Write-Host "Skipped: PGHOST, PGUSER, and SCOUT_DB are not set."
     }
 }
 
@@ -86,7 +86,7 @@ Step "Support bundle command safety" {
 }
 
 Step "Public forbidden-code scan" {
-    $forbidden = rg -n "using UniversalContextLayer\.Enterprise|namespace UniversalContextLayer\.Enterprise|Ucl\.Cloud\.Api|StripeSecret|OAuthRefreshToken|BEGIN PRIVATE KEY|service_account" src apps packages
+    $forbidden = rg -n "using KynticAIScout\.Enterprise|namespace KynticAIScout\.Enterprise|Scout\.Cloud\.Api|StripeSecret|OAuthRefreshToken|BEGIN PRIVATE KEY|service_account" src apps packages
     if ($forbidden) { $forbidden; Fail "public forbidden-code scan found private implementation or secret markers." }
 }
 

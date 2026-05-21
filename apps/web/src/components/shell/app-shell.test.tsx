@@ -23,7 +23,7 @@ vi.mock('@/lib/auth', () => ({
       tenantId: 'tenant-1',
       tenantSlug: 'demo',
       operatorAccountId: 'operator-1',
-      email: 'rep@contextlayer.local',
+      email: 'rep@scout.local',
       displayName: 'Jordan Kim',
       role: 'sales_rep',
     },
@@ -36,7 +36,7 @@ describe('AppShell', () => {
   it('hides admin-only navigation for sales reps', () => {
     render(<AppShell />)
 
-    expect(screen.getByRole('link', { name: '1. Why UCL' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '1. Why Scout' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '360 Customer Profile' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Example Sales Support' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Operational Overview' })).toBeInTheDocument()

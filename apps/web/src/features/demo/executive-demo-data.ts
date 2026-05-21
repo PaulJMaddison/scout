@@ -21,9 +21,9 @@ export const featuredObjective =
   'Book a 20-minute discovery call for enterprise rollout next week, using product momentum and pricing intent to justify urgency.'
 
 export const executiveStorySteps = [
-  { to: '/demo', label: '1. Why UCL' },
+  { to: '/demo', label: '1. Why Scout' },
   { to: '/story/source-signals', label: '2. Legacy Signals' },
-  { to: '/story/context-layer', label: '3. Semantic Timeline' },
+  { to: '/story/scout', label: '3. Semantic Timeline' },
   { to: '/story/ai-workflow', label: '4. Example Consumer Timeline' },
   { to: '/story/outcomes', label: '5. Rollout and ROI' },
 ] as const
@@ -163,7 +163,7 @@ export function getTimelineNarrative(event: OperationalTimelineEventResult) {
   return {
     semanticLift: 'Feeds reusable semantic context',
     businessMeaning:
-      'UCL turns the raw event into a governed signal that the rest of the product can trust.',
+      'Scout turns the raw event into a governed signal that the rest of the product can trust.',
     tone: 'neutral' as const,
   }
 }
@@ -217,7 +217,7 @@ function buildInteractionTimeline(
           sourceSystem: getTimelineSourceSystem(event.category),
           sourceSignal: signalText,
           semanticLift: `Product fit stays at ${productFit} with support drag controlled rather than ignored.`,
-          contextNow: 'The context layer records that implementation friction has been resolved, which keeps expansion conversations credible.',
+          contextNow: 'the data plane records that implementation friction has been resolved, which keeps expansion conversations credible.',
           aiAdvice:
             'Re-open the enterprise rollout conversation, but anchor it in resolved operational trust rather than aggressive upsell language.',
           advisedAction: 'Acknowledge the resolved onboarding issue before proposing the next rollout milestone.',

@@ -1,16 +1,16 @@
 # Control Plane And Data Plane
 
-Universal Context Layer is designed as context infrastructure with a customer-owned data plane and an optional hosted control-plane relationship.
+KynticAI Scout is designed as context infrastructure with a customer-owned data plane and an optional hosted control-plane relationship.
 
-The important rule is simple: operational customer data does not need to leave the customer environment for UCL to be useful.
+The important rule is simple: operational customer data does not need to leave the customer environment for Scout to be useful.
 
 ## Customer Data Plane
 
-The customer data plane is the self-hosted UCL runtime. It manages source connectors, selector execution, semantic attributes, context snapshots, context facts, provenance, audit logs, GraphQL, REST, API keys, local users, local roles, and access to customer operational systems.
+The customer data plane is the self-hosted Scout runtime. It manages source connectors, selector execution, semantic attributes, context snapshots, context facts, provenance, audit logs, GraphQL, REST, API keys, local users, local roles, and access to customer operational systems.
 
 Typical data-plane components:
 
-- ASP.NET Core UCL backend
+- ASP.NET Core Scout backend
 - PostgreSQL in production or SQLite for the local demo
 - customer connector configuration and credentials
 - selector definitions and selector execution history
@@ -48,7 +48,7 @@ These foundations deliberately do not integrate a payment provider, phone home, 
 flowchart LR
     subgraph Customer["Customer environment"]
         Sources["CRM, ERP, support, warehouse, product DB, billing, spreadsheets, legacy SQL"]
-        DataPlane["UCL data plane\nconnectors, selectors, semantic schema, context snapshots, APIs"]
+        DataPlane["Scout data plane\nconnectors, selectors, semantic schema, context snapshots, APIs"]
         Consumers["Customer consumers\napps, reports, copilots, agents, workflows"]
         Sources --> DataPlane
         DataPlane --> Consumers

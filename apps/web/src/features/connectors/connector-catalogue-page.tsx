@@ -72,7 +72,7 @@ export function ConnectorCataloguePage() {
       <PageHeader
         eyebrow="Connector marketplace"
         title="A catalogue buyers can understand, with an open-core boundary developers can trust."
-        description="Universal Context Layer exposes connector metadata, schemas, health-check expectations, and credential boundaries without shipping paid enterprise integrations in the public repository."
+        description="KynticAI Scout exposes connector metadata, schemas, health-check expectations, and credential boundaries without shipping paid enterprise integrations in the public repository."
         actions={
           <Badge tone="warning" className="max-w-md">
             Enterprise, SaaS-managed, and coming-soon entries are catalogue placeholders only.

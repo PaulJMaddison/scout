@@ -59,7 +59,7 @@ export function OpenCorePage() {
             <div className="flex items-start gap-3">
               <Server className="mt-1 size-5 text-copper-700" />
               <div>
-                <p className="font-semibold text-ink-950">`universalcontextlayer`</p>
+                <p className="font-semibold text-ink-950">`scout`</p>
                 <p className="mt-2 text-sm leading-7 text-ink-700">
                   Public open source core, seeded demo, admin console, documentation, integration patterns, and backend runtime.
                 </p>
@@ -70,7 +70,7 @@ export function OpenCorePage() {
             <div className="flex items-start gap-3">
               <ShieldCheck className="mt-1 size-5 text-sage-700" />
               <div>
-                <p className="font-semibold text-ink-950">`universalcontextlayer-enterprise`</p>
+                <p className="font-semibold text-ink-950">`scout-enterprise`</p>
                 <p className="mt-2 text-sm leading-7 text-ink-700">
                   Private paid repository for real enterprise connectors across CRM, warehouse, email, chat, calendar, analytics, work management, and knowledge systems, plus SSO/SAML, SCIM, vaults, advanced governance, compliance exports, deployment packs, and SLA tooling.
                 </p>
@@ -81,7 +81,7 @@ export function OpenCorePage() {
             <div className="flex items-start gap-3">
               <MonitorCog className="mt-1 size-5 text-gold-700" />
               <div>
-                <p className="font-semibold text-ink-950">`universalcontextlayer-cloud`</p>
+                <p className="font-semibold text-ink-950">`scout-cloud`</p>
                 <p className="mt-2 text-sm leading-7 text-ink-700">
                   Private cloud/control-plane repository for hosted account management, billing, licence portals, downloads, update channels, support portals, aggregate usage reporting, and cloud operations.
                 </p>

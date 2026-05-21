@@ -1,15 +1,15 @@
 # SDK Development
 
-Universal Context Layer includes two local/private SDK scaffolds so consuming products can integrate against stable client interfaces instead of hand-rolling GraphQL and REST requests during pilots.
+KynticAI Scout includes two local/private SDK scaffolds so consuming products can integrate against stable client interfaces instead of hand-rolling GraphQL and REST requests during pilots.
 
 They are not currently configured for public package publishing. Treat NuGet/npm publishing as a deliberate later release task, with the private product boundary reviewed first.
 
 ## Layout
 
 ```text
-src/ContextLayer.Sdk/
-tests/ContextLayer.Sdk.Tests/
-packages/typescript/contextlayer-sdk/
+src/KynticAI.Scout.Sdk/
+tests/KynticAI.Scout.Sdk.Tests/
+packages/typescript/scout-sdk/
 ```
 
 ## Public Surface
@@ -32,14 +32,14 @@ Both SDKs expose equivalent capability groups:
 ### .NET
 
 ```bash
-./.dotnet/dotnet.exe test tests/ContextLayer.Sdk.Tests/ContextLayer.Sdk.Tests.csproj
-./.dotnet/dotnet.exe pack src/ContextLayer.Sdk/ContextLayer.Sdk.csproj -c Release
+./.dotnet/dotnet.exe test tests/KynticAI.Scout.Sdk.Tests/KynticAI.Scout.Sdk.Tests.csproj
+./.dotnet/dotnet.exe pack src/KynticAI.Scout.Sdk/KynticAI.Scout.Sdk.csproj -c Release
 ```
 
 ### TypeScript
 
 ```bash
-cd packages/typescript/contextlayer-sdk
+cd packages/typescript/scout-sdk
 npm install
 npm run build
 npm test
@@ -54,8 +54,8 @@ npm run pack:dry-run
 
 ## Packaging
 
-- NuGet: `ContextLayer.Sdk`
-- npm: `@universalcontextlayer/sdk`
+- NuGet: `KynticAI.Scout.Sdk`
+- npm: `@kynticai/scout-sdk`
 - current packaging commands are local validation aids, not release publishing steps
 
 ## Test Coverage

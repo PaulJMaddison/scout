@@ -19,12 +19,12 @@ type LoginFormValues = z.infer<typeof loginSchema>
 const sampleAccounts = [
   {
     label: 'Tenant admin',
-    email: 'admin@contextlayer.local',
+    email: 'admin@scout.local',
     password: 'DemoAdmin123!',
   },
   {
     label: 'Sales rep',
-    email: 'rep@contextlayer.local',
+    email: 'rep@scout.local',
     password: 'DemoSales123!',
   },
 ] as const
@@ -37,24 +37,29 @@ export function LoginPage() {
     resolver: zodResolver(loginSchema),
     defaultValues: {
       tenantSlug: 'demo',
-      email: 'admin@contextlayer.local',
+      email: 'admin@scout.local',
       password: 'DemoAdmin123!',
     },
   })
 
   return (
     <main className="login-page relative min-h-[100dvh] overflow-x-hidden overflow-y-auto lg:h-[100dvh] lg:overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(175,92,43,0.18),transparent_32%),radial-gradient(circle_at_bottom_right,rgba(115,133,107,0.16),transparent_28%)]" />
+      <div className="absolute inset-0 brand-paper" />
       <div className="login-shell relative grid min-h-[100dvh] w-full content-center gap-5 px-5 py-4 sm:px-8 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,28rem)] lg:items-center lg:gap-8 xl:px-12">
         <section className="login-hero-column min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-sage-700">
-            Context Layer
+          <img
+            src="/brand/kynticai-logo-primary-horizontal.svg"
+            alt="KynticAI"
+            className="h-14 w-auto max-w-full"
+          />
+          <p className="mt-8 text-xs font-semibold uppercase tracking-[0.24em] text-copper-700">
+            KynticAI Scout demo console
           </p>
-          <h1 className="login-hero-title mt-4 max-w-[13ch] font-display text-[clamp(3rem,5.4vw,5.2rem)] leading-[0.96] tracking-tight text-ink-950">
-            Turn your existing business data into trusted context for apps, workflows, and AI.
+          <h1 className="login-hero-title mt-4 max-w-[14ch] font-display text-[clamp(3rem,5.4vw,5.2rem)] leading-[0.96] text-ink-950">
+            Your data, your firewall, any AI model.
           </h1>
           <p className="login-hero-copy mt-4 max-w-2xl text-base leading-7 text-ink-700">
-            UCL reads CRM records, warehouse metrics, product signals, and support history, then creates governed semantic profiles that apps, workflows, copilots, agents, and AI tools can cite, trust, and use.
+            Scout reads CRM records, warehouse metrics, product signals, and support history, then creates governed semantic profiles that apps, workflows, copilots, agents, and AI tools can cite, trust, and use.
           </p>
 
           <div className="login-compact-proof mt-5 flex flex-wrap gap-2">
@@ -73,7 +78,7 @@ export function LoginPage() {
           </div>
         </section>
 
-        <Card className="login-access-card ml-auto flex w-full max-w-[28rem] flex-col p-5 sm:p-6 lg:p-7">
+        <Card className="login-access-card ml-auto flex w-full max-w-[28rem] flex-col border-copper-500/14 p-5 sm:p-6 lg:p-7">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sage-700">Workspace access</p>
             <h2 className="mt-2 font-display text-[2.35rem] leading-tight text-ink-950">Enter the admin console</h2>
@@ -85,7 +90,7 @@ export function LoginPage() {
           <div className="mt-4 rounded-[20px] border border-sage-300/50 bg-sage-100/65 px-4 py-3 text-sm text-ink-800">
             <p className="font-semibold text-ink-950">Demo credentials are preloaded.</p>
             <p className="mt-1 leading-6">
-              Tenant <span className="font-semibold">demo</span>, email <span className="font-semibold">admin@contextlayer.local</span>, password <span className="font-semibold">DemoAdmin123!</span>.
+              Tenant <span className="font-semibold">demo</span>, email <span className="font-semibold">admin@scout.local</span>, password <span className="font-semibold">DemoAdmin123!</span>.
             </p>
           </div>
 

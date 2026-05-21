@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
-    [string]$EnterpriseRepo = "C:\universalcontextlayer-enterprise",
-    [string]$CloudRepo = "C:\universalcontextlayer-cloud",
+    [string]$EnterpriseRepo = "C:\scout-enterprise",
+    [string]$CloudRepo = "C:\scout-cloud",
     [switch]$BuildMissing,
     [switch]$SkipEnterpriseConnectorSmoke
 )
@@ -31,17 +31,6 @@ Invoke-Step {
     Require-Path (Join-Path $publicRepo "scripts\m2m-and-webhook-smoke.ps1") "public M2M/webhook smoke"
     Require-Path (Join-Path $publicRepo "scripts\licence-install-rehearsal.ps1") "public licence install rehearsal"
 } "Public repo checks"
-
-Invoke-Step {
-    $staticDemoDist = Join-Path $publicRepo "apps\web\dist-static-demo"
-    if (-not (Test-Path $staticDemoDist) -and $BuildMissing) {
-        Push-Location (Join-Path $publicRepo "apps\web")
-        npm install
-        npm run build:static-demo
-        Pop-Location
-    }
-    Require-Path $staticDemoDist "public static demo build folder"
-} "Public static demo"
 
 Invoke-Step {
     Require-Path (Join-Path $CloudRepo "apps\cloud-portal\package.json") "cloud portal package"

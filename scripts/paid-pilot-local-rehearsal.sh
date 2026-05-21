@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ENTERPRISE_REPO="${1:-../universalcontextlayer-enterprise}"
-CLOUD_REPO="${2:-../universalcontextlayer-cloud}"
+ENTERPRISE_REPO="${1:-../scout-enterprise}"
+CLOUD_REPO="${2:-../scout-cloud}"
 BUILD_MISSING="${BUILD_MISSING:-false}"
 SKIP_ENTERPRISE_CONNECTOR_SMOKE="${SKIP_ENTERPRISE_CONNECTOR_SMOKE:-false}"
 
@@ -31,14 +31,6 @@ public_repo_checks() {
   require_path "$PUBLIC_REPO/scripts/check-production-env.ps1" "public production env check"
   require_path "$PUBLIC_REPO/scripts/m2m-and-webhook-smoke.sh" "public M2M/webhook smoke"
   require_path "$PUBLIC_REPO/scripts/licence-install-rehearsal.sh" "public licence install rehearsal"
-}
-
-public_static_demo() {
-  local static_demo_dist="$PUBLIC_REPO/apps/web/dist-static-demo"
-  if [ ! -d "$static_demo_dist" ] && [ "$BUILD_MISSING" = "true" ]; then
-    (cd "$PUBLIC_REPO/apps/web" && npm install && npm run build:static-demo)
-  fi
-  require_path "$static_demo_dist" "public static demo build folder"
 }
 
 cloud_repo_checks() {
@@ -89,7 +81,6 @@ flow_doc_checks() {
 }
 
 invoke_step "Public repo checks" public_repo_checks
-invoke_step "Public static demo" public_static_demo
 invoke_step "Cloud repo checks" cloud_repo_checks
 invoke_step "Enterprise repo checks" enterprise_repo_checks
 invoke_step "Lead to support flow docs" flow_doc_checks

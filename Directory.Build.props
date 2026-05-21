@@ -13,14 +13,14 @@
     <AssemblyVersion>2.8.0.0</AssemblyVersion>
     <FileVersion>2.8.0.0</FileVersion>
     <InformationalVersion>2.8.0</InformationalVersion>
-    <Product>Context Layer</Product>
-    <Authors>Paul Maddison and contributors</Authors>
-    <Company>Universal Context Layer</Company>
-    <RepositoryUrl>https://github.com/PaulJMaddison/universalcontextlayer</RepositoryUrl>
+    <Product>KynticAI Scout</Product>
+    <Authors>KynticAI</Authors>
+    <Company>KynticAI</Company>
+    <RepositoryUrl>https://github.com/PaulJMaddison/scout</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/PaulJMaddison/universalcontextlayer</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/PaulJMaddison/scout</PackageProjectUrl>
     <PackageTags>context-infrastructure;graphql;rest;dotnet;react;semantic-layer;context-engineering;open-core</PackageTags>
     <PackageReleaseNotes>2.8.0 adds CI/release workflows, Scalar API documentation, comprehensive E2E test coverage, cross-platform fixes, getting started guide, and release process documentation for the open-core public launch.</PackageReleaseNotes>
   </PropertyGroup>

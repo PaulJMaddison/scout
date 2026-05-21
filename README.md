@@ -1,39 +1,22 @@
 <p align="center">
-  <strong>Universal Context Layer</strong><br/>
+  <img src="docs/images/brand/kynticai-logo-primary-horizontal.svg" alt="KynticAI" width="280" />
+</p>
+
+<p align="center">
+  <strong>KynticAI Scout</strong><br/>
   <em>KynticAI</em>
 </p>
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT" /></a>
-  <a href="https://github.com/PaulJMaddison/universalcontextlayer/releases"><img src="https://img.shields.io/badge/release-v2.7.0-brightgreen.svg" alt="Release: v2.7.0" /></a>
+  <a href="https://github.com/PaulJMaddison/scout/releases"><img src="https://img.shields.io/badge/release-v2.8.0-brightgreen.svg" alt="Release: v2.8.0" /></a>
   <img src="https://img.shields.io/badge/.NET-10.0-purple.svg" alt=".NET 10" />
   <img src="https://img.shields.io/badge/build-passing-brightgreen.svg" alt="Build Status" />
 </p>
 
 <p align="center">
-  <strong>Universal Context Layer turns existing business data into trusted semantic context for AI.</strong>
+  <strong>KynticAI Scout turns existing business data into trusted semantic context for AI.</strong>
 </p>
-
----
-
-### 🛡️ Pre-Ignition Status: The Transition to KynticAI
-
-**Current Phase:** Sovereign Substrate Hardening (Pre-Launch)
-**Release Date:** 29 May 2026 (Public Ignition)
-
-This repository is currently undergoing a structural transition from the **Universal Context Layer** prototype to the **KynticAI Sovereign Infrastructure** suite. 
-
-**What is happening now:**
-* **Forensic Hardening:** We are currently stabilizing CI/CD pipelines and hardening the Rust CDC engine for enterprise-grade deployments (NHS/MoD standards).
-* **Brand Migration:** Namespaces and documentation are being refactored to align with the **KynticAI** flagship architecture.
-* **Agent Integration:** We are deploying `AGENTS.md` protocols to allow autonomous discovery by high-bandwidth AI tools (Devin, Claude Code).
-
-**Notice to Developers & Investors:**
-While the code is public and functional, we are currently operating a **Waiting List** for the full KynticAI dashboard and enterprise connectors. Access to the "Bunker" environment and the integrated Importance Engine will be granted in waves starting May 29.
-
-👉 **[Join the Waiting List at KynticAI.com](https://kynticai.com)**
-
----
 
 <p align="center">
   We don't build the brain. We build the nervous system: the governed customer data plane that carries trusted business context from existing systems to the customer's own AI tools, workflows, reports, apps, and agents. 
@@ -46,21 +29,21 @@ While the code is public and functional, we are currently operating a **Waiting 
 Get a working local demo in three commands:
 
 ```bash
-git clone https://github.com/PaulJMaddison/universalcontextlayer.git
-cd universalcontextlayer
+git clone https://github.com/PaulJMaddison/scout.git
+cd scout
 
 sh ./scripts/setup-demo.sh    # downloads runtimes, seeds demo data (~2 min)
 sh ./scripts/start-demo.sh    # starts API + web app
 ```
 
-Then open [http://127.0.0.1:5173](http://127.0.0.1:5173) and log in with `demo` / `admin@contextlayer.local` / `DemoAdmin123!`.
+Then open [http://127.0.0.1:5173](http://127.0.0.1:5173) and log in with `demo` / `admin@scout.local` / `DemoAdmin123!`.
 
 <details>
 <summary><strong>Windows (PowerShell)</strong></summary>
 
 ```powershell
-git clone https://github.com/PaulJMaddison/universalcontextlayer.git
-cd universalcontextlayer
+git clone https://github.com/PaulJMaddison/scout.git
+cd scout
 
 ./scripts/setup-demo.ps1
 ./scripts/start-demo.ps1
@@ -70,15 +53,15 @@ cd universalcontextlayer
 
 No Docker, PostgreSQL, global .NET SDK, or global Node.js install required. The scripts download repo-local runtimes automatically.
 
-**Prefer Docker?** Run `docker compose -f deploy/docker-compose.yml up ucl-api --build` for a single-container demo with SQLite and seeded data on [http://localhost:8080](http://localhost:8080).
+**Prefer Docker?** Run `docker compose -f deploy/docker-compose.yml up scout-api --build` for a single-container demo with SQLite and seeded data on [http://localhost:8080](http://localhost:8080).
 
 See the **[Getting Started Guide](docs/getting-started.md)** for Docker Compose with PostgreSQL, first API calls, SDK examples, and production setup.
 
 ---
 
-## What Is UCL?
+## What Is Scout?
 
-UCL is **context infrastructure for AI-enabled products**. It does not replace your CRM, ERP, support desk, or billing system. It sits beside those systems and creates a governed semantic layer above them so that downstream consumers -- AI copilots, workflow engines, reporting tools, internal apps -- get trusted business meaning instead of raw records.
+Scout is **context infrastructure for AI-enabled products**. It does not replace your CRM, ERP, support desk, or billing system. It sits beside those systems and creates a governed semantic layer above them so that downstream consumers -- AI copilots, workflow engines, reporting tools, internal apps -- get trusted business meaning instead of raw records.
 
 ### Key Capabilities
 
@@ -89,7 +72,7 @@ UCL is **context infrastructure for AI-enabled products**. It does not replace y
 | **Context Snapshots** | Reusable business profiles with confidence, freshness, and provenance |
 | **GraphQL + REST APIs** | Every context surface available through both query styles |
 | **TypeScript & .NET SDKs** | Typed client libraries for integration teams |
-| **AI-Safe Context Packages** | Scoped, grounded context bundles -- UCL does not call an AI model |
+| **AI-Safe Context Packages** | Scoped, grounded context bundles -- Scout does not call an AI model |
 | **Connector Framework** | Generic SQL, REST, CSV, mock connectors + extension points for enterprise |
 | **Audit & Provenance** | Every read, recompute, and context access is traceable |
 | **Blueprint Import** | AI-generated configuration (from Codex, Claude, ChatGPT) validated and imported |
@@ -110,7 +93,7 @@ flowchart TB
         Legacy["Legacy Databases"]
     end
 
-    subgraph UCL["Universal Context Layer -- Customer Data Plane"]
+    subgraph Scout["KynticAI Scout -- Customer Data Plane"]
         Connectors["Connectors"]
         Selectors["Selector Engine"]
         Schema["Semantic Schema"]
@@ -142,7 +125,7 @@ flowchart TB
 flowchart LR
     subgraph Customer["Customer environment"]
         SourcesC["Existing systems: CRM, ERP, support, warehouse, billing, legacy SQL"]
-        DataPlane["UCL data plane: connectors, selectors, semantic schema, snapshots, provenance, APIs"]
+        DataPlane["Scout data plane: connectors, selectors, semantic schema, snapshots, provenance, APIs"]
         CConsumers["Customer consumers: apps, reports, copilots, agents, workflows"]
         SourcesC --> DataPlane
         DataPlane --> CConsumers
@@ -176,13 +159,17 @@ flowchart LR
 | --- | --- |
 | ![Semantic schema registry](docs/images/semantic-schema-registry.png) | ![Customer context viewer](docs/images/customer-context-viewer.png) |
 
-| UCL event timeline | AI-assisted onboarding |
+| Scout event timeline | AI-assisted onboarding |
 | --- | --- |
-| ![Cross-system context timeline](docs/images/ucl-timeline.png) | ![AI-assisted onboarding blueprint](docs/images/ai-bootstrap-onboarding.png) |
+| ![Cross-system context timeline](docs/images/scout-timeline.png) | ![AI-assisted onboarding blueprint](docs/images/ai-bootstrap-onboarding.png) |
 
 | Example consumer: Intelligent Sales Support | Audit log |
 | --- | --- |
 | ![Intelligent Sales Support](docs/images/ai-playground.png) | ![Audit log](docs/images/audit-log-or-provenance.png) |
+
+| Licence and deployment status |
+| --- |
+| ![Licence and deployment status](docs/images/admin-licence-status.png) |
 
 ---
 
@@ -205,7 +192,7 @@ The seeded demo includes realistic B2B SaaS data: 2 tenants, 30 accounts, 80+ co
 
 ### Recommended Path
 
-1. **Executive Demo** (`/demo`) -- the product story: existing systems stay, UCL creates semantic meaning
+1. **Executive Demo** (`/demo`) -- the product story: existing systems stay, Scout creates semantic meaning
 2. **Legacy Signals / Semantic Timeline / Example Consumer Timeline / ROI** -- narrative for decision-makers
 3. **Customer Context** for User 123 -- summary, facts, confidence, snapshots, interpretation timeline
 4. **Bootstrap Studio** -- show how AI tools generate import blueprints (validated without calling AI APIs)
@@ -217,10 +204,10 @@ The seeded demo includes realistic B2B SaaS data: 2 tenants, 30 accounts, 80+ co
 
 | Tenant | Email | Password |
 |---|---|---|
-| `demo` | `admin@contextlayer.local` | `DemoAdmin123!` |
-| `demo` | `rep@contextlayer.local` | `DemoSales123!` |
-| `summit` | `admin@summit.contextlayer.local` | `SummitAdmin123!` |
-| `summit` | `rep@summit.contextlayer.local` | `SummitSales123!` |
+| `demo` | `admin@scout.local` | `DemoAdmin123!` |
+| `demo` | `rep@scout.local` | `DemoSales123!` |
+| `summit` | `admin@summit.scout.local` | `SummitAdmin123!` |
+| `summit` | `rep@summit.scout.local` | `SummitSales123!` |
 
 ### Best Demo Records
 
@@ -272,20 +259,20 @@ query {
 ### TypeScript SDK
 
 ```typescript
-import { createContextLayerClient } from '@universalcontextlayer/sdk'
+import { createScoutClient } from '@kynticai/scout-sdk'
 
-const ucl = createContextLayerClient({
+const scout = createScoutClient({
   baseUrl: 'http://127.0.0.1:5198',
-  accessToken: process.env.CONTEXT_LAYER_TOKEN,
+  accessToken: process.env.SCOUT_TOKEN,
 })
 
-const context = await ucl.users.getContext('demo', '123')
+const context = await scout.users.getContext('demo', '123')
 console.log(context?.fullName, context?.overallConfidence)
 
-const facts = await ucl.facts.getForUser('demo', '123', { attributeKey: 'health' })
+const facts = await scout.facts.getForUser('demo', '123', { attributeKey: 'health' })
 ```
 
-See the [TypeScript SDK README](packages/typescript/contextlayer-sdk/README.md) and [Public API Contract](docs/public-api-contract.md) for the full reference.
+See the [TypeScript SDK README](packages/typescript/scout-sdk/README.md) and [Public API Contract](docs/public-api-contract.md) for the full reference.
 
 ---
 
@@ -314,23 +301,6 @@ All endpoints support JWT bearer tokens, persisted API clients, `X-Request-Id` c
 
 ---
 
-## Static GitHub Pages Demo
-
-A backend-free static demo is available for sales conversations and buyer education -- no setup required:
-
-**[Live Demo](https://pauljmaddison.github.io/universalcontextlayer/)**
-
-Build it locally from `apps/web`:
-
-```bash
-npm run build:static-demo
-npm run preview:static-demo
-```
-
-See [docs/static-github-pages-demo.md](docs/static-github-pages-demo.md) for publishing details.
-
----
-
 ## Documentation
 
 | Document | Description |
@@ -348,7 +318,7 @@ See [docs/static-github-pages-demo.md](docs/static-github-pages-demo.md) for pub
 | [Open Core Boundary](docs/open-core-boundary.md) | What belongs in the public repo vs. enterprise |
 | [Enterprise Extension Points](docs/enterprise-extension-points.md) | How paid modules extend the open core |
 | [Roadmap](docs/roadmap.md) | Planned features and milestones |
-| [ADR: GraphQL Semantic Context Layer](docs/adr/0001-graphql-semantic-context-layer.md) | Architecture decision record |
+| [ADR: GraphQL Semantic Scout](docs/adr/0001-graphql-semantic-scout.md) | Architecture decision record |
 
 ---
 
@@ -386,17 +356,17 @@ Optional PostgreSQL mode: `sh ./scripts/setup-backend.sh --use-docker`
 ### Docker
 
 ```bash
-docker build -f src/ContextLayer.Api/Dockerfile -t contextlayer-api .
+docker build -f src/KynticAI.Scout.Api/Dockerfile -t scout-api .
 docker run --rm -p 8080:8080 \
   -e Platform__Mode=BackendOnly \
   -e Database__Provider=Postgres \
-  -e "ConnectionStrings__ContextLayer=<postgres-connection-string>" \
+  -e "ConnectionStrings__Scout=<postgres-connection-string>" \
   -e "ConnectionStrings__CustomerOps=<postgres-connection-string>" \
   -e "Auth__SigningKey=<48+-byte-random-secret>" \
-  -e DataProtection__KeyRingPath=/var/lib/ucl/data-protection-keys \
+  -e DataProtection__KeyRingPath=/var/lib/scout/data-protection-keys \
   -e DataProtection__RequirePersistentKeys=true \
-  -v ucl-data-protection-keys:/var/lib/ucl/data-protection-keys \
-  contextlayer-api
+  -v scout-data-protection-keys:/var/lib/scout/data-protection-keys \
+  scout-api
 ```
 
 ### Hosted PostgreSQL
@@ -413,14 +383,14 @@ Use the [Production Install Checklist](docs/production-install-checklist.md) bef
 
 ```bash
 # Backend unit and integration tests
-dotnet test ContextLayer.slnx
+dotnet test KynticAI.Scout.slnx
 
 # Frontend (from apps/web)
 npm run lint
 npm test
 npm run build
 
-# TypeScript SDK (from packages/typescript/contextlayer-sdk)
+# TypeScript SDK (from packages/typescript/scout-sdk)
 npm test
 ```
 
@@ -438,28 +408,28 @@ sh ./scripts/reset-demo.sh --skip-recreate     # stop without reseeding
 
 ## Open Core Model
 
-This repository is the **public open-source core** of Universal Context Layer. It is designed to be useful on its own: teams can run it locally, explore the APIs and SDKs, test integration patterns, and build context consumers without needing paid features.
+This repository is the **public open-source core** of KynticAI Scout. It is designed to be useful on its own: teams can run it locally, explore the APIs and SDKs, test integration patterns, and build context consumers without needing paid features.
 
 # Commercial & Enterprise Solutions
 
-For organizations requiring extreme performance, absolute data sovereignty and the full power of the KynticAI Substrate, we offer a proprietary Enterprise Edition.
+For organizations that need private connectors, managed deployment support, stronger governance controls, or production SLAs, KynticAI offers commercial Scout packages around this open-source core.
 
 ## The Enterprise Advantage
 
-### High-Velocity Rust Engine
-Access to our proprietary, implementation specific Rust binary designed for sub-millisecond context retrieval across billion-point datasets.
+### High-Scale Runtime Options
+Implementation-specific runtime components for high-volume data planes and latency-sensitive customer environments.
 
-### The Sovereign "Bunker" Deployment
-Full support for private cloud, single-tenant, or true "Air Gapped" on premise deployments. Your data never leaves your physical or virtual perimeter.
+### Private Deployment Support
+Support for private cloud, single-tenant, or air-gapped on-premise deployments where customer operational data remains inside the agreed customer-controlled perimeter.
 
-### Universal Context Connectors
+### Scout Enterprise Connectors
 Native, high throughput integration for the entire enterprise stack including CRM, ERP, Warehouse, Support, Email, Chat and Analytics platforms.
 
 ### Architectural Governance
 Full SSO/SCIM integration, granular RBAC (Role-Based Access Control) and automated compliance auditing for regulated industries.
 
-### Groundbreaking Contextual Intelligence
-Advanced UCL features for predictive analytics and cross-domain reasoning that go beyond standard RAG (Retrieval-Augmented Generation).
+### Contextual Intelligence
+Optional modules for predictive analytics and cross-domain reasoning that build on the governed context packages created by Scout.
 
 ### Mission-Critical Support
 Implementation-led paid pilots with full delivery support and commercial SLAs for production-grade environments.
@@ -468,33 +438,27 @@ Implementation-led paid pilots with full delivery support and commercial SLAs fo
 
 # Access & Licensing
 
-## UCL Cloud & Managed Hosting
-Private repository for cloud UCL hosting and sign-ups.
+## Scout Cloud & Managed Hosting
+Commercial hosting package for managed Scout deployments, account workflows, licence operations, and update-channel support.
 
-Repository:  
-https://github.com/PaulJMaddison/universalcontextlayer-cloud
-
-## UCL Enterprise Features
-Private repository for proprietary features and the High-Velocity engine.
-
-Repository:  
-https://github.com/PaulJMaddison/universalcontextlayer-enterprise
+## Scout Enterprise Features
+Commercial package for proprietary connectors, identity integrations, deployment packs, governance modules, and production support.
 
 See [docs/open-core-boundary.md](docs/open-core-boundary.md) and [docs/enterprise-extension-points.md](docs/enterprise-extension-points.md) for the detailed boundary.
 
-> **Enterprise enquiries:** [paul.maddison.delimeg@gmail.com](mailto:paul.maddison.delimeg@gmail.com) | [+44 7742 031553](tel:+447742031553)
+> **Enterprise enquiries:** [paul@kyticai.com](mailto:paul@kyticai.com) | [kynticai.com](https://kynticai.com)
 
 ---
 
 ## Releases
 
-UCL uses coordinated [semantic versioning](https://semver.org/) across all three repositories (open-source, enterprise, cloud). Every release is tagged with the same `vX.Y.Z` version.
+Scout uses coordinated [semantic versioning](https://semver.org/) across all three repositories (open-source, enterprise, cloud). Every release is tagged with the same `vX.Y.Z` version.
 
 | Resource | Description |
 |---|---|
 | [Release Process](docs/releases/release-process.md) | Full release workflow, checklists, and hotfix process |
 | [Cross-Repo Changelog](docs/releases/CHANGELOG.md) | Consolidated changelog across all three repos |
-| [GitHub Releases](https://github.com/PaulJMaddison/universalcontextlayer/releases) | Published releases with auto-generated notes |
+| [GitHub Releases](https://github.com/PaulJMaddison/scout/releases) | Published releases with auto-generated notes |
 
 ### Release Scripts
 
@@ -520,6 +484,6 @@ See [SECURITY.md](SECURITY.md) for our security policy and responsible disclosur
 
 ## License
 
-Universal Context Layer is released under the [MIT License](LICENSE).
+KynticAI Scout is released under the [MIT License](LICENSE).
 
-Copyright (c) 2026 Paul Maddison
+Copyright (c) 2026 KynticAI

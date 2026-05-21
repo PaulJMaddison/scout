@@ -30,7 +30,7 @@ export function TermsPage() {
 
         <Panel eyebrow="No overclaiming" title="The website does not offer hands-off SaaS">
           <p className="text-sm leading-7 text-ink-700">
-            Universal Context Layer is currently positioned as open source core plus implementation-led paid pilot, with private enterprise extensions and future/private cloud-control-plane work. The public site does not create a live subscription, payment account, licence portal, hosted production environment, or automated enterprise connector deployment.
+            KynticAI Scout is currently positioned as open source core plus implementation-led paid pilot, with private enterprise extensions and future/private cloud-control-plane work. The public site does not create a live subscription, payment account, licence portal, hosted production environment, or automated enterprise connector deployment.
           </p>
         </Panel>
       </section>

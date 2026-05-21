@@ -1,6 +1,6 @@
-# Universal Context Layer Web Console
+# KynticAI Scout Web Console
 
-The web console shows how Universal Context Layer turns existing business data into reusable context for apps, workflows, analytics, copilots, and agents.
+The web console shows how KynticAI Scout turns existing business data into reusable context for apps, workflows, analytics, copilots, and agents.
 
 It is a React 19 admin application built with Vite, TypeScript, TanStack Router, TanStack Query, React Hook Form, Zod, and Tailwind.
 
@@ -25,7 +25,7 @@ Recommended local values:
 VITE_API_BASE_URL=http://localhost:5198
 VITE_GRAPHQL_ENDPOINT=
 VITE_PILOT_LEAD_ENDPOINT=
-VITE_PILOT_CONTACT_EMAIL=hello@universalcontextlayer.com
+VITE_PILOT_CONTACT_EMAIL=paul@kyticai.com
 VITE_DEMO_FALLBACK=true
 ```
 
@@ -41,7 +41,7 @@ For hosted static-site deployment, build with the public API origin:
 VITE_API_BASE_URL=https://<api-domain>
 VITE_GRAPHQL_ENDPOINT=https://<api-domain>/graphql
 VITE_PILOT_LEAD_ENDPOINT=https://<cloud-api-domain>/api/v1/crm/leads
-VITE_PILOT_CONTACT_EMAIL=hello@universalcontextlayer.com
+VITE_PILOT_CONTACT_EMAIL=paul@kyticai.com
 VITE_DEMO_FALLBACK=false
 ```
 

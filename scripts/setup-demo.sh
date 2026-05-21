@@ -54,7 +54,7 @@ EOF
 }
 
 ensure_demo_licence_file() {
-  licence_path="$DEMO_DATA_DIR/ucl-demo.licence.json"
+  licence_path="$DEMO_DATA_DIR/scout-demo.licence.json"
   if [ -f "$licence_path" ]; then
     return
   fi
@@ -63,9 +63,9 @@ ensure_demo_licence_file() {
   expires_at="$(date -u -d "+2 years" +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || date -u -v+2y +"%Y-%m-%dT%H:%M:%SZ")"
   cat >"$licence_path" <<EOF
 {
-  "licenceKey": "ucl_demo_local_productisation_preview",
+  "licenceKey": "scout_demo_local_productisation_preview",
   "plan": "Community",
-  "licensedTo": "Universal Context Layer local demo",
+  "licensedTo": "KynticAI Scout local demo",
   "issuedAtUtc": "$issued_at",
   "expiresAtUtc": "$expires_at",
   "entitlements": {
@@ -114,9 +114,10 @@ mkdir -p "$DEMO_DATA_DIR"
 ensure_demo_licence_file
 
 run_repo_command "\"$DOTNET_CMD\" tool restore"
-run_repo_command "\"$DOTNET_CMD\" restore ContextLayer.slnx"
+run_repo_command "\"$DOTNET_CMD\" restore KynticAI.Scout.slnx"
 
 if [ "$MODE" = "docker" ]; then
+  DOCKER_DEMO_ENV="ASPNETCORE_ENVIRONMENT=Development Platform__Mode=Demo Bootstrap__ApplyMigrationsOnStartup=true Bootstrap__SeedDemoData=true Database__Provider=Postgres ConnectionStrings__Scout='Host=localhost;Port=5432;Database=scout_context_db;Username=postgres;Password=postgres' ConnectionStrings__CustomerOps='Host=localhost;Port=5432;Database=customer_ops_db;Username=postgres;Password=postgres' Licence__Mode=Community Licence__FilePath='$DEMO_DATA_DIR/scout-demo.licence.json' Telemetry__OtlpEndpoint='http://localhost:4317'"
   echo "Docker mode was requested. Bootstrapping PostgreSQL-backed demo infrastructure."
   run_repo_command "docker compose up -d postgres otel-collector prometheus tempo grafana"
 
@@ -136,23 +137,23 @@ if [ "$MODE" = "docker" ]; then
     exit 1
   fi
 
-  run_repo_command "\"$DOTNET_CMD\" tool run dotnet-ef database update --project src/ContextLayer.Infrastructure --startup-project src/ContextLayer.Api --context CustomerOpsDbContext"
-  run_repo_command "\"$DOTNET_CMD\" tool run dotnet-ef database update --project src/ContextLayer.Infrastructure --startup-project src/ContextLayer.Api --context ContextLayerDbContext"
-  run_repo_command "Platform__Mode=Demo Bootstrap__ApplyMigrationsOnStartup=true Bootstrap__SeedDemoData=true \"$DOTNET_CMD\" run --project src/ContextLayer.Api -- bootstrap-demo"
+  run_repo_command "$DOCKER_DEMO_ENV \"$DOTNET_CMD\" tool run dotnet-ef database update --project src/KynticAI.Scout.Infrastructure --startup-project src/KynticAI.Scout.Api --context CustomerOpsDbContext"
+  run_repo_command "$DOCKER_DEMO_ENV \"$DOTNET_CMD\" tool run dotnet-ef database update --project src/KynticAI.Scout.Infrastructure --startup-project src/KynticAI.Scout.Api --context ScoutDbContext"
+  run_repo_command "$DOCKER_DEMO_ENV \"$DOTNET_CMD\" run --project src/KynticAI.Scout.Api -- bootstrap-demo"
 
   if [ "$START_CONTAINERS" -eq 1 ]; then
     run_repo_command "docker compose up -d api web"
   fi
 else
   echo "Bootstrapping the default local two-database demo using SQLite files."
-  run_repo_command "Platform__Mode=Demo Bootstrap__ApplyMigrationsOnStartup=true Bootstrap__SeedDemoData=true Database__Provider=Sqlite ConnectionStrings__ContextLayer='Data Source=$DEMO_DATA_DIR/context_layer_demo.db' ConnectionStrings__CustomerOps='Data Source=$DEMO_DATA_DIR/customer_ops_demo.db' Licence__Mode=Community Licence__FilePath='$DEMO_DATA_DIR/ucl-demo.licence.json' Telemetry__OtlpEndpoint='' \"$DOTNET_CMD\" run --project src/ContextLayer.Api -- bootstrap-demo"
+  run_repo_command "Platform__Mode=Demo Bootstrap__ApplyMigrationsOnStartup=true Bootstrap__SeedDemoData=true Database__Provider=Sqlite ConnectionStrings__Scout='Data Source=$DEMO_DATA_DIR/scout_context_demo.db' ConnectionStrings__CustomerOps='Data Source=$DEMO_DATA_DIR/customer_ops_demo.db' Licence__Mode=Community Licence__FilePath='$DEMO_DATA_DIR/scout-demo.licence.json' Telemetry__OtlpEndpoint='' \"$DOTNET_CMD\" run --project src/KynticAI.Scout.Api -- bootstrap-demo"
 fi
 
 run_repo_command "npm install" "$REPO_ROOT/apps/web"
 
 cat <<EOF
 
-Context Layer demo bootstrap complete.
+Scout demo bootstrap complete.
 Mode: $MODE
 
 Start locally:

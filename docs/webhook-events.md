@@ -1,12 +1,12 @@
 # Webhook And Source-System Events
 
-Universal Context Layer accepts provider-neutral source-system events at:
+KynticAI Scout accepts provider-neutral source-system events at:
 
 ```http
 POST /api/v1/events/source-system
 ```
 
-The endpoint is designed for customer data-plane integrations where CRM, support, billing, warehouse, product, marketing, or legacy systems notify UCL that source data changed. UCL stores each event, validates signatures, deduplicates by event ID, matches selectors, and queues recomputation jobs when a user can be resolved.
+The endpoint is designed for customer data-plane integrations where CRM, support, billing, warehouse, product, marketing, or legacy systems notify Scout that source data changed. Scout stores each event, validates signatures, deduplicates by event ID, matches selectors, and queues recomputation jobs when a user can be resolved.
 
 ## Authentication And Signature
 
@@ -15,10 +15,10 @@ Use an API client created through `/api/v1/api-clients` with the `events:ingest`
 ```http
 X-API-Client-Id: <clientId>
 X-API-Key: <apiKey>
-X-UCL-Webhook-Secret-Id: <webhookSecretId>
-X-UCL-Webhook-Secret: <one-time-returned-webhook-secret>
-X-UCL-Webhook-Timestamp: 2026-05-11T15:45:00.0000000Z
-X-UCL-Webhook-Signature: sha256=<hex-hmac>
+X-Scout-Webhook-Secret-Id: <webhookSecretId>
+X-Scout-Webhook-Secret: <one-time-returned-webhook-secret>
+X-Scout-Webhook-Timestamp: 2026-05-11T15:45:00.0000000Z
+X-Scout-Webhook-Signature: sha256=<hex-hmac>
 ```
 
 Signature input is:
@@ -54,9 +54,9 @@ Provider-specific signature formats for Slack, GitHub, Stripe, or other vendors 
 Rules:
 
 - `eventId` is required and idempotent per tenant and source system.
-- `workspaceSlug` is optional; UCL routes to the actor workspace or default workspace when omitted.
+- `workspaceSlug` is optional; Scout routes to the actor workspace or default workspace when omitted.
 - `externalUserId` is preferred for selector recomputation.
-- `externalAccountId` can be used when UCL can resolve an account contact to a user profile.
+- `externalAccountId` can be used when Scout can resolve an account contact to a user profile.
 - `payload` can be any JSON object; alternatively send `payloadJson` when your client already has a serialized payload string.
 
 Supported event types:
@@ -76,9 +76,9 @@ Supported event types:
 
 - `Received`: signature and JSON validation passed, and the event was stored.
 - `Ignored`: duplicate events and delete notifications are recorded but do not queue recomputation.
-- `Processed`: UCL stored a user signal and, when selectors matched, queued selector executions plus a recomputation job.
-- `Failed`: UCL could not process the event.
-- `DeadLettered`: UCL retained a failed event for inspection, usually because routing keys did not resolve to a user profile.
+- `Processed`: Scout stored a user signal and, when selectors matched, queued selector executions plus a recomputation job.
+- `Failed`: Scout could not process the event.
+- `DeadLettered`: Scout retained a failed event for inspection, usually because routing keys did not resolve to a user profile.
 
 Audit events are written for received, ignored, processed, and failed events.
 

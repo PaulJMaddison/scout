@@ -6,7 +6,7 @@ The format is inspired by Keep a Changelog and this project follows semantic ver
 
 ## [Unreleased]
 
-## [2.8.0] - 2026-05-29
+## [2.8.0] - 2026-05-21
 
 ### Added
 
@@ -27,8 +27,8 @@ The format is inspired by Keep a Changelog and this project follows semantic ver
 
 ### Changed
 
-- Added a testing skill for the UCL open-source repository to improve session reproducibility.
-- Updated the testing-ucl-backend skill with Scalar documentation paths and CSP troubleshooting guidance.
+- Added a testing skill for the Scout open-source repository to improve session reproducibility.
+- Updated the testing-scout-backend skill with Scalar documentation paths and CSP troubleshooting guidance.
 
 ### Chores
 
@@ -45,7 +45,7 @@ The format is inspired by Keep a Changelog and this project follows semantic ver
 ### Changed
 
 - Updated public release metadata to `2.7.0`.
-- Strengthened the public open-core story around demos, static demo caveats, install runbooks, public API/SDK/context package docs, and paid-pilot boundaries.
+- Strengthened the public open-core story around demo caveats, install runbooks, public API/SDK/context package docs, and paid-pilot boundaries.
 
 ### Security
 
@@ -57,7 +57,7 @@ The format is inspired by Keep a Changelog and this project follows semantic ver
 ### Added
 
 - Added buyer-facing docs for the customer data plane, public API contract, integration layer, and buyer FAQ.
-- Expanded the static GitHub Pages demo with a richer fictional data-plane story, connector catalogue framing, and proof/caveat copy.
+- Expanded the retired preview demo copy with a richer fictional data-plane story, connector catalogue framing, and proof/caveat copy.
 - Added REST, GraphQL, TypeScript SDK, and .NET SDK coverage for context facts, context snapshots, AI-safe context packages, selector preview/validation, source-system events, pagination, errors, and machine-to-machine auth.
 
 ### Changed
@@ -68,15 +68,15 @@ The format is inspired by Keep a Changelog and this project follows semantic ver
 ### Security
 
 - Reconfirmed that paid enterprise connector implementations, cloud billing/control-plane implementation, customer-specific code, secrets, and raw customer data are not part of the public repository.
-- Reconfirmed that the public static demo uses fictional data and is not live backend or SaaS functionality.
+- Reconfirmed that public demo materials use fictional data and are not live backend or SaaS functionality.
 
 ## [2.5.1] - 2026-05-12
 
 ### Added
 
-- Enabled the live GitHub Pages static demo at `https://pauljmaddison.github.io/universalcontextlayer/`.
-- Added the live Pages URL to the README and static demo documentation.
-- Added `.nojekyll` generation to the static demo build output for GitHub Pages serving.
+- Retired the temporary hosted preview-demo publishing path ahead of the company website launch.
+- Removed temporary hosted-preview references from the README and demo documentation.
+- Removed preview-demo publishing artefacts from the web build output.
 
 ### Changed
 
@@ -86,20 +86,20 @@ The format is inspired by Keep a Changelog and this project follows semantic ver
 
 ### Added
 
-- Added a GitHub Pages compatible static brochure/demo site for sales, marketing, and buyer education.
-- Added static fictional fixtures for Northstar Logistics, User 123 / Avery Stone, raw operational signals, semantic facts, selector definitions, grounded AI output, audit provenance, and interaction timelines.
-- Added `build:static-demo` and `preview:static-demo` scripts plus a dedicated static-demo Vite config with Pages base-path support and generated `index.html` / `404.html` fallbacks.
-- Added static demo documentation and captured laptop/mobile screenshots.
+- Added a temporary brochure/demo preview for sales, marketing, and buyer education.
+- Added fictional fixtures for Northstar Logistics, User 123 / Avery Stone, raw operational signals, semantic facts, selector definitions, grounded AI output, audit provenance, and interaction timelines.
+- Added a temporary preview build path that has since been retired in favour of the main KynticAI website.
+- Added demo documentation and captured laptop/mobile screenshots.
 
 ### Changed
 
-- Clarified that the static site is not the product runtime: the downloadable React app, backend, APIs, SDKs, selector engine, seeded demo, and local setup path remain the functional product experience.
+- Clarified that the temporary preview site is not the product runtime: the downloadable React app, backend, APIs, SDKs, selector engine, seeded demo, and local setup path remain the functional product experience.
 - Updated public release metadata to `2.5.0`.
 - Expanded paid-pilot and hosted-deployment documentation for the public commercial positioning.
 
 ### Security
 
-- Kept the static demo backend-free with fictional snapshot data only. It does not include customer operational data, secrets, live connector execution, database access, or paid/private connector implementation code.
+- Kept the temporary preview demo backend-free with fictional snapshot data only. It does not include customer operational data, secrets, live connector execution, database access, or paid/private connector implementation code.
 
 ## [2.4.1] - 2026-05-12
 
@@ -213,7 +213,7 @@ The format is inspired by Keep a Changelog and this project follows semantic ver
 
 ### Added
 
-- Repositioned Universal Context Layer as open-core context infrastructure rather than primarily an AI app.
+- Repositioned KynticAI Scout as open-core context infrastructure rather than primarily an AI app.
 - Added marketing pages for the platform, use cases, integrations, open-core model, pricing/deployment, docs, demo, and FAQ.
 - Added a self-hosted customer admin console covering organisation settings, workspace settings, users and roles, API clients, usage and limits, connector catalogue, webhook events, blueprint imports, data governance, audit export, and licence/update status.
 - Added SaaS-control-plane foundations for tenants, workspaces, users, subscriptions, API clients, connectors, selector definitions, context packages, audit events, billing usage, onboarding, feature flags, and hosted-mode configuration.
@@ -232,7 +232,7 @@ The format is inspired by Keep a Changelog and this project follows semantic ver
 
 ### Changed
 
-- Updated README, docs, and website copy to explain that UCL creates governed context for customer-owned systems, reports, workflows, copilots, agents, and apps.
+- Updated README, docs, and website copy to explain that Scout creates governed context for customer-owned systems, reports, workflows, copilots, agents, and apps.
 - Clarified that the AI sales playground is one example consumer, not the required product architecture.
 - Documented the split between a future hosted control plane and the self-hosted customer data plane, including what data must stay local.
 - Clarified the commercial model so the public repository reads as a credible open source core rather than a stripped-down teaser.
@@ -268,7 +268,7 @@ The format is inspired by Keep a Changelog and this project follows semantic ver
 
 ### Changed
 
-- Rewrote the landing hero to clearly state that Context Layer turns existing business data into AI-ready context.
+- Rewrote the landing hero to clearly state that Scout turns existing business data into AI-ready context.
 - Updated dashboard, data source, selector builder, schema registry, customer context, AI playground, audit, bootstrap, and walkthrough page headers to lead with user value.
 - Refreshed README screenshots from the latest running SQLite-backed UI.
 
@@ -284,7 +284,7 @@ The format is inspired by Keep a Changelog and this project follows semantic ver
 - Default SQLite laptop install path with repo-local .NET 10 and Node.js bootstrap so the demo can run without Docker, PostgreSQL, or preinstalled developer tooling.
 - Optional Docker/PostgreSQL mode for production-like package demos and observability.
 - Executive walkthrough pages covering legacy source signals, semantic timelines, AI interaction timelines, rollout, ROI, and governance.
-- Bootstrap Studio for Codex or Claude assisted source-system analysis, prompt generation, blueprint upload, and import into Context Layer.
+- Bootstrap Studio for Codex or Claude assisted source-system analysis, prompt generation, blueprint upload, and import into Scout.
 - Responsive regression coverage for login, mobile, and core product routes.
 
 ### Changed
@@ -305,9 +305,9 @@ The format is inspired by Keep a Changelog and this project follows semantic ver
 ### Added
 
 - Executive demo storytelling flow at `/demo` covering business value, technical integration posture, and rollout credibility.
-- Cross-system UCL event timeline showing how raw operational events become semantic business meaning.
+- Cross-system Scout event timeline showing how raw operational events become semantic business meaning.
 - AI-assisted onboarding narrative showing how tools like Codex or Claude can draft a discovery report, semantic blueprint, and selector candidates for admin review.
-- Refreshed screenshot gallery including executive demo, UCL timeline, and AI bootstrap visuals.
+- Refreshed screenshot gallery including executive demo, Scout timeline, and AI bootstrap visuals.
 
 ### Changed
 
@@ -323,7 +323,7 @@ The format is inspired by Keep a Changelog and this project follows semantic ver
 
 ### Added
 
-- Initial open-source release of the Universal Context Layer commercial demo.
+- Initial open-source release of the KynticAI Scout commercial demo.
 - Dual-database architecture demonstrating separation between operational source data and semantic AI context.
 - React frontend for dashboard, data sources, selector builder, schema registry, context viewer, AI playground, and audit log.
 - ASP.NET Core + GraphQL backend with selector execution, grounded context generation, and seed data.

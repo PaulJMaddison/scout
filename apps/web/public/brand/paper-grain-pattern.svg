@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" fill="none">
+  <title>KynticAI — Paper Grain Texture</title>
+  <desc>Tileable subtle aged-paper texture. Use as a CSS background-image on Desert Sand surfaces to add tactile depth. Low opacity so text remains crisp.</desc>
+
+  <defs>
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.92" numOctaves="2" seed="17"/>
+      <feColorMatrix values="0 0 0 0 0.72  0 0 0 0 0.45  0 0 0 0 0.20  0 0 0 0.07 0"/>
+      <feComposite in2="SourceGraphic" operator="in"/>
+    </filter>
+  </defs>
+
+  <rect width="600" height="600" fill="#FDF6E3"/>
+  <rect width="600" height="600" filter="url(#grain)"/>
+</svg>

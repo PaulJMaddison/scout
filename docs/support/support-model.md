@@ -4,7 +4,7 @@ This support model is a pilot template. It is not a contractual service level ag
 
 ## Scope
 
-Support covers the agreed UCL paid pilot data plane, agreed open-core connector path, semantic mappings, context lookup path, and pilot handover. Private enterprise connectors, managed hosting, and production operations are covered only if named in the SOW.
+Support covers the agreed Scout paid pilot data plane, agreed open-core connector path, semantic mappings, context lookup path, and pilot handover. Private enterprise connectors, managed hosting, and production operations are covered only if named in the SOW.
 
 ## Support Channel And Hours
 

@@ -85,21 +85,21 @@ if [ "$USE_DOCKER" -eq 1 ]; then
     docker compose up -d postgres
   )
 
-  API_ENV_PREFIX="ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://127.0.0.1:5198 Platform__Mode=BackendOnly Bootstrap__ApplyMigrationsOnStartup=true Bootstrap__SeedDemoData=$seed_value Database__Provider=Postgres ConnectionStrings__ContextLayer='Host=localhost;Port=5432;Database=context_layer_db;Username=postgres;Password=postgres' ConnectionStrings__CustomerOps='Host=localhost;Port=5432;Database=customer_ops_db;Username=postgres;Password=postgres'"
+  API_ENV_PREFIX="ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://127.0.0.1:5198 Platform__Mode=BackendOnly Bootstrap__ApplyMigrationsOnStartup=true Bootstrap__SeedDemoData=$seed_value Database__Provider=Postgres ConnectionStrings__Scout='Host=localhost;Port=5432;Database=scout_context_db;Username=postgres;Password=postgres' ConnectionStrings__CustomerOps='Host=localhost;Port=5432;Database=customer_ops_db;Username=postgres;Password=postgres'"
 else
-  API_ENV_PREFIX="ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://127.0.0.1:5198 Platform__Mode=BackendOnly Bootstrap__ApplyMigrationsOnStartup=true Bootstrap__SeedDemoData=$seed_value Database__Provider=Sqlite ConnectionStrings__ContextLayer='Data Source=$BACKEND_DATA_DIR/context_layer.db' ConnectionStrings__CustomerOps='Data Source=$BACKEND_DATA_DIR/customer_ops.db' Telemetry__OtlpEndpoint=''"
+  API_ENV_PREFIX="ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://127.0.0.1:5198 Platform__Mode=BackendOnly Bootstrap__ApplyMigrationsOnStartup=true Bootstrap__SeedDemoData=$seed_value Database__Provider=Sqlite ConnectionStrings__Scout='Data Source=$BACKEND_DATA_DIR/scout_context.db' ConnectionStrings__CustomerOps='Data Source=$BACKEND_DATA_DIR/customer_ops.db' Telemetry__OtlpEndpoint=''"
 fi
 
 (
   cd "$REPO_ROOT"
-  nohup sh -lc "$API_ENV_PREFIX \"$DOTNET_CMD\" run --project src/ContextLayer.Api" >"$API_LOG" 2>"$API_ERR_LOG" &
+  nohup sh -lc "$API_ENV_PREFIX \"$DOTNET_CMD\" run --project src/KynticAI.Scout.Api" >"$API_LOG" 2>"$API_ERR_LOG" &
   echo $! >"$API_PID_FILE"
 )
 
 wait_for_url "http://127.0.0.1:5198/health"
 
 echo
-echo "Context Layer backend is running."
+echo "Scout backend is running."
 echo "API:      http://127.0.0.1:5198"
 echo "GraphQL:  http://127.0.0.1:5198/graphql"
 echo "REST doc: http://127.0.0.1:5198/swagger"

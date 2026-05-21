@@ -1,16 +1,16 @@
 # Roadmap
 
-This roadmap describes the current direction of Universal Context Layer at a high level. It is intended to help contributors understand the shape of the public open source core and the likely boundary to future commercial offerings.
+This roadmap describes the current direction of KynticAI Scout at a high level. It is intended to help contributors understand the shape of the public open source core and the likely boundary to future commercial offerings.
 
 ## Repository model
 
 The expected repository split is:
 
-- `universalcontextlayer`
+- `scout`
   The public open source core
-- `universalcontextlayer-enterprise`
+- `scout-enterprise`
   A private paid repository for enterprise extensions
-- `universalcontextlayer-cloud`
+- `scout-cloud`
   A private cloud/control-plane repository for hosted commercial operations
 
 ## Public open source core

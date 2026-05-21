@@ -33,9 +33,9 @@ function Test-DockerAvailable {
 }
 
 function Get-LocalDemoEnvironment {
-    $contextDbPath = [System.IO.Path]::GetFullPath((Join-Path $demoDataDirectory 'context_layer_demo.db'))
+    $contextDbPath = [System.IO.Path]::GetFullPath((Join-Path $demoDataDirectory 'scout_context_demo.db'))
     $customerOpsDbPath = [System.IO.Path]::GetFullPath((Join-Path $demoDataDirectory 'customer_ops_demo.db'))
-    $licencePath = [System.IO.Path]::GetFullPath((Join-Path $demoDataDirectory 'ucl-demo.licence.json'))
+    $licencePath = [System.IO.Path]::GetFullPath((Join-Path $demoDataDirectory 'scout-demo.licence.json'))
     return @{
         'ASPNETCORE_ENVIRONMENT' = 'Development'
         'ASPNETCORE_URLS' = 'http://127.0.0.1:5198'
@@ -43,7 +43,7 @@ function Get-LocalDemoEnvironment {
         'Bootstrap__ApplyMigrationsOnStartup' = 'true'
         'Bootstrap__SeedDemoData' = 'true'
         'Database__Provider' = 'Sqlite'
-        'ConnectionStrings__ContextLayer' = "Data Source=$contextDbPath"
+        'ConnectionStrings__Scout' = "Data Source=$contextDbPath"
         'ConnectionStrings__CustomerOps' = "Data Source=$customerOpsDbPath"
         'Licence__Mode' = 'Community'
         'Licence__FilePath' = $licencePath
@@ -53,8 +53,27 @@ function Get-LocalDemoEnvironment {
     }
 }
 
+function Get-DockerDemoEnvironment {
+    $licencePath = [System.IO.Path]::GetFullPath((Join-Path $demoDataDirectory 'scout-demo.licence.json'))
+    return @{
+        'ASPNETCORE_ENVIRONMENT' = 'Development'
+        'ASPNETCORE_URLS' = 'http://127.0.0.1:5198'
+        'Platform__Mode' = 'Demo'
+        'Bootstrap__ApplyMigrationsOnStartup' = 'true'
+        'Bootstrap__SeedDemoData' = 'true'
+        'Database__Provider' = 'Postgres'
+        'ConnectionStrings__Scout' = 'Host=localhost;Port=5432;Database=scout_context_db;Username=postgres;Password=postgres'
+        'ConnectionStrings__CustomerOps' = 'Host=localhost;Port=5432;Database=customer_ops_db;Username=postgres;Password=postgres'
+        'Licence__Mode' = 'Community'
+        'Licence__FilePath' = $licencePath
+        'Cors__AllowedOrigins__0' = 'http://localhost:5173'
+        'Cors__AllowedOrigins__1' = 'http://127.0.0.1:5173'
+        'Telemetry__OtlpEndpoint' = 'http://localhost:4317'
+    }
+}
+
 function Ensure-DemoLicenceFile {
-    $licencePath = Join-Path $demoDataDirectory 'ucl-demo.licence.json'
+    $licencePath = Join-Path $demoDataDirectory 'scout-demo.licence.json'
     if (Test-Path $licencePath) {
         return
     }
@@ -67,9 +86,9 @@ function Ensure-DemoLicenceFile {
     $expiresAt = [DateTime]::UtcNow.AddYears(2).ToString('O')
     @"
 {
-  "licenceKey": "ucl_demo_local_productisation_preview",
+  "licenceKey": "scout_demo_local_productisation_preview",
   "plan": "Community",
-  "licensedTo": "Universal Context Layer local demo",
+  "licensedTo": "KynticAI Scout local demo",
   "issuedAtUtc": "$issuedAt",
   "expiresAtUtc": "$expiresAt",
   "entitlements": {
@@ -192,9 +211,10 @@ Ensure-DemoLicenceFile
 Stop-TrackedProcess -PidFile $apiPidPath
 Stop-TrackedProcess -PidFile $webPidPath
 Stop-RepoProcessByPattern -Name 'node.exe' -Pattern (Join-Path $repoRoot 'apps\web')
-Stop-RepoProcessByPattern -Name 'dotnet.exe' -Pattern (Join-Path $repoRoot 'src\ContextLayer.Api')
+Stop-RepoProcessByPattern -Name 'dotnet.exe' -Pattern (Join-Path $repoRoot 'src\KynticAI.Scout.Api')
 
 if ($demoMode -eq 'docker') {
+    $dockerDemoEnvironment = Get-DockerDemoEnvironment
     Push-Location $repoRoot
     try {
         Write-Host '>> docker compose up -d postgres otel-collector prometheus tempo grafana' -ForegroundColor Cyan
@@ -204,25 +224,21 @@ if ($demoMode -eq 'docker') {
         Pop-Location
     }
 
-    Write-Host '>> dotnet run --project src/ContextLayer.Api -- bootstrap-demo' -ForegroundColor Cyan
-    & $dotnetCommand run --project src/ContextLayer.Api -- bootstrap-demo
+    Write-Host '>> dotnet run --project src/KynticAI.Scout.Api -- bootstrap-demo' -ForegroundColor Cyan
+    Invoke-WithEnvironment -Variables $dockerDemoEnvironment -Action {
+        & $dotnetCommand run --project src/KynticAI.Scout.Api -- bootstrap-demo
+    }
 }
 else {
     $localDemoEnvironment = Get-LocalDemoEnvironment
-    Write-Host '>> dotnet run --project src/ContextLayer.Api -- bootstrap-demo' -ForegroundColor Cyan
+    Write-Host '>> dotnet run --project src/KynticAI.Scout.Api -- bootstrap-demo' -ForegroundColor Cyan
     Invoke-WithEnvironment -Variables $localDemoEnvironment -Action {
-        & $dotnetCommand run --project src/ContextLayer.Api -- bootstrap-demo
+        & $dotnetCommand run --project src/KynticAI.Scout.Api -- bootstrap-demo
     }
 }
 
 $backendEnvironment = if ($demoMode -eq 'docker') {
-    @{
-        'ASPNETCORE_ENVIRONMENT' = 'Development'
-        'ASPNETCORE_URLS' = 'http://127.0.0.1:5198'
-        'Platform__Mode' = 'Demo'
-        'Bootstrap__ApplyMigrationsOnStartup' = 'true'
-        'Bootstrap__SeedDemoData' = 'true'
-    }
+    Get-DockerDemoEnvironment
 }
 else {
     Get-LocalDemoEnvironment
@@ -243,7 +259,7 @@ foreach ($entry in $backendEnvironment.GetEnumerator()) {
     $backendScript += "`n`$env:$($entry.Key) = '$escapedValue'"
 }
 
-$backendScript += "`n& '$dotnetCommand' run --project src/ContextLayer.Api"
+$backendScript += "`n& '$dotnetCommand' run --project src/KynticAI.Scout.Api"
 
 $apiProcess = Start-Process -FilePath 'powershell' `
     -ArgumentList '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', $backendScript `
@@ -258,7 +274,7 @@ Wait-ForUrl -Url 'http://127.0.0.1:5198/health'
 
 $loginResponse = Invoke-RestMethod -Method Post -Uri 'http://127.0.0.1:5198/api/auth/login' -ContentType 'application/json' -Body (@{
         tenantSlug = 'demo'
-        email = 'admin@contextlayer.local'
+        email = 'admin@scout.local'
         password = 'DemoAdmin123!'
     } | ConvertTo-Json)
 
@@ -312,12 +328,12 @@ $webProcess.Id | Set-Content -LiteralPath $webPidPath
 Wait-ForUrl -Url 'http://127.0.0.1:5173'
 
 Write-Host ''
-Write-Host 'Context Layer is running.' -ForegroundColor Green
+Write-Host 'Scout is running.' -ForegroundColor Green
 Write-Host "Mode: $demoMode" -ForegroundColor Yellow
 Write-Host 'Web:     http://127.0.0.1:5173'
 Write-Host 'API:     http://127.0.0.1:5198'
 Write-Host 'GraphQL: http://127.0.0.1:5198/graphql'
 Write-Host ''
 Write-Host 'Demo login:' -ForegroundColor Yellow
-Write-Host '  demo / admin@contextlayer.local / DemoAdmin123!'
-Write-Host '  demo / rep@contextlayer.local / DemoSales123!'
+Write-Host '  demo / admin@scout.local / DemoAdmin123!'
+Write-Host '  demo / rep@scout.local / DemoSales123!'

@@ -2,7 +2,7 @@
 param(
     [string]$BaseUrl = "http://localhost:5198",
     [string]$TenantSlug = "demo",
-    [string]$AdminEmail = "admin@contextlayer.local",
+    [string]$AdminEmail = "admin@scout.local",
     [string]$AdminPassword = "DemoAdmin123!"
 )
 
@@ -46,7 +46,7 @@ function Invoke-Status {
     }
 }
 
-function New-UclWebhookSignature {
+function New-ScoutWebhookSignature {
     param([string]$Secret, [string]$Timestamp, [string]$EventId, [string]$Body)
     $payload = "$Timestamp.$EventId.$Body"
     $hmac = [System.Security.Cryptography.HMACSHA256]::new([System.Text.Encoding]::UTF8.GetBytes($Secret))
@@ -65,7 +65,7 @@ try {
     Write-Host "Start it with:"
     Write-Host "  .\scripts\start-demo.ps1"
     Write-Host "or:"
-    Write-Host "  dotnet run --project .\src\ContextLayer.Api\ContextLayer.Api.csproj --urls $BaseUrl"
+    Write-Host "  dotnet run --project .\src\KynticAI.Scout.Api\KynticAI.Scout.Api.csproj --urls $BaseUrl"
     exit 2
 }
 
@@ -114,19 +114,19 @@ $event = [ordered]@{
 }
 $body = $event | ConvertTo-Json -Depth 20 -Compress
 $timestamp = (Get-Date).ToUniversalTime().ToString("O")
-$signature = New-UclWebhookSignature -Secret $secret.secret -Timestamp $timestamp -EventId $eventId -Body $body
+$signature = New-ScoutWebhookSignature -Secret $secret.secret -Timestamp $timestamp -EventId $eventId -Body $body
 
 $signedHeaders = $apiKeyHeaders.Clone()
-$signedHeaders["X-UCL-Webhook-Secret-Id"] = $secret.secretId
-$signedHeaders["X-UCL-Webhook-Secret"] = $secret.secret
-$signedHeaders["X-UCL-Webhook-Timestamp"] = $timestamp
-$signedHeaders["X-UCL-Webhook-Signature"] = $signature
+$signedHeaders["X-Scout-Webhook-Secret-Id"] = $secret.secretId
+$signedHeaders["X-Scout-Webhook-Secret"] = $secret.secret
+$signedHeaders["X-Scout-Webhook-Timestamp"] = $timestamp
+$signedHeaders["X-Scout-Webhook-Signature"] = $signature
 
 $accepted = Invoke-Status POST "$BaseUrl/api/v1/events/source-system" $body $signedHeaders
 $replay = Invoke-Status POST "$BaseUrl/api/v1/events/source-system" $body $signedHeaders
 
 $badHeaders = $signedHeaders.Clone()
-$badHeaders["X-UCL-Webhook-Signature"] = "sha256=bad"
+$badHeaders["X-Scout-Webhook-Signature"] = "sha256=bad"
 $badEvent = [ordered]@{
     eventId = "$eventId-bad"
     workspaceSlug = "primary"

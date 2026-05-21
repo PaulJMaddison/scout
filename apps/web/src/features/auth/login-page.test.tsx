@@ -40,7 +40,7 @@ describe('LoginPage', () => {
       tenantId: 'tenant-1',
       tenantSlug: 'demo',
       operatorAccountId: 'operator-1',
-      email: 'admin@contextlayer.local',
+      email: 'admin@scout.local',
       displayName: 'Dana Mercer',
       role: 'tenant_admin',
     })
@@ -54,7 +54,7 @@ describe('LoginPage', () => {
     await waitFor(() =>
       expect(loginMock).toHaveBeenCalledWith({
         tenantSlug: 'demo',
-        email: 'admin@contextlayer.local',
+        email: 'admin@scout.local',
         password: 'DemoAdmin123!',
       }),
     )

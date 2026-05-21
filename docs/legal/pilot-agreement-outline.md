@@ -4,7 +4,7 @@ This outline is not legal advice and is not ready for signature. It is a non-law
 
 ## Purpose
 
-The agreement should cover a time-boxed Universal Context Layer paid pilot using a customer-owned data plane. The pilot proves agreed source-to-context workflows without claiming complete self-serve SaaS readiness.
+The agreement should cover a time-boxed KynticAI Scout paid pilot using a customer-owned data plane. The pilot proves agreed source-to-context workflows without claiming complete self-serve SaaS readiness.
 
 ## Core Terms To Cover
 

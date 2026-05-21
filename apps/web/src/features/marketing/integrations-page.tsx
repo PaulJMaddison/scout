@@ -10,7 +10,7 @@ export function IntegrationsPage() {
       <PageHeader
         eyebrow="Integrations"
         title="Connect existing systems without forcing the business to replace them."
-        description="UCL can act as a self-hosted backend, future managed integration layer, private-cloud service, or embedded product component. It accepts source events, reads operational systems inside the customer environment, runs selectors, and exposes trusted context through GraphQL, REST, SDKs, and webhooks."
+        description="Scout can act as a self-hosted backend, future managed integration layer, private-cloud service, or embedded product component. It accepts source events, reads operational systems inside the customer environment, runs selectors, and exposes trusted context through GraphQL, REST, SDKs, and webhooks."
         actions={
           <>
             <Link to="/connectors">
@@ -64,7 +64,7 @@ export function IntegrationsPage() {
               {
                 label: 'Routing',
                 title: 'The event is routed to matching selectors',
-                body: 'UCL checks event type, source system, subject identifiers, and workspace scope to decide whether recomputation is useful.',
+                body: 'Scout checks event type, source system, subject identifiers, and workspace scope to decide whether recomputation is useful.',
               },
               {
                 label: 'Recompute',

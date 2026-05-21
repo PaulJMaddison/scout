@@ -1,22 +1,22 @@
 databases:
-  - name: ucl-context-layer-db
+  - name: scout-db
     plan: basic-256mb
-    databaseName: context_layer
-    user: context_layer
-  - name: ucl-customer-ops-db
+    databaseName: scout_context
+    user: scout_context
+  - name: scout-customer-ops-db
     plan: basic-256mb
     databaseName: customer_ops
     user: customer_ops
 
 services:
   - type: web
-    name: universal-context-layer-api
+    name: kynticai-scout-api
     runtime: docker
     dockerContext: .
-    dockerfilePath: ./src/ContextLayer.Api/Dockerfile
+    dockerfilePath: ./src/KynticAI.Scout.Api/Dockerfile
     plan: starter
     healthCheckPath: /health/ready
-    preDeployCommand: dotnet ContextLayer.Api.dll migrate
+    preDeployCommand: dotnet KynticAI.Scout.Api.dll migrate
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
@@ -30,24 +30,24 @@ services:
         value: "false"
       - key: Bootstrap__SeedDemoData
         value: "false"
-      - key: ConnectionStrings__ContextLayer
+      - key: ConnectionStrings__Scout
         fromDatabase:
-          name: ucl-context-layer-db
+          name: scout-db
           property: connectionString
       - key: ConnectionStrings__CustomerOps
         fromDatabase:
-          name: ucl-customer-ops-db
+          name: scout-customer-ops-db
           property: connectionString
       - key: Auth__Issuer
-        value: ContextLayer
+        value: Scout
       - key: Auth__Audience
-        value: ContextLayer.Api
+        value: KynticAI.Scout.Api
       - key: Auth__SigningKey
         sync: false
       - key: Cors__AllowedOrigins__0
-        value: https://universal-context-layer-web.onrender.com
+        value: https://kynticai-scout-web.onrender.com
       - key: SaaS__PublicBaseUrl
-        value: https://universal-context-layer-api.onrender.com
+        value: https://kynticai-scout-api.onrender.com
       - key: Telemetry__DeploymentEnvironment
         value: production
       - key: Telemetry__OtlpEndpoint
@@ -64,7 +64,7 @@ services:
         value: "60"
 
   - type: web
-    name: universal-context-layer-web
+    name: kynticai-scout-web
     runtime: static
     rootDir: apps/web
     buildCommand: npm ci && npm run build
@@ -75,8 +75,8 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_BASE_URL
-        value: https://universal-context-layer-api.onrender.com
+        value: https://kynticai-scout-api.onrender.com
       - key: VITE_GRAPHQL_ENDPOINT
-        value: https://universal-context-layer-api.onrender.com/graphql
+        value: https://kynticai-scout-api.onrender.com/graphql
       - key: VITE_DEMO_FALLBACK
         value: "false"

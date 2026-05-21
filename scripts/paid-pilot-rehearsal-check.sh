@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ENTERPRISE_REPO="${1:-../universalcontextlayer-enterprise}"
-CLOUD_REPO="${2:-../universalcontextlayer-cloud}"
+ENTERPRISE_REPO="${1:-../scout-enterprise}"
+CLOUD_REPO="${2:-../scout-cloud}"
 SKIP_ENTERPRISE_CONNECTOR_SMOKE="${SKIP_ENTERPRISE_CONNECTOR_SMOKE:-false}"
 
 PUBLIC_REPO="$(cd "$(dirname "$0")/.." && pwd)"

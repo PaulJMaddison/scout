@@ -57,16 +57,16 @@ export function ExecutiveStoryFooter({
           </p>
           <div className="mt-4 grid gap-2 text-sm text-ink-950">
             <a
-              href="mailto:paul.maddison.delimeg@gmail.com"
+              href="mailto:paul@kyticai.com"
               className="font-semibold underline decoration-copper-300 underline-offset-4"
             >
-              paul.maddison.delimeg@gmail.com
+              paul@kyticai.com
             </a>
             <a
-              href="tel:+447742031553"
+              href="https://kynticai.com"
               className="font-semibold underline decoration-copper-300 underline-offset-4"
             >
-              +44 7742 031553
+              kynticai.com
             </a>
           </div>
         </div>

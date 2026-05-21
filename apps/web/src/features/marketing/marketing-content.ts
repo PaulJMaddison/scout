@@ -64,21 +64,21 @@ export const webhookExample = `{
   }
 }`
 
-export const typeScriptSdkExample = `const context = await contextLayer.users.getContext("demo", "123")
+export const typeScriptSdkExample = `const context = await scout.users.getContext("demo", "123")
 
-const accountContext = await contextLayer.accounts.getContext("acme", "ACC-12345")
+const accountContext = await scout.accounts.getContext("acme", "ACC-12345")
 
-const package = await contextLayer.packages.getAiContextForUser(
+const package = await scout.packages.getAiContextForUser(
   "acme",
   "123",
   "recommendation_generation",
 )`
 
-export const csharpSdkExample = `var context = await contextLayer.Users.GetContextAsync("demo", "123");
+export const csharpSdkExample = `var context = await scout.Users.GetContextAsync("demo", "123");
 
-var accountContext = await contextLayer.Accounts.GetContextAsync("acme", "ACC-12345");
+var accountContext = await scout.Accounts.GetContextAsync("acme", "ACC-12345");
 
-var package = await contextLayer.Packages.GetAiContextForUserAsync(
+var package = await scout.Packages.GetAiContextForUserAsync(
     "acme",
     "123",
     "recommendation_generation");`
@@ -87,7 +87,7 @@ export const blueprintPrompt = `You are a senior data architect and AI integrati
 
 I will provide schema exports, sample rows, API payloads, CRM field lists, warehouse table descriptions, support ticket examples, billing records, usage events, and KPI notes.
 
-Analyse these source systems and generate a Universal Context Layer blueprint that can be imported into the product.
+Analyse these source systems and generate a KynticAI Scout blueprint that can be imported into the product.
 
 The blueprint must include:
 1. source systems
@@ -161,34 +161,34 @@ export const blueprintExample = `{
 
 export const faqEntries = [
   {
-    question: 'Is UCL another AI app?',
+    question: 'Is Scout another AI app?',
     answer:
-      'No. UCL is context infrastructure for AI-enabled products, workflows, and agents. It creates trusted semantic context that a customer can use with their own AI tools, internal apps, reporting systems, and workflow automation.',
+      'No. Scout is context infrastructure for AI-enabled products, workflows, and agents. It creates trusted semantic context that a customer can use with their own AI tools, internal apps, reporting systems, and workflow automation.',
   },
   {
     question: 'Is this just a website?',
     answer:
-      'No. The React application is a public product site, learning experience, demo, and admin console. The underlying product value is the backend semantic context layer that connects existing systems, computes semantic facts, and exposes context through GraphQL, REST, SDKs, governed context packages, and internal services.',
+      'No. The React application is a public product site, learning experience, demo, and admin console. The underlying product value is the backend semantic data plane that connects existing systems, computes semantic facts, and exposes context through GraphQL, REST, SDKs, governed context packages, and internal services.',
   },
   {
     question: 'Can this be used without replacing existing systems?',
     answer:
-      'Yes. Universal Context Layer is designed to sit beside CRM, ERP, billing, support, telemetry, warehouse, Excel exports, SharePoint, internal apps, and older SQL estates. Those systems remain the operational source of truth while UCL provides the semantic layer above them.',
+      'Yes. KynticAI Scout is designed to sit beside CRM, ERP, billing, support, telemetry, warehouse, Excel exports, SharePoint, internal apps, and older SQL estates. Those systems remain the operational source of truth while Scout provides the semantic layer above them.',
   },
   {
     question: 'Can we bring our own AI?',
     answer:
-      'Yes. UCL does not need to own the model, agent, copilot, or AI orchestration layer. Customers can use their own AI stack while UCL supplies governed business context with evidence, confidence, freshness, provenance, masking, and auditability.',
+      'Yes. Scout does not need to own the model, agent, copilot, or AI orchestration layer. Customers can use their own AI stack while Scout supplies governed business context with evidence, confidence, freshness, provenance, masking, and auditability.',
   },
   {
-    question: 'What can consume UCL context?',
+    question: 'What can consume Scout context?',
     answer:
-      'Internal copilots, CRM AI features, support automation, customer success tools, product onboarding, marketing personalisation, reporting systems, workflow automation, third party agents, and internal apps can all consume the same context layer.',
+      'Internal copilots, CRM AI features, support automation, customer success tools, product onboarding, marketing personalisation, reporting systems, workflow automation, third party agents, and internal apps can all consume the same data plane.',
   },
   {
     question: 'Can a new product use this as an add-on backend layer?',
     answer:
-      'Yes. A new application can send usage, billing, support, and account signals into UCL, request semantic profiles back, show trusted context in product, trigger recomputes, and explain recommendations without coupling itself directly to legacy schemas.',
+      'Yes. A new application can send usage, billing, support, and account signals into Scout, request semantic profiles back, show trusted context in product, trigger recomputes, and explain recommendations without coupling itself directly to legacy schemas.',
   },
   {
     question: 'Is the open source repo enough to learn from?',
@@ -211,9 +211,9 @@ export const faqEntries = [
       'For now, one polished site is the better choice. The current React site can explain the open source core, the backend integration layer, the future private cloud/control-plane direction, the demo/admin console, and the future enterprise boundary in one coherent experience. A split into separate marketing and hosted-app sites only becomes necessary later if a managed control-plane offering grows significantly.',
   },
   {
-    question: 'How would an external system call UCL?',
+    question: 'How would an external system call Scout?',
     answer:
-      'Through GraphQL for flexible reads, REST endpoints for common integration workflows, SDKs for TypeScript and .NET, governed context packages, or direct internal service calls when UCL is deployed as part of a broader platform estate. SaaS metadata also models future webhook delivery.',
+      'Through GraphQL for flexible reads, REST endpoints for common integration workflows, SDKs for TypeScript and .NET, governed context packages, or direct internal service calls when Scout is deployed as part of a broader platform estate. SaaS metadata also models future webhook delivery.',
   },
   {
     question: 'What is a selector?',
@@ -233,6 +233,6 @@ export const faqEntries = [
   {
     question: 'How do AI tools use the context?',
     answer:
-      'AI tools should consume governed context packages rather than raw database records. UCL can prepare structured packages containing allowed facts, citations, freshness, confidence, and masking decisions so models, agents, copilots, and recommendation flows work from supported business context.',
+      'AI tools should consume governed context packages rather than raw database records. Scout can prepare structured packages containing allowed facts, citations, freshness, confidence, and masking decisions so models, agents, copilots, and recommendation flows work from supported business context.',
   },
 ] as const

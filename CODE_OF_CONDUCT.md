@@ -2,7 +2,7 @@
 
 ## Our pledge
 
-We want Universal Context Layer to be a welcoming, respectful project for everyone.
+We want KynticAI Scout to be a welcoming, respectful project for everyone.
 
 Participants are expected to:
 

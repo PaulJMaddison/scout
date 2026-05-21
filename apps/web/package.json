@@ -1,17 +1,17 @@
 {
-  "name": "universal-context-layer-web",
+  "name": "kynticai-scout-web",
   "private": true,
-  "version": "2.7.0",
-  "description": "Open core marketing site and self-hosted admin console for Universal Context Layer.",
+  "version": "2.8.0",
+  "description": "Open core marketing site and self-hosted admin console for KynticAI Scout.",
   "license": "MIT",
-  "author": "Paul Maddison and contributors",
-  "homepage": "https://github.com/PaulJMaddison/universalcontextlayer",
+  "author": "KynticAI",
+  "homepage": "https://github.com/PaulJMaddison/scout",
   "bugs": {
-    "url": "https://github.com/PaulJMaddison/universalcontextlayer/issues"
+    "url": "https://github.com/PaulJMaddison/scout/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PaulJMaddison/universalcontextlayer.git"
+    "url": "git+https://github.com/PaulJMaddison/scout.git"
   },
   "keywords": [
     "context-infrastructure",
@@ -25,17 +25,13 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:static-demo": "tsc -p tsconfig.static-demo.json && vite build --config vite.static-demo.config.ts",
     "lint": "eslint .",
     "preview": "vite preview",
-    "preview:static-demo": "vite preview --config vite.static-demo.config.ts --host 127.0.0.1",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test"
   },
   "dependencies": {
-    "@fontsource-variable/manrope": "^5.2.8",
-    "@fontsource-variable/space-grotesk": "^5.2.10",
     "@hookform/resolvers": "^5.2.2",
     "@tailwindcss/vite": "^4.3.0",
     "@tanstack/react-query": "5.100.9",
@@ -67,11 +63,11 @@
     "@tanstack/store": "0.9.3"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.57.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
-    "@eslint/js": "^10.0.1",
     "@types/node": "^24.12.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",

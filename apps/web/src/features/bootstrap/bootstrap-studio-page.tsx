@@ -24,7 +24,7 @@ import {
   chatGptBootstrapPrompt,
   claudeBootstrapPrompt,
   codexBootstrapPrompt,
-  contextLayerBlueprintSchema,
+  scoutBlueprintSchema,
   sampleBlueprint,
 } from '@/features/bootstrap/bootstrap-studio-data'
 
@@ -77,7 +77,7 @@ export function BootstrapStudioPage() {
   const parsedBlueprintResult = useMemo(() => {
     try {
       const parsed = JSON.parse(blueprintText) as unknown
-      return contextLayerBlueprintSchema.safeParse(parsed)
+      return scoutBlueprintSchema.safeParse(parsed)
     } catch (error) {
       return {
         success: false as const,
@@ -148,7 +148,7 @@ export function BootstrapStudioPage() {
     },
     mutationFn: async () => {
       if (!blueprint) {
-        throw new Error('Load a valid ContextLayerBlueprint JSON file before importing.')
+        throw new Error('Load a valid ScoutBlueprint JSON file before importing.')
       }
 
       const upload = await api.uploadBlueprint({
@@ -195,7 +195,7 @@ export function BootstrapStudioPage() {
   const stats = blueprint
     ? [
         { label: 'Input artifacts', value: String(blueprint.sourceArtifacts.length), footnote: 'Files or exports uploaded into Codex or Claude.', accent: 'copper' as const },
-        { label: 'Data sources', value: String(blueprint.dataSources.length), footnote: 'Operational systems that will feed the UCL.', accent: 'sage' as const },
+        { label: 'Data sources', value: String(blueprint.dataSources.length), footnote: 'Operational systems that will feed the Scout.', accent: 'sage' as const },
         { label: 'Semantic attributes', value: String(blueprint.semanticAttributes.length), footnote: 'Canonical business facts the product can now depend on.', accent: 'gold' as const },
         { label: 'Selectors', value: String(blueprint.selectors.length), footnote: 'Governed mappings that turn operational signals into meaning.', accent: 'copper' as const },
       ]
@@ -205,14 +205,14 @@ export function BootstrapStudioPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="AI-assisted onboarding"
-        title="Use Codex or Claude to draft the first UCL blueprint for your existing systems."
-        description="Give an AI tool your schemas, CRM exports, usage logs, and KPI notes, then import its ContextLayerBlueprint so teams can review and govern the generated model."
+        title="Use Codex or Claude to draft the first Scout blueprint for your existing systems."
+        description="Give an AI tool your schemas, CRM exports, usage logs, and KPI notes, then import its ScoutBlueprint so teams can review and govern the generated model."
         actions={
           <>
             <Button
               type="button"
               variant="secondary"
-              onClick={() => downloadTextFile('context-layer-bootstrap-prompt.txt', aiPrompts[selectedPrompt], 'text/plain')}
+              onClick={() => downloadTextFile('scout-bootstrap-prompt.txt', aiPrompts[selectedPrompt], 'text/plain')}
             >
               <Download className="size-4" />
               Download prompt
@@ -220,7 +220,7 @@ export function BootstrapStudioPage() {
             <Button
               type="button"
               variant="secondary"
-              onClick={() => downloadTextFile('northstar-context-layer-blueprint.json', prettyJson(sampleBlueprint), 'application/json')}
+              onClick={() => downloadTextFile('northstar-scout-blueprint.json', prettyJson(sampleBlueprint), 'application/json')}
             >
               <FileUp className="size-4" />
               Download sample blueprint
@@ -307,7 +307,7 @@ export function BootstrapStudioPage() {
       <section className="grid gap-5 xl:grid-cols-[1.04fr_0.96fr]">
         <Panel
           eyebrow="Step 3"
-          title="Upload the generated ContextLayerBlueprint into this workspace"
+          title="Upload the generated ScoutBlueprint into this workspace"
           action={
             blueprint ? (
               <Badge tone="success">Blueprint valid</Badge>
@@ -490,7 +490,7 @@ export function BootstrapStudioPage() {
           ) : (
             <EmptyState
               title="Load a blueprint"
-              body="Paste or upload a valid ContextLayerBlueprint JSON file to see the import plan before you apply it."
+              body="Paste or upload a valid ScoutBlueprint JSON file to see the import plan before you apply it."
             />
           )}
         </Panel>
@@ -499,7 +499,7 @@ export function BootstrapStudioPage() {
       <section className="grid gap-5 xl:grid-cols-[0.98fr_1.02fr]">
         <Panel eyebrow="Blueprint preview" title="What Codex or Claude should return">
           {blueprint ? (
-            <JsonViewer value={blueprint} title="ContextLayerBlueprint JSON" height="h-[420px]" />
+            <JsonViewer value={blueprint} title="ScoutBlueprint JSON" height="h-[420px]" />
           ) : (
             <EmptyState
               title="Blueprint preview unavailable"
@@ -508,7 +508,7 @@ export function BootstrapStudioPage() {
           )}
         </Panel>
 
-        <Panel eyebrow="Import result" title="What Context Layer did with the uploaded file">
+        <Panel eyebrow="Import result" title="What Scout did with the uploaded file">
           {importMessages.length > 0 ? (
             <div className="grid gap-3">
               {importMessages.map((message, index) => (
@@ -533,7 +533,7 @@ export function BootstrapStudioPage() {
                   <div>
                     <p className="font-semibold text-ink-950">This is now a real import surface</p>
                     <p className="mt-2 text-sm leading-7 text-ink-700">
-                      Upload a JSON blueprint produced by Codex or Claude and Context Layer will upsert data sources, semantic attributes, selectors, and prompt templates into the current tenant.
+                      Upload a JSON blueprint produced by Codex or Claude and Scout will upsert data sources, semantic attributes, selectors, and prompt templates into the current tenant.
                     </p>
                   </div>
                 </div>

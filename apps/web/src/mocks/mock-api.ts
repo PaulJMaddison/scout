@@ -170,26 +170,26 @@ seedInitialSnapshots(mockState)
 const mockOperatorAccounts: MockOperatorAccount[] = [
   {
     tenantSlug: 'demo',
-    email: 'admin@contextlayer.local',
+    email: 'admin@scout.local',
     password: 'DemoAdmin123!',
     operator: {
       tenantId: mockState.tenantId,
       tenantSlug: 'demo',
       operatorAccountId: crypto.randomUUID(),
-      email: 'admin@contextlayer.local',
+      email: 'admin@scout.local',
       displayName: 'Dana Mercer',
       role: 'tenant_admin',
     },
   },
   {
     tenantSlug: 'demo',
-    email: 'rep@contextlayer.local',
+    email: 'rep@scout.local',
     password: 'DemoSales123!',
     operator: {
       tenantId: mockState.tenantId,
       tenantSlug: 'demo',
       operatorAccountId: crypto.randomUUID(),
-      email: 'rep@contextlayer.local',
+      email: 'rep@scout.local',
       displayName: 'Jordan Kim',
       role: 'sales_rep',
     },
@@ -490,8 +490,8 @@ export async function mockGetLicenceStatus(): Promise<LicenceStatus> {
     status: 'Community',
     plan: 'Community',
     licenceKeyFingerprint: 'demo-preview',
-    licensedTo: 'Universal Context Layer local demo',
-    source: '.demo-data/ucl-demo.licence.json',
+    licensedTo: 'KynticAI Scout local demo',
+    source: '.demo-data/scout-demo.licence.json',
     issuedAtUtc: isoDaysAgo(1),
     expiresAtUtc: new Date(Date.now() + 730 * 24 * 60 * 60 * 1000).toISOString(),
     lastCheckedAtUtc: new Date().toISOString(),
@@ -681,9 +681,9 @@ export async function mockGraphqlRequest<T>(
           id: crypto.randomUUID(),
           tenantId: mockState.tenantId,
           workspaceId: null,
-          clientId: `ucl_demo_${crypto.randomUUID().replaceAll('-', '').slice(0, 16)}`,
+          clientId: `scout_demo_${crypto.randomUUID().replaceAll('-', '').slice(0, 16)}`,
           displayName: (variables?.input as { displayName?: string } | undefined)?.displayName ?? 'Demo client',
-          apiKey: `ucl_live_${crypto.randomUUID().replaceAll('-', '')}`,
+          apiKey: `scout_live_${crypto.randomUUID().replaceAll('-', '')}`,
           scopes: (variables?.input as { scopes?: string[] } | undefined)?.scopes ?? ['context:read'],
           createdAtUtc: isoNow(),
         },
@@ -693,7 +693,7 @@ export async function mockGraphqlRequest<T>(
         rotateApiClient: {
           id: crypto.randomUUID(),
           clientId: variables?.clientId,
-          apiKey: `ucl_live_${crypto.randomUUID().replaceAll('-', '')}`,
+          apiKey: `scout_live_${crypto.randomUUID().replaceAll('-', '')}`,
           rotatedAtUtc: isoNow(),
         },
       } as T
@@ -1815,7 +1815,7 @@ function buildSalesSupportResponse(contextPackage: SalesContextPackageResult): S
         `Hi ${contextPackage.fullName},\n\n` +
         `I’m reaching out because your current context suggests strong momentum toward ${planInterest} planning, and the recent engagement pattern from ${contextPackage.companyName} looks like a good fit for a focused working session.\n\n` +
         `If helping your team move toward ${contextPackage.salesObjective.toLowerCase()} is still a priority, I’d suggest a short conversation to align on the next milestone and what success should look like operationally.\n\n` +
-        'Would a 20-minute working session next week be useful?\n\nBest,\nContext Layer Sales',
+        'Would a 20-minute working session next week be useful?\n\nBest,\nScout Sales',
       callToAction: 'Propose a 20-minute working session next week.',
       supportingClaims: [
         {
@@ -2098,7 +2098,7 @@ function appendAudit(
   mockState.auditEvents.unshift({
     id: crypto.randomUUID(),
     tenantId: mockState.tenantId,
-    actor: 'demo-admin@contextlayer.local',
+    actor: 'demo-admin@scout.local',
     action,
     entityType,
     entityId,
@@ -2274,7 +2274,7 @@ function createSeedState(): MockState {
       name: 'Intelligent Sales Support v1',
       description: 'Grounded sales orchestration template for strategy, email generation, and follow-up planning.',
       systemPrompt:
-        "You are Context Layer's Intelligent Sales Support agent. Use only the supplied grounded context package. Never invent missing details. Every claim must cite one or more citationIds from the context package.",
+        "You are Scout's Intelligent Sales Support agent. Use only the supplied grounded context package. Never invent missing details. Every claim must cite one or more citationIds from the context package.",
       developerPrompt:
         'Act like a senior enterprise sales strategist reviewing CRM, warehouse, and usage intelligence. If any fact is low confidence, stale, or missing, say so clearly, lower your confidence, and recommend human review. Return JSON only.',
       userPromptTemplate:
@@ -2522,8 +2522,8 @@ function blueprintResult(status: string, blueprintJson: string, imported: boolea
     importId: crypto.randomUUID(),
     status: issues.length ? 'Rejected' : status,
     isValid: issues.length === 0,
-    blueprintName: String(parsed.name ?? 'Context Layer Blueprint'),
-    blueprintSchemaJson: prettyJson({ title: 'ContextLayerBlueprint', type: 'object' }),
+    blueprintName: String(parsed.name ?? 'Scout Blueprint'),
+    blueprintSchemaJson: prettyJson({ title: 'ScoutBlueprint', type: 'object' }),
     issues,
     preview,
     createdDataSources: imported ? preview.filter((item) => item.entityType === 'DataSource').map((item) => item.name) : [],

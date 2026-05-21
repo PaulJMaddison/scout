@@ -81,7 +81,7 @@ export function StorySourceSignalsPage() {
           </div>
         </Panel>
 
-        <Panel eyebrow="Event sequence" title="The raw customer timeline before Context Layer">
+        <Panel eyebrow="Event sequence" title="The raw customer timeline before Scout">
           <div className="relative grid gap-4 pl-8">
             <div className="absolute bottom-2 left-3 top-3 w-px bg-ink-300/70" />
             {recentTimeline.slice().reverse().map((event, index) => (
@@ -151,7 +151,7 @@ export function StorySourceSignalsPage() {
                 <div>
                     <p className="font-semibold text-ink-950">Consumers see symptoms, not business meaning</p>
                     <p className="mt-2 text-sm leading-7 text-ink-700">
-                    Without a context layer, a model, report, workflow, or app has to infer intent, urgency, risk, and fit from raw traces. That is where inconsistent judgement creeps in.
+                    Without a data plane, a model, report, workflow, or app has to infer intent, urgency, risk, and fit from raw traces. That is where inconsistent judgement creeps in.
                   </p>
                 </div>
               </div>

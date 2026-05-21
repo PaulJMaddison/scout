@@ -7,8 +7,8 @@ export function FaqPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="FAQ"
-        title="Common buyer and builder questions about Universal Context Layer."
-        description="These are the questions most technical and commercial stakeholders ask when they are deciding whether UCL is a demo, a real backend layer, an open source core, or the start of a managed platform."
+        title="Common buyer and builder questions about KynticAI Scout."
+        description="These are the questions most technical and commercial stakeholders ask when they are deciding whether Scout is a demo, a real backend layer, an open source core, or the start of a managed platform."
       />
 
       <Panel eyebrow="Frequently asked questions" title="The short answers decision-makers usually want first">

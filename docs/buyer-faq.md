@@ -1,20 +1,20 @@
 # Buyer FAQ
 
-This page answers common Universal Context Layer questions from CEOs, CTOs, product leaders, and enterprise architects.
+This page answers common KynticAI Scout questions from CEOs, CTOs, product leaders, and enterprise architects.
 
 ## CEOs
 
-### What does UCL do in one sentence?
+### What does Scout do in one sentence?
 
-Universal Context Layer turns existing business data into trusted semantic context that customer-owned AI tools, workflows, apps, reports, and agents can use.
+KynticAI Scout turns existing business data into trusted semantic context that customer-owned AI tools, workflows, apps, reports, and agents can use.
 
 ### Why should we care now?
 
-Most companies already have valuable operational data, but it is trapped across CRM, ERP, SQL, support, billing, files, emails, product telemetry, and older systems. UCL helps prove one high-value workflow without waiting for a replatforming programme.
+Most companies already have valuable operational data, but it is trapped across CRM, ERP, SQL, support, billing, files, emails, product telemetry, and older systems. Scout helps prove one high-value workflow without waiting for a replatforming programme.
 
 ### Are we buying an AI tool?
 
-No. We do not build the brain. We build the nervous system. Customers can bring their own AI stack, workflow engine, reporting layer, or internal apps. UCL supplies governed business context.
+No. We do not build the brain. We build the nervous system. Customers can bring their own AI stack, workflow engine, reporting layer, or internal apps. Scout supplies governed business context.
 
 ### What can we buy now?
 
@@ -28,7 +28,7 @@ Operational data, connector credentials, selectors, facts, snapshots, packages, 
 
 ### Do we need to replace systems?
 
-No. UCL sits beside systems of record and exposes a semantic layer above them. The point is to make existing data useful through a stable context contract.
+No. Scout sits beside systems of record and exposes a semantic layer above them. The point is to make existing data useful through a stable context contract.
 
 ### What API surfaces exist?
 
@@ -46,7 +46,7 @@ Pick one workflow where existing data already affects a decision but is hard to 
 
 ### How does this help an AI feature?
 
-The AI or workflow receives scoped facts with confidence, freshness, evidence, and guardrails instead of a heap of raw records. UCL can retrieve an AI-safe context package without calling an AI model itself.
+The AI or workflow receives scoped facts with confidence, freshness, evidence, and guardrails instead of a heap of raw records. Scout can retrieve an AI-safe context package without calling an AI model itself.
 
 ### What does success look like?
 
@@ -56,7 +56,7 @@ One downstream consumer can make a better, more explainable decision because it 
 
 ### What is the architecture pattern?
 
-UCL has a customer data plane beside source systems and an optional hosted/control-plane relationship for commercial metadata. The data plane owns source access, selectors, facts, snapshots, APIs, provenance, audit, masking, and local configuration.
+Scout has a customer data plane beside source systems and an optional hosted/control-plane relationship for commercial metadata. The data plane owns source access, selectors, facts, snapshots, APIs, provenance, audit, masking, and local configuration.
 
 ### How do we handle vendor connectors?
 
@@ -68,4 +68,4 @@ Do not promise a complete self-serve SaaS product, live hosted billing, producti
 
 ### What should be shown in a sales call?
 
-Show the static GitHub Pages demo first, then the local demo or backend API flow. Walk through fragmented operational data, selector mapping, context facts, provenance, AI-safe package retrieval, and a downstream workflow decision. Close by explaining the paid pilot scope and open-core boundary.
+Show the local demo first, then the backend API flow. Walk through fragmented operational data, selector mapping, context facts, provenance, AI-safe package retrieval, and a downstream workflow decision. Close by explaining the paid pilot scope and open-core boundary.

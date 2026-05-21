@@ -50,7 +50,7 @@ function describeTimelineLift(category: string, description: string) {
 
   return {
     title: 'Reusable semantic signal',
-    body: 'Context Layer attaches business meaning to the raw event so other product workflows can consume it consistently.',
+    body: 'Scout attaches business meaning to the raw event so other product workflows can consume it consistently.',
     tone: 'neutral' as const,
   }
 }
@@ -88,7 +88,7 @@ export function CustomerContextViewerPage() {
   const [search, setSearch] = useState('')
   const [selectedFactId, setSelectedFactId] = useState<string | null>(null)
   const tenantSlug = session?.tenantSlug ?? 'demo'
-  const actorEmail = session?.email ?? 'demo-admin@contextlayer.local'
+  const actorEmail = session?.email ?? 'demo-admin@scout.local'
   const routeExternalUserId =
     typeof routeParams.externalUserId === 'string' ? routeParams.externalUserId : undefined
 
@@ -307,7 +307,7 @@ export function CustomerContextViewerPage() {
                 )}
               </Panel>
 
-              <Panel eyebrow="Cross-system timeline" title="How UCL turns source events into business meaning">
+              <Panel eyebrow="Cross-system timeline" title="How Scout turns source events into business meaning">
                 {contextProfile.sourceSummary?.recentTimeline?.length ? (
                   <div className="relative grid gap-4 pl-8">
                     <div className="absolute bottom-2 left-3 top-3 w-px bg-copper-200" />
@@ -383,7 +383,7 @@ export function CustomerContextViewerPage() {
                 <Card className="bg-ivory-25">
                   <p className="font-semibold text-ink-950">Resolving the unified customer profile</p>
                   <p className="mt-2 text-sm leading-7 text-ink-700">
-                    Context Layer is pulling the current semantic snapshot, operational summary, and selector history for this customer.
+                    Scout is pulling the current semantic snapshot, operational summary, and selector history for this customer.
                   </p>
                 </Card>
               </div>

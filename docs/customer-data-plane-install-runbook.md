@@ -1,6 +1,6 @@
 # Customer Data-Plane Install Runbook
 
-This runbook covers a production-style customer-owned UCL data-plane install for a supported paid pilot.
+This runbook covers a production-style customer-owned Scout data-plane install for a supported paid pilot.
 
 ## Prerequisites
 
@@ -23,7 +23,7 @@ Bootstrap__ApplyMigrationsOnStartup=false
 Bootstrap__SeedDemoData=false
 FeatureFlags__DemoExperience=false
 VITE_DEMO_FALLBACK=false
-ConnectionStrings__ContextLayer=<secret reference>
+ConnectionStrings__Scout=<secret reference>
 ConnectionStrings__CustomerOps=<secret reference or approved source DB reference>
 Auth__SigningKey=<secret reference>
 DataProtection__KeyRingPath=<persistent mounted path>
@@ -40,7 +40,7 @@ Run:
 
 ## Database Setup And Migrations
 
-- create separate context-layer and customer-ops databases/schemas where possible
+- create separate scout and customer-ops databases/schemas where possible
 - run migrations from a controlled admin job before starting the new application version
 - disable demo seed data
 - capture migration logs with secrets redacted

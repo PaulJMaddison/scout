@@ -20,7 +20,7 @@ vi.mock('@/lib/auth', () => ({
       tenantId: 'tenant-1',
       tenantSlug: 'demo',
       operatorAccountId: 'operator-1',
-      email: 'rep@contextlayer.local',
+      email: 'rep@scout.local',
       displayName: 'Jordan Kim',
       role: 'sales_rep',
     },

@@ -14,7 +14,7 @@ Use this for a Linux VM, container host, or Kubernetes-style rehearsal of the cu
 
 1. Build from the reviewed branch or release tag.
 2. Configure PostgreSQL databases and migrations.
-3. Mount Data Protection key storage at a backed-up path such as `/var/lib/ucl/data-protection-keys`.
+3. Mount Data Protection key storage at a backed-up path such as `/var/lib/scout/data-protection-keys`.
 4. Provide secrets through the host platform, not checked-in `.env` files.
 5. Set `VITE_DEMO_FALLBACK=false` for customer-facing frontend builds.
 6. Install entitled enterprise packages if required.

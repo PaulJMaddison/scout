@@ -1,12 +1,12 @@
 # Integration Layer
 
-Universal Context Layer sits beside existing business systems and turns approved operational signals into governed semantic context for customer-owned consumers.
+KynticAI Scout sits beside existing business systems and turns approved operational signals into governed semantic context for customer-owned consumers.
 
-This page explains how external systems integrate with the open-core UCL data plane without implying that paid enterprise connector implementations ship in this public repository. The goal is practical: let a CTO or integration lead see how one paid pilot can prove a useful workflow while CRM, ERP, SQL, support, billing, files, emails, telemetry, and old applications stay in place.
+This page explains how external systems integrate with the open-core Scout data plane without implying that paid enterprise connector implementations ship in this public repository. The goal is practical: let a CTO or integration lead see how one paid pilot can prove a useful workflow while CRM, ERP, SQL, support, billing, files, emails, telemetry, and old applications stay in place.
 
 ## Integration Shape
 
-UCL is the nervous system, not the brain. It does not require customers to use UCL's AI, move raw operational data into a hosted control plane, or replatform systems of record.
+Scout is the nervous system, not the brain. It does not require customers to use Scout's AI, move raw operational data into a hosted control plane, or replatform systems of record.
 
 The customer data plane is responsible for:
 
@@ -34,9 +34,9 @@ The optional cloud control plane, when used commercially, should manage metadata
 
 ## Consumer Patterns
 
-External consumers should call UCL through stable contracts rather than rebuilding joins across source systems.
+External consumers should call Scout through stable contracts rather than rebuilding joins across source systems.
 
-| Consumer | Recommended UCL contract | Example use |
+| Consumer | Recommended Scout contract | Example use |
 | --- | --- | --- |
 | Customer-owned AI tools | AI-safe context package retrieval | Fetch scoped facts, citations, freshness, redactions, and guardrails before calling the customer's chosen model. |
 | Internal apps | GraphQL context lookup | Render account or user context in an operator workspace without reading every source system directly. |
@@ -44,11 +44,11 @@ External consumers should call UCL through stable contracts rather than rebuildi
 | Workflow automation | REST facts, recomputation, and events | Recompute context after source changes and act only when facts meet freshness and confidence thresholds. |
 | Product experiences | SDK context lookup | Add trusted account or user context to customer-facing flows without duplicating integration logic. |
 
-UCL does not need to call an AI model. It prepares the governed semantic context that the customer's own AI stack, workflow engine, report, app, or service can consume.
+Scout does not need to call an AI model. It prepares the governed semantic context that the customer's own AI stack, workflow engine, report, app, or service can consume.
 
 ## Event Contracts
 
-Events let external systems notify UCL that source data changed. A first paid pilot should keep events narrow and auditable:
+Events let external systems notify Scout that source data changed. A first paid pilot should keep events narrow and auditable:
 
 - `source.account.updated`
 - `source.user.updated`
@@ -107,4 +107,4 @@ Start with one workflow and a small source set:
 4. Expose a context snapshot or AI-safe package to one customer-owned consumer.
 5. Measure whether the workflow became faster, more accurate, safer, or easier to audit.
 
-That is the commercial proof: UCL creates a reusable semantic layer over existing systems before anyone commits to wider enterprise integration.
+That is the commercial proof: Scout creates a reusable semantic layer over existing systems before anyone commits to wider enterprise integration.

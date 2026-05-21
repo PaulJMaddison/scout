@@ -128,7 +128,7 @@ export function OverviewPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Workspace pulse"
-        title="See whether your context layer is ready for trusted apps, workflows, and AI consumers."
+        title="See whether your data plane is ready for trusted apps, workflows, and AI consumers."
         description="This dashboard shows connector freshness, selector quality, privacy posture, and the context packages or profiles downstream systems consume."
         actions={
           <>

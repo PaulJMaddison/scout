@@ -9,8 +9,8 @@ COPY apps/web/ ./
 ARG VITE_API_BASE_URL=
 ARG VITE_GRAPHQL_ENDPOINT=/graphql
 ARG VITE_PILOT_LEAD_ENDPOINT=
-ARG VITE_PILOT_CONTACT_EMAIL=hello@universalcontextlayer.com
-ARG VITE_SITE_OPERATOR_NAME="Paul Maddison, for the Universal Context Layer project"
+ARG VITE_PILOT_CONTACT_EMAIL=paul@kyticai.com
+ARG VITE_SITE_OPERATOR_NAME="KynticAI"
 ARG VITE_SITE_OPERATOR_LOCATION="United Kingdom"
 ARG VITE_DEMO_FALLBACK=false
 

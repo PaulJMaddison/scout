@@ -9,11 +9,11 @@ export function DocsPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Documentation"
-        title="APIs, architecture notes, and demo flows for understanding Universal Context Layer."
+        title="APIs, architecture notes, and demo flows for understanding KynticAI Scout."
         description="Use these docs to evaluate the open source core, run the local demo, inspect the control-plane/data-plane split, understand connector boundaries, and see how raw customer data becomes reusable semantic context."
         actions={
           <>
-            <a href="https://github.com/PaulJMaddison/universalcontextlayer" target="_blank" rel="noreferrer">
+            <a href="https://github.com/PaulJMaddison/scout" target="_blank" rel="noreferrer">
               <Button>
                 View repository
                 <ArrowRight className="size-4" />
@@ -81,7 +81,7 @@ export function DocsPage() {
               ['docs/first-real-connector-proof.md', 'Verified generic SQL connector proof from source data to selectors, facts, snapshots, API response, and provenance.'],
               ['docs/production-install-checklist.md', 'Production mode, PostgreSQL, secrets, demo fallback, backups, audit, observability, and support boundaries.'],
               ['docs/anonymised-erp-platform-pattern.md', 'Anonymised ERP platform implementation pattern showing why semantic context beats raw records.'],
-              ['docs/ucl-blueprint.schema.json', 'Blueprint JSON schema for AI-assisted bootstrap imports.'],
+              ['docs/scout-blueprint.schema.json', 'Blueprint JSON schema for AI-assisted bootstrap imports.'],
             ].map(([title, body]) => (
               <Card key={title} className="bg-ivory-25 shadow-none">
                 <div className="flex items-start gap-3">

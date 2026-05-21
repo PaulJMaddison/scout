@@ -18,24 +18,24 @@ unsafe="$(git ls-files | grep -Ei '(^|/)(\.env(\.local)?|.*\.(db|sqlite|sqlite3|
 step "Production example toggles"
 grep -q 'VITE_DEMO_FALLBACK=false' .env.example || fail ".env.example must set VITE_DEMO_FALLBACK=false."
 grep -q 'VITE_DEMO_FALLBACK=false' apps/web/.env.example || fail "apps/web/.env.example must set VITE_DEMO_FALLBACK=false."
-grep -q '"SeedDemoData": false' src/ContextLayer.Api/appsettings.Production.json || fail "Production appsettings must keep Bootstrap:SeedDemoData=false."
+grep -q '"SeedDemoData": false' src/KynticAI.Scout.Api/appsettings.Production.json || fail "Production appsettings must keep Bootstrap:SeedDemoData=false."
 
 step "Backend build"
-dotnet build ./ContextLayer.slnx
+dotnet build ./KynticAI.Scout.slnx
 
 step "Focused backend tests"
-dotnet test ./tests/ContextLayer.IntegrationTests/ContextLayer.IntegrationTests.csproj --filter "FullyQualifiedName~V1RestApiIntegrationTests|FullyQualifiedName~GraphQlAuthorizationIntegrationTests"
-dotnet test ./tests/ContextLayer.UnitTests/ContextLayer.UnitTests.csproj --filter "FullyQualifiedName~ConnectorPluginModelTests|FullyQualifiedName~SelectorExecutionEngineTests"
+dotnet test ./tests/KynticAI.Scout.IntegrationTests/KynticAI.Scout.IntegrationTests.csproj --filter "FullyQualifiedName~V1RestApiIntegrationTests|FullyQualifiedName~GraphQlAuthorizationIntegrationTests"
+dotnet test ./tests/KynticAI.Scout.UnitTests/KynticAI.Scout.UnitTests.csproj --filter "FullyQualifiedName~ConnectorPluginModelTests|FullyQualifiedName~SelectorExecutionEngineTests"
 
 step "Optional PostgreSQL smoke"
-if [[ -n "${ConnectionStrings__ContextLayer:-}" && -n "${ConnectionStrings__CustomerOps:-}" ]]; then
-  dotnet test ./tests/ContextLayer.IntegrationTests/ContextLayer.IntegrationTests.csproj --filter "FullyQualifiedName~BackendOnlyModeIntegrationTests"
+if [[ -n "${ConnectionStrings__Scout:-}" && -n "${ConnectionStrings__CustomerOps:-}" ]]; then
+  dotnet test ./tests/KynticAI.Scout.IntegrationTests/KynticAI.Scout.IntegrationTests.csproj --filter "FullyQualifiedName~BackendOnlyModeIntegrationTests"
 else
   echo "Skipped: PostgreSQL connection strings are not set."
 fi
 
 step "Public forbidden-code scan"
-if rg -n "using UniversalContextLayer\.Enterprise|namespace UniversalContextLayer\.Enterprise|Ucl\.Cloud\.Api|StripeSecret|OAuthRefreshToken|BEGIN PRIVATE KEY|service_account" src apps packages; then
+if rg -n "using KynticAIScout\.Enterprise|namespace KynticAIScout\.Enterprise|Scout\.Cloud\.Api|StripeSecret|OAuthRefreshToken|BEGIN PRIVATE KEY|service_account" src apps packages; then
   fail "public forbidden-code scan found private implementation or secret markers."
 fi
 

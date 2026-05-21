@@ -8,7 +8,7 @@ Only strictly necessary cookies or storage should run before consent. First-part
 
 ## Customer Data Plane Boundary
 
-First-party public-site events may be used to understand interest in Universal Context Layer. They are not the same as customer operational data. Raw customer source records, connector credentials, context facts, selector output, prompt packages, support bundles, documents, message bodies, and attachments must not be sent to cloud event tracking by default.
+First-party public-site events may be used to understand interest in KynticAI Scout. They are not the same as customer operational data. Raw customer source records, connector credentials, context facts, selector output, prompt packages, support bundles, documents, message bodies, and attachments must not be sent to cloud event tracking by default.
 
 ## Consent Requirements
 

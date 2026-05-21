@@ -69,14 +69,14 @@ wait_for_url() {
 }
 
 mkdir -p "$DEMO_DATA_DIR" "$DEMO_RUNTIME_DIR"
-if [ ! -f "$DEMO_DATA_DIR/ucl-demo.licence.json" ]; then
+if [ ! -f "$DEMO_DATA_DIR/scout-demo.licence.json" ]; then
   issued_at="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
   expires_at="$(date -u -d "+2 years" +"%Y-%m-%dT%H:%M:%SZ" 2>/dev/null || date -u -v+2y +"%Y-%m-%dT%H:%M:%SZ")"
-  cat >"$DEMO_DATA_DIR/ucl-demo.licence.json" <<EOF
+  cat >"$DEMO_DATA_DIR/scout-demo.licence.json" <<EOF
 {
-  "licenceKey": "ucl_demo_local_productisation_preview",
+  "licenceKey": "scout_demo_local_productisation_preview",
   "plan": "Community",
-  "licensedTo": "Universal Context Layer local demo",
+  "licensedTo": "KynticAI Scout local demo",
   "issuedAtUtc": "$issued_at",
   "expiresAtUtc": "$expires_at",
   "entitlements": {
@@ -101,15 +101,13 @@ if [ "$USE_DOCKER" -eq 1 ]; then
 fi
 
 if [ "$MODE" = "docker" ]; then
+  DOCKER_DEMO_ENV="ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://127.0.0.1:5198 Platform__Mode=Demo Bootstrap__ApplyMigrationsOnStartup=true Bootstrap__SeedDemoData=true Database__Provider=Postgres ConnectionStrings__Scout='Host=localhost;Port=5432;Database=scout_context_db;Username=postgres;Password=postgres' ConnectionStrings__CustomerOps='Host=localhost;Port=5432;Database=customer_ops_db;Username=postgres;Password=postgres' Licence__Mode=Community Licence__FilePath='$DEMO_DATA_DIR/scout-demo.licence.json' Telemetry__OtlpEndpoint='http://localhost:4317'"
   (
     cd "$REPO_ROOT"
     docker compose up -d postgres otel-collector prometheus tempo grafana
-    Platform__Mode=Demo \
-    Bootstrap__ApplyMigrationsOnStartup=true \
-    Bootstrap__SeedDemoData=true \
-    "$DOTNET_CMD" run --project src/ContextLayer.Api -- bootstrap-demo
+    sh -lc "$DOCKER_DEMO_ENV \"$DOTNET_CMD\" run --project src/KynticAI.Scout.Api -- bootstrap-demo"
   )
-  API_ENV_PREFIX="ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://127.0.0.1:5198 Platform__Mode=Demo Bootstrap__ApplyMigrationsOnStartup=true Bootstrap__SeedDemoData=true"
+  API_ENV_PREFIX="$DOCKER_DEMO_ENV"
 else
   (
     cd "$REPO_ROOT"
@@ -117,17 +115,17 @@ else
     Bootstrap__ApplyMigrationsOnStartup=true \
     Bootstrap__SeedDemoData=true \
     Database__Provider=Sqlite \
-    ConnectionStrings__ContextLayer="Data Source=$DEMO_DATA_DIR/context_layer_demo.db" \
+    ConnectionStrings__Scout="Data Source=$DEMO_DATA_DIR/scout_context_demo.db" \
     ConnectionStrings__CustomerOps="Data Source=$DEMO_DATA_DIR/customer_ops_demo.db" \
     Telemetry__OtlpEndpoint="" \
-    "$DOTNET_CMD" run --project src/ContextLayer.Api -- bootstrap-demo
+    "$DOTNET_CMD" run --project src/KynticAI.Scout.Api -- bootstrap-demo
   )
-  API_ENV_PREFIX="ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://127.0.0.1:5198 Platform__Mode=Demo Bootstrap__ApplyMigrationsOnStartup=true Bootstrap__SeedDemoData=true Database__Provider=Sqlite ConnectionStrings__ContextLayer='Data Source=$DEMO_DATA_DIR/context_layer_demo.db' ConnectionStrings__CustomerOps='Data Source=$DEMO_DATA_DIR/customer_ops_demo.db' Licence__Mode=Community Licence__FilePath='$DEMO_DATA_DIR/ucl-demo.licence.json' Telemetry__OtlpEndpoint=''"
+  API_ENV_PREFIX="ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://127.0.0.1:5198 Platform__Mode=Demo Bootstrap__ApplyMigrationsOnStartup=true Bootstrap__SeedDemoData=true Database__Provider=Sqlite ConnectionStrings__Scout='Data Source=$DEMO_DATA_DIR/scout_context_demo.db' ConnectionStrings__CustomerOps='Data Source=$DEMO_DATA_DIR/customer_ops_demo.db' Licence__Mode=Community Licence__FilePath='$DEMO_DATA_DIR/scout-demo.licence.json' Telemetry__OtlpEndpoint=''"
 fi
 
 (
   cd "$REPO_ROOT"
-  nohup sh -lc "$API_ENV_PREFIX \"$DOTNET_CMD\" run --project src/ContextLayer.Api" >"$API_LOG" 2>"$API_ERR_LOG" &
+  nohup sh -lc "$API_ENV_PREFIX \"$DOTNET_CMD\" run --project src/KynticAI.Scout.Api" >"$API_LOG" 2>"$API_ERR_LOG" &
   echo $! >"$API_PID_FILE"
 )
 
@@ -142,7 +140,7 @@ wait_for_url "http://127.0.0.1:5198/health"
 wait_for_url "http://127.0.0.1:5173"
 
 echo
-echo "Context Layer is running."
+echo "Scout is running."
 echo "Mode: $MODE"
 echo "Web:     http://127.0.0.1:5173"
 echo "API:     http://127.0.0.1:5198"

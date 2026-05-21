@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Description>Typed .NET client SDK for KynticAI Scout.</Description>
+    <PackageId>KynticAI.Scout.Sdk</PackageId>
+    <Version>2.8.0</Version>
+    <Authors>KynticAI</Authors>
+    <Company>KynticAI</Company>
+    <PackageTags>kynticai-scout;scout;context;graphql;sdk</PackageTags>
+    <PackageProjectUrl>https://github.com/PaulJMaddison/scout</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/PaulJMaddison/scout</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RootNamespace>KynticAI.Scout.Sdk</RootNamespace>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>

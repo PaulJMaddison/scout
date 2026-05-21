@@ -166,7 +166,7 @@ export function PageHeader({
     <div className="flex flex-col gap-6 2xl:flex-row 2xl:items-end 2xl:justify-between">
       <div className="max-w-3xl min-w-0">
         <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sage-700">{eyebrow}</p>
-        <h1 className="mt-3 break-words font-display text-[clamp(2.4rem,4vw,4rem)] leading-[0.98] tracking-tight text-ink-950">{title}</h1>
+        <h1 className="mt-3 break-words font-display text-[clamp(2.4rem,4vw,4rem)] leading-[0.98] tracking-normal text-ink-950">{title}</h1>
         <p className="mt-3 max-w-3xl text-sm leading-7 text-ink-700 sm:text-base">{description}</p>
       </div>
       {actions ? <div className="flex max-w-full flex-wrap items-center gap-3">{actions}</div> : null}

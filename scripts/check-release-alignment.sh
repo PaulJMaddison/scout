@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-EXPECTED_BRANCH="${1:-pjm/v2-next-public-core}"
+EXPECTED_BRANCH="${1:-main}"
 HOSTING_PLAN="${2:-MainAfterPromotion}"
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -31,7 +31,7 @@ if [ -n "$UPSTREAM" ]; then
   fi
 fi
 
-echo "Universal Context Layer public release alignment"
+echo "KynticAI Scout public release alignment"
 write_value "Repository" "$REPO_ROOT"
 write_value "Current branch" "$BRANCH"
 write_value "Expected readiness branch" "$EXPECTED_BRANCH"

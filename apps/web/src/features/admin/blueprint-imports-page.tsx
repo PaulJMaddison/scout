@@ -45,7 +45,7 @@ export function BlueprintImportsPage() {
         {imports.length === 0 && !importsQuery.isLoading ? (
           <AdminEmptyState
             title="No blueprint imports yet"
-            body="Ask Codex, Claude, or ChatGPT to analyse sample schemas and create a ContextLayerBlueprint, then validate and import it through Bootstrap Studio."
+            body="Ask Codex, Claude, or ChatGPT to analyse sample schemas and create a ScoutBlueprint, then validate and import it through Bootstrap Studio."
             action={
               <Link to="/bootstrap-studio">
                 <Button type="button">Import first blueprint</Button>

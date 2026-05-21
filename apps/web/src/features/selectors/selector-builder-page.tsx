@@ -48,7 +48,7 @@ export function SelectorBuilderPage() {
   const { session } = useAuthSession()
   const [selectorSearch, setSelectorSearch] = useState('')
   const tenantSlug = session?.tenantSlug ?? 'demo'
-  const actorEmail = session?.email ?? 'demo-admin@contextlayer.local'
+  const actorEmail = session?.email ?? 'demo-admin@scout.local'
 
   const usersQuery = useQuery({
     queryKey: ['userProfiles', tenantSlug],

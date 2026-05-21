@@ -102,7 +102,7 @@ export function PricingPage() {
             [ServerCog, 'Self-hosted backend', 'Deploy the API and workers with PostgreSQL while retaining your own operations model.'],
             [CloudCog, 'Future control plane', 'Use a hosted control plane when speed and managed operations matter more than owning runtime.'],
             [LockKeyhole, 'Private cloud', 'Use stronger tenant isolation, regional deployment, and enterprise governance controls.'],
-            [Building2, 'Integration layer', 'Embed UCL behind a product or internal platform as the semantic contract over source systems.'],
+            [Building2, 'Integration layer', 'Embed Scout behind a product or internal platform as the semantic contract over source systems.'],
           ].map(([Icon, title, body]) => (
             <Card key={title as string} className="bg-[linear-gradient(180deg,rgba(255,248,240,0.96),rgba(252,246,239,0.96))]">
               <Icon className="size-5 text-copper-700" />

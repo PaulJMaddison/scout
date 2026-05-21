@@ -14,7 +14,7 @@ const { chromium } = playwright
 
 const baseUrl = readArgument('base-url', 'http://127.0.0.1:5173').replace(/\/$/, '')
 const tenantSlug = readArgument('tenant', 'demo')
-const email = readArgument('email', 'admin@contextlayer.local')
+const email = readArgument('email', 'admin@scout.local')
 const password = readArgument('password', 'DemoAdmin123!')
 const targetPath = readArgument('target', '/demo')
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')

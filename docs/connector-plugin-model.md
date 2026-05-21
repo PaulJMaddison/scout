@@ -1,6 +1,6 @@
 # Connector Plugin Model
 
-Universal Context Layer now resolves source-system access through a registry-backed connector plugin model. The selector engine still receives raw and normalised payloads for a subject, but connector lifecycle concerns now live behind dedicated plugin interfaces.
+KynticAI Scout now resolves source-system access through a registry-backed connector plugin model. The selector engine still receives raw and normalised payloads for a subject, but connector lifecycle concerns now live behind dedicated plugin interfaces.
 
 ## Goals
 
@@ -21,9 +21,9 @@ Universal Context Layer now resolves source-system access through a registry-bac
 
 Key files:
 
-- `src/ContextLayer.Application/Abstractions/IConnectorPlugin.cs`
-- `src/ContextLayer.Infrastructure/Connectors/ConnectorRegistry.cs`
-- `src/ContextLayer.Infrastructure/Connectors/ProtectedConnectorCredentialStore.cs`
+- `src/KynticAI.Scout.Application/Abstractions/IConnectorPlugin.cs`
+- `src/KynticAI.Scout.Infrastructure/Connectors/ConnectorRegistry.cs`
+- `src/KynticAI.Scout.Infrastructure/Connectors/ProtectedConnectorCredentialStore.cs`
 
 ## Built-In Plugins
 
@@ -127,9 +127,9 @@ The selector engine resolves secrets through `IConnectorCredentialStore` immedia
 
 Coverage added in:
 
-- `tests/ContextLayer.UnitTests/ConnectorPluginModelTests.cs`
-- `tests/ContextLayer.UnitTests/SelectorExecutionEngineTests.cs`
-- `tests/ContextLayer.IntegrationTests/GraphQlAuthorizationIntegrationTests.cs`
+- `tests/KynticAI.Scout.UnitTests/ConnectorPluginModelTests.cs`
+- `tests/KynticAI.Scout.UnitTests/SelectorExecutionEngineTests.cs`
+- `tests/KynticAI.Scout.IntegrationTests/GraphQlAuthorizationIntegrationTests.cs`
 
 These tests cover alias resolution, secret persistence, preview-compatible REST behavior, selector execution through the plugin registry, and GraphQL connector registration.
 
