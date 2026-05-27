@@ -1,4 +1,5 @@
 export { runAudit } from './audit-runner.js'
+export { exportJson, exportMarkdown, deriveManifestValidation } from './report-export.js'
 export type {
   AuditInput,
   AuditReport,
@@ -6,6 +7,7 @@ export type {
   FieldClassification,
   FieldSummary,
   JsonSchema,
+  ManifestValidationSummary,
   MetadataWarning,
   ReadinessBreakdown,
   ReadinessScore,

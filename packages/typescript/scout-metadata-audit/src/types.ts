@@ -112,3 +112,10 @@ export interface ReadinessBreakdown {
   capabilityBreadth: number
   documentationCoverage: number
 }
+
+/** Summary of manifest validation derived from audit warnings. */
+export interface ManifestValidationSummary {
+  isValid: boolean
+  errors: string[]
+  warnings: string[]
+}
