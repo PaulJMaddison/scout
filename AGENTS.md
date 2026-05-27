@@ -1,0 +1,58 @@
+# AGENTS.md
+
+## Project Overview
+
+KynticAI Scout is the open-source public repo for the Universal Context Layer. It is MIT-licensed and provides the public data-plane foundation: .NET API, TypeScript SDK, .NET SDK, React admin console, connector abstractions, docs, samples, and demo tooling.
+
+Scout is the public face of KynticAI. Keep it useful, auditable, and safe for public release. It must not contain enterprise-only implementation details or private planning material.
+
+## Repo Topology
+
+- `src/` - .NET API, application, domain, infrastructure, and SDK projects.
+- `tests/` - .NET unit, integration, SDK, and end-to-end tests.
+- `apps/web/` - Vite React admin/demo console.
+- `packages/typescript/scout-sdk/` - public TypeScript SDK.
+- `docs/` - public documentation, API notes, diagrams, and brand assets.
+- `deploy/` - Docker and deployment configuration.
+- `scripts/` - local setup, demo, and automation scripts.
+- `samples/` - public example integrations and fixtures.
+
+## Build/Test Commands
+
+- Restore/build/test .NET: `dotnet restore .\KynticAI.Scout.slnx`, `dotnet build .\KynticAI.Scout.slnx`, `dotnet test .\KynticAI.Scout.slnx`.
+- Web app: `cd apps\web`, then `npm install`, `npm run build`, `npm run lint`, `npm run test`.
+- TypeScript SDK: `cd packages\typescript\scout-sdk`, then `npm install`, `npm run build`, `npm run test`.
+- Local demo: `.\scripts\setup-demo.ps1`, then `.\scripts\start-demo.ps1`.
+- Docker API demo: `docker compose -f deploy\docker-compose.yml up scout-api --build`.
+
+## Do-Not-Do List
+
+- Do not add enterprise internals, private connector code, proprietary Fortress logic, LanceDB, embedded LLMs, vector pipelines, or obfuscation logic to Scout.
+- Do not leak private planning docs, customer material, credentials, tokens, service-account files, or paid-customer details.
+- Do not change package names, public API contracts, or SDK shapes without compatibility notes and tests.
+- Do not add user-facing copy that says plain "Kyntic" when it means the public brand.
+- Do not publish releases, tags, packages, or public deployment changes without explicit approval.
+- Do not introduce telemetry that sends customer data to third parties.
+
+## Brand Rules
+
+- Public brand is `KynticAI`, always with `AI`.
+- Product tier name is `KynticAI Scout`.
+- Use British English for user-facing copy.
+- Public positioning: context infrastructure for AI-enabled products. Scout does not call an AI model.
+- Keep the Aged Book/Sovereign Rust visual direction when touching public UI or docs.
+
+## Current Sprint Priorities
+
+- V2-003: keep this root AGENTS.md current after meaningful sessions.
+- OSS-021: keep user-facing brand text aligned to `KynticAI`.
+- OSS-013: re-enable and harden CI/CD when that work is picked up.
+- OSS-015 and OSS-019: public docs and connector authoring remain upcoming public-facing work.
+
+## State/Update Expectations
+
+- Check `git status` before editing and preserve unrelated local changes.
+- Read nearby code and existing docs before changing behaviour or public wording.
+- Keep updates concise in `C:\Kyntic\UCL-local-aidocs\SESSION_LOG.md` after meaningful work.
+- Record commands run, verification results, and any skipped checks.
+- Keep this file under 200 lines and public-safe.
