@@ -1,0 +1,13 @@
+{
+  "manifest": {
+    "connectorType": "incompleteDemo",
+    "displayName": "",
+    "description": "",
+    "supportedDataSourceKinds": [],
+    "configurationSchema": {
+      "type": "string",
+      "properties": {}
+    },
+    "sampleConfiguration": {}
+  }
+}
