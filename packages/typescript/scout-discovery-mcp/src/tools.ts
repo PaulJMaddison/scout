@@ -6,6 +6,11 @@ import {
   getConnectorCapabilities,
 } from './sample-data.js'
 import type { ManifestValidationResult } from './types.js'
+import {
+  validateManifest as validateExtendedManifest,
+  type ManifestValidationResult as ExtendedValidationResult,
+  type ValidatorOptions,
+} from '@kynticai/scout-connector-validator'
 
 /**
  * Lists all registered connector plugins with public metadata.
@@ -119,6 +124,18 @@ export function validateConnectorManifest(manifest: unknown): ManifestValidation
   validateSampleConfig(obj, errors)
 
   return { isValid: errors.length === 0, errors, warnings }
+}
+
+/**
+ * Validates an extended connector manifest using the public schema validator.
+ * Supports the full manifest format with version, requiredConfigFields,
+ * safeMetadataFields, and sampleEntityMappings.
+ */
+export function validateExtendedConnectorManifest(
+  manifest: unknown,
+  options?: ValidatorOptions,
+): ExtendedValidationResult {
+  return validateExtendedManifest(manifest, options)
 }
 
 function validateSchemaField(
