@@ -1,0 +1,21 @@
+{
+  "connectorType": "template",
+  "records": [
+    {
+      "externalUserId": "123",
+      "observedAtUtc": "2026-01-15T09:00:00Z",
+      "payload": {
+        "status": "active",
+        "score": 85
+      }
+    },
+    {
+      "externalUserId": "456",
+      "observedAtUtc": "2026-01-15T09:30:00Z",
+      "payload": {
+        "status": "trial",
+        "score": 42
+      }
+    }
+  ]
+}
