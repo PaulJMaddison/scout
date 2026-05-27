@@ -1,0 +1,306 @@
+{
+  "connectors": [
+    {
+      "connectorType": "sqlDatabase",
+      "displayName": "SQL Database",
+      "description": "Generic SQL connector for warehouse-style and relational queries.",
+      "aliases": ["sqlTable"],
+      "supportedDataSourceKinds": ["SqlMetric", "Crm"],
+      "supportedCapabilities": [
+        "FetchSubject",
+        "Preview",
+        "DryRun",
+        "ScheduledSync",
+        "EventTriggeredRecompute",
+        "HealthCheck",
+        "ConfigurationValidation",
+        "SecureCredentialStorage"
+      ],
+      "configurationSchema": {
+        "type": "object",
+        "required": ["tableName", "userIdColumn"],
+        "properties": {
+          "tableName": {
+            "type": "string",
+            "description": "Database table or view name."
+          },
+          "tenantSlugColumn": {
+            "type": "string",
+            "description": "Column used for tenant isolation."
+          },
+          "userIdColumn": {
+            "type": "string",
+            "description": "Column containing external user identifiers."
+          },
+          "observedAtColumn": {
+            "type": "string",
+            "description": "Column with observation timestamps."
+          },
+          "columns": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Columns to include in the fetch result."
+          }
+        }
+      },
+      "sampleConfiguration": {
+        "connectorType": "sqlDatabase",
+        "tableName": "customer_context_rollups",
+        "tenantSlugColumn": "tenant_slug",
+        "userIdColumn": "external_user_id",
+        "observedAtColumn": "observed_at_utc",
+        "columns": ["plan_interest_signal", "active_days_30"]
+      }
+    },
+    {
+      "connectorType": "restApi",
+      "displayName": "REST API",
+      "description": "Generic HTTP connector for REST-based operational APIs.",
+      "aliases": ["apiPayload", "crmApi", "billingApi", "telemetryApi", "productTelemetry", "supportApi"],
+      "supportedDataSourceKinds": ["Crm", "EventStream", "ProductUsage"],
+      "supportedCapabilities": [
+        "FetchSubject",
+        "Preview",
+        "DryRun",
+        "ScheduledSync",
+        "EventTriggeredRecompute",
+        "HealthCheck",
+        "ConfigurationValidation",
+        "SecureCredentialStorage"
+      ],
+      "configurationSchema": {
+        "type": "object",
+        "required": ["baseUrl", "pathTemplate"],
+        "properties": {
+          "baseUrl": {
+            "type": "string",
+            "description": "Base URL of the REST API."
+          },
+          "pathTemplate": {
+            "type": "string",
+            "description": "URL path template with {externalUserId} placeholder."
+          },
+          "method": {
+            "type": "string",
+            "enum": ["GET", "POST"],
+            "description": "HTTP method."
+          },
+          "observedAtPath": {
+            "type": "string",
+            "description": "JSON path to the observation timestamp in the response."
+          }
+        }
+      },
+      "sampleConfiguration": {
+        "connectorType": "restApi",
+        "baseUrl": "https://api.example.com",
+        "pathTemplate": "/v1/customers/{externalUserId}",
+        "method": "GET",
+        "observedAtPath": "meta.observedAtUtc"
+      }
+    },
+    {
+      "connectorType": "mock",
+      "displayName": "Mock Connector",
+      "description": "Deterministic mock connector for demos, tests, and safe fixture-based examples.",
+      "aliases": ["mockPayload", "mockSignal", "fileUpload"],
+      "supportedDataSourceKinds": ["Crm", "SqlMetric", "EventStream", "ProductUsage"],
+      "supportedCapabilities": [
+        "FetchSubject",
+        "Preview",
+        "DryRun",
+        "ScheduledSync",
+        "EventTriggeredRecompute",
+        "HealthCheck",
+        "ConfigurationValidation",
+        "SecureCredentialStorage"
+      ],
+      "configurationSchema": {
+        "type": "object",
+        "required": ["records"],
+        "properties": {
+          "records": {
+            "type": "array",
+            "description": "Array of demo records keyed by externalUserId.",
+            "items": {
+              "type": "object",
+              "required": ["externalUserId", "payload"],
+              "properties": {
+                "externalUserId": { "type": "string" },
+                "observedAtUtc": { "type": "string", "format": "date-time" },
+                "payload": { "type": "object" }
+              }
+            }
+          }
+        }
+      },
+      "sampleConfiguration": {
+        "connectorType": "mock",
+        "records": [
+          {
+            "externalUserId": "123",
+            "observedAtUtc": "2026-05-11T12:00:00Z",
+            "payload": {
+              "crm": { "preferredChannel": "email" }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "connectorType": "csvUpload",
+      "displayName": "CSV Upload",
+      "description": "Schema-on-read CSV file connector for local flat-file ingestion.",
+      "aliases": [],
+      "supportedDataSourceKinds": ["Crm", "SqlMetric"],
+      "supportedCapabilities": [
+        "FetchSubject",
+        "Preview",
+        "DryRun",
+        "ConfigurationValidation"
+      ],
+      "configurationSchema": {
+        "type": "object",
+        "required": ["filePath", "userIdColumn"],
+        "properties": {
+          "filePath": {
+            "type": "string",
+            "description": "Path to the CSV file."
+          },
+          "userIdColumn": {
+            "type": "string",
+            "description": "Column containing external user identifiers."
+          },
+          "delimiter": {
+            "type": "string",
+            "description": "Field delimiter character.",
+            "default": ","
+          },
+          "hasHeader": {
+            "type": "boolean",
+            "description": "Whether the CSV file has a header row.",
+            "default": true
+          }
+        }
+      },
+      "sampleConfiguration": {
+        "connectorType": "csvUpload",
+        "filePath": "./data/sample-customers.csv",
+        "userIdColumn": "customer_id",
+        "delimiter": ",",
+        "hasHeader": true
+      }
+    },
+    {
+      "connectorType": "template",
+      "displayName": "Template Connector",
+      "description": "Starter template for authoring a KynticAI Scout connector. Replace with your own implementation.",
+      "aliases": [],
+      "supportedDataSourceKinds": ["Crm"],
+      "supportedCapabilities": [
+        "FetchSubject",
+        "Preview",
+        "DryRun",
+        "ScheduledSync",
+        "EventTriggeredRecompute",
+        "HealthCheck",
+        "ConfigurationValidation",
+        "SecureCredentialStorage"
+      ],
+      "configurationSchema": {
+        "type": "object",
+        "required": ["records"],
+        "properties": {
+          "records": {
+            "type": "array",
+            "description": "Array of demo records keyed by externalUserId."
+          }
+        }
+      },
+      "sampleConfiguration": {
+        "records": [
+          {
+            "externalUserId": "123",
+            "observedAtUtc": "2026-01-15T09:00:00Z",
+            "payload": { "status": "active", "score": 85 }
+          }
+        ]
+      }
+    },
+    {
+      "connectorType": "inMemoryInventory",
+      "displayName": "In-Memory Inventory",
+      "description": "Example connector returning fictional warehouse inventory data for authoring demos.",
+      "aliases": [],
+      "supportedDataSourceKinds": ["ProductUsage"],
+      "supportedCapabilities": [
+        "FetchSubject",
+        "Preview",
+        "DryRun",
+        "ScheduledSync",
+        "EventTriggeredRecompute",
+        "HealthCheck",
+        "ConfigurationValidation",
+        "SecureCredentialStorage"
+      ],
+      "configurationSchema": {
+        "type": "object",
+        "required": ["warehouseId"],
+        "properties": {
+          "warehouseId": {
+            "type": "string",
+            "description": "Identifier for the warehouse providing inventory data."
+          },
+          "records": {
+            "type": "array",
+            "description": "Optional override records for testing."
+          }
+        }
+      },
+      "sampleConfiguration": {
+        "connectorType": "inMemoryInventory",
+        "warehouseId": "warehouse-north",
+        "records": [
+          {
+            "externalUserId": "123",
+            "observedAtUtc": "2026-01-20T08:00:00Z",
+            "payload": {
+              "inventory": { "skuCount": 42, "lowStockAlerts": 3, "fulfilmentRate": 0.97 }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "semanticAttributeKeys": [
+    "conversionProbability",
+    "preferredChannel",
+    "planInterest",
+    "churnRisk",
+    "engagementLevel",
+    "expansionPotential",
+    "budgetReadiness",
+    "decisionMakerLikelihood",
+    "productFit",
+    "recommendedSalesMotion",
+    "stakeholderSeniority",
+    "salesUrgency",
+    "recentFeatureAdoption"
+  ],
+  "dataSourceKinds": [
+    "Crm",
+    "SqlMetric",
+    "EventStream",
+    "ProductUsage"
+  ],
+  "connectorCapabilities": [
+    "FetchSubject",
+    "Preview",
+    "DryRun",
+    "ScheduledSync",
+    "EventTriggeredRecompute",
+    "HealthCheck",
+    "ConfigurationValidation",
+    "SecureCredentialStorage"
+  ]
+}
