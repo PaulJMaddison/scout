@@ -1,0 +1,47 @@
+{
+  "name": "@kynticai/scout-connector-test-harness",
+  "version": "2.8.0",
+  "description": "Local test harness for validating KynticAI Scout connectors against public interfaces — manifest shape, metadata extraction, entity mapping, error handling, and unsafe field checks.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PaulJMaddison/scout.git",
+    "directory": "packages/typescript/scout-connector-test-harness"
+  },
+  "homepage": "https://github.com/PaulJMaddison/scout",
+  "bugs": {
+    "url": "https://github.com/PaulJMaddison/scout/issues"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "scout-connector-test": "./dist/cli.js"
+  },
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "data",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "start": "node dist/cli.js"
+  },
+  "dependencies": {
+    "@kynticai/scout-connector-validator": "file:../scout-connector-validator",
+    "@kynticai/scout-metadata-audit": "file:../scout-metadata-audit"
+  },
+  "devDependencies": {
+    "@types/node": "^24.12.2",
+    "typescript": "~6.0.2",
+    "vitest": "^4.0.8"
+  }
+}
