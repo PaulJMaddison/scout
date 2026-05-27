@@ -1,0 +1,81 @@
+{
+  "manifest": {
+    "connectorType": "sampleCrm",
+    "displayName": "Sample CRM Connector",
+    "description": "Fictional CRM connector used for local metadata audit demonstrations.",
+    "aliases": ["demoCrm"],
+    "supportedDataSourceKinds": ["Crm"],
+    "supportedCapabilities": [
+      "FetchSubject",
+      "Preview",
+      "DryRun",
+      "HealthCheck",
+      "ConfigurationValidation"
+    ],
+    "configurationSchema": {
+      "type": "object",
+      "required": ["tableName", "userIdColumn"],
+      "properties": {
+        "tableName": {
+          "type": "string",
+          "description": "Source table name."
+        },
+        "userIdColumn": {
+          "type": "string",
+          "description": "Column containing external user identifiers."
+        },
+        "tenantSlugColumn": {
+          "type": "string",
+          "description": "Column used for tenant isolation."
+        },
+        "observedAtUtc": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Observation timestamp column."
+        },
+        "conversionProbability": {
+          "type": "number",
+          "description": "Maps to the Scout conversionProbability semantic attribute."
+        },
+        "churnRisk": {
+          "type": "number",
+          "description": "Maps to the Scout churnRisk semantic attribute."
+        },
+        "payload": {
+          "type": "object",
+          "description": "Arbitrary connector payload."
+        }
+      }
+    },
+    "sampleConfiguration": {
+      "tableName": "crm_contacts",
+      "userIdColumn": "contact_id",
+      "tenantSlugColumn": "tenant",
+      "observedAtUtc": "2026-01-15T09:00:00Z"
+    }
+  },
+  "sampleRecords": [
+    {
+      "externalUserId": "contact-001",
+      "observedAtUtc": "2026-01-15T09:00:00Z",
+      "payload": {
+        "fullName": "Avery Stone",
+        "email": "avery@larkspur.example",
+        "conversionProbability": 0.82,
+        "churnRisk": 0.15,
+        "planInterest": "Pro"
+      }
+    },
+    {
+      "externalUserId": "contact-002",
+      "observedAtUtc": "2026-01-15T09:30:00Z",
+      "payload": {
+        "fullName": "Jordan Blake",
+        "email": "jordan@northstar.example",
+        "conversionProbability": 0.44,
+        "churnRisk": 0.67,
+        "planInterest": "Free"
+      }
+    }
+  ]
+}
