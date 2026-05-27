@@ -1,0 +1,32 @@
+/*
+  KynticAI Scout — Aged Book / Sovereign Rust palette.
+  Applied as a Starlight custom-CSS override.
+*/
+
+:root {
+	--sl-color-accent-low: #3b2f1e;
+	--sl-color-accent: #a0522d;
+	--sl-color-accent-high: #d2b48c;
+	--sl-color-white: #faf6f1;
+	--sl-color-gray-1: #ebe3d9;
+	--sl-color-gray-2: #c4b8a9;
+	--sl-color-gray-3: #857869;
+	--sl-color-gray-4: #56493c;
+	--sl-color-gray-5: #3b2f1e;
+	--sl-color-gray-6: #231c12;
+	--sl-color-black: #1a1410;
+}
+
+:root[data-theme='light'] {
+	--sl-color-accent-low: #f5ebe0;
+	--sl-color-accent: #a0522d;
+	--sl-color-accent-high: #4a2c17;
+	--sl-color-white: #1a1410;
+	--sl-color-gray-1: #231c12;
+	--sl-color-gray-2: #56493c;
+	--sl-color-gray-3: #857869;
+	--sl-color-gray-4: #c4b8a9;
+	--sl-color-gray-5: #ebe3d9;
+	--sl-color-gray-6: #faf6f1;
+	--sl-color-black: #faf6f1;
+}

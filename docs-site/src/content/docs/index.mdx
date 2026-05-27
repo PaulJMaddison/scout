@@ -1,0 +1,50 @@
+---
+title: KynticAI Scout Documentation
+description: Open-source context infrastructure for AI-enabled products.
+template: splash
+hero:
+  tagline: >
+    KynticAI Scout turns existing business data into trusted semantic context
+    for AI — without moving your data or calling an AI model.
+  actions:
+    - text: Get Started
+      link: /getting-started/what-is-scout/
+      icon: right-arrow
+      variant: primary
+    - text: View on GitHub
+      link: https://github.com/PaulJMaddison/scout
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+<CardGrid>
+  <Card title="Installation" icon="setting">
+    Get Scout running locally in minutes — no Docker, PostgreSQL, or global
+    SDK install required.
+
+    [Install Scout →](/getting-started/installation/)
+  </Card>
+
+  <Card title="Quickstart" icon="rocket">
+    Three commands to a working local demo with seeded data, REST + GraphQL
+    APIs, and an admin console.
+
+    [Quickstart →](/getting-started/quickstart/)
+  </Card>
+
+  <Card title="API Overview" icon="open-book">
+    Explore the GraphQL, REST, and SDK surfaces that expose semantic context
+    to your applications.
+
+    [APIs →](/apis/overview/)
+  </Card>
+
+  <Card title="Open Source vs Enterprise" icon="approve-check-circle">
+    Understand what ships in the free open-source core and what requires a
+    commercial licence.
+
+    [Compare →](/concepts/open-source-vs-enterprise/)
+  </Card>
+</CardGrid>
