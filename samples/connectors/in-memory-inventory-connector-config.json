@@ -1,0 +1,28 @@
+{
+  "connectorType": "inMemoryInventory",
+  "warehouseId": "warehouse-north",
+  "records": [
+    {
+      "externalUserId": "123",
+      "observedAtUtc": "2026-01-20T08:00:00Z",
+      "payload": {
+        "inventory": {
+          "skuCount": 42,
+          "lowStockAlerts": 3,
+          "fulfilmentRate": 0.97
+        }
+      }
+    },
+    {
+      "externalUserId": "456",
+      "observedAtUtc": "2026-01-20T08:15:00Z",
+      "payload": {
+        "inventory": {
+          "skuCount": 210,
+          "lowStockAlerts": 0,
+          "fulfilmentRate": 0.99
+        }
+      }
+    }
+  ]
+}

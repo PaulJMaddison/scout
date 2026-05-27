@@ -90,6 +90,8 @@ public static class DependencyInjection
         services.AddScoped<IConnectorPlugin, MockCrmConnectorPlugin>();
         services.AddScoped<IConnectorPlugin, MockBillingConnectorPlugin>();
         services.AddScoped<IConnectorPlugin, MockSupportConnectorPlugin>();
+        services.AddScoped<IConnectorPlugin, InMemoryInventoryConnectorPlugin>();
+        services.AddScoped<IConnectorPlugin, TemplateConnectorPlugin>();
         services.AddScoped<IConnectorRegistry, ConnectorRegistry>();
         services.AddScoped<IConnectorCredentialStore, ProtectedConnectorCredentialStore>();
         services.AddSingleton<ILicenceKeyGenerator, StaticLicenceKeyGenerator>();
