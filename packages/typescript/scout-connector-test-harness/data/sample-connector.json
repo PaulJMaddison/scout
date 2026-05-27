@@ -1,0 +1,85 @@
+{
+  "manifest": {
+    "connectorId": "sampleCrm",
+    "displayName": "Sample CRM Connector",
+    "version": "1.0.0",
+    "description": "A sample connector demonstrating the public KynticAI Scout manifest format.",
+    "supportedSourceTypes": ["Crm"],
+    "requiredConfigFields": [
+      {
+        "name": "endpoint",
+        "type": "string",
+        "description": "Base URL of the CRM API."
+      },
+      {
+        "name": "tenantId",
+        "type": "string",
+        "description": "Tenant identifier for multi-tenant CRM installations."
+      }
+    ],
+    "safeMetadataFields": [
+      "connectorId",
+      "displayName",
+      "version",
+      "supportedSourceTypes"
+    ],
+    "sampleEntityMappings": [
+      {
+        "sourceField": "deal_probability",
+        "semanticAttribute": "conversionProbability",
+        "description": "Maps the CRM deal probability field to the Scout conversion probability attribute."
+      },
+      {
+        "sourceField": "contact_channel",
+        "semanticAttribute": "preferredChannel",
+        "description": "Maps the CRM preferred contact channel to the Scout preferred channel attribute."
+      }
+    ],
+    "aliases": ["demoCrm"],
+    "capabilities": ["FetchSubject", "Preview", "DryRun"],
+    "configurationSchema": {
+      "type": "object",
+      "required": ["endpoint", "tenantId"],
+      "properties": {
+        "endpoint": {
+          "type": "string",
+          "description": "Base URL of the CRM API."
+        },
+        "tenantId": {
+          "type": "string",
+          "description": "Tenant identifier for multi-tenant CRM installations."
+        },
+        "pageSize": {
+          "type": "integer",
+          "description": "Number of records per page.",
+          "default": 100
+        }
+      }
+    },
+    "sampleConfiguration": {
+      "endpoint": "https://api.example-crm.com/v2",
+      "tenantId": "demo-tenant-001",
+      "pageSize": 50
+    }
+  },
+  "sampleRecords": [
+    {
+      "externalUserId": "user-001",
+      "observedAtUtc": "2026-05-20T10:00:00Z",
+      "payload": {
+        "deal_probability": 0.82,
+        "contact_channel": "email",
+        "status": "active"
+      }
+    },
+    {
+      "externalUserId": "user-002",
+      "observedAtUtc": "2026-05-20T11:00:00Z",
+      "payload": {
+        "deal_probability": 0.35,
+        "contact_channel": "phone",
+        "status": "trial"
+      }
+    }
+  ]
+}
