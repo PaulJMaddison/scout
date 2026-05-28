@@ -3,10 +3,51 @@ import type {
   ContractParityReport,
   EnumShape,
   FieldShape,
+  IssueCategory,
   ManifestFixture,
   ModelShape,
   ParityIssue,
+  ParityIssueGroup,
 } from './types.js'
+
+const CATEGORY_DETAILS: Record<IssueCategory, { title: string, action: string, order: number }> = {
+  'sdk-request-contract': {
+    title: 'SDK request contract gaps',
+    action: 'Decide whether the SDK should expose these request/input models directly, or keep a convenience method that maps to them.',
+    order: 10,
+  },
+  'sdk-result-contract': {
+    title: 'SDK result contract gaps',
+    action: 'Add matching SDK result models for public responses, or document why the endpoint is intentionally not SDK-facing.',
+    order: 20,
+  },
+  'rest-transport-contract': {
+    title: 'REST transport DTO gaps',
+    action: 'Keep REST wrapper/error DTOs transport-only or map them to existing SDK request and problem-detail shapes.',
+    order: 30,
+  },
+  'connector-authoring-contract': {
+    title: 'Connector authoring contract gaps',
+    action: 'Align SDK and validator support for connector authoring surfaces that public connector authors can consume.',
+    order: 40,
+  },
+  'admin-governance-contract': {
+    title: 'Admin and governance contract gaps',
+    action: 'Review whether admin, governance, SaaS, blueprint, and agent-run contracts should remain console/API-only or become SDK models.',
+    order: 50,
+  },
+  'contract-parity': {
+    title: 'Contract parity findings',
+    action: 'Review the reported source and target contract before changing public API or SDK shapes.',
+    order: 60,
+  },
+}
+
+const TARGET_REFERENCES: Record<string, string> = {
+  'dotnet-sdk': 'src/KynticAI.Scout.Sdk/KynticAI.ScoutModels.cs',
+  'typescript-sdk': 'packages/typescript/scout-sdk/src/types.ts',
+  'connector-manifest': 'packages/typescript/scout-connector-validator/src/types.ts',
+}
 
 export function runParityCheck(input: ContractParityInput, checkedAtUtc = '2026-01-01T00:00:00.000Z'): ContractParityReport {
   const issues: ParityIssue[] = []
@@ -51,8 +92,9 @@ export function runParityCheck(input: ContractParityInput, checkedAtUtc = '2026-
     issues.push(...checkManifest(manifest, input.connectorManifest))
   }
 
-  const errorCount = issues.filter((issue) => issue.severity === 'error').length
-  const warningCount = issues.length - errorCount
+  const sortedIssues = sortIssues(issues)
+  const errorCount = sortedIssues.filter((issue) => issue.severity === 'error').length
+  const warningCount = sortedIssues.length - errorCount
 
   return {
     isValid: errorCount === 0,
@@ -65,7 +107,8 @@ export function runParityCheck(input: ContractParityInput, checkedAtUtc = '2026-
       errorCount,
       warningCount,
     },
-    issues: sortIssues(issues),
+    issues: sortedIssues,
+    warningGroups: groupWarnings(sortedIssues),
   }
 }
 
@@ -84,20 +127,24 @@ function compareModels(source: ModelShape, target: ModelShape): ParityIssue[] {
       issues.push({
         kind: 'renamed-field',
         severity: 'error',
+        category: 'contract-parity',
         source: source.surface,
         target: target.surface,
         model: source.name,
         field: sourceField.name,
+        ...referenceFields(source.sourceFile, target.sourceFile ?? TARGET_REFERENCES[target.surface]),
         message: `${target.surface} ${target.name} appears to rename '${sourceField.name}' to '${rename.name}'.`,
       })
     } else {
       issues.push({
         kind: 'missing-field',
         severity: 'error',
+        category: 'contract-parity',
         source: source.surface,
         target: target.surface,
         model: source.name,
         field: sourceField.name,
+        ...referenceFields(source.sourceFile, target.sourceFile ?? TARGET_REFERENCES[target.surface]),
         message: `${target.surface} ${target.name} is missing field '${sourceField.name}' from ${source.surface} ${source.name}.`,
       })
     }
@@ -114,11 +161,13 @@ function compareEnums(source: EnumShape, target: EnumShape): ParityIssue[] {
   return [{
     kind: 'enum-mismatch',
     severity: 'error',
+    category: 'contract-parity',
     source: source.surface,
     target: target.surface,
     model: source.name,
     expected,
     actual,
+    ...referenceFields(source.sourceFile, target.sourceFile ?? TARGET_REFERENCES[target.surface]),
     message: `${target.surface} ${target.name} enum values differ from ${source.surface} ${source.name}.`,
   }]
 }
@@ -137,10 +186,12 @@ function checkManifest(
       issues.push({
         kind: 'unsupported-manifest-feature',
         severity: 'error',
+        category: 'connector-authoring-contract',
         source: 'connector-manifest',
         target: 'connector-manifest',
         model: manifest.name,
         field,
+        ...referenceFields(manifest.sourceFile, 'packages/typescript/scout-connector-validator/src/types.ts'),
         message: `Connector manifest '${manifest.name}' uses unsupported field '${field}'.`,
       })
     }
@@ -151,10 +202,12 @@ function checkManifest(
       issues.push({
         kind: 'unsupported-manifest-feature',
         severity: 'error',
+        category: 'connector-authoring-contract',
         source: 'connector-manifest',
         target: 'connector-manifest',
         model: manifest.name,
         field: 'supportedSourceTypes',
+        ...referenceFields(manifest.sourceFile, 'packages/typescript/scout-connector-validator/src/schema.ts'),
         message: `Connector manifest '${manifest.name}' declares unsupported source type '${sourceType}'.`,
       })
     }
@@ -165,10 +218,12 @@ function checkManifest(
       issues.push({
         kind: 'unsupported-manifest-feature',
         severity: 'error',
+        category: 'connector-authoring-contract',
         source: 'connector-manifest',
         target: 'connector-manifest',
         model: manifest.name,
         field: 'capabilities',
+        ...referenceFields(manifest.sourceFile, 'packages/typescript/scout-connector-validator/src/schema.ts'),
         message: `Connector manifest '${manifest.name}' declares unsupported capability '${capability}'.`,
       })
     }
@@ -213,11 +268,44 @@ function missingModelIssue(source: ModelShape, target: string): ParityIssue {
   return {
     kind: 'missing-model',
     severity: 'warning',
+    category: classifyMissingModel(source.name),
     source: source.surface,
     target,
     model: source.name,
+    ...referenceFields(source.sourceFile, TARGET_REFERENCES[target]),
     message: `${target} has no matching model for ${source.surface} ${source.name}.`,
   }
+}
+
+function referenceFields(sourceReference?: string, targetReference?: string): Pick<ParityIssue, 'sourceReference' | 'targetReference'> {
+  return {
+    ...(sourceReference ? { sourceReference } : {}),
+    ...(targetReference ? { targetReference } : {}),
+  }
+}
+
+function classifyMissingModel(name: string): IssueCategory {
+  if (name.startsWith('V1') || name.endsWith('RestRequest') || name === 'RecomputeUserContextRequest' || name === 'SalesContextPackageRequest') {
+    return 'rest-transport-contract'
+  }
+
+  if (name.includes('Connector') || name.includes('DataSource') || name === 'SourceSystemEventRequest') {
+    return 'connector-authoring-contract'
+  }
+
+  if (/(Governance|Operator|Organisation|Saas|Blueprint|PromptTemplate|AgentRun|AuditEventExport)/.test(name)) {
+    return 'admin-governance-contract'
+  }
+
+  if (name.endsWith('Input') || name.endsWith('Request')) {
+    return 'sdk-request-contract'
+  }
+
+  if (name.endsWith('Result') || name.endsWith('Summary') || name.endsWith('Event')) {
+    return 'sdk-result-contract'
+  }
+
+  return 'contract-parity'
 }
 
 function similarity(left: string, right: string): number {
@@ -254,8 +342,27 @@ function normaliseType(type: string): string {
 
 function sortIssues(issues: ParityIssue[]): ParityIssue[] {
   return [...issues].sort((a, b) =>
-    `${a.severity}:${a.kind}:${a.model ?? ''}:${a.field ?? ''}`.localeCompare(
-      `${b.severity}:${b.kind}:${b.model ?? ''}:${b.field ?? ''}`,
+    `${a.severity}:${a.category}:${a.kind}:${a.model ?? ''}:${a.field ?? ''}:${a.target}`.localeCompare(
+      `${b.severity}:${b.category}:${b.kind}:${b.model ?? ''}:${b.field ?? ''}:${b.target}`,
     ),
   )
+}
+
+function groupWarnings(issues: ParityIssue[]): ParityIssueGroup[] {
+  const groups = new Map<IssueCategory, ParityIssue[]>()
+  for (const issue of issues) {
+    if (issue.severity !== 'warning') continue
+    const existing = groups.get(issue.category) ?? []
+    existing.push(issue)
+    groups.set(issue.category, existing)
+  }
+
+  return [...groups.entries()]
+    .map(([category, categoryIssues]) => ({
+      category,
+      title: CATEGORY_DETAILS[category].title,
+      action: CATEGORY_DETAILS[category].action,
+      issues: categoryIssues,
+    }))
+    .sort((a, b) => CATEGORY_DETAILS[a.category].order - CATEGORY_DETAILS[b.category].order)
 }

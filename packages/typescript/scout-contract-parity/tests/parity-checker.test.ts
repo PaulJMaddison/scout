@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { runParityCheck, exportText, readFixture } from '../src/index.js'
+import type { ContractParityInput } from '../src/index.js'
 
 const currentDir = dirname(fileURLToPath(import.meta.url))
 const passFixturePath = resolve(currentDir, '..', 'data', 'fixture-pass.json')
@@ -50,4 +51,94 @@ describe('contract parity checker', () => {
     expect(text).toContain('Manifests checked: 1')
     expect(text).toContain('[ERROR] enum-mismatch DataSourceKind')
   })
+
+  it('classifies missing model warnings into actionable groups', () => {
+    const report = runParityCheck(warningFixture())
+
+    expect(report.isValid).toBe(true)
+    expect(report.warningGroups.map((group) => group.category)).toEqual([
+      'sdk-request-contract',
+      'rest-transport-contract',
+      'connector-authoring-contract',
+    ])
+    expect(report.warningGroups[0]?.issues[0]).toMatchObject({
+      category: 'sdk-request-contract',
+      model: 'UserContextLookupInput',
+      sourceReference: 'src/KynticAI.Scout.Application/Contracts/Inputs.cs',
+      targetReference: 'packages/typescript/scout-sdk/src/types.ts',
+    })
+  })
+
+  it('renders grouped warnings with source and target references', () => {
+    const text = exportText(runParityCheck(warningFixture()))
+
+    expect(text).toContain('Warnings:')
+    expect(text).toContain('SDK request contract gaps (1)')
+    expect(text).toContain('REST transport DTO gaps (2)')
+    expect(text).toContain('Connector authoring contract gaps (1)')
+    expect(text).toContain('Action: Decide whether the SDK should expose these request/input models directly')
+    expect(text).toContain(
+      'References: source src/KynticAI.Scout.Application/Contracts/Inputs.cs; target packages/typescript/scout-sdk/src/types.ts',
+    )
+  })
 })
+
+function warningFixture(): ContractParityInput {
+  return {
+    restModels: [
+      {
+        name: 'UserContextLookupInput',
+        surface: 'rest',
+        sourceFile: 'src/KynticAI.Scout.Application/Contracts/Inputs.cs',
+        fields: [{ name: 'tenantSlug', type: 'string' }],
+      },
+      {
+        name: 'V1ErrorBody',
+        surface: 'rest',
+        sourceFile: 'src/KynticAI.Scout.Api/Rest/VersionedRestContracts.cs',
+        fields: [{ name: 'code', type: 'string' }],
+      },
+      {
+        name: 'ConnectorHealthResult',
+        surface: 'rest',
+        sourceFile: 'src/KynticAI.Scout.Application/Contracts/ConnectorResults.cs',
+        fields: [{ name: 'dataSourceId', type: 'Guid' }],
+      },
+    ],
+    graphQlModels: [
+      {
+        name: 'V1ErrorBody',
+        surface: 'graphql',
+        sourceFile: 'src/KynticAI.Scout.Api/Rest/VersionedRestContracts.cs',
+        fields: [{ name: 'code', type: 'string' }],
+      },
+    ],
+    dotnetSdkModels: [
+      {
+        name: 'UserContextLookupInput',
+        surface: 'dotnet-sdk',
+        fields: [{ name: 'tenantSlug', type: 'string' }],
+      },
+      {
+        name: 'V1ErrorBody',
+        surface: 'dotnet-sdk',
+        fields: [{ name: 'code', type: 'string' }],
+      },
+      {
+        name: 'ConnectorHealthResult',
+        surface: 'dotnet-sdk',
+        fields: [{ name: 'dataSourceId', type: 'Guid' }],
+      },
+    ],
+    typescriptSdkModels: [],
+    apiEnums: [],
+    dotnetSdkEnums: [],
+    typescriptSdkEnums: [],
+    connectorManifest: {
+      allowedFields: [],
+      sourceTypes: [],
+      capabilities: [],
+    },
+    manifests: [],
+  }
+}

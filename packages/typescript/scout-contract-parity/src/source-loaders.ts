@@ -34,6 +34,7 @@ export function loadFromRepo(repoRoot: string): ContractParityInput {
   const typescriptSdkModels = parseTypeScriptInterfaces(
     read(root, 'packages/typescript/scout-sdk/src/types.ts'),
     'typescript-sdk',
+    'packages/typescript/scout-sdk/src/types.ts',
   )
 
   return {
@@ -41,9 +42,17 @@ export function loadFromRepo(repoRoot: string): ContractParityInput {
     graphQlModels: uniqueModels(graphQlModels),
     dotnetSdkModels,
     typescriptSdkModels,
-    apiEnums: parseCSharpEnums(read(root, 'src/KynticAI.Scout.Domain/Enums/DomainEnums.cs'), 'rest'),
+    apiEnums: parseCSharpEnums(
+      read(root, 'src/KynticAI.Scout.Domain/Enums/DomainEnums.cs'),
+      'rest',
+      'src/KynticAI.Scout.Domain/Enums/DomainEnums.cs',
+    ),
     dotnetSdkEnums: [],
-    typescriptSdkEnums: parseTypeScriptEnums(read(root, 'packages/typescript/scout-sdk/src/types.ts'), 'typescript-sdk'),
+    typescriptSdkEnums: parseTypeScriptEnums(
+      read(root, 'packages/typescript/scout-sdk/src/types.ts'),
+      'typescript-sdk',
+      'packages/typescript/scout-sdk/src/types.ts',
+    ),
     connectorManifest: loadConnectorManifestShape(root),
     manifests: loadManifestFixtures(root),
   }
@@ -54,10 +63,10 @@ export function readFixture(path: string): ContractParityInput {
 }
 
 function parseCSharpModels(root: string, files: readonly string[], surface: ContractSurface): ModelShape[] {
-  return files.flatMap((file) => parseCSharpRecords(read(root, file), surface))
+  return files.flatMap((file) => parseCSharpRecords(read(root, file), surface, file))
 }
 
-function parseCSharpRecords(source: string, surface: ContractSurface): ModelShape[] {
+function parseCSharpRecords(source: string, surface: ContractSurface, sourceFile: string): ModelShape[] {
   const models: ModelShape[] = []
   const recordRegex = /public\s+sealed\s+record\s+(\w+)\s*\(([\s\S]*?)\);/g
   let match: RegExpExecArray | null
@@ -68,6 +77,7 @@ function parseCSharpRecords(source: string, surface: ContractSurface): ModelShap
     models.push({
       name,
       surface,
+      sourceFile,
       fields: splitParameters(body).map(parseCSharpField).filter((field): field is FieldShape => field !== undefined),
     })
   }
@@ -89,7 +99,7 @@ function parseCSharpField(parameter: string): FieldShape | undefined {
   }
 }
 
-function parseTypeScriptInterfaces(source: string, surface: ContractSurface): ModelShape[] {
+function parseTypeScriptInterfaces(source: string, surface: ContractSurface, sourceFile: string): ModelShape[] {
   const models: ModelShape[] = []
   const interfaceRegex = /export\s+interface\s+(\w+)(?:<[^>]+>)?\s*\{([\s\S]*?)\n\}/g
   let match: RegExpExecArray | null
@@ -106,13 +116,13 @@ function parseTypeScriptInterfaces(source: string, surface: ContractSurface): Mo
         type: fieldMatch[3]!.trim(),
       })
     }
-    models.push({ name: match[1]!, surface, fields })
+    models.push({ name: match[1]!, surface, sourceFile, fields })
   }
 
   return models
 }
 
-function parseCSharpEnums(source: string, surface: ContractSurface): EnumShape[] {
+function parseCSharpEnums(source: string, surface: ContractSurface, sourceFile: string): EnumShape[] {
   const enums: EnumShape[] = []
   const enumRegex = /public\s+enum\s+(\w+)\s*\{([\s\S]*?)\n\}/g
   let match: RegExpExecArray | null
@@ -122,13 +132,13 @@ function parseCSharpEnums(source: string, surface: ContractSurface): EnumShape[]
       .split('\n')
       .map((line) => line.replace(/=.*$/, '').replace(',', '').trim())
       .filter((line) => /^[A-Z]\w+$/.test(line))
-    enums.push({ name: match[1]!, surface, values })
+    enums.push({ name: match[1]!, surface, values, sourceFile })
   }
 
   return enums
 }
 
-function parseTypeScriptEnums(source: string, surface: ContractSurface): EnumShape[] {
+function parseTypeScriptEnums(source: string, surface: ContractSurface, sourceFile: string): EnumShape[] {
   const enums: EnumShape[] = []
   const unionRegex = /export\s+type\s+(\w+)\s*=\s*([^;\n]+)/g
   let match: RegExpExecArray | null
@@ -136,7 +146,7 @@ function parseTypeScriptEnums(source: string, surface: ContractSurface): EnumSha
   while ((match = unionRegex.exec(source)) !== null) {
     const values = [...match[2]!.matchAll(/'([^']+)'/g)].map((value) => value[1]!)
     if (values.length > 0) {
-      enums.push({ name: match[1]!, surface, values })
+      enums.push({ name: match[1]!, surface, values, sourceFile })
     }
   }
 
@@ -171,6 +181,7 @@ function loadManifestFixtures(root: string): ManifestFixture[] {
       if (typeof raw['connectorId'] !== 'string') continue
       manifests.push({
         name: basename(fullPath),
+        sourceFile: fullPath.slice(root.length + 1).replace(/\\/g, '/'),
         fields: Object.keys(raw),
         supportedSourceTypes: readStringArray(raw, 'supportedSourceTypes'),
         capabilities: readStringArray(raw, 'capabilities'),

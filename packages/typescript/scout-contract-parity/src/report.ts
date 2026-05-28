@@ -13,10 +13,24 @@ export function exportText(report: ContractParityReport): string {
     `Issues: ${String(report.summary.issueCount)} (${String(report.summary.errorCount)} error, ${String(report.summary.warningCount)} warning)`,
   ]
 
-  if (report.issues.length > 0) {
-    lines.push('', 'Findings:')
-    for (const issue of report.issues) {
+  const errors = report.issues.filter((issue) => issue.severity === 'error')
+  if (errors.length > 0) {
+    lines.push('', 'Errors:')
+    for (const issue of errors) {
       lines.push(formatIssue(issue))
+    }
+  }
+
+  if (report.warningGroups.length > 0) {
+    lines.push('', 'Warnings:')
+    for (const group of report.warningGroups) {
+      lines.push(``, `${group.title} (${String(group.issues.length)})`, `Action: ${group.action}`)
+      for (const issue of group.issues) {
+        lines.push(formatIssue(issue))
+        if (issue.sourceReference || issue.targetReference) {
+          lines.push(formatReferences(issue))
+        }
+      }
     }
   }
 
@@ -27,4 +41,12 @@ function formatIssue(issue: ParityIssue): string {
   const model = issue.model ? ` ${issue.model}` : ''
   const field = issue.field ? `.${issue.field}` : ''
   return `- [${issue.severity.toUpperCase()}] ${issue.kind}${model}${field}: ${issue.message}`
+}
+
+function formatReferences(issue: ParityIssue): string {
+  const refs = [
+    issue.sourceReference ? `source ${issue.sourceReference}` : undefined,
+    issue.targetReference ? `target ${issue.targetReference}` : undefined,
+  ].filter((ref): ref is string => ref !== undefined)
+  return `  References: ${refs.join('; ')}`
 }
