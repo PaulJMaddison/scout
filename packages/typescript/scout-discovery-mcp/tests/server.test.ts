@@ -1,4 +1,7 @@
 import { describe, expect, it } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { resolve, dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import {
   listConnectors,
   inspectSampleSchema,
@@ -7,6 +10,9 @@ import {
 } from '../src/tools.js'
 import { getConnectors, getConnectorByType } from '../src/sample-data.js'
 import { createDiscoveryServer } from '../src/server.js'
+
+const currentDir = dirname(fileURLToPath(import.meta.url))
+const packagePath = resolve(currentDir, '..', 'package.json')
 
 // ---------------------------------------------------------------------------
 // Tool registration
@@ -17,6 +23,15 @@ describe('MCP server tool registration', () => {
     const server = createDiscoveryServer()
     expect(server).toBeDefined()
     // Server was created without error — tools are registered.
+  })
+
+  it('builds local validator and audit dependencies before compiling', () => {
+    const packageJson = JSON.parse(readFileSync(packagePath, 'utf-8')) as {
+      scripts?: Record<string, string>
+    }
+
+    expect(packageJson.scripts?.['prebuild']).toContain('../scout-connector-validator')
+    expect(packageJson.scripts?.['prebuild']).toContain('../scout-metadata-audit')
   })
 })
 

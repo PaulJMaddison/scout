@@ -31,6 +31,7 @@
     "README.md"
   ],
   "scripts": {
+    "prebuild": "npm --prefix ../scout-connector-validator install --no-save --no-package-lock && npm --prefix ../scout-connector-validator run build && npm --prefix ../scout-metadata-audit install --no-save --no-package-lock && npm --prefix ../scout-metadata-audit run build",
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
     "start": "node dist/index.js"

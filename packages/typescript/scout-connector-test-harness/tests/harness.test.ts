@@ -57,6 +57,21 @@ describe('valid sample connector', () => {
 })
 
 // ---------------------------------------------------------------------------
+// Local package build contract
+// ---------------------------------------------------------------------------
+
+describe('package build contract', () => {
+  it('builds local validator and audit dependencies before compiling', () => {
+    const packageJson = JSON.parse(readFileSync(resolve(currentDir, '..', 'package.json'), 'utf-8')) as {
+      scripts?: Record<string, string>
+    }
+
+    expect(packageJson.scripts?.['prebuild']).toContain('../scout-connector-validator')
+    expect(packageJson.scripts?.['prebuild']).toContain('../scout-metadata-audit')
+  })
+})
+
+// ---------------------------------------------------------------------------
 // Manifest shape validation
 // ---------------------------------------------------------------------------
 
