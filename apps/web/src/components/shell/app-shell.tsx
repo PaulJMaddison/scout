@@ -190,9 +190,9 @@ export function AppShell() {
           <div className="flex items-start justify-between">
             <div className="min-w-0">
               <img
-                src="/brand/kynticai-logo-primary-horizontal-dark.svg"
+                src="/brand/kynticai-logo-lockup-dark.png"
                 alt="KynticAI"
-                className="h-10 w-auto max-w-[180px]"
+                className="h-12 w-auto max-w-[190px]"
               />
               <p className="mt-4 text-xs font-semibold uppercase tracking-[0.22em] text-copper-300">
                 KynticAI Scout
@@ -319,9 +319,9 @@ export function AppShell() {
                 <Menu className="size-5" />
               </button>
               <img
-                src="/brand/kynticai-logo-mark-only.svg"
+                src="/brand/kynticai-logo-mark.png"
                 alt=""
-                className="hidden size-10 shrink-0 sm:block"
+                className="hidden size-10 shrink-0 object-contain sm:block"
                 aria-hidden="true"
               />
               <div className="min-w-0">

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/images/brand/kynticai-logo-primary-horizontal.svg" alt="KynticAI" width="280" />
+  <img src="docs/images/brand/kynticai-logo-lockup.png" alt="KynticAI" width="320" />
 </p>
 
 <p align="center">

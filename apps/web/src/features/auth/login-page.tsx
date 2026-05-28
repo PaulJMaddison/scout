@@ -48,9 +48,9 @@ export function LoginPage() {
       <div className="login-shell relative grid min-h-[100dvh] w-full content-center gap-5 px-5 py-4 sm:px-8 lg:h-full lg:min-h-0 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,28rem)] lg:items-center lg:gap-8 xl:px-12">
         <section className="login-hero-column min-w-0">
           <img
-            src="/brand/kynticai-logo-primary-horizontal.svg"
+            src="/brand/kynticai-logo-lockup.png"
             alt="KynticAI"
-            className="h-14 w-auto max-w-full"
+            className="h-16 w-auto max-w-full"
           />
           <p className="mt-8 text-xs font-semibold uppercase tracking-[0.24em] text-copper-700">
             KynticAI Scout demo console

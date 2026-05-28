@@ -9,9 +9,9 @@ export function LandingPage() {
       <section className="grid gap-6 rounded-[28px] border border-ink-900/8 bg-ivory-50/82 p-6 shadow-[0_18px_45px_rgba(24,18,15,0.08)] sm:p-8 xl:grid-cols-[0.9fr_1.1fr] xl:items-center">
         <div className="min-w-0">
           <img
-            src="/brand/kynticai-logo-primary-horizontal.svg"
+            src="/brand/kynticai-logo-lockup.png"
             alt="KynticAI"
-            className="h-14 w-auto max-w-full"
+            className="h-16 w-auto max-w-full"
           />
           <div className="mt-8 h-0.5 w-24 bg-copper-500" />
           <p className="mt-6 font-display text-[clamp(2rem,3.3vw,3.25rem)] italic leading-tight text-ink-700">
@@ -23,9 +23,9 @@ export function LandingPage() {
         </div>
         <div className="grid gap-4 rounded-[24px] border border-copper-500/18 bg-ivory-25 p-5 md:grid-cols-[14rem_1fr] md:items-center">
           <img
-            src="/brand/sovereign-rust-mark.jpg"
+            src="/brand/kynticai-logo-mark.png"
             alt="KynticAI Sovereign Rust K mark"
-            className="aspect-square w-full max-w-[14rem] rounded-[18px] object-cover"
+            className="aspect-square w-full max-w-[14rem] rounded-[18px] object-contain"
           />
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-copper-700">Sovereign Rust identity</p>

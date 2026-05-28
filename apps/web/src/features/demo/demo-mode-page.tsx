@@ -36,9 +36,9 @@ export function DemoModePage() {
         <Card className="overflow-hidden border-none bg-[linear-gradient(135deg,#1A1818_0%,#2f2433_45%,#4A2E19_100%)] px-8 py-8 text-ivory-50 shadow-[0_28px_80px_rgba(24,18,15,0.28)]">
           <div className="grid gap-6">
             <img
-              src="/brand/kynticai-logo-primary-horizontal-dark.svg"
+              src="/brand/kynticai-logo-lockup-dark.png"
               alt="KynticAI"
-              className="h-12 w-auto max-w-[210px]"
+              className="h-14 w-auto max-w-[230px]"
             />
             <div className="flex flex-wrap items-center gap-2">
               <Badge tone="accent">Legacy systems stay in place</Badge>
