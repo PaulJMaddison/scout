@@ -41,6 +41,7 @@ Scout is the public face of KynticAI. Keep it useful, auditable, and safe for pu
 - Use British English for user-facing copy.
 - Public positioning: context infrastructure for AI-enabled products. Scout does not call an AI model.
 - Keep the Aged Book/Sovereign Rust visual direction when touching public UI or docs.
+- Hard logo rule: every public image, screenshot, social card, README graphic, or generated marketing asset must use the approved KynticAI logo file (`docs/images/brand/kynticai-logo-mark.png` or `docs/images/brand/kynticai-logo-lockup.png`). Do not redraw, approximate, or AI-generate the logo; overlay the approved file after generating any background imagery.
 
 ## Current Sprint Priorities
 
