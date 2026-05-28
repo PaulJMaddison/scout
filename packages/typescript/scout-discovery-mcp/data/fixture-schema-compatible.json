@@ -1,0 +1,18 @@
+{
+  "type": "object",
+  "required": ["endpoint", "tenantId"],
+  "properties": {
+    "endpoint": {
+      "type": "string",
+      "description": "API endpoint URL."
+    },
+    "tenantId": {
+      "type": "string",
+      "description": "Tenant identifier."
+    },
+    "pageSize": {
+      "type": "integer",
+      "description": "Page size for pagination."
+    }
+  }
+}

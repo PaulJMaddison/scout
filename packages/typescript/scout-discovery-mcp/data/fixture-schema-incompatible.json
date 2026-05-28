@@ -1,0 +1,18 @@
+{
+  "type": "object",
+  "required": ["endpoint", "tenantId", "secretKey"],
+  "properties": {
+    "endpoint": {
+      "type": "number",
+      "description": "Conflicting type — should be string."
+    },
+    "tenantId": {
+      "type": "string",
+      "description": "Tenant identifier."
+    },
+    "secretKey": {
+      "type": "string",
+      "description": "A field not present in the manifest."
+    }
+  }
+}

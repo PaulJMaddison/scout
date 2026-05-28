@@ -1,0 +1,31 @@
+[
+  {
+    "externalUserId": "fixture-001",
+    "observedAtUtc": "2026-05-15T10:00:00Z",
+    "payload": {
+      "fullName": "Avery Stone",
+      "email": "avery@fixture.example",
+      "conversionProbability": 0.82,
+      "churnRisk": 0.15,
+      "planInterest": "Pro"
+    }
+  },
+  {
+    "externalUserId": "fixture-002",
+    "observedAtUtc": "2026-05-15T10:30:00Z",
+    "payload": {
+      "fullName": "Jordan Blake",
+      "email": "jordan@fixture.example",
+      "conversionProbability": 0.44,
+      "churnRisk": 0.67,
+      "planInterest": "Free"
+    }
+  },
+  {
+    "externalUserId": "fixture-003",
+    "payload": {
+      "fullName": "Morgan Reed",
+      "conversionProbability": 0.91
+    }
+  }
+]

@@ -1,0 +1,51 @@
+{
+  "connectorType": "fixtureConnector",
+  "displayName": "Fixture Connector",
+  "description": "A valid fixture connector manifest for testing discovery agent tools.",
+  "aliases": ["fixtureTest"],
+  "supportedDataSourceKinds": ["Crm", "SqlMetric"],
+  "supportedCapabilities": [
+    "FetchSubject",
+    "Preview",
+    "DryRun",
+    "HealthCheck",
+    "ConfigurationValidation"
+  ],
+  "configurationSchema": {
+    "type": "object",
+    "required": ["endpoint", "tenantId"],
+    "properties": {
+      "endpoint": {
+        "type": "string",
+        "description": "Base URL of the data source API."
+      },
+      "tenantId": {
+        "type": "string",
+        "description": "Tenant identifier for multi-tenant installations."
+      },
+      "pageSize": {
+        "type": "integer",
+        "description": "Number of records per page.",
+        "default": 100
+      },
+      "observedAtUtc": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Observation timestamp."
+      },
+      "conversionProbability": {
+        "type": "number",
+        "description": "Maps to the Scout conversionProbability semantic attribute."
+      },
+      "churnRisk": {
+        "type": "number",
+        "description": "Maps to the Scout churnRisk semantic attribute."
+      }
+    }
+  },
+  "sampleConfiguration": {
+    "endpoint": "https://api.fixture.example",
+    "tenantId": "fixture-tenant-001",
+    "pageSize": 50
+  }
+}
