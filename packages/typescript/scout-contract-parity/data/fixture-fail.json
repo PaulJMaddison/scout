@@ -1,0 +1,71 @@
+{
+  "restModels": [
+    {
+      "name": "ContextFactResult",
+      "surface": "rest",
+      "fields": [
+        { "name": "id", "type": "Guid" },
+        { "name": "attributeKey", "type": "string" },
+        { "name": "sourceSelectorDefinitionId", "type": "Guid" },
+        { "name": "provenanceJson", "type": "string" }
+      ]
+    }
+  ],
+  "graphQlModels": [],
+  "dotnetSdkModels": [
+    {
+      "name": "ContextFactResult",
+      "surface": "dotnet-sdk",
+      "fields": [
+        { "name": "id", "type": "Guid" },
+        { "name": "attributeKey", "type": "string" },
+        { "name": "sourceSelectorId", "type": "Guid" }
+      ]
+    }
+  ],
+  "typescriptSdkModels": [
+    {
+      "name": "ContextFactResult",
+      "surface": "typescript-sdk",
+      "fields": [
+        { "name": "id", "type": "string" },
+        { "name": "attributeKey", "type": "string" },
+        { "name": "sourceSelectorDefinitionId", "type": "string" }
+      ]
+    }
+  ],
+  "apiEnums": [
+    {
+      "name": "DataSourceKind",
+      "surface": "rest",
+      "values": ["Crm", "SqlMetric", "EventStream"]
+    }
+  ],
+  "dotnetSdkEnums": [
+    {
+      "name": "DataSourceKind",
+      "surface": "dotnet-sdk",
+      "values": ["Crm", "SqlMetric"]
+    }
+  ],
+  "typescriptSdkEnums": [
+    {
+      "name": "DataSourceKind",
+      "surface": "typescript-sdk",
+      "values": ["Crm", "SqlMetric", "ProductUsage"]
+    }
+  ],
+  "connectorManifest": {
+    "allowedFields": ["connectorId", "displayName", "supportedSourceTypes", "capabilities"],
+    "sourceTypes": ["Crm", "SqlMetric"],
+    "capabilities": ["FetchSubject", "HealthCheck"]
+  },
+  "manifests": [
+    {
+      "name": "invalid-manifest",
+      "fields": ["connectorId", "displayName", "oauth2Flows", "supportedSourceTypes", "capabilities"],
+      "supportedSourceTypes": ["Warehouse"],
+      "capabilities": ["FetchSubject", "BulkSync"]
+    }
+  ]
+}
