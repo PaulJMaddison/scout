@@ -1,0 +1,10 @@
+{
+  "connectorType": "",
+  "displayName": "",
+  "description": "",
+  "supportedDataSourceKinds": [],
+  "configurationSchema": {
+    "type": "array",
+    "properties": {}
+  }
+}

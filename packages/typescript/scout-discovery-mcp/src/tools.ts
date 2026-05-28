@@ -11,6 +11,11 @@ import {
   type ManifestValidationResult as ExtendedValidationResult,
   type ValidatorOptions,
 } from '@kynticai/scout-connector-validator'
+import {
+  runAudit,
+  type AuditInput,
+  type AuditReport,
+} from '@kynticai/scout-metadata-audit'
 
 /**
  * Lists all registered connector plugins with public metadata.
@@ -136,6 +141,235 @@ export function validateExtendedConnectorManifest(
   options?: ValidatorOptions,
 ): ExtendedValidationResult {
   return validateExtendedManifest(manifest, options)
+}
+
+/**
+ * Reads the full manifest for a given connector type or alias.
+ * Returns every field including configurationSchema, sampleConfiguration,
+ * supportedCapabilities, and aliases.
+ */
+export function readConnectorManifest(connectorType: string): object {
+  const connector = getConnectorByType(connectorType)
+  if (connector === undefined) {
+    return {
+      error: `Connector type '${connectorType}' not found.`,
+      hint: 'Use scout_list_connectors to see available types and aliases.',
+      availableTypes: getConnectors().map((c) => c.connectorType),
+    }
+  }
+
+  return {
+    connectorType: connector.connectorType,
+    displayName: connector.displayName,
+    description: connector.description,
+    aliases: connector.aliases,
+    supportedDataSourceKinds: connector.supportedDataSourceKinds,
+    supportedCapabilities: connector.supportedCapabilities,
+    configurationSchema: connector.configurationSchema,
+    sampleConfiguration: connector.sampleConfiguration,
+  }
+}
+
+/**
+ * Validates that a manifest's configurationSchema is compatible with a
+ * provided set of field declarations. Checks that required schema fields
+ * exist, types match, and sample configuration covers all required fields.
+ */
+export function validateManifestSchemaCompatibility(
+  manifest: unknown,
+  schema: unknown,
+): object {
+  const issues: string[] = []
+  const compatible: string[] = []
+
+  if (manifest === null || manifest === undefined || typeof manifest !== 'object') {
+    return { isCompatible: false, issues: ['manifest must be a non-null JSON object.'], compatible }
+  }
+  if (schema === null || schema === undefined || typeof schema !== 'object') {
+    return { isCompatible: false, issues: ['schema must be a non-null JSON object.'], compatible }
+  }
+
+  const manifestObj = manifest as Record<string, unknown>
+  const schemaObj = schema as Record<string, unknown>
+
+  const manifestSchema = manifestObj['configurationSchema'] as Record<string, unknown> | undefined
+  if (manifestSchema === undefined || typeof manifestSchema !== 'object') {
+    issues.push('Manifest is missing configurationSchema.')
+    return { isCompatible: false, issues, compatible }
+  }
+
+  const manifestProps = manifestSchema['properties'] as Record<string, unknown> | undefined
+  if (manifestProps === undefined || typeof manifestProps !== 'object') {
+    issues.push('Manifest configurationSchema has no properties.')
+    return { isCompatible: false, issues, compatible }
+  }
+
+  const schemaProps = schemaObj['properties'] as Record<string, unknown> | undefined
+  if (schemaProps === undefined || typeof schemaProps !== 'object') {
+    issues.push('Provided schema has no properties.')
+    return { isCompatible: false, issues, compatible }
+  }
+
+  const schemaRequired = Array.isArray(schemaObj['required'])
+    ? (schemaObj['required'] as string[])
+    : []
+
+  for (const fieldName of schemaRequired) {
+    if (manifestProps[fieldName] === undefined) {
+      issues.push(`Required schema field '${fieldName}' is not declared in the manifest configurationSchema.`)
+    }
+  }
+
+  for (const [fieldName, schemaProp] of Object.entries(schemaProps)) {
+    const manifestProp = manifestProps[fieldName] as Record<string, unknown> | undefined
+    if (manifestProp === undefined) {
+      issues.push(`Schema field '${fieldName}' is not present in the manifest configurationSchema.`)
+      continue
+    }
+
+    const schemaPropObj = schemaProp as Record<string, unknown>
+    if (
+      typeof schemaPropObj['type'] === 'string' &&
+      typeof manifestProp['type'] === 'string' &&
+      schemaPropObj['type'] !== manifestProp['type']
+    ) {
+      issues.push(
+        `Type mismatch for field '${fieldName}': schema expects '${schemaPropObj['type'] as string}', manifest declares '${manifestProp['type'] as string}'.`,
+      )
+    } else {
+      compatible.push(fieldName)
+    }
+  }
+
+  const sampleConfig = manifestObj['sampleConfiguration'] as Record<string, unknown> | undefined
+  if (sampleConfig !== undefined && typeof sampleConfig === 'object') {
+    for (const fieldName of schemaRequired) {
+      if (sampleConfig[fieldName] === undefined) {
+        issues.push(`Sample configuration is missing required field '${fieldName}'.`)
+      }
+    }
+  }
+
+  return {
+    isCompatible: issues.length === 0,
+    issues,
+    compatible,
+    manifestFieldCount: Object.keys(manifestProps).length,
+    schemaFieldCount: Object.keys(schemaProps).length,
+  }
+}
+
+/**
+ * Produces a detailed summary of all available connectors, including
+ * capability coverage, data source kind distribution, and per-connector
+ * detail. More detailed than summariseMetadata.
+ */
+export function summariseConnectors(): object {
+  const connectors = getConnectors()
+
+  const capabilityMap: Record<string, string[]> = {}
+  const sourceKindMap: Record<string, string[]> = {}
+
+  for (const c of connectors) {
+    for (const cap of c.supportedCapabilities) {
+      if (capabilityMap[cap] === undefined) capabilityMap[cap] = []
+      capabilityMap[cap].push(c.connectorType)
+    }
+    for (const kind of c.supportedDataSourceKinds) {
+      if (sourceKindMap[kind] === undefined) sourceKindMap[kind] = []
+      sourceKindMap[kind].push(c.connectorType)
+    }
+  }
+
+  const connectorDetails = connectors.map((c) => ({
+    connectorType: c.connectorType,
+    displayName: c.displayName,
+    description: c.description,
+    aliasCount: c.aliases.length,
+    capabilityCount: c.supportedCapabilities.length,
+    dataSourceKindCount: c.supportedDataSourceKinds.length,
+    schemaFieldCount: Object.keys(c.configurationSchema.properties).length,
+    requiredFieldCount: (c.configurationSchema.required ?? []).length,
+  }))
+
+  const allCapabilities = getConnectorCapabilities()
+  const fullCoverageConnectors = connectors.filter(
+    (c) => c.supportedCapabilities.length === allCapabilities.length,
+  )
+
+  return {
+    totalConnectors: connectors.length,
+    connectors: connectorDetails,
+    capabilityCoverage: capabilityMap,
+    dataSourceKindCoverage: sourceKindMap,
+    fullCoverageConnectors: fullCoverageConnectors.map((c) => c.connectorType),
+    totalAliases: connectors.reduce((sum, c) => sum + c.aliases.length, 0),
+    description:
+      'Detailed connector summary for local development. ' +
+      'Enterprise vendor-specific connectors are not included.',
+  }
+}
+
+/**
+ * Produces a local metadata quality report by running the metadata audit
+ * runner against a connector manifest and optional sample records.
+ * Reuses the @kynticai/scout-metadata-audit package.
+ */
+export function produceMetadataQualityReport(
+  manifest: unknown,
+  sampleRecords?: unknown,
+): object {
+  if (manifest === null || manifest === undefined || typeof manifest !== 'object') {
+    return {
+      error: 'manifest must be a non-null JSON object.',
+      hint: 'Provide a connector manifest with connectorType, displayName, description, configurationSchema, and sampleConfiguration.',
+    }
+  }
+
+  const manifestObj = manifest as Record<string, unknown>
+
+  const requiredFields = ['connectorType', 'displayName', 'description', 'configurationSchema', 'sampleConfiguration']
+  const missingFields = requiredFields.filter(
+    (f) => manifestObj[f] === undefined || manifestObj[f] === null,
+  )
+  if (missingFields.length > 0) {
+    return {
+      error: `Manifest is missing required fields: ${missingFields.join(', ')}.`,
+      hint: 'Ensure the manifest includes all required fields before running a quality report.',
+    }
+  }
+
+  let parsedRecords: Array<{ externalUserId: string; observedAtUtc?: string; payload: Record<string, unknown> }> | undefined
+  if (sampleRecords !== undefined && sampleRecords !== null) {
+    if (!Array.isArray(sampleRecords)) {
+      return {
+        error: 'sampleRecords must be an array of sample record objects.',
+        hint: 'Each record should have externalUserId (string), optional observedAtUtc (string), and payload (object).',
+      }
+    }
+    parsedRecords = sampleRecords as Array<{ externalUserId: string; observedAtUtc?: string; payload: Record<string, unknown> }>
+  }
+
+  const auditInput = {
+    manifest: manifestObj as unknown as AuditInput['manifest'],
+    ...(parsedRecords !== undefined ? { sampleRecords: parsedRecords } : {}),
+  } as AuditInput
+
+  const report: AuditReport = runAudit(auditInput)
+
+  return {
+    connectorType: report.connectorType,
+    displayName: report.displayName,
+    auditedAtUtc: report.auditedAtUtc,
+    overallReadiness: report.readinessScore.overall,
+    readinessBreakdown: report.readinessScore.breakdown,
+    schemaSummary: report.schemaSummary,
+    fieldClassifications: report.fieldClassifications,
+    warningCount: report.warnings.length,
+    warnings: report.warnings,
+    recommendationCount: report.recommendations.length,
+    recommendations: report.recommendations,
+  }
 }
 
 function validateSchemaField(

@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "@kynticai/scout-connector-validator": "file:../scout-connector-validator",
+    "@kynticai/scout-metadata-audit": "file:../scout-metadata-audit",
     "@modelcontextprotocol/sdk": "^1.12.1"
   },
   "devDependencies": {
