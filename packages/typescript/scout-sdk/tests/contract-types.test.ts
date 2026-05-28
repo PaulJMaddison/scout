@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type {
+  ConnectorCatalogueEntryResult,
+  ConnectorPluginDefinitionResult,
   PublishSelectorDefinitionInput,
   QueueContextRecomputeInput,
   RunScheduledRecomputeInput,
@@ -36,6 +38,34 @@ describe('Scout TypeScript SDK contract types', () => {
       queuedUserCount: 2,
       skippedUserCount: 1,
     }
+    const plugin: ConnectorPluginDefinitionResult = {
+      connectorType: 'restApi',
+      displayName: 'REST API',
+      description: 'Generic REST connector.',
+      aliases: [],
+      supportedDataSourceKinds: ['Crm'],
+      supportedCapabilities: ['FetchSubject'],
+      configurationSchemaJson: '{"type":"object","properties":{}}',
+      credentialSchemaJson: '{"type":"object","properties":{}}',
+      sampleConfigurationJson: '{}',
+    }
+    const catalogueEntry: ConnectorCatalogueEntryResult = {
+      connectorType: 'restApi',
+      displayName: 'REST API',
+      description: 'Generic REST connector.',
+      category: 'API',
+      publicStatus: 'PublicGenericExample',
+      availability: 'OpenCore',
+      isIncludedInOpenCore: true,
+      requiresCommercialAgreement: false,
+      isPlaceholder: false,
+      isEnabled: true,
+      supportedDataSourceKinds: ['Crm'],
+      capabilities: ['FetchSubject'],
+      configurationSchemaJson: '{"type":"object","properties":{}}',
+      credentialSchemaJson: '{"type":"object","properties":{}}',
+      healthCheckMode: 'HEAD request or static-response validation.',
+    }
     const profile: UserProfileResult = {
       id: 'profile-123',
       tenantId: 'tenant-123',
@@ -55,7 +85,9 @@ describe('Scout TypeScript SDK contract types', () => {
       publish.selectorDefinitionId,
       runScheduled.tenantSlug,
       dispatch.queuedUserCount,
+      plugin.connectorType,
+      catalogueEntry.publicStatus,
       profile.externalUserId,
-    ]).toEqual(['Prepare renewal context.', 'sdk-test', 'selector-123', null, 2, 'user-123'])
+    ]).toEqual(['Prepare renewal context.', 'sdk-test', 'selector-123', null, 2, 'restApi', 'PublicGenericExample', 'user-123'])
   })
 })

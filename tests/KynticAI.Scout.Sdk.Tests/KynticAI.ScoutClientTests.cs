@@ -16,6 +16,32 @@ public sealed class ScoutClientTests
         var publish = new PublishSelectorDefinitionInput("demo", selectorId);
         var scheduledRun = new RunScheduledRecomputeInput(null);
         var dispatch = new ScheduledRecomputeDispatchResult(QueuedUserCount: 2, SkippedUserCount: 1);
+        var plugin = new ConnectorPluginDefinitionResult(
+            "restApi",
+            "REST API",
+            "Generic REST connector.",
+            [],
+            ["Crm"],
+            ["FetchSubject"],
+            "{\"type\":\"object\",\"properties\":{}}",
+            "{\"type\":\"object\",\"properties\":{}}",
+            "{}");
+        var catalogueEntry = new ConnectorCatalogueEntryResult(
+            "restApi",
+            "REST API",
+            "Generic REST connector.",
+            "API",
+            "PublicGenericExample",
+            "OpenCore",
+            IsIncludedInOpenCore: true,
+            RequiresCommercialAgreement: false,
+            IsPlaceholder: false,
+            IsEnabled: true,
+            ["Crm"],
+            ["FetchSubject"],
+            "{\"type\":\"object\",\"properties\":{}}",
+            "{\"type\":\"object\",\"properties\":{}}",
+            "HEAD request or static-response validation.");
         var profile = new UserProfileResult(
             userProfileId,
             tenantId,
@@ -31,6 +57,8 @@ public sealed class ScoutClientTests
         Assert.Equal(selectorId, publish.SelectorDefinitionId);
         Assert.Null(scheduledRun.TenantSlug);
         Assert.Equal(2, dispatch.QueuedUserCount);
+        Assert.Equal("restApi", plugin.ConnectorType);
+        Assert.Equal("PublicGenericExample", catalogueEntry.PublicStatus);
         Assert.Equal("123", profile.ExternalUserId);
     }
 

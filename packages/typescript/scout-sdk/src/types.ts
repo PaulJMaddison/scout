@@ -194,6 +194,62 @@ export interface SourceSystemEventAcceptedResult {
   acceptedAtUtc: string
 }
 
+/** Public metadata describing a registered connector plugin. */
+export interface ConnectorPluginDefinitionResult {
+  /** Stable connector type identifier. */
+  connectorType: string
+  /** Human-readable connector name. */
+  displayName: string
+  /** Public connector description. */
+  description: string
+  /** Alternate connector type identifiers accepted by the runtime. */
+  aliases: string[]
+  /** Data-source kinds this plugin can serve. */
+  supportedDataSourceKinds: string[]
+  /** Connector capabilities exposed by the plugin. */
+  supportedCapabilities: string[]
+  /** JSON Schema for non-secret configuration. */
+  configurationSchemaJson: string
+  /** JSON Schema for secret credential fields. */
+  credentialSchemaJson: string
+  /** Example configuration JSON safe for authoring tools. */
+  sampleConfigurationJson: string
+}
+
+/** Public connector catalogue entry, including open-core and placeholder boundary labels. */
+export interface ConnectorCatalogueEntryResult {
+  /** Stable connector type identifier. */
+  connectorType: string
+  /** Human-readable connector name. */
+  displayName: string
+  /** Public connector description. */
+  description: string
+  /** Connector category used for filtering and display. */
+  category: string
+  /** Boundary label such as `PublicGenericExample`, `PaidEnterpriseImplementation`, or `PlannedConnector`. */
+  publicStatus: string
+  /** Availability label such as `OpenCore`, `Enterprise`, `SaaSManaged`, or `ComingSoon`. */
+  availability: string
+  /** Whether executable open-core code is included in this repository. */
+  isIncludedInOpenCore: boolean
+  /** Whether commercial agreement is required before use. */
+  requiresCommercialAgreement: boolean
+  /** Whether this row is metadata-only and not executable. */
+  isPlaceholder: boolean
+  /** Whether this catalogue entry is currently enabled. */
+  isEnabled: boolean
+  /** Data-source kinds advertised by the catalogue entry. */
+  supportedDataSourceKinds: string[]
+  /** Capabilities advertised by the catalogue entry. */
+  capabilities: string[]
+  /** JSON Schema for non-secret configuration. */
+  configurationSchemaJson: string
+  /** JSON Schema for secret credential fields. */
+  credentialSchemaJson: string
+  /** Public health-check mode label. */
+  healthCheckMode: string
+}
+
 /** A key operational metric surfaced from source data. */
 export interface OperationalHighlightResult {
   /** Metric label. */

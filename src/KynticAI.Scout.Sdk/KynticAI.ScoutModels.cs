@@ -111,6 +111,34 @@ public sealed record SourceSystemEventAcceptedResult(
     bool IsDuplicate,
     DateTime AcceptedAtUtc);
 
+public sealed record ConnectorPluginDefinitionResult(
+    string ConnectorType,
+    string DisplayName,
+    string Description,
+    IReadOnlyList<string> Aliases,
+    IReadOnlyList<string> SupportedDataSourceKinds,
+    IReadOnlyList<string> SupportedCapabilities,
+    string ConfigurationSchemaJson,
+    string CredentialSchemaJson,
+    string SampleConfigurationJson);
+
+public sealed record ConnectorCatalogueEntryResult(
+    string ConnectorType,
+    string DisplayName,
+    string Description,
+    string Category,
+    string PublicStatus,
+    string Availability,
+    bool IsIncludedInOpenCore,
+    bool RequiresCommercialAgreement,
+    bool IsPlaceholder,
+    bool IsEnabled,
+    IReadOnlyList<string> SupportedDataSourceKinds,
+    IReadOnlyList<string> Capabilities,
+    string ConfigurationSchemaJson,
+    string CredentialSchemaJson,
+    string HealthCheckMode);
+
 public sealed record OperationalHighlightResult(string Label, string Value, string Explanation);
 
 public sealed record OperationalTimelineEventResult(string Category, string Description, DateTime OccurredAtUtc);
