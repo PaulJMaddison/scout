@@ -33,6 +33,10 @@ public sealed record SalesContextPackageInput(string TenantSlug, string External
 
 public sealed record QueueContextRecomputeInput(string TenantSlug, string ExternalUserId, string TriggeredBy);
 
+public sealed record PublishSelectorDefinitionInput(string TenantSlug, Guid SelectorDefinitionId);
+
+public sealed record RunScheduledRecomputeInput(string? TenantSlug);
+
 public sealed record PreviewSelectorInput(
     string TenantSlug,
     string ExternalUserId,
@@ -225,6 +229,20 @@ public sealed record SalesContextPackageResult(
     string ContextPackageJson);
 
 public sealed record QueueRecomputeResult(string CorrelationId, Guid TenantId, Guid UserProfileId, int ExecutionCount);
+
+public sealed record ScheduledRecomputeDispatchResult(int QueuedUserCount, int SkippedUserCount);
+
+public sealed record UserProfileResult(
+    Guid Id,
+    Guid TenantId,
+    string ExternalUserId,
+    string FullName,
+    string Email,
+    string CompanyName,
+    string JobTitle,
+    string Segment,
+    DateTime LastSeenAtUtc,
+    bool IsEmailMasked);
 
 public sealed record SelectorExecutionPreviewResult(
     string Mode,

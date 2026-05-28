@@ -58,6 +58,48 @@ export interface MachineTokenResponse {
   scope: string
 }
 
+/** Request body for resolving a user's current context profile. */
+export interface UserContextLookupInput {
+  /** Tenant identifier (slug). */
+  tenantSlug: string
+  /** External user identifier from the caller's source system. */
+  externalUserId: string
+}
+
+/** Request body for producing an AI-safe sales context package. Scout does not call an AI model. */
+export interface SalesContextPackageInput {
+  /** Tenant identifier (slug). */
+  tenantSlug: string
+  /** External user identifier from the caller's source system. */
+  externalUserId: string
+  /** Objective that scopes the grounded package. */
+  salesObjective: string
+}
+
+/** Request body for queueing a user context recomputation. */
+export interface QueueContextRecomputeInput {
+  /** Tenant identifier (slug). */
+  tenantSlug: string
+  /** External user identifier from the caller's source system. */
+  externalUserId: string
+  /** Actor or subsystem that requested the recomputation. */
+  triggeredBy: string
+}
+
+/** Request body for publishing a selector definition. */
+export interface PublishSelectorDefinitionInput {
+  /** Tenant identifier (slug). */
+  tenantSlug: string
+  /** Selector definition identifier to publish. */
+  selectorDefinitionId: string
+}
+
+/** Request body for running scheduled context recomputation. */
+export interface RunScheduledRecomputeInput {
+  /** Optional tenant slug when dispatching for a single tenant. */
+  tenantSlug?: string | null
+}
+
 /** A single semantic fact derived by the selector engine. */
 export interface ContextFactResult {
   /** Unique fact identifier. */
@@ -268,6 +310,30 @@ export interface ContextProfileResult {
   facts: ContextFactResult[]
 }
 
+/** Public user profile metadata. */
+export interface UserProfileResult {
+  /** Internal user profile identifier. */
+  id: string
+  /** Internal tenant identifier. */
+  tenantId: string
+  /** External user identifier. */
+  externalUserId: string
+  /** User's full name. */
+  fullName: string
+  /** User's email address. */
+  email: string
+  /** User's company name. */
+  companyName: string
+  /** User's job title. */
+  jobTitle: string
+  /** Customer segment. */
+  segment: string
+  /** Last-seen timestamp (ISO 8601 UTC). */
+  lastSeenAtUtc: string
+  /** Whether the email address has been masked. */
+  isEmailMasked: boolean
+}
+
 /** Aggregated context for a business account (company). */
 export interface AccountContextResult {
   /** Tenant slug. */
@@ -470,6 +536,14 @@ export interface QueueRecomputeResult {
   userProfileId: string
   /** Number of selector executions triggered. */
   executionCount: number
+}
+
+/** Result of dispatching scheduled context recomputation work. */
+export interface ScheduledRecomputeDispatchResult {
+  /** Number of users queued for recomputation. */
+  queuedUserCount: number
+  /** Number of users skipped by the dispatcher. */
+  skippedUserCount: number
 }
 
 /** An audit trail entry recording a governance-relevant action. */
