@@ -140,7 +140,7 @@ public sealed class OnboardingIntegrationTests
                     ["Platform:EnableOpenApi"] = "false",
                     ["FeatureFlags:AnonymousOnboarding"] = anonymousOnboarding.ToString(),
                     ["FeatureFlags:AllowProductionOnboarding"] = allowProductionOnboarding.ToString(),
-                    ["Bootstrap:ApplyMigrationsOnStartup"] = "true",
+                    ["Bootstrap:ApplyMigrationsOnStartup"] = "false",
                     ["Bootstrap:SeedDemoData"] = "false",
                     ["Auth:Issuer"] = "KynticAI.Scout.Tests",
                     ["Auth:Audience"] = "KynticAI.Scout.Tests",
@@ -170,6 +170,8 @@ public sealed class OnboardingIntegrationTests
                     provider.GetRequiredService<ScoutDbContext>());
                 services.AddScoped<KynticAI.Scout.Application.Abstractions.ICustomerOpsDbContext>(provider =>
                     provider.GetRequiredService<CustomerOpsDbContext>());
+
+                TestSeedHelper.UseFastPasswordHashing(services);
             });
         }
     }

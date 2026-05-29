@@ -8,7 +8,20 @@ public sealed class PasswordHashingService
     private const string FormatMarker = "pbkdf2-sha256";
     private const int SaltSize = 16;
     private const int KeySize = 32;
-    private const int IterationCount = 600_000;
+    private const int DefaultIterationCount = 600_000;
+
+    private readonly int iterationCount;
+
+    public PasswordHashingService()
+        : this(DefaultIterationCount)
+    {
+    }
+
+    internal PasswordHashingService(int iterationCount)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(iterationCount, 1);
+        this.iterationCount = iterationCount;
+    }
 
     public string HashPassword(string password)
     {
@@ -19,13 +32,13 @@ public sealed class PasswordHashingService
             password,
             salt,
             KeyDerivationPrf.HMACSHA256,
-            IterationCount,
+            iterationCount,
             KeySize);
 
         return string.Join(
             '$',
             FormatMarker,
-            IterationCount,
+            iterationCount,
             Convert.ToBase64String(salt),
             Convert.ToBase64String(hash));
     }

@@ -46,6 +46,7 @@ Scout is the public face of KynticAI. Keep it useful, auditable, and safe for pu
 - Use xhigh review gates for public API, SDK, connector-contract, data-model, or security-sensitive changes before marking them complete.
 - When Scout work depends on Fortress Rust engine contracts, do not treat the integration as complete until the relevant engine change has passed the review policy in `C:\Kyntic\UCL-local-aidocs\RUST_ENGINE_REVIEW_POLICY.md`.
 - Prefer slower, meaningful verification over quick unchecked completion. Log tests run, skipped tests, and residual risk.
+- Routine .NET integration/E2E tests must stay local and deterministic: use EF InMemory or in-memory SQLite, not Docker, Postgres, Redis, MongoDB, or vendor services. Any future live dependency proof must be explicit opt-in and logged.
 
 ## Brand Rules
 

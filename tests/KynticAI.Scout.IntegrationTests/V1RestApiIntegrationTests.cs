@@ -768,7 +768,7 @@ public sealed class V1RestApiIntegrationTests
                     ["Platform:EnableRest"] = "true",
                     ["Platform:EnableGraphQl"] = "true",
                     ["Platform:EnableOpenApi"] = "true",
-                    ["Bootstrap:ApplyMigrationsOnStartup"] = "true",
+                    ["Bootstrap:ApplyMigrationsOnStartup"] = "false",
                     ["Bootstrap:SeedDemoData"] = "false",
                     ["Auth:Issuer"] = "KynticAI.Scout.Tests",
                     ["Auth:Audience"] = "KynticAI.Scout.Tests",
@@ -796,6 +796,8 @@ public sealed class V1RestApiIntegrationTests
                     provider.GetRequiredService<ScoutDbContext>());
                 services.AddScoped<KynticAI.Scout.Application.Abstractions.ICustomerOpsDbContext>(provider =>
                     provider.GetRequiredService<CustomerOpsDbContext>());
+
+                TestSeedHelper.UseFastPasswordHashing(services);
             });
         }
     }
