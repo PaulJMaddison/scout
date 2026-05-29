@@ -10,6 +10,7 @@ export {
 } from './schema.js'
 export type {
   ConnectorManifest,
+  ConnectorEventShape,
   RequiredConfigField,
   SampleEntityMapping,
   JsonSchemaObject,

@@ -77,5 +77,5 @@ export const KNOWN_SCHEMA_TYPES: readonly string[] = [
 /** Semver pattern: MAJOR.MINOR.PATCH with optional pre-release suffix. */
 export const SEMVER_PATTERN = /^\d+\.\d+\.\d+(?:-[\w.]+)?$/
 
-/** Connector ID pattern: lowercase alphanumeric with optional hyphens. */
+/** Connector ID pattern: camelCase alphanumeric, starting with lowercase. */
 export const CONNECTOR_ID_PATTERN = /^[a-z][a-zA-Z0-9]*$/

@@ -59,5 +59,12 @@
     "endpoint": "https://api.example-crm.com/v2",
     "tenantId": "demo-tenant-001",
     "pageSize": 50
+  },
+  "eventShape": {
+    "sourceSystem": "sampleCrm",
+    "entityType": "account",
+    "sourceIdField": "externalUserId",
+    "timestampField": "observedAtUtc",
+    "payloadRoot": "payload"
   }
 }

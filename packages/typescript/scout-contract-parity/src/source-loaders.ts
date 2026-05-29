@@ -46,7 +46,11 @@ export function loadFromRepo(repoRoot: string): ContractParityInput {
       read(root, 'src/KynticAI.Scout.Domain/Enums/DomainEnums.cs'),
       'rest',
       'src/KynticAI.Scout.Domain/Enums/DomainEnums.cs',
-    ),
+    ).concat(parseCSharpEnums(
+      read(root, 'src/KynticAI.Scout.Application/Abstractions/IConnectorPlugin.cs'),
+      'connector-manifest',
+      'src/KynticAI.Scout.Application/Abstractions/IConnectorPlugin.cs',
+    )),
     dotnetSdkEnums: [],
     typescriptSdkEnums: parseTypeScriptEnums(
       read(root, 'packages/typescript/scout-sdk/src/types.ts'),
@@ -130,7 +134,7 @@ function parseCSharpEnums(source: string, surface: ContractSurface, sourceFile: 
   while ((match = enumRegex.exec(source)) !== null) {
     const values = match[2]!
       .split('\n')
-      .map((line) => line.replace(/=.*$/, '').replace(',', '').trim())
+      .map((line) => line.replace(/=.*/, '').replace(',', '').trim())
       .filter((line) => /^[A-Z]\w+$/.test(line))
     enums.push({ name: match[1]!, surface, values, sourceFile })
   }

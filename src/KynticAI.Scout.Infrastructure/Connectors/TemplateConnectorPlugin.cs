@@ -12,16 +12,16 @@ using KynticAI.Scout.Domain.Enums;
 
 namespace KynticAI.Scout.Infrastructure.Connectors;
 
-// TODO: rename this class to match your connector (e.g. AcmeCrmConnectorPlugin).
+// Authoring note: rename this class to match your connector (e.g. AcmeCrmConnectorPlugin).
 internal sealed class TemplateConnectorPlugin : ConnectorPluginBase
 {
-    // TODO: a unique, lowercase identifier for this connector type.
+    // Authoring note: use a unique camelCase identifier for your connector type.
     public override string ConnectorType => "template";
 
-    // TODO: human-readable name shown in the admin console.
+    // Human-readable name shown in the admin console.
     public override string DisplayName => "Template Connector";
 
-    // TODO: short description of what this connector does.
+    // Short description of what this connector does.
     public override string Description =>
         "Starter template for authoring a KynticAI Scout connector. Replace with your own implementation.";
 
@@ -32,7 +32,7 @@ internal sealed class TemplateConnectorPlugin : ConnectorPluginBase
     public override IReadOnlyList<DataSourceKind> SupportedDataSourceKinds =>
         [DataSourceKind.Crm];
 
-    // TODO: return a JSON Schema describing the configuration this connector accepts.
+    // Return a JSON Schema describing the configuration this connector accepts.
     public override JsonObject GetConfigurationSchema()
         => new()
         {
@@ -48,7 +48,7 @@ internal sealed class TemplateConnectorPlugin : ConnectorPluginBase
             }
         };
 
-    // TODO: return an example configuration for documentation and tests.
+    // Return an example configuration for documentation and tests.
     public override JsonObject GetSampleConfiguration()
         => new()
         {
@@ -67,7 +67,7 @@ internal sealed class TemplateConnectorPlugin : ConnectorPluginBase
             }
         };
 
-    // TODO: add any connector-specific validation beyond the base data-source-kind check.
+    // Add connector-specific validation beyond the base data-source-kind check.
     public override async Task<ConnectorConfigurationValidationResult> ValidateConfigurationAsync(
         ConnectorConfigurationValidationRequest request,
         CancellationToken cancellationToken)
@@ -87,7 +87,7 @@ internal sealed class TemplateConnectorPlugin : ConnectorPluginBase
         };
     }
 
-    // TODO: implement the data fetch for a single subject.
+    // Implement the data fetch for a single subject.
     public override Task<ConnectorFetchResult> FetchAsync(
         ConnectorFetchRequest request,
         CancellationToken cancellationToken)

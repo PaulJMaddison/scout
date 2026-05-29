@@ -12,6 +12,7 @@ export interface ConnectorManifest {
   capabilities?: string[]
   configurationSchema?: JsonSchemaObject
   sampleConfiguration?: Record<string, unknown>
+  eventShape?: ConnectorEventShape
 }
 
 /** A required configuration field declared by the connector. */
@@ -26,6 +27,15 @@ export interface SampleEntityMapping {
   sourceField: string
   semanticAttribute: string
   description?: string
+}
+
+/** Provider-neutral event shape emitted by the connector into Scout. */
+export interface ConnectorEventShape {
+  sourceSystem: string
+  entityType: string
+  sourceIdField: string
+  timestampField?: string
+  payloadRoot?: string
 }
 
 /** Minimal JSON Schema object representation. */

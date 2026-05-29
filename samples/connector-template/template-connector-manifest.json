@@ -1,0 +1,52 @@
+{
+  "connectorId": "templateConnector",
+  "displayName": "Template Connector",
+  "version": "1.0.0",
+  "description": "Complete local template manifest for a public KynticAI Scout connector.",
+  "supportedSourceTypes": ["Crm"],
+  "requiredConfigFields": [
+    {
+      "name": "records",
+      "type": "array",
+      "description": "Array of local sample records keyed by externalUserId."
+    }
+  ],
+  "safeMetadataFields": ["connectorId", "displayName", "version", "supportedSourceTypes"],
+  "sampleEntityMappings": [
+    {
+      "sourceField": "score",
+      "semanticAttribute": "engagementLevel",
+      "description": "Maps a sample score field into a public Scout semantic attribute."
+    }
+  ],
+  "capabilities": ["FetchSubject", "Preview", "DryRun", "HealthCheck", "ConfigurationValidation"],
+  "configurationSchema": {
+    "type": "object",
+    "required": ["records"],
+    "properties": {
+      "records": {
+        "type": "array",
+        "description": "Array of local sample records keyed by externalUserId."
+      }
+    }
+  },
+  "sampleConfiguration": {
+    "records": [
+      {
+        "externalUserId": "123",
+        "observedAtUtc": "2026-01-15T09:00:00Z",
+        "payload": {
+          "status": "active",
+          "score": 85
+        }
+      }
+    ]
+  },
+  "eventShape": {
+    "sourceSystem": "templateConnector",
+    "entityType": "subjectRecord",
+    "sourceIdField": "externalUserId",
+    "timestampField": "observedAtUtc",
+    "payloadRoot": "payload"
+  }
+}

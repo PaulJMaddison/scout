@@ -245,6 +245,17 @@ public sealed class ConnectorAuthoringTests
     }
 
     [Fact]
+    public void MetadataValidator_RejectsPlugin_WithInvalidConnectorTypeFormat()
+    {
+        var plugin = new BrokenConnectorStub(connectorType: "bad-connector", displayName: "Test", description: "Test");
+
+        var result = ConnectorMetadataValidator.Validate(plugin);
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.Contains("lowercase letter"));
+    }
+
+    [Fact]
     public void MetadataValidator_RejectsPlugin_WithNoSupportedDataSourceKinds()
     {
         var plugin = new BrokenConnectorStub(
@@ -273,6 +284,95 @@ public sealed class ConnectorAuthoringTests
 
         Assert.False(result.IsValid);
         Assert.Contains(result.Errors, e => e.Contains("foo"));
+    }
+
+    [Fact]
+    public void MetadataValidator_RejectsSchemaRequiredField_NotDeclaredInProperties()
+    {
+        var plugin = new BrokenConnectorStub(
+            connectorType: "broken",
+            displayName: "Broken",
+            description: "Broken",
+            schemaRequired: new JsonArray("foo"),
+            sampleConfig: new JsonObject { ["foo"] = "bar" });
+
+        var result = ConnectorMetadataValidator.Validate(plugin);
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.Contains("required field \"foo\""));
+    }
+
+    [Fact]
+    public void MetadataValidator_RejectsRawSecretValues_InSampleConfiguration()
+    {
+        var plugin = new BrokenConnectorStub(
+            connectorType: "broken",
+            displayName: "Broken",
+            description: "Broken",
+            sampleConfig: new JsonObject
+            {
+                ["credentials"] = new JsonObject
+                {
+                    ["apiKey"] = "plain-text-key"
+                }
+            });
+
+        var result = ConnectorMetadataValidator.Validate(plugin);
+
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.Contains("secret://"));
+    }
+
+    [Fact]
+    public void ConnectorContractRules_ValidatePublicIngestEventShape()
+    {
+        var validEvent = new ConnectorIngestEvent(
+            "acmeCrm",
+            "deal-123",
+            "deal",
+            new JsonObject
+            {
+                ["deal_probability"] = 0.82
+            },
+            new DateTime(2026, 05, 27, 12, 0, 0, DateTimeKind.Utc));
+
+        var valid = ConnectorContractRules.ValidateIngestEvent(validEvent);
+
+        Assert.True(valid.IsValid, string.Join("; ", valid.Errors));
+
+        var invalid = ConnectorContractRules.ValidateIngestEvent(validEvent with
+        {
+            SourceId = "",
+            RawPayload = new JsonObject(),
+            TimestampUtc = new DateTime(2026, 05, 27, 12, 0, 0, DateTimeKind.Local)
+        });
+
+        Assert.False(invalid.IsValid);
+        Assert.Contains(invalid.Errors, e => e.Contains("sourceId"));
+        Assert.Contains(invalid.Errors, e => e.Contains("rawPayload"));
+        Assert.Contains(invalid.Errors, e => e.Contains("UTC"));
+    }
+
+    [Fact]
+    public void ConnectorConfigurationDescriptor_ProvidesStablePublicConfigModel()
+    {
+        var descriptor = new ConnectorConfigurationDescriptor(
+            "acmeCrm",
+            """{"type":"object","properties":{"endpoint":{"type":"string"}}}""",
+            """{"type":"object","properties":{"apiKey":{"type":"string","secret":true}}}""",
+            """{"endpoint":"https://api.example.com"}""",
+            [
+                new ConnectorConfigurationField(
+                    "endpoint",
+                    ConnectorConfigurationValueType.String,
+                    true,
+                    "Base URL for the public API.")
+            ]);
+
+        Assert.Equal("acmeCrm", descriptor.ConnectorType);
+        Assert.Equal("endpoint", descriptor.Fields[0].Name);
+        Assert.True(descriptor.Fields[0].IsRequired);
+        Assert.False(descriptor.Fields[0].IsSecret);
     }
 
     [Fact]

@@ -8,4 +8,4 @@ npm run test
 npm start -- --repo-root ../../..
 ```
 
-The checker reads public REST/application contract records, GraphQL query/mutation method signatures, the .NET SDK models, the TypeScript SDK types, and connector manifest validator constants. It reports missing fields, likely renamed fields, enum mismatches, and manifest features that the public connector validator does not support.
+The checker reads public REST/application contract records, GraphQL query/mutation method signatures, the .NET SDK models, the TypeScript SDK types, connector authoring enums, and connector manifest validator constants. It reports missing fields, likely renamed fields, enum mismatches, connector capability/source-type drift, and manifest features that the public connector validator does not support.

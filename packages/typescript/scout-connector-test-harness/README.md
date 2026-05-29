@@ -6,11 +6,11 @@ Local test harness for validating KynticAI Scout connectors against public inter
 
 | Suite | Checks |
 |---|---|
-| **manifest-shape** | connectorId, displayName, version (semver), description, supportedSourceTypes, requiredConfigFields, safeMetadataFields, sampleEntityMappings, configurationSchema, sampleConfiguration |
+| **manifest-shape** | connectorId, displayName, version (semver), description, supportedSourceTypes, requiredConfigFields, safeMetadataFields, sampleEntityMappings, configurationSchema, sampleConfiguration, optional eventShape |
 | **metadata-extraction** | Runs the `@kynticai/scout-metadata-audit` against the manifest's configurationSchema and optional sample records. Checks for error-level warnings and a minimum readiness score. |
 | **entity-mapping** | At least one mapping declared, at least one uses a recognised public semantic attribute, source fields match sample record payloads when provided. |
 | **error-handling** | Optional `fakeFetch` function: validates returned objects, tests graceful error throwing (proper `Error` instances), supports async fetch functions. |
-| **unsafe-fields** | Checks safeMetadataFields, configurationSchema properties, sampleConfiguration keys, and entity mapping field names against the public unsafe-field blocklist (passwords, tokens, secrets, PII). |
+| **unsafe-fields** | Checks safeMetadataFields, configurationSchema properties, sampleConfiguration keys, event shape fields, and entity mapping field names against the public unsafe-field blocklist (passwords, tokens, secrets, PII). |
 
 ## Installation
 
@@ -75,6 +75,13 @@ const definition: SampleConnectorDefinition = {
     },
     sampleConfiguration: {
       endpoint: 'https://api.mycrm.example.com/v1',
+    },
+    eventShape: {
+      sourceSystem: 'myCustomCrm',
+      entityType: 'account',
+      sourceIdField: 'externalUserId',
+      timestampField: 'observedAtUtc',
+      payloadRoot: 'payload',
     },
   },
   sampleRecords: [

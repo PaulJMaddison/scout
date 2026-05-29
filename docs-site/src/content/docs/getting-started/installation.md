@@ -55,7 +55,7 @@ demo data and a SQLite database.
 
 ### Docker with PostgreSQL
 
-For a production-like setup with PostgreSQL 16 (including pgvector):
+For a production-style setup with PostgreSQL:
 
 ```bash
 cp deploy/.env.example deploy/.env

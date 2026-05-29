@@ -1,9 +1,41 @@
 ---
 title: Quickstart
-description: Get a working KynticAI Scout demo running in three commands.
+description: Get a working KynticAI Scout demo running locally.
 ---
 
-## Start the Demo
+## Pick a Run Mode
+
+Scout supports two local paths:
+
+| Path | Use it when |
+|---|---|
+| Docker API | You want the fastest API-only smoke test with no local .NET setup. |
+| Local demo scripts | You want the API plus the React admin console and seeded demo data. |
+
+## Docker API
+
+From the repository root:
+
+```bash
+docker compose -f deploy/docker-compose.yml up -d scout-api --build
+```
+
+Verify the API:
+
+```bash
+curl http://127.0.0.1:8080/health/ready
+```
+
+The Docker API exposes:
+
+| Service | URL |
+|---|---|
+| API | [http://127.0.0.1:8080](http://127.0.0.1:8080) |
+| GraphQL IDE | [http://127.0.0.1:8080/graphql](http://127.0.0.1:8080/graphql) |
+| REST API docs | [http://127.0.0.1:8080/api-docs](http://127.0.0.1:8080/api-docs) |
+| Health check | [http://127.0.0.1:8080/health/ready](http://127.0.0.1:8080/health/ready) |
+
+## Full Local Demo
 
 After [installing](/getting-started/installation/) Scout, start the API and
 admin console:
@@ -20,14 +52,11 @@ sh ./scripts/start-demo.sh
 ./scripts/start-demo.ps1
 ```
 
-This starts:
+This starts the admin console at [http://127.0.0.1:5173](http://127.0.0.1:5173)
+and the API at [http://127.0.0.1:5198](http://127.0.0.1:5198).
 
-| Service | URL |
-|---|---|
-| Admin console | [http://127.0.0.1:5173](http://127.0.0.1:5173) |
-| API | [http://127.0.0.1:5198](http://127.0.0.1:5198) |
-| GraphQL IDE | [http://127.0.0.1:5198/graphql](http://127.0.0.1:5198/graphql) |
-| Health check | [http://127.0.0.1:5198/health/ready](http://127.0.0.1:5198/health/ready) |
+The examples below use the script ports. For Docker, replace `5198` with
+`8080`.
 
 ## Log In
 
@@ -52,7 +81,7 @@ TOKEN=$(curl -s -X POST http://127.0.0.1:5198/api/auth/login \
   | jq -r '.accessToken')
 
 # 2. Fetch user context
-curl "http://127.0.0.1:5198/api/rest/tenants/demo/users/123/context" \
+curl "http://127.0.0.1:5198/api/v1/context/users/123?tenantSlug=demo" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -97,5 +126,5 @@ Recommended records to explore:
 ## What's Next?
 
 - Read the [API Overview](/apis/overview/) for the full surface area.
-- Explore the [TypeScript SDK](/apis/typescript-sdk/) or [.NET SDK](/apis/dotnet-sdk/).
-- Learn about [Connector Basics](/concepts/connector-basics/).
+- Explore the [TypeScript SDK](/sdks/typescript/) or [.NET SDK](/sdks/dotnet/).
+- Learn about [Connector Authoring](/connectors/authoring/).

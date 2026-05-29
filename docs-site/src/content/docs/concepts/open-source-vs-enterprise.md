@@ -71,8 +71,8 @@ Scout core via dependency injection — no forking required.
 
 ## Enquiries
 
-For enterprise licensing, pilot programmes, or technical questions about
-Fortress, visit [kyntic.ai](https://kyntic.ai).
+For enterprise licensing or technical questions about Fortress, visit
+[kynticai.com](https://kynticai.com).
 
 ## Next Steps
 
@@ -80,3 +80,5 @@ Fortress, visit [kyntic.ai](https://kyntic.ai).
   introduction to the platform.
 - [Connector Basics](/concepts/connector-basics/) for how data flows from
   source systems into the semantic layer.
+- [Self-Hosting](/self-hosting/) for the public data-plane deployment
+  checklist.

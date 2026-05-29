@@ -91,6 +91,7 @@ export function runParityCheck(input: ContractParityInput, checkedAtUtc = '2026-
   for (const manifest of input.manifests ?? []) {
     issues.push(...checkManifest(manifest, input.connectorManifest))
   }
+  issues.push(...checkConnectorAuthoringSurface(input))
 
   const sortedIssues = sortIssues(issues)
   const errorCount = sortedIssues.filter((issue) => issue.severity === 'error').length
@@ -230,6 +231,59 @@ function checkManifest(
   }
 
   return issues
+}
+
+function checkConnectorAuthoringSurface(input: ContractParityInput): ParityIssue[] {
+  const issues: ParityIssue[] = []
+  const dataSourceKind = input.apiEnums.find((shape) => shape.name === 'DataSourceKind')
+  if (dataSourceKind !== undefined) {
+    issues.push(...compareEnumToManifestSet(
+      dataSourceKind,
+      input.connectorManifest.sourceTypes,
+      'supportedSourceTypes',
+      'Public connector manifest source types must match the public DataSourceKind enum.',
+      'packages/typescript/scout-connector-validator/src/schema.ts',
+    ))
+  }
+
+  const connectorCapability = input.apiEnums.find((shape) => shape.name === 'ConnectorCapability')
+  if (connectorCapability !== undefined) {
+    issues.push(...compareEnumToManifestSet(
+      connectorCapability,
+      input.connectorManifest.capabilities,
+      'capabilities',
+      'Public connector manifest capabilities must match the public ConnectorCapability enum.',
+      'packages/typescript/scout-connector-validator/src/schema.ts',
+    ))
+  }
+
+  return issues
+}
+
+function compareEnumToManifestSet(
+  source: EnumShape,
+  manifestValues: string[],
+  field: string,
+  messagePrefix: string,
+  targetReference: string,
+): ParityIssue[] {
+  const expected = [...new Set(source.values)].sort()
+  const actual = [...new Set(manifestValues)].sort()
+  if (expected.join('\0') === actual.join('\0')) return []
+
+  return [{
+    kind: 'enum-mismatch',
+    severity: 'error',
+    category: 'connector-authoring-contract',
+    source: source.surface,
+    target: 'connector-manifest',
+    model: source.name,
+    field,
+    expected,
+    actual,
+    ...referenceFields(source.sourceFile, targetReference),
+    message: `${messagePrefix} Expected ${expected.join(', ')}; manifest allows ${actual.join(', ')}.`,
+  }]
 }
 
 function findLikelyRename(sourceField: FieldShape, candidates: FieldShape[]): FieldShape | undefined {

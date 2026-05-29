@@ -29,6 +29,11 @@ Static output is written to `docs-site/dist/`. Preview the built site with:
 npm run preview
 ```
 
+This project intentionally does not contain GitHub Pages workflows, CI/CD,
+release automation, deployment automation, or hosting scripts. It is a
+locally buildable documentation site ready to be mounted by the approved
+KynticAI website path later.
+
 ## Project Structure
 
 ```
@@ -40,14 +45,23 @@ docs-site/
 │   ├── content/
 │   │   └── docs/              # Documentation pages (Markdown / MDX)
 │   │       ├── index.mdx      # Landing page
+│   │       ├── architecture.md
+│   │       ├── schema-reference.md
+│   │       ├── self-hosting.md
 │   │       ├── getting-started/
 │   │       │   ├── what-is-scout.md
 │   │       │   ├── installation.md
 │   │       │   └── quickstart.md
 │   │       ├── apis/
 │   │       │   ├── overview.md
-│   │       │   ├── typescript-sdk.md
-│   │       │   └── dotnet-sdk.md
+│   │       │   ├── graphql.md
+│   │       │   └── rest.md
+│   │       ├── sdks/
+│   │       │   ├── overview.md
+│   │       │   ├── typescript.md
+│   │       │   └── dotnet.md
+│   │       ├── connectors/
+│   │       │   └── authoring.md
 │   │       └── concepts/
 │   │           ├── connector-basics.md
 │   │           └── open-source-vs-enterprise.md
@@ -69,3 +83,5 @@ docs-site/
 - Product tier: **KynticAI Scout** (open source) / **KynticAI Fortress** (enterprise).
 - Use British English for all user-facing copy.
 - Colour palette follows the Aged Book / Sovereign Rust direction — see `src/styles/custom.css`.
+- Public images must use approved logo files from `docs/images/brand`; the
+  docs favicon uses the approved logo mark copied into `public/brand/`.

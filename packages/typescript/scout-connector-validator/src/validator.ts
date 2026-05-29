@@ -42,6 +42,7 @@ export function validateManifest(
   validateCapabilities(obj, warnings)
   validateConfigurationSchema(obj, errors)
   validateSampleConfiguration(obj, errors)
+  validateEventShape(obj, errors)
 
   return { isValid: errors.length === 0, errors, warnings }
 }
@@ -302,6 +303,29 @@ function validateSampleConfiguration(obj: Record<string, unknown>, errors: strin
   for (const field of required) {
     if (typeof field === 'string' && sampleObj[field] === undefined) {
       errors.push(`sampleConfiguration is missing required schema field "${field}".`)
+    }
+  }
+}
+
+function validateEventShape(obj: Record<string, unknown>, errors: string[]): void {
+  const eventShape = obj['eventShape']
+  if (eventShape === undefined) return
+
+  if (typeof eventShape !== 'object' || eventShape === null || Array.isArray(eventShape)) {
+    errors.push('eventShape, if provided, must be a JSON object.')
+    return
+  }
+
+  const shape = eventShape as Record<string, unknown>
+  for (const field of ['sourceSystem', 'entityType', 'sourceIdField']) {
+    if (typeof shape[field] !== 'string' || (shape[field] as string).trim() === '') {
+      errors.push(`eventShape.${field} is required and must be a non-empty string.`)
+    }
+  }
+
+  for (const field of ['timestampField', 'payloadRoot']) {
+    if (shape[field] !== undefined && typeof shape[field] !== 'string') {
+      errors.push(`eventShape.${field}, if provided, must be a string.`)
     }
   }
 }

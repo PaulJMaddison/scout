@@ -358,6 +358,25 @@ function runUnsafeFieldTests(
     })
   }
 
+  if (manifest.eventShape !== undefined) {
+    const eventFieldNames = [
+      manifest.eventShape.sourceIdField,
+      manifest.eventShape.timestampField,
+      manifest.eventShape.payloadRoot,
+    ].filter((field): field is string => typeof field === 'string')
+    const unsafeEventFields = eventFieldNames.filter((field) => unsafeLower.has(field.toLowerCase()))
+
+    results.push({
+      name: 'Event shape contains no unsafe field names',
+      suite: 'unsafe-fields',
+      passed: unsafeEventFields.length === 0,
+      message:
+        unsafeEventFields.length === 0
+          ? 'No unsafe fields in eventShape.'
+          : `Unsafe event shape fields: ${unsafeEventFields.join(', ')}.`,
+    })
+  }
+
   for (const mapping of manifest.sampleEntityMappings) {
     const sourceUnsafe = unsafeLower.has(mapping.sourceField.toLowerCase())
     const attrUnsafe = unsafeLower.has(mapping.semanticAttribute.toLowerCase())

@@ -2,7 +2,7 @@
 
 Public connector manifest validator for **KynticAI Scout**.
 
-Validates connector manifest JSON files against the expected schema for public Scout connectors. Checks connector ID format, semantic versioning, supported source types, required configuration fields, safe metadata fields (rejects credential/PII leaks), and sample entity mappings.
+Validates connector manifest JSON files against the expected schema for public Scout connectors. Checks connector ID format, semantic versioning, supported source types, required configuration fields, safe metadata fields (rejects credential/PII leaks), sample entity mappings, and optional event shape metadata.
 
 ## Installation
 
@@ -32,6 +32,13 @@ const manifest = {
       description: 'Maps deal probability to conversion probability.',
     },
   ],
+  eventShape: {
+    sourceSystem: 'myCrmConnector',
+    entityType: 'account',
+    sourceIdField: 'externalUserId',
+    timestampField: 'observedAtUtc',
+    payloadRoot: 'payload',
+  },
 }
 
 const result = validateManifest(manifest)
@@ -83,6 +90,7 @@ npx scout-validate-manifest ./manifests/ --check-duplicates
 | `capabilities` | `string[]` | No | Supported capabilities (e.g. `FetchSubject`, `Preview`). |
 | `configurationSchema` | `JsonSchemaObject` | No | Full JSON Schema for the connector configuration. |
 | `sampleConfiguration` | `object` | No | Example configuration satisfying all required schema fields. |
+| `eventShape` | `ConnectorEventShape` | No | Provider-neutral event shape emitted by the connector. |
 
 ### RequiredConfigField
 
@@ -100,6 +108,16 @@ npx scout-validate-manifest ./manifests/ --check-duplicates
 | `semanticAttribute` | `string` | Target KynticAI Scout semantic attribute key. |
 | `description` | `string` (optional) | Explanation of the mapping. |
 
+### ConnectorEventShape
+
+| Field | Type | Description |
+|---|---|---|
+| `sourceSystem` | `string` | Public connector source system identifier. |
+| `entityType` | `string` | Entity type represented by emitted events. |
+| `sourceIdField` | `string` | Field that contains the source entity ID. |
+| `timestampField` | `string` (optional) | Field containing the source observation timestamp. |
+| `payloadRoot` | `string` (optional) | Field containing the event payload when records are wrapped. |
+
 ## Validation Rules
 
 - **Connector ID**: Must start with a lowercase letter and use camelCase (no hyphens or underscores).
@@ -107,6 +125,7 @@ npx scout-validate-manifest ./manifests/ --check-duplicates
 - **Source types**: Unknown types produce warnings, not errors.
 - **Safe metadata fields**: Fields matching known credential/PII patterns (`password`, `secret`, `token`, `apiKey`, `connectionString`, etc.) are rejected.
 - **Entity mappings**: Unknown semantic attributes produce warnings, not errors.
+- **Event shape**: If present, `sourceSystem`, `entityType`, and `sourceIdField` are required strings.
 - **Duplicate IDs**: Checked only when `knownConnectorIds` is provided.
 
 ## Exports

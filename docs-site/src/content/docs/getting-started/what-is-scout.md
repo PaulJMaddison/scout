@@ -59,4 +59,5 @@ KynticAI Scout is released under the [MIT Licence](https://github.com/PaulJMaddi
 
 - [Install Scout](/getting-started/installation/) on your machine.
 - Follow the [Quickstart](/getting-started/quickstart/) to run a local demo.
+- Read the [Architecture](/architecture/) overview.
 - Explore the [API Overview](/apis/overview/).

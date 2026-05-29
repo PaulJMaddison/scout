@@ -19,6 +19,7 @@ Use it as a starting point when authoring a new connector for Scout.
 3. Implement `GetConfigurationSchema()`, `GetSampleConfiguration()`, and `FetchAsync()`.
 4. Register the plugin in your DI container as `IConnectorPlugin`.
 5. Run the `ConnectorMetadataValidator` helper to verify your metadata is well-formed.
+6. Add a public manifest with `eventShape` if the connector emits source-system events.
 
 ## Constraints
 
@@ -26,4 +27,5 @@ Use it as a starting point when authoring a new connector for Scout.
 - Connectors must return deterministic provenance in `ConnectorFetchResult`.
 - Configuration schemas must be valid JSON Schema objects.
 - Credential fields must use `secret://` references when persisted.
+- Event-shaped records should pass `ConnectorContractRules.ValidateIngestEvent(...)`.
 - See `docs/connector-authoring.md` for the full technical specification.

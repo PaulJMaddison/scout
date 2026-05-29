@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { runParityCheck, exportText, readFixture } from '../src/index.js'
+import { runParityCheck, exportText, loadFromRepo, readFixture } from '../src/index.js'
 import type { ContractParityInput } from '../src/index.js'
 
 const currentDir = dirname(fileURLToPath(import.meta.url))
@@ -80,6 +80,72 @@ describe('contract parity checker', () => {
     expect(text).toContain(
       'References: source src/KynticAI.Scout.Application/Contracts/Inputs.cs; target packages/typescript/scout-sdk/src/types.ts',
     )
+  })
+
+  it('checks connector authoring enums against manifest validator constants', () => {
+    const report = runParityCheck({
+      restModels: [],
+      graphQlModels: [],
+      dotnetSdkModels: [],
+      typescriptSdkModels: [],
+      apiEnums: [
+        {
+          name: 'DataSourceKind',
+          surface: 'rest',
+          values: ['Crm'],
+          sourceFile: 'src/KynticAI.Scout.Domain/Enums/DomainEnums.cs',
+        },
+        {
+          name: 'ConnectorCapability',
+          surface: 'connector-manifest',
+          values: ['FetchSubject', 'Preview'],
+          sourceFile: 'src/KynticAI.Scout.Application/Abstractions/IConnectorPlugin.cs',
+        },
+      ],
+      dotnetSdkEnums: [],
+      typescriptSdkEnums: [],
+      connectorManifest: {
+        allowedFields: ['connectorId', 'displayName', 'eventShape'],
+        sourceTypes: ['Crm'],
+        capabilities: ['FetchSubject'],
+      },
+      manifests: [],
+    })
+
+    expect(report.isValid).toBe(false)
+    expect(report.issues).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          category: 'connector-authoring-contract',
+          model: 'ConnectorCapability',
+          field: 'capabilities',
+        }),
+      ]),
+    )
+    expect(report.issues.map((issue) => issue.message)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('ConnectorCapability'),
+      ]),
+    )
+  })
+
+  it('loads assigned C# enum values for connector authoring parity checks', () => {
+    const repoRoot = resolve(currentDir, '..', '..', '..', '..')
+    const input = loadFromRepo(repoRoot)
+    const dataSourceKind = input.apiEnums.find((shape) => shape.name === 'DataSourceKind')
+    const connectorCapability = input.apiEnums.find((shape) => shape.name === 'ConnectorCapability')
+
+    expect(dataSourceKind?.values).toEqual(['Crm', 'SqlMetric', 'EventStream', 'ProductUsage'])
+    expect(connectorCapability?.values).toEqual([
+      'FetchSubject',
+      'Preview',
+      'DryRun',
+      'ScheduledSync',
+      'EventTriggeredRecompute',
+      'HealthCheck',
+      'ConfigurationValidation',
+      'SecureCredentialStorage',
+    ])
   })
 })
 
