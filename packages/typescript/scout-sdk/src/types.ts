@@ -638,6 +638,125 @@ export interface ScoutErrorDetail {
   message: string
 }
 
+/** Evidence supplied to a KynticAI Score API implementation. */
+export interface ScoreEvidenceInput {
+  id: string
+  summary: string
+  source?: string | null
+  observedAtUtc?: string | null
+  weight?: number | null
+  metadata?: Record<string, string> | null
+}
+
+/** One of the top evidence points returned by a score response. */
+export interface ScoreEvidencePoint {
+  summary: string
+  source: string
+  weight: number
+  observedAtUtc?: string | null
+}
+
+/** One of the risk flags returned by a score response. */
+export interface ScoreRiskFlag {
+  code: string
+  severity: 'low' | 'moderate' | 'high' | 'critical'
+  summary: string
+}
+
+/** Numeric confidence interval around a 0-100 rating. */
+export interface ConfidenceInterval {
+  lower: number
+  upper: number
+  level: number
+}
+
+/** Optional trace metadata returned by a score service implementation. */
+export interface ScoreTrace {
+  requestId?: string | null
+  modelVersion?: string | null
+  generatedAtUtc?: string | null
+}
+
+/** Common fields for all score responses. */
+export interface ScoreBase {
+  scoreType: 'InvestmentScore' | 'CreditScore' | 'JobScore'
+  rating: number
+  supportingEvidence: ScoreEvidencePoint[]
+  riskFlags: ScoreRiskFlag[]
+  confidenceInterval: ConfidenceInterval
+  trace?: ScoreTrace | null
+}
+
+export interface InvestmentScoreRequest {
+  subject: {
+    name: string
+    sector?: string | null
+    stage?: string | null
+    geography?: string | null
+  }
+  objective?: string | null
+  horizon?: 'short_term' | 'medium_term' | 'long_term' | null
+  evidence: ScoreEvidenceInput[]
+  constraints?: string[] | null
+}
+
+export interface CreditScoreRequest {
+  subject: {
+    name: string
+    entityType?: 'individual' | 'company' | 'public_body' | 'other' | null
+    geography?: string | null
+  }
+  cashflowSummary?: string | null
+  obligations?: string[] | null
+  evidence: ScoreEvidenceInput[]
+}
+
+export interface JobScoreRequest {
+  candidate: {
+    name: string
+    currentRole?: string | null
+    seniority?: string | null
+  }
+  role: {
+    title: string
+    organisation?: string | null
+    requiredSkills?: string[] | null
+  }
+  evidence: ScoreEvidenceInput[]
+  constraints?: string[] | null
+}
+
+/** Score response for an investment scoring request. */
+export interface InvestmentScore extends ScoreBase {
+  scoreType: 'InvestmentScore'
+}
+
+/** Score response for a credit scoring request. */
+export interface CreditScore extends ScoreBase {
+  scoreType: 'CreditScore'
+}
+
+/** Score response for a job scoring request. */
+export interface JobScore extends ScoreBase {
+  scoreType: 'JobScore'
+}
+
+/** Configuration options for {@link createKynticScoreClient}. */
+export interface KynticScoreClientOptions {
+  /** Base URL of the score service implementing `schema/kyntic-score.openapi.yaml`. */
+  baseUrl: string
+  /** Static bearer token. Mutually exclusive with `getAccessToken`. */
+  accessToken?: string
+  /** Lazy bearer-token provider called before each request. */
+  getAccessToken?: (() => Promise<string | undefined> | string | undefined)
+  /** Optional API key for services that support key-based machine authentication. */
+  apiKey?: string
+  /** Additional headers sent with every request. */
+  defaultHeaders?: Record<string, string>
+  /** Custom `fetch` implementation (defaults to `globalThis.fetch`). */
+  fetch?: typeof fetch
+}
+
 /** Configuration options for {@link createScoutClient}. */
 export interface ScoutClientOptions {
   /** Base URL of the Scout API (e.g. `"http://127.0.0.1:5198"`). */

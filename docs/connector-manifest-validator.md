@@ -117,7 +117,10 @@ npx scout-validate-manifest ./manifests/ --check-duplicates
 
 ### Discovery Agent MCP
 
-The validator is integrated with the Discovery Agent MCP server as the `scout_validate_connector_manifest_v2` tool. AI agents can validate extended manifests directly through the MCP protocol.
+The validator remains available through the connector-metadata MCP package as
+the `scout_validate_connector_manifest_v2` tool. The canonical codebase
+handover agent is `apps/discovery-agent`; it can audit this package alongside
+the rest of the repo and produce a Codex-ready handover.
 
 ## Relationship to Existing Validation
 

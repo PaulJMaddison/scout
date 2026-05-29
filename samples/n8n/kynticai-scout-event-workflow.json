@@ -1,0 +1,29 @@
+{
+  "name": "KynticAI Scout event sink example",
+  "nodes": [
+    {
+      "parameters": {
+        "tenantSlug": "demo",
+        "workspaceSlug": "primary",
+        "sourceSystem": "n8n",
+        "eventType": "source.n8n.event_received",
+        "eventIdField": "eventId",
+        "externalUserIdField": "externalUserId",
+        "externalAccountIdField": "externalAccountId",
+        "observedAtField": "observedAtUtc",
+        "includeN8nMetadata": true
+      },
+      "name": "Send to KynticAI Scout",
+      "type": "kynticAi",
+      "typeVersion": 1,
+      "position": [640, 240],
+      "credentials": {
+        "kynticAiApi": {
+          "id": "replace-with-local-credential-id",
+          "name": "KynticAI Scout API"
+        }
+      }
+    }
+  ],
+  "connections": {}
+}

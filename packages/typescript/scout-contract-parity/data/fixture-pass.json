@@ -31,6 +31,51 @@
         { "name": "attributeKey", "type": "string" },
         { "name": "valueJson", "type": "string" }
       ]
+    },
+    {
+      "name": "InvestmentScoreRequest",
+      "surface": "typescript-sdk",
+      "fields": [{ "name": "evidence", "type": "ScoreEvidenceInput[]" }]
+    },
+    {
+      "name": "CreditScoreRequest",
+      "surface": "typescript-sdk",
+      "fields": [{ "name": "evidence", "type": "ScoreEvidenceInput[]" }]
+    },
+    {
+      "name": "JobScoreRequest",
+      "surface": "typescript-sdk",
+      "fields": [{ "name": "evidence", "type": "ScoreEvidenceInput[]" }]
+    },
+    {
+      "name": "InvestmentScore",
+      "surface": "typescript-sdk",
+      "fields": [{ "name": "scoreType", "type": "'InvestmentScore'" }]
+    },
+    {
+      "name": "CreditScore",
+      "surface": "typescript-sdk",
+      "fields": [{ "name": "scoreType", "type": "'CreditScore'" }]
+    },
+    {
+      "name": "JobScore",
+      "surface": "typescript-sdk",
+      "fields": [{ "name": "scoreType", "type": "'JobScore'" }]
+    },
+    {
+      "name": "ConfidenceInterval",
+      "surface": "typescript-sdk",
+      "fields": [{ "name": "lower", "type": "number" }]
+    },
+    {
+      "name": "ScoreEvidencePoint",
+      "surface": "typescript-sdk",
+      "fields": [{ "name": "summary", "type": "string" }]
+    },
+    {
+      "name": "ScoreRiskFlag",
+      "surface": "typescript-sdk",
+      "fields": [{ "name": "code", "type": "string" }]
     }
   ],
   "apiEnums": [
@@ -66,5 +111,29 @@
       "supportedSourceTypes": ["Crm"],
       "capabilities": ["FetchSubject"]
     }
-  ]
+  ],
+  "scoreApi": {
+    "sourceFile": "schema/kyntic-score.openapi.yaml",
+    "paths": [
+      "/v1/scores/investment",
+      "/v1/scores/credit",
+      "/v1/scores/job"
+    ],
+    "schemas": [
+      "InvestmentScoreRequest",
+      "CreditScoreRequest",
+      "JobScoreRequest",
+      "InvestmentScore",
+      "CreditScore",
+      "JobScore",
+      "ConfidenceInterval",
+      "ScoreEvidencePoint",
+      "ScoreRiskFlag"
+    ],
+    "sdkClientPaths": [
+      "/v1/scores/investment",
+      "/v1/scores/credit",
+      "/v1/scores/job"
+    ]
+  }
 }

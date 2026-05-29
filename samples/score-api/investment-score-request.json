@@ -1,0 +1,19 @@
+{
+  "subject": {
+    "name": "Example Infrastructure Ltd",
+    "sector": "Industrial software",
+    "stage": "growth",
+    "geography": "UK"
+  },
+  "objective": "Assess suitability for a minority growth investment.",
+  "horizon": "medium_term",
+  "evidence": [
+    {
+      "id": "ev-001",
+      "summary": "Recurring revenue grew across the last four quarters.",
+      "source": "management-account-summary",
+      "weight": 0.8
+    }
+  ],
+  "constraints": ["Use only provided evidence."]
+}

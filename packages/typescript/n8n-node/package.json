@@ -1,0 +1,44 @@
+{
+  "name": "@kyntic/n8n-node",
+  "version": "0.1.0",
+  "description": "Local n8n community node for sending provider-neutral source-system events to KynticAI Scout.",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "dist/nodes/KynticAi/KynticAi.node.js",
+  "types": "dist/nodes/KynticAi/KynticAi.node.d.ts",
+  "sideEffects": false,
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "KynticAI",
+    "KynticAI Scout",
+    "source-system-events"
+  ],
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/KynticAiApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/KynticAi/KynticAi.node.js"
+    ]
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node scripts/copy-assets.cjs",
+    "test": "vitest run",
+    "pack:dry-run": "npm pack --dry-run"
+  },
+  "peerDependencies": {
+    "n8n-workflow": ">=2.16.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.12.2",
+    "n8n-workflow": "^2.16.0",
+    "typescript": "~6.0.2",
+    "vitest": "^4.0.8"
+  }
+}

@@ -147,6 +147,39 @@ describe('contract parity checker', () => {
       'SecureCredentialStorage',
     ])
   })
+
+  it('checks Score API OpenAPI schemas and TypeScript client paths', () => {
+    const repoRoot = resolve(currentDir, '..', '..', '..', '..')
+    const report = runParityCheck(loadFromRepo(repoRoot))
+
+    expect(report.issues.filter((issue) => issue.category === 'score-api-contract')).toHaveLength(0)
+  })
+
+  it('reports Score API contract gaps', () => {
+    const fixture = warningFixture()
+    fixture.scoreApi = {
+      sourceFile: 'schema/kyntic-score.openapi.yaml',
+      paths: ['/v1/scores/investment'],
+      schemas: ['InvestmentScoreRequest'],
+      sdkClientPaths: [],
+    }
+
+    const report = runParityCheck(fixture)
+
+    expect(report.isValid).toBe(false)
+    expect(report.issues).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        kind: 'missing-score-contract',
+        category: 'score-api-contract',
+        model: '/v1/scores/credit',
+      }),
+      expect.objectContaining({
+        kind: 'missing-score-contract',
+        category: 'score-api-contract',
+        model: 'CreditScore',
+      }),
+    ]))
+  })
 })
 
 function warningFixture(): ContractParityInput {

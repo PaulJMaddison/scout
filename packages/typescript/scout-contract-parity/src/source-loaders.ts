@@ -8,6 +8,7 @@ import type {
   FieldShape,
   ManifestFixture,
   ModelShape,
+  ScoreApiContractShape,
 } from './types.js'
 
 const REST_CONTRACT_FILES = [
@@ -59,6 +60,7 @@ export function loadFromRepo(repoRoot: string): ContractParityInput {
     ),
     connectorManifest: loadConnectorManifestShape(root),
     manifests: loadManifestFixtures(root),
+    scoreApi: loadScoreApiContractShape(root),
   }
 }
 
@@ -105,7 +107,7 @@ function parseCSharpField(parameter: string): FieldShape | undefined {
 
 function parseTypeScriptInterfaces(source: string, surface: ContractSurface, sourceFile: string): ModelShape[] {
   const models: ModelShape[] = []
-  const interfaceRegex = /export\s+interface\s+(\w+)(?:<[^>]+>)?\s*\{([\s\S]*?)\n\}/g
+  const interfaceRegex = /export\s+interface\s+(\w+)(?:<[^>]+>)?(?:\s+extends\s+[^{]+)?\s*\{([\s\S]*?)\n\}/g
   let match: RegExpExecArray | null
 
   while ((match = interfaceRegex.exec(source)) !== null) {
@@ -194,6 +196,18 @@ function loadManifestFixtures(root: string): ManifestFixture[] {
   }
 
   return manifests
+}
+
+function loadScoreApiContractShape(root: string): ScoreApiContractShape {
+  const sourceFile = 'schema/kyntic-score.openapi.yaml'
+  const openApi = read(root, sourceFile)
+  const scoreClient = read(root, 'packages/typescript/scout-sdk/src/score-client.ts')
+  return {
+    sourceFile,
+    paths: [...openApi.matchAll(/^\s{2}(\/v1\/scores\/[^:]+):/gm)].map((match) => match[1]!),
+    schemas: [...openApi.matchAll(/^\s{4}([A-Za-z][A-Za-z0-9]+):$/gm)].map((match) => match[1]!),
+    sdkClientPaths: [...scoreClient.matchAll(/['"`](\/v1\/scores\/[^'"`]+)['"`]/g)].map((match) => match[1]!),
+  }
 }
 
 function parseConstArray(source: string, name: string): string[] {

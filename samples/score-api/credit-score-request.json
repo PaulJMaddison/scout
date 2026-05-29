@@ -1,0 +1,17 @@
+{
+  "subject": {
+    "name": "Example Infrastructure Ltd",
+    "entityType": "company",
+    "geography": "UK"
+  },
+  "cashflowSummary": "Positive operating cashflow in the last two reporting periods.",
+  "obligations": ["Term loan", "Equipment lease"],
+  "evidence": [
+    {
+      "id": "ev-001",
+      "summary": "Debt service coverage remains above target.",
+      "source": "finance-summary",
+      "weight": 0.75
+    }
+  ]
+}

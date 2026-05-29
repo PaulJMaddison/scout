@@ -36,6 +36,11 @@ const CATEGORY_DETAILS: Record<IssueCategory, { title: string, action: string, o
     action: 'Review whether admin, governance, SaaS, blueprint, and agent-run contracts should remain console/API-only or become SDK models.',
     order: 50,
   },
+  'score-api-contract': {
+    title: 'Score API contract gaps',
+    action: 'Keep schema/kyntic-score.openapi.yaml and the TypeScript score client/types aligned for all public score surfaces.',
+    order: 55,
+  },
   'contract-parity': {
     title: 'Contract parity findings',
     action: 'Review the reported source and target contract before changing public API or SDK shapes.',
@@ -92,6 +97,7 @@ export function runParityCheck(input: ContractParityInput, checkedAtUtc = '2026-
     issues.push(...checkManifest(manifest, input.connectorManifest))
   }
   issues.push(...checkConnectorAuthoringSurface(input))
+  issues.push(...checkScoreApiSurface(input))
 
   const sortedIssues = sortIssues(issues)
   const errorCount = sortedIssues.filter((issue) => issue.severity === 'error').length
@@ -258,6 +264,95 @@ function checkConnectorAuthoringSurface(input: ContractParityInput): ParityIssue
   }
 
   return issues
+}
+
+function checkScoreApiSurface(input: ContractParityInput): ParityIssue[] {
+  if (input.scoreApi === undefined) return []
+
+  const issues: ParityIssue[] = []
+  const expectedPaths = [
+    '/v1/scores/investment',
+    '/v1/scores/credit',
+    '/v1/scores/job',
+  ]
+  const expectedSchemas = [
+    'InvestmentScoreRequest',
+    'CreditScoreRequest',
+    'JobScoreRequest',
+    'InvestmentScore',
+    'CreditScore',
+    'JobScore',
+    'ConfidenceInterval',
+    'ScoreEvidencePoint',
+    'ScoreRiskFlag',
+  ]
+  const sdkModels = new Set(input.typescriptSdkModels.map((model) => model.name))
+
+  for (const scorePath of expectedPaths) {
+    if (!input.scoreApi.paths.includes(scorePath)) {
+      issues.push(scoreIssue(
+        'path',
+        scorePath,
+        `Score OpenAPI contract is missing path '${scorePath}'.`,
+        input.scoreApi.sourceFile,
+        'packages/typescript/scout-sdk/src/score-client.ts',
+      ))
+    }
+    if (!input.scoreApi.sdkClientPaths.includes(scorePath)) {
+      issues.push(scoreIssue(
+        'path',
+        scorePath,
+        `TypeScript score client does not call '${scorePath}'.`,
+        'packages/typescript/scout-sdk/src/score-client.ts',
+        input.scoreApi.sourceFile,
+      ))
+    }
+  }
+
+  for (const schema of expectedSchemas) {
+    if (!input.scoreApi.schemas.includes(schema)) {
+      issues.push(scoreIssue(
+        'schema',
+        schema,
+        `Score OpenAPI contract is missing schema '${schema}'.`,
+        input.scoreApi.sourceFile,
+        'packages/typescript/scout-sdk/src/types.ts',
+      ))
+    }
+
+    if (!sdkModels.has(schema)) {
+      issues.push(scoreIssue(
+        'schema',
+        schema,
+        `TypeScript SDK is missing exported score model '${schema}'.`,
+        'packages/typescript/scout-sdk/src/types.ts',
+        input.scoreApi.sourceFile,
+      ))
+    }
+  }
+
+  return issues
+}
+
+function scoreIssue(
+  field: string,
+  model: string,
+  message: string,
+  sourceReference: string,
+  targetReference: string,
+): ParityIssue {
+  return {
+    kind: 'missing-score-contract',
+    severity: 'error',
+    category: 'score-api-contract',
+    source: 'score-openapi',
+    target: 'typescript-sdk',
+    model,
+    field,
+    sourceReference,
+    targetReference,
+    message,
+  }
 }
 
 function compareEnumToManifestSet(

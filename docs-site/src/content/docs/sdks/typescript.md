@@ -32,6 +32,25 @@ const scout = createScoutClient({
 })
 ```
 
+## Score API Client
+
+The SDK also exports a client for services that implement
+`schema/kyntic-score.openapi.yaml`:
+
+```typescript
+import { createKynticScoreClient } from '@kynticai/scout-sdk'
+
+const scores = createKynticScoreClient({
+  baseUrl: 'http://127.0.0.1:3016',
+  accessToken: process.env.SCORE_TOKEN,
+})
+
+const result = await scores.createInvestmentScore({
+  subject: { name: 'Example Infrastructure Ltd' },
+  evidence: [{ id: 'ev-001', summary: 'Revenue quality is improving.' }],
+})
+```
+
 ## Machine Token Flow
 
 ```typescript

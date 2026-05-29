@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "kyntic-discovery-agent": {
+      "command": "npx",
+      "args": ["--package", "./apps/discovery-agent", "discovery-agent", "--mcp"]
+    }
+  }
+}

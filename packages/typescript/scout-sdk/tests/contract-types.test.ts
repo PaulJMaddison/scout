@@ -9,6 +9,8 @@ import type {
   ScheduledRecomputeDispatchResult,
   UserContextLookupInput,
   UserProfileResult,
+  InvestmentScoreRequest,
+  InvestmentScore,
 } from '../src/types.js'
 
 describe('Scout TypeScript SDK contract types', () => {
@@ -78,6 +80,21 @@ describe('Scout TypeScript SDK contract types', () => {
       lastSeenAtUtc: '2026-05-11T10:00:00Z',
       isEmailMasked: false,
     }
+    const investmentScoreRequest: InvestmentScoreRequest = {
+      subject: { name: 'Example Infrastructure Ltd' },
+      evidence: [{ id: 'evidence-1', summary: 'Revenue quality is improving.' }],
+    }
+    const investmentScore: InvestmentScore = {
+      scoreType: 'InvestmentScore',
+      rating: 82,
+      supportingEvidence: [
+        { summary: 'Revenue quality is improving.', source: 'management summary', weight: 0.8 },
+      ],
+      riskFlags: [
+        { code: 'limited_history', severity: 'moderate', summary: 'The evidence window is limited.' },
+      ],
+      confidenceInterval: { lower: 76, upper: 88, level: 0.95 },
+    }
 
     expect([
       salesPackage.salesObjective,
@@ -88,6 +105,8 @@ describe('Scout TypeScript SDK contract types', () => {
       plugin.connectorType,
       catalogueEntry.publicStatus,
       profile.externalUserId,
-    ]).toEqual(['Prepare renewal context.', 'sdk-test', 'selector-123', null, 2, 'restApi', 'PublicGenericExample', 'user-123'])
+      investmentScoreRequest.subject.name,
+      investmentScore.scoreType,
+    ]).toEqual(['Prepare renewal context.', 'sdk-test', 'selector-123', null, 2, 'restApi', 'PublicGenericExample', 'user-123', 'Example Infrastructure Ltd', 'InvestmentScore'])
   })
 })

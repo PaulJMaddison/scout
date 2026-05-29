@@ -242,6 +242,29 @@ cd ../scout-connector-test-harness
 npm test
 ```
 
+## Discovery Agent Check
+
+Use the canonical Discovery Agent when you want an agent-readable handover for
+connector work:
+
+```bash
+cd apps/discovery-agent
+npm install
+npm run build
+node dist/index.js --path ../.. --tier 2
+```
+
+The connector-metadata MCP package still exposes
+`scout_validate_connector_manifest_v2` for manifest validation. The Discovery
+Agent adds repo-wide audit, handover, and governance output.
+
+## n8n Event Sink
+
+The local `packages/typescript/n8n-node` package provides a write-only n8n node
+that maps incoming n8n items to the public source-system event endpoint. It is
+an event-ingestion bridge, not a private connector implementation. See
+`docs/n8n-node.md` for local build and mapping details.
+
 ## Built-In Public References
 
 | Connector | Type | Boundary |
@@ -256,4 +279,4 @@ npm test
 
 Public Scout connectors may include generic protocol connectors, fictional demo data, authoring templates, and local validation tools.
 
-Do not add vendor-specific connector code, customer mappings, proprietary Fortress logic, CDC/logical replication, LanceDB, embedded model calls, vector pipelines, credential vault integrations, or private planning material to this repository.
+Do not add vendor-specific connector code, private mappings, managed sync implementations, change-data-capture pipelines, embedded model calls, vector-store pipelines, credential vault integrations, or private planning material to this repository.

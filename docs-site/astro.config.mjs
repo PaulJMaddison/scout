@@ -107,6 +107,7 @@ export default defineConfig({
 						{ label: 'API Overview', slug: 'apis/overview' },
 						{ label: 'GraphQL API', slug: 'apis/graphql' },
 						{ label: 'REST API', slug: 'apis/rest' },
+						{ label: 'Score API Contract', slug: 'apis/score-api' },
 					],
 				},
 				{
@@ -122,6 +123,8 @@ export default defineConfig({
 					items: [
 						{ label: 'Connector Authoring Guide', slug: 'connectors/authoring' },
 						{ label: 'Connector Basics', slug: 'concepts/connector-basics' },
+						{ label: 'Discovery Agent', slug: 'operations/discovery-agent' },
+						{ label: 'n8n Node', slug: 'operations/n8n-node' },
 						{ label: 'Self-Hosting', slug: 'self-hosting' },
 					],
 				},

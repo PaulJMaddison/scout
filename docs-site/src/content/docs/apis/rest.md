@@ -144,8 +144,13 @@ When `Platform__EnableOpenApi=true`, `/api-docs`, `/swagger`, and
 `/swagger/v1/swagger.json` are the local runtime sources of truth for the
 generated OpenAPI contract.
 
+The static KynticAI Score API contract is separate from the Scout runtime
+OpenAPI output. It lives at `schema/kyntic-score.openapi.yaml` and defines
+`InvestmentScore`, `CreditScore`, and `JobScore` request/response shapes.
+
 ## Related Pages
 
 - [GraphQL API](/apis/graphql/)
 - [API Overview](/apis/overview/)
+- [Score API Contract](/apis/score-api/)
 - [SDKs](/sdks/overview/)

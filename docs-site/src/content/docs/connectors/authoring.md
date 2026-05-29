@@ -78,7 +78,7 @@ Public connectors must stay generic and protocol-level:
 
 Do not add vendor-specific enterprise connector implementations, private
 customer schemas, managed sync code, credential vault integrations, private
-Fortress internals, private data-processing pipelines, or model-provider
+product internals, private data-processing pipelines, or model-provider
 behaviour to the Scout repo.
 
 ## Validation Helpers
@@ -94,9 +94,26 @@ behaviour to the Scout repo.
 
 Use the validator in tests before shipping a connector.
 
+## Discovery Agent Check
+
+Use `apps/discovery-agent` for an agent-readable handover before larger
+connector changes:
+
+```bash
+cd apps/discovery-agent
+npm install
+npm run build
+node dist/index.js --path ../.. --tier 2
+```
+
+The connector-metadata MCP package still provides
+`scout_validate_connector_manifest_v2` for manifest validation. The Discovery
+Agent adds repo-wide audit and handover output.
+
 ## Related Docs
 
 - [Connector Basics](/concepts/connector-basics/)
+- [Discovery Agent](/operations/discovery-agent/)
 - [Schema Reference](/schema-reference/)
 - [REST API](/apis/rest/)
 - [GraphQL API](/apis/graphql/)

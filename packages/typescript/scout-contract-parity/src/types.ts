@@ -1,4 +1,4 @@
-export type ContractSurface = 'rest' | 'graphql' | 'dotnet-sdk' | 'typescript-sdk' | 'connector-manifest'
+export type ContractSurface = 'rest' | 'graphql' | 'dotnet-sdk' | 'typescript-sdk' | 'connector-manifest' | 'score-openapi'
 
 export interface FieldShape {
   name: string
@@ -34,6 +34,13 @@ export interface ManifestFixture {
   sourceFile?: string
 }
 
+export interface ScoreApiContractShape {
+  sourceFile: string
+  paths: string[]
+  schemas: string[]
+  sdkClientPaths: string[]
+}
+
 export interface ContractParityInput {
   restModels: ModelShape[]
   graphQlModels: ModelShape[]
@@ -44,6 +51,7 @@ export interface ContractParityInput {
   typescriptSdkEnums: EnumShape[]
   connectorManifest: ConnectorManifestShape
   manifests?: ManifestFixture[]
+  scoreApi?: ScoreApiContractShape
 }
 
 export type IssueKind =
@@ -51,6 +59,7 @@ export type IssueKind =
   | 'renamed-field'
   | 'enum-mismatch'
   | 'unsupported-manifest-feature'
+  | 'missing-score-contract'
   | 'missing-model'
   | 'missing-enum'
 
@@ -60,6 +69,7 @@ export type IssueCategory =
   | 'rest-transport-contract'
   | 'connector-authoring-contract'
   | 'admin-governance-contract'
+  | 'score-api-contract'
   | 'contract-parity'
 
 export interface ParityIssue {
