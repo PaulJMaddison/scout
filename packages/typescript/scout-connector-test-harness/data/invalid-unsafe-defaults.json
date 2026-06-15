@@ -1,0 +1,39 @@
+{
+  "manifest": {
+    "connectorId": "unsafeDefaultConnector",
+    "displayName": "Unsafe Default Connector",
+    "version": "1.0.0",
+    "description": "Manifest with unsafe default values in configuration schema.",
+    "supportedSourceTypes": ["Crm"],
+    "requiredConfigFields": [
+      { "name": "endpoint", "type": "string", "description": "API endpoint." }
+    ],
+    "safeMetadataFields": ["displayName"],
+    "sampleEntityMappings": [
+      {
+        "sourceField": "deal_probability",
+        "semanticAttribute": "conversionProbability",
+        "description": "Maps deal probability."
+      }
+    ],
+    "configurationSchema": {
+      "type": "object",
+      "required": ["endpoint"],
+      "properties": {
+        "endpoint": { "type": "string", "description": "API endpoint." },
+        "username": { "type": "string", "description": "User name.", "default": "admin" },
+        "allowInsecure": { "type": "boolean", "description": "Allow insecure connections.", "default": true }
+      }
+    },
+    "sampleConfiguration": {
+      "endpoint": "https://api.example.com/v1"
+    }
+  },
+  "sampleRecords": [
+    {
+      "externalUserId": "user-001",
+      "observedAtUtc": "2026-06-01T10:00:00Z",
+      "payload": { "deal_probability": 0.5 }
+    }
+  ]
+}

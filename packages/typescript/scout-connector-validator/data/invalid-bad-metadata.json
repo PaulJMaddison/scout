@@ -1,0 +1,23 @@
+{
+  "connectorId": "badMetadataConnector",
+  "displayName": "Bad Metadata Connector",
+  "version": "1.0.0",
+  "description": "Manifest with badly shaped connector metadata.",
+  "supportedSourceTypes": ["Crm"],
+  "requiredConfigFields": [
+    { "name": "endpoint", "type": "string", "description": "API endpoint." },
+    { "name": "password", "type": "string", "description": "The account password." }
+  ],
+  "safeMetadataFields": ["displayName", 42, "", "displayName"],
+  "sampleEntityMappings": [
+    {
+      "sourceField": "deal_probability",
+      "semanticAttribute": "conversionProbability",
+      "description": "Maps deal probability."
+    },
+    "not-an-object",
+    {
+      "description": "Mapping without required fields."
+    }
+  ]
+}

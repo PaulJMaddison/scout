@@ -1,0 +1,20 @@
+{
+  "connectorId": "duplicateScopeConnector",
+  "displayName": "Duplicate Scope Connector",
+  "version": "1.0.0",
+  "description": "Manifest with duplicate source types and capabilities.",
+  "supportedSourceTypes": ["Crm", "Crm", "SqlMetric"],
+  "requiredConfigFields": [
+    { "name": "endpoint", "type": "string", "description": "API endpoint." }
+  ],
+  "safeMetadataFields": ["displayName"],
+  "sampleEntityMappings": [
+    {
+      "sourceField": "deal_probability",
+      "semanticAttribute": "conversionProbability",
+      "description": "Maps deal probability."
+    }
+  ],
+  "capabilities": ["FetchSubject", "Preview", "FetchSubject"],
+  "aliases": ["alias1", "alias1"]
+}

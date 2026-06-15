@@ -79,3 +79,44 @@ export const SEMVER_PATTERN = /^\d+\.\d+\.\d+(?:-[\w.]+)?$/
 
 /** Connector ID pattern: lowercase alphanumeric with optional hyphens. */
 export const CONNECTOR_ID_PATTERN = /^[a-z][a-zA-Z0-9]*$/
+
+/** Known public auth types for connector authentication blocks. */
+export const KNOWN_AUTH_TYPES: readonly string[] = [
+  'none',
+  'apiKey',
+  'basic',
+  'oauth2',
+  'bearer',
+] as const
+
+/**
+ * URL pattern: must start with https:// (http:// triggers a warning).
+ * Rejects obviously malformed values.
+ */
+export const HTTPS_URL_PATTERN = /^https:\/\/[^\s/$.?#].[^\s]*$/i
+export const HTTP_URL_PATTERN = /^http:\/\/[^\s/$.?#].[^\s]*$/i
+
+/**
+ * Default values considered unsafe in public connector schemas.
+ * These indicate credentials or insecure-by-default settings.
+ */
+export const UNSAFE_DEFAULT_VALUES: readonly (string | boolean)[] = [
+  'admin',
+  'root',
+  'password',
+  'changeme',
+  'test',
+  'default',
+  true, // e.g. allowInsecure: true
+] as const
+
+/** Property names whose defaults are security-sensitive. */
+export const UNSAFE_DEFAULT_PROPERTY_NAMES: readonly string[] = [
+  'allowInsecure',
+  'disableTls',
+  'skipCertificateValidation',
+  'insecure',
+  'trustAllCerts',
+  'disableAuth',
+  'allowHttp',
+] as const

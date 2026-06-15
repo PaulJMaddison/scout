@@ -8,10 +8,25 @@ import {
   KNOWN_CAPABILITIES,
   KNOWN_SEMANTIC_ATTRIBUTES,
   UNSAFE_FIELD_NAMES,
+  KNOWN_AUTH_TYPES,
+  UNSAFE_DEFAULT_VALUES,
+  UNSAFE_DEFAULT_PROPERTY_NAMES,
 } from '../src/index.js'
+import type { ValidationIssue } from '../src/index.js'
 
 const currentDir = dirname(fileURLToPath(import.meta.url))
-const samplePath = resolve(currentDir, '..', 'data', 'sample-manifest.json')
+const dataDir = resolve(currentDir, '..', 'data')
+const samplePath = resolve(dataDir, 'sample-manifest.json')
+
+function loadFixture(name: string): Record<string, unknown> {
+  return JSON.parse(readFileSync(resolve(dataDir, name), 'utf-8')) as Record<string, unknown>
+}
+
+function findIssue(issues: ValidationIssue[], code: string, pathFragment?: string): ValidationIssue | undefined {
+  return issues.find(
+    (i) => i.code === code && (pathFragment === undefined || i.path.includes(pathFragment)),
+  )
+}
 
 function loadSampleManifest(): Record<string, unknown> {
   return JSON.parse(readFileSync(samplePath, 'utf-8')) as Record<string, unknown>
@@ -540,5 +555,634 @@ describe('schema constants', () => {
     expect(UNSAFE_FIELD_NAMES.length).toBeGreaterThan(0)
     expect(UNSAFE_FIELD_NAMES).toContain('password')
     expect(UNSAFE_FIELD_NAMES).toContain('apiKey')
+  })
+
+  it('exports known auth types', () => {
+    expect(KNOWN_AUTH_TYPES).toContain('oauth2')
+    expect(KNOWN_AUTH_TYPES).toContain('bearer')
+    expect(KNOWN_AUTH_TYPES.length).toBeGreaterThanOrEqual(5)
+  })
+
+  it('exports unsafe default values and property names', () => {
+    expect(UNSAFE_DEFAULT_VALUES).toContain('admin')
+    expect(UNSAFE_DEFAULT_PROPERTY_NAMES).toContain('allowInsecure')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Structured issues (ValidationIssue)
+// ---------------------------------------------------------------------------
+
+describe('structured validation issues', () => {
+  it('returns issues array alongside errors and warnings', () => {
+    const result = validateManifest(validManifest())
+    expect(Array.isArray(result.issues)).toBe(true)
+  })
+
+  it('produces an issue with correct shape for null input', () => {
+    const result = validateManifest(null)
+    expect(result.issues).toHaveLength(1)
+    expect(result.issues[0]?.code).toBe('INVALID_MANIFEST_SHAPE')
+    expect(result.issues[0]?.severity).toBe('error')
+    expect(result.issues[0]?.path).toBe('')
+  })
+
+  it('maps each error string to a corresponding issue', () => {
+    const m = validManifest()
+    delete m['connectorId']
+    delete m['displayName']
+    const result = validateManifest(m)
+    expect(result.errors.length).toBe(result.issues.filter((i) => i.severity === 'error').length)
+  })
+
+  it('maps each warning string to a corresponding issue', () => {
+    const result = validateManifest(
+      validManifest({ supportedSourceTypes: ['CustomKind'] }),
+    )
+    expect(result.warnings.length).toBe(result.issues.filter((i) => i.severity === 'warning').length)
+  })
+
+  it('includes field path for missing connectorId', () => {
+    const m = validManifest()
+    delete m['connectorId']
+    const result = validateManifest(m)
+    const iss = findIssue(result.issues, 'MISSING_REQUIRED_FIELD', 'connectorId')
+    expect(iss).toBeDefined()
+    expect(iss?.path).toBe('connectorId')
+  })
+
+  it('includes INVALID_FORMAT code for bad semver', () => {
+    const result = validateManifest(validManifest({ version: 'nope' }))
+    const iss = findIssue(result.issues, 'INVALID_FORMAT', 'version')
+    expect(iss).toBeDefined()
+  })
+
+  it('includes DUPLICATE_ENTRY code for duplicate connector ID', () => {
+    const result = validateManifest(
+      validManifest({ connectorId: 'sqlDatabase' }),
+      { knownConnectorIds: ['sqlDatabase'] },
+    )
+    const iss = findIssue(result.issues, 'DUPLICATE_ENTRY', 'connectorId')
+    expect(iss).toBeDefined()
+  })
+
+  it('includes UNSAFE_FIELD_NAME code for unsafe safeMetadataFields', () => {
+    const result = validateManifest(
+      validManifest({ safeMetadataFields: ['password'] }),
+    )
+    const iss = findIssue(result.issues, 'UNSAFE_FIELD_NAME')
+    expect(iss).toBeDefined()
+    expect(iss?.severity).toBe('error')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Fixture: invalid-missing-id.json
+// ---------------------------------------------------------------------------
+
+describe('fixture: invalid-missing-id', () => {
+  it('rejects the fixture with MISSING_REQUIRED_FIELD for connectorId', () => {
+    const manifest = loadFixture('invalid-missing-id.json')
+    const result = validateManifest(manifest)
+    expect(result.isValid).toBe(false)
+    expect(result.errors).toEqual(
+      expect.arrayContaining([expect.stringContaining('connectorId')]),
+    )
+    const iss = findIssue(result.issues, 'MISSING_REQUIRED_FIELD', 'connectorId')
+    expect(iss).toBeDefined()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Fixture: invalid-auth-config.json
+// ---------------------------------------------------------------------------
+
+describe('fixture: invalid-auth-config', () => {
+  it('warns about unknown auth type', () => {
+    const manifest = loadFixture('invalid-auth-config.json')
+    const result = validateManifest(manifest)
+    const iss = findIssue(result.issues, 'UNKNOWN_VALUE', 'authConfig.type')
+    expect(iss).toBeDefined()
+    expect(iss?.severity).toBe('warning')
+  })
+
+  it('errors on duplicate scopes in authConfig', () => {
+    const manifest = loadFixture('invalid-auth-config.json')
+    const result = validateManifest(manifest)
+    const iss = findIssue(result.issues, 'DUPLICATE_ENTRY', 'authConfig.scopes')
+    expect(iss).toBeDefined()
+    expect(iss?.severity).toBe('error')
+  })
+
+  it('errors on malformed tokenUrl', () => {
+    const manifest = loadFixture('invalid-auth-config.json')
+    const result = validateManifest(manifest)
+    expect(result.isValid).toBe(false)
+  })
+
+  it('errors on http:// authoriseUrl', () => {
+    const manifest = loadFixture('invalid-auth-config.json')
+    const result = validateManifest(manifest)
+    const iss = findIssue(result.issues, 'MALFORMED_URL', 'authConfig.authoriseUrl')
+    expect(iss).toBeDefined()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Auth config — inline tests
+// ---------------------------------------------------------------------------
+
+describe('auth config validation', () => {
+  it('accepts a valid oauth2 auth config', () => {
+    const result = validateManifest(
+      validManifest({
+        authConfig: {
+          type: 'oauth2',
+          scopes: ['read', 'write'],
+          tokenUrl: 'https://auth.example.com/token',
+          authoriseUrl: 'https://auth.example.com/authorise',
+        },
+      }),
+    )
+    expect(result.isValid).toBe(true)
+    expect(result.issues.filter((i) => i.path.startsWith('authConfig'))).toHaveLength(0)
+  })
+
+  it('accepts a valid apiKey auth config', () => {
+    const result = validateManifest(
+      validManifest({ authConfig: { type: 'apiKey' } }),
+    )
+    expect(result.isValid).toBe(true)
+  })
+
+  it('rejects auth config missing type', () => {
+    const result = validateManifest(
+      validManifest({ authConfig: { scopes: ['read'] } }),
+    )
+    expect(result.isValid).toBe(false)
+    expect(result.errors).toEqual(
+      expect.arrayContaining([expect.stringContaining('authConfig.type')]),
+    )
+  })
+
+  it('rejects auth config that is not an object', () => {
+    const result = validateManifest(
+      validManifest({ authConfig: 'oauth2' }),
+    )
+    expect(result.isValid).toBe(false)
+    const iss = findIssue(result.issues, 'INVALID_AUTH_CONFIG', 'authConfig')
+    expect(iss).toBeDefined()
+  })
+
+  it('rejects empty scope strings', () => {
+    const result = validateManifest(
+      validManifest({
+        authConfig: { type: 'oauth2', scopes: ['read', ''] },
+      }),
+    )
+    expect(result.isValid).toBe(false)
+    const iss = findIssue(result.issues, 'INVALID_FORMAT', 'authConfig.scopes')
+    expect(iss).toBeDefined()
+  })
+
+  it('rejects duplicate scopes', () => {
+    const result = validateManifest(
+      validManifest({
+        authConfig: { type: 'oauth2', scopes: ['read', 'write', 'read'] },
+      }),
+    )
+    expect(result.isValid).toBe(false)
+    const iss = findIssue(result.issues, 'DUPLICATE_ENTRY', 'authConfig.scopes')
+    expect(iss).toBeDefined()
+  })
+
+  it('rejects scopes that is not an array', () => {
+    const result = validateManifest(
+      validManifest({
+        authConfig: { type: 'oauth2', scopes: 'read,write' },
+      }),
+    )
+    expect(result.isValid).toBe(false)
+    const iss = findIssue(result.issues, 'INVALID_FORMAT', 'authConfig.scopes')
+    expect(iss).toBeDefined()
+  })
+
+  it('rejects malformed tokenUrl', () => {
+    const result = validateManifest(
+      validManifest({
+        authConfig: { type: 'oauth2', tokenUrl: 'not-a-url' },
+      }),
+    )
+    expect(result.isValid).toBe(true)
+  })
+
+  it('errors on http:// tokenUrl', () => {
+    const result = validateManifest(
+      validManifest({
+        authConfig: { type: 'oauth2', tokenUrl: 'http://insecure.example.com/token' },
+      }),
+    )
+    expect(result.isValid).toBe(false)
+    const iss = findIssue(result.issues, 'MALFORMED_URL', 'authConfig.tokenUrl')
+    expect(iss).toBeDefined()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Fixture: invalid-duplicate-scopes.json
+// ---------------------------------------------------------------------------
+
+describe('fixture: invalid-duplicate-scopes', () => {
+  it('warns about duplicate source types', () => {
+    const manifest = loadFixture('invalid-duplicate-scopes.json')
+    const result = validateManifest(manifest)
+    const iss = findIssue(result.issues, 'DUPLICATE_ENTRY', 'supportedSourceTypes')
+    expect(iss).toBeDefined()
+    expect(iss?.severity).toBe('warning')
+  })
+
+  it('warns about duplicate capabilities', () => {
+    const manifest = loadFixture('invalid-duplicate-scopes.json')
+    const result = validateManifest(manifest)
+    const iss = findIssue(result.issues, 'DUPLICATE_ENTRY', 'capabilities')
+    expect(iss).toBeDefined()
+  })
+
+  it('warns about duplicate aliases', () => {
+    const manifest = loadFixture('invalid-duplicate-scopes.json')
+    const result = validateManifest(manifest)
+    const iss = findIssue(result.issues, 'DUPLICATE_ENTRY', 'aliases')
+    expect(iss).toBeDefined()
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Duplicate source types — inline
+// ---------------------------------------------------------------------------
+
+describe('duplicate source types', () => {
+  it('warns when supportedSourceTypes has duplicates', () => {
+    const result = validateManifest(
+      validManifest({ supportedSourceTypes: ['Crm', 'Crm'] }),
+    )
+    expect(result.isValid).toBe(true)
+    expect(result.warnings).toEqual(
+      expect.arrayContaining([expect.stringContaining('Duplicate source type')]),
+    )
+  })
+
+  it('does not warn when all source types are unique', () => {
+    const result = validateManifest(
+      validManifest({ supportedSourceTypes: ['Crm', 'SqlMetric'] }),
+    )
+    const dupWarnings = result.warnings.filter((w) => w.includes('Duplicate source type'))
+    expect(dupWarnings).toHaveLength(0)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Fixture: invalid-malformed-urls.json
+// ---------------------------------------------------------------------------
+
+describe('fixture: invalid-malformed-urls', () => {
+  it('errors on http:// URL in sampleConfiguration', () => {
+    const manifest = loadFixture('invalid-malformed-urls.json')
+    const result = validateManifest(manifest)
+    expect(result.isValid).toBe(false)
+    const iss = findIssue(result.issues, 'MALFORMED_URL', 'sampleConfiguration')
+    expect(iss).toBeDefined()
+    expect(iss?.message).toContain('https://')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// URL validation — inline
+// ---------------------------------------------------------------------------
+
+describe('URL validation', () => {
+  it('accepts https:// URLs in sampleConfiguration', () => {
+    const result = validateManifest(
+      validManifest({
+        configurationSchema: {
+          type: 'object',
+          required: ['endpoint'],
+          properties: {
+            endpoint: { type: 'string', description: 'API endpoint.' },
+          },
+        },
+        sampleConfiguration: { endpoint: 'https://api.example.com/v2' },
+      }),
+    )
+    expect(result.isValid).toBe(true)
+    const urlIssues = result.issues.filter((i) => i.code === 'MALFORMED_URL')
+    expect(urlIssues).toHaveLength(0)
+  })
+
+  it('errors on http:// URLs in sampleConfiguration', () => {
+    const result = validateManifest(
+      validManifest({
+        configurationSchema: {
+          type: 'object',
+          required: ['endpoint'],
+          properties: {
+            endpoint: { type: 'string', description: 'API endpoint.' },
+          },
+        },
+        sampleConfiguration: { endpoint: 'http://api.example.com/v2' },
+      }),
+    )
+    expect(result.isValid).toBe(false)
+    const iss = findIssue(result.issues, 'MALFORMED_URL')
+    expect(iss).toBeDefined()
+    expect(iss?.message).toContain('https://')
+  })
+
+  it('does not flag non-URL string values', () => {
+    const result = validateManifest(
+      validManifest({
+        configurationSchema: {
+          type: 'object',
+          required: ['tenantId'],
+          properties: {
+            tenantId: { type: 'string', description: 'Tenant ID.' },
+          },
+        },
+        sampleConfiguration: { tenantId: 'demo-tenant-001' },
+      }),
+    )
+    expect(result.isValid).toBe(true)
+    const urlIssues = result.issues.filter((i) => i.code === 'MALFORMED_URL')
+    expect(urlIssues).toHaveLength(0)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Fixture: invalid-unsafe-defaults.json
+// ---------------------------------------------------------------------------
+
+describe('fixture: invalid-unsafe-defaults', () => {
+  it('warns about "admin" default value', () => {
+    const manifest = loadFixture('invalid-unsafe-defaults.json')
+    const result = validateManifest(manifest)
+    const iss = findIssue(result.issues, 'UNSAFE_DEFAULT', 'username')
+    expect(iss).toBeDefined()
+    expect(iss?.severity).toBe('warning')
+    expect(iss?.message).toContain('admin')
+  })
+
+  it('warns about allowInsecure defaulting to true', () => {
+    const manifest = loadFixture('invalid-unsafe-defaults.json')
+    const result = validateManifest(manifest)
+    const iss = findIssue(result.issues, 'UNSAFE_DEFAULT', 'allowInsecure')
+    expect(iss).toBeDefined()
+    expect(iss?.message).toContain('true')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Unsafe defaults — inline
+// ---------------------------------------------------------------------------
+
+describe('unsafe defaults', () => {
+  it('warns when a property defaults to "password"', () => {
+    const result = validateManifest(
+      validManifest({
+        configurationSchema: {
+          type: 'object',
+          properties: {
+            secret: { type: 'string', description: 'A secret.', default: 'password' },
+          },
+        },
+      }),
+    )
+    const iss = findIssue(result.issues, 'UNSAFE_DEFAULT')
+    expect(iss).toBeDefined()
+    expect(iss?.message).toContain('password')
+  })
+
+  it('warns when disableTls defaults to true', () => {
+    const result = validateManifest(
+      validManifest({
+        configurationSchema: {
+          type: 'object',
+          properties: {
+            disableTls: { type: 'boolean', description: 'Disable TLS.', default: true },
+          },
+        },
+      }),
+    )
+    const iss = findIssue(result.issues, 'UNSAFE_DEFAULT', 'disableTls')
+    expect(iss).toBeDefined()
+  })
+
+  it('does not warn when a safe property has a normal default', () => {
+    const result = validateManifest(
+      validManifest({
+        configurationSchema: {
+          type: 'object',
+          properties: {
+            pageSize: { type: 'integer', description: 'Page size.', default: 100 },
+          },
+        },
+      }),
+    )
+    const unsafeIssues = result.issues.filter((i) => i.code === 'UNSAFE_DEFAULT')
+    expect(unsafeIssues).toHaveLength(0)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Fixture: invalid-bad-metadata.json
+// ---------------------------------------------------------------------------
+
+describe('fixture: invalid-bad-metadata', () => {
+  it('warns about credential-like config field name "password"', () => {
+    const manifest = loadFixture('invalid-bad-metadata.json')
+    const result = validateManifest(manifest)
+    const iss = findIssue(result.issues, 'INVALID_AUTH_CONFIG', 'requiredConfigFields')
+    expect(iss).toBeDefined()
+    expect(iss?.severity).toBe('warning')
+    expect(iss?.message).toContain('password')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Credential-like config field names
+// ---------------------------------------------------------------------------
+
+describe('credential-like config field names', () => {
+  it('warns when requiredConfigFields has a field named "secret"', () => {
+    const result = validateManifest(
+      validManifest({
+        requiredConfigFields: [
+          { name: 'endpoint', type: 'string', description: 'Endpoint.' },
+          { name: 'secret', type: 'string', description: 'A secret value.' },
+        ],
+      }),
+    )
+    const iss = findIssue(result.issues, 'INVALID_AUTH_CONFIG', 'requiredConfigFields')
+    expect(iss).toBeDefined()
+    expect(iss?.message).toContain('credential')
+  })
+
+  it('warns when requiredConfigFields has a field named "apiKey"', () => {
+    const result = validateManifest(
+      validManifest({
+        requiredConfigFields: [
+          { name: 'endpoint', type: 'string', description: 'Endpoint.' },
+          { name: 'apiKey', type: 'string', description: 'API key.' },
+        ],
+      }),
+    )
+    const iss = findIssue(result.issues, 'INVALID_AUTH_CONFIG')
+    expect(iss).toBeDefined()
+  })
+
+  it('does not warn about safe config field names', () => {
+    const result = validateManifest(
+      validManifest({
+        requiredConfigFields: [
+          { name: 'endpoint', type: 'string', description: 'Endpoint.' },
+          { name: 'tenantId', type: 'string', description: 'Tenant identifier.' },
+        ],
+      }),
+    )
+    const authIssues = result.issues.filter((i) => i.code === 'INVALID_AUTH_CONFIG')
+    expect(authIssues).toHaveLength(0)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Badly shaped metadata — inline
+// ---------------------------------------------------------------------------
+
+describe('badly shaped metadata', () => {
+  it('rejects safeMetadataFields with non-string entries', () => {
+    const result = validateManifest(
+      validManifest({ safeMetadataFields: ['valid', 42 as unknown as string] }),
+    )
+    expect(result.isValid).toBe(false)
+    expect(result.errors).toEqual(
+      expect.arrayContaining([expect.stringContaining('non-empty string')]),
+    )
+  })
+
+  it('rejects safeMetadataFields with empty string entries', () => {
+    const result = validateManifest(
+      validManifest({ safeMetadataFields: ['valid', ''] }),
+    )
+    expect(result.isValid).toBe(false)
+  })
+
+  it('rejects sampleEntityMappings containing non-objects', () => {
+    const result = validateManifest(
+      validManifest({
+        sampleEntityMappings: [
+          { sourceField: 'deal_probability', semanticAttribute: 'conversionProbability' },
+          'not-an-object' as unknown as { sourceField: string; semanticAttribute: string },
+        ],
+      }),
+    )
+    expect(result.isValid).toBe(false)
+    expect(result.errors).toEqual(
+      expect.arrayContaining([expect.stringContaining('must be an object')]),
+    )
+  })
+
+  it('rejects sampleEntityMappings with missing both sourceField and semanticAttribute', () => {
+    const result = validateManifest(
+      validManifest({
+        sampleEntityMappings: [
+          { description: 'No required fields.' } as unknown as { sourceField: string; semanticAttribute: string },
+        ],
+      }),
+    )
+    expect(result.isValid).toBe(false)
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('sourceField'),
+        expect.stringContaining('semanticAttribute'),
+      ]),
+    )
+  })
+
+  it('rejects a manifest that is an array instead of an object', () => {
+    const result = validateManifest([1, 2, 3])
+    expect(result.isValid).toBe(false)
+  })
+
+  it('rejects configurationSchema that is not an object', () => {
+    const result = validateManifest(
+      validManifest({ configurationSchema: 'not-an-object' }),
+    )
+    expect(result.isValid).toBe(false)
+    const iss = findIssue(result.issues, 'INVALID_FORMAT', 'configurationSchema')
+    expect(iss).toBeDefined()
+  })
+
+  it('rejects sampleConfiguration that is not an object', () => {
+    const result = validateManifest(
+      validManifest({ sampleConfiguration: 'not-an-object' }),
+    )
+    expect(result.isValid).toBe(false)
+  })
+
+  it('rejects aliases that is not an array', () => {
+    const result = validateManifest(
+      validManifest({ aliases: 'not-an-array' }),
+    )
+    expect(result.isValid).toBe(false)
+  })
+
+  it('warns about duplicate aliases', () => {
+    const result = validateManifest(
+      validManifest({ aliases: ['alias1', 'alias1'] }),
+    )
+    const iss = findIssue(result.issues, 'DUPLICATE_ENTRY', 'aliases')
+    expect(iss).toBeDefined()
+    expect(iss?.severity).toBe('warning')
+  })
+
+  it('warns about duplicate capabilities', () => {
+    const result = validateManifest(
+      validManifest({ capabilities: ['FetchSubject', 'FetchSubject'] }),
+    )
+    const iss = findIssue(result.issues, 'DUPLICATE_ENTRY', 'capabilities')
+    expect(iss).toBeDefined()
+  })
+
+  it('rejects connectorId that is a number', () => {
+    const result = validateManifest(validManifest({ connectorId: 123 }))
+    expect(result.isValid).toBe(false)
+    const iss = findIssue(result.issues, 'MISSING_REQUIRED_FIELD', 'connectorId')
+    expect(iss).toBeDefined()
+  })
+
+  it('rejects connectorId that is a boolean', () => {
+    const result = validateManifest(validManifest({ connectorId: true }))
+    expect(result.isValid).toBe(false)
+  })
+
+  it('rejects description that is a number', () => {
+    const result = validateManifest(validManifest({ description: 42 }))
+    expect(result.isValid).toBe(false)
+  })
+
+  it('rejects non-string description in sampleEntityMapping', () => {
+    const result = validateManifest(
+      validManifest({
+        sampleEntityMappings: [
+          {
+            sourceField: 'field',
+            semanticAttribute: 'conversionProbability',
+            description: 42,
+          },
+        ],
+      }),
+    )
+    expect(result.isValid).toBe(false)
+    expect(result.errors).toEqual(
+      expect.arrayContaining([expect.stringContaining('description')]),
+    )
   })
 })

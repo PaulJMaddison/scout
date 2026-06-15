@@ -1,0 +1,19 @@
+{
+  "manifest": {
+    "displayName": "Connector With No ID",
+    "version": "1.0.0",
+    "description": "Manifest missing the required connectorId field.",
+    "supportedSourceTypes": ["Crm"],
+    "requiredConfigFields": [
+      { "name": "endpoint", "type": "string", "description": "API endpoint." }
+    ],
+    "safeMetadataFields": ["displayName"],
+    "sampleEntityMappings": [
+      {
+        "sourceField": "deal_probability",
+        "semanticAttribute": "conversionProbability",
+        "description": "Maps deal probability."
+      }
+    ]
+  }
+}
