@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "KynticAI Scout Discovery MCP — Public Tool Schemas",
+  "description": "Stable public tool interface definitions for the Scout Discovery Agent MCP layer (OSS-022). Breaking changes require a major version bump.",
+  "version": "2.8.0",
+  "tools": {
+    "scout_list_connectors": {
+      "description": "Lists all registered KynticAI Scout connector plugins with public metadata. Returns connector type, display name, description, aliases, and supported data source kinds.",
+      "inputSchema": {},
+      "outputSchema": {
+        "type": "object",
+        "required": ["connectors", "totalCount"],
+        "properties": {
+          "connectors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["connectorType", "displayName", "description", "aliases", "supportedDataSourceKinds"],
+              "properties": {
+                "connectorType": { "type": "string" },
+                "displayName": { "type": "string" },
+                "description": { "type": "string" },
+                "aliases": { "type": "array", "items": { "type": "string" } },
+                "supportedDataSourceKinds": { "type": "array", "items": { "type": "string" } }
+              }
+            }
+          },
+          "totalCount": { "type": "integer" }
+        }
+      }
+    },
+    "scout_inspect_sample_schema": {
+      "description": "Inspects the configuration schema and sample configuration for a specific connector. Accepts a connector type identifier or alias.",
+      "inputSchema": {
+        "type": "object",
+        "required": ["connectorType"],
+        "properties": {
+          "connectorType": { "type": "string", "description": "Connector type or alias to inspect (e.g. \"sqlDatabase\", \"restApi\", \"mock\")." }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "description": "On success returns connector metadata; on failure returns { error, availableTypes }."
+      }
+    },
+    "scout_summarise_metadata": {
+      "description": "Summarises all available public metadata: registered connectors, semantic attribute keys, data source kinds, and connector capabilities.",
+      "inputSchema": {},
+      "outputSchema": {
+        "type": "object",
+        "required": ["summary", "description"],
+        "properties": {
+          "summary": {
+            "type": "object",
+            "required": ["connectorCount", "connectorTypes", "semanticAttributeKeys", "dataSourceKinds", "connectorCapabilities"],
+            "properties": {
+              "connectorCount": { "type": "integer" },
+              "connectorTypes": { "type": "array", "items": { "type": "string" } },
+              "semanticAttributeKeys": { "type": "array", "items": { "type": "string" } },
+              "dataSourceKinds": { "type": "array", "items": { "type": "string" } },
+              "connectorCapabilities": { "type": "array", "items": { "type": "string" } }
+            }
+          },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "scout_validate_connector_manifest": {
+      "description": "Validates a connector manifest JSON against the expected KynticAI Scout connector structure. Checks required fields, schema structure, and sample configuration completeness.",
+      "inputSchema": {
+        "type": "object",
+        "required": ["manifest"],
+        "properties": {
+          "manifest": { "type": "string", "description": "JSON string of the connector manifest to validate." }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "required": ["isValid", "errors", "warnings"],
+        "properties": {
+          "isValid": { "type": "boolean" },
+          "errors": { "type": "array", "items": { "type": "string" } },
+          "warnings": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "scout_validate_connector_manifest_v2": {
+      "description": "Validates an extended connector manifest against the full KynticAI Scout public schema. Checks connector ID format, semver version, supported source types, required config fields, safe metadata fields (rejects credential/PII leaks), and sample entity mappings.",
+      "inputSchema": {
+        "type": "object",
+        "required": ["manifest"],
+        "properties": {
+          "manifest": { "type": "string", "description": "JSON string of the extended connector manifest to validate." },
+          "knownConnectorIds": { "type": "string", "description": "Optional comma-separated list of existing connector IDs to check for duplicates." }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "description": "ExtendedValidationResult from @kynticai/scout-connector-validator."
+      }
+    },
+    "scout_read_connector_manifest": {
+      "description": "Reads the full connector manifest for a given connector type or alias. Returns all fields including configurationSchema, sampleConfiguration, supportedCapabilities, aliases, and description.",
+      "inputSchema": {
+        "type": "object",
+        "required": ["connectorType"],
+        "properties": {
+          "connectorType": { "type": "string", "description": "Connector type or alias to read (e.g. \"sqlDatabase\", \"restApi\", \"csvUpload\")." }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "description": "On success returns full connector manifest; on failure returns { error, hint, availableTypes }."
+      }
+    },
+    "scout_validate_manifest_schema_compatibility": {
+      "description": "Validates that a connector manifest's configurationSchema is compatible with a provided schema. Checks field presence, type alignment, and required-field coverage in the sample configuration.",
+      "inputSchema": {
+        "type": "object",
+        "required": ["manifest", "schema"],
+        "properties": {
+          "manifest": { "type": "string", "description": "JSON string of the connector manifest to check." },
+          "schema": { "type": "string", "description": "JSON string of the target schema to validate against." }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "required": ["isCompatible", "issues", "compatible"],
+        "properties": {
+          "isCompatible": { "type": "boolean" },
+          "issues": { "type": "array", "items": { "type": "string" } },
+          "compatible": { "type": "array", "items": { "type": "string" } },
+          "manifestFieldCount": { "type": "integer" },
+          "schemaFieldCount": { "type": "integer" }
+        }
+      }
+    },
+    "scout_summarise_connectors": {
+      "description": "Produces a detailed summary of all available connectors including per-connector field counts, capability coverage matrix, data source kind distribution, and alias totals.",
+      "inputSchema": {},
+      "outputSchema": {
+        "type": "object",
+        "required": ["totalConnectors", "connectors", "capabilityCoverage", "dataSourceKindCoverage", "fullCoverageConnectors", "totalAliases", "description"],
+        "properties": {
+          "totalConnectors": { "type": "integer" },
+          "connectors": { "type": "array" },
+          "capabilityCoverage": { "type": "object" },
+          "dataSourceKindCoverage": { "type": "object" },
+          "fullCoverageConnectors": { "type": "array", "items": { "type": "string" } },
+          "totalAliases": { "type": "integer" },
+          "description": { "type": "string" }
+        }
+      }
+    },
+    "scout_metadata_quality_report": {
+      "description": "Produces a local metadata quality report by running the Scout metadata audit runner against a connector manifest and optional sample records. Returns readiness scores, field classifications, warnings, and recommendations.",
+      "inputSchema": {
+        "type": "object",
+        "required": ["manifest"],
+        "properties": {
+          "manifest": { "type": "string", "description": "JSON string of the connector manifest to audit." },
+          "sampleRecords": { "type": "string", "description": "Optional JSON string of an array of sample records. Each record should have externalUserId (string), optional observedAtUtc (string), and payload (object)." }
+        }
+      },
+      "outputSchema": {
+        "type": "object",
+        "description": "On success returns audit report; on failure returns { error, hint }."
+      }
+    }
+  }
+}
