@@ -17,20 +17,45 @@ import {
   type AuditReport,
 } from '@kynticai/scout-metadata-audit'
 
+/** Sensitive patterns stripped from all public output. */
+const REDACT_PATTERNS: RegExp[] = [
+  /\/home\/[^\s"']+/gi,
+  /\/Users\/[^\s"']+/gi,
+  /\/tmp\/[^\s"']+/gi,
+  /[A-Z]:\\[^\s"']+/gi,
+  /(?:password|secret|token|apiKey|credential|connectionString)\s*[:=]\s*[^\s"',}]+/gi,
+  /Bearer\s+[A-Za-z0-9\-._~+/]+=*/gi,
+  /\b[A-Za-z0-9+/]{40,}={0,2}\b/g,
+]
+
+/** Strip absolute paths, secrets, and credential-like values from a string. */
+export function sanitiseOutput(value: string): string {
+  let result = value
+  for (const pattern of REDACT_PATTERNS) {
+    result = result.replace(pattern, '[REDACTED]')
+  }
+  return result
+}
+
 /**
  * Lists all registered connector plugins with public metadata.
  * Returns connector type, display name, description, aliases, and supported data source kinds.
+ * Output is sorted by connectorType for deterministic ordering.
  */
 export function listConnectors(): object {
-  return {
-    connectors: getConnectors().map((c) => ({
+  const connectors = getConnectors()
+    .map((c) => ({
       connectorType: c.connectorType,
       displayName: c.displayName,
       description: c.description,
-      aliases: c.aliases,
-      supportedDataSourceKinds: c.supportedDataSourceKinds,
-    })),
-    totalCount: getConnectors().length,
+      aliases: [...c.aliases].sort(),
+      supportedDataSourceKinds: [...c.supportedDataSourceKinds].sort(),
+    }))
+    .sort((a, b) => a.connectorType.localeCompare(b.connectorType))
+
+  return {
+    connectors,
+    totalCount: connectors.length,
   }
 }
 
@@ -39,11 +64,19 @@ export function listConnectors(): object {
  * Accepts a connectorType or alias.
  */
 export function inspectSampleSchema(connectorType: string): object {
-  const connector = getConnectorByType(connectorType)
+  const sanitised = connectorType.trim().slice(0, 200)
+  if (sanitised.length === 0) {
+    return {
+      error: 'connectorType must be a non-empty string.',
+      availableTypes: getConnectors().map((c) => c.connectorType).sort(),
+    }
+  }
+
+  const connector = getConnectorByType(sanitised)
   if (connector === undefined) {
     return {
-      error: `Connector type '${connectorType}' not found.`,
-      availableTypes: getConnectors().map((c) => c.connectorType),
+      error: `Connector type '${sanitiseOutput(sanitised)}' not found.`,
+      availableTypes: getConnectors().map((c) => c.connectorType).sort(),
     }
   }
 
@@ -52,7 +85,7 @@ export function inspectSampleSchema(connectorType: string): object {
     displayName: connector.displayName,
     configurationSchema: connector.configurationSchema,
     sampleConfiguration: connector.sampleConfiguration,
-    supportedCapabilities: connector.supportedCapabilities,
+    supportedCapabilities: [...connector.supportedCapabilities].sort(),
   }
 }
 
@@ -66,10 +99,10 @@ export function summariseMetadata(): object {
   return {
     summary: {
       connectorCount: connectors.length,
-      connectorTypes: connectors.map((c) => c.connectorType),
-      semanticAttributeKeys: getSemanticAttributeKeys(),
-      dataSourceKinds: getDataSourceKinds(),
-      connectorCapabilities: getConnectorCapabilities(),
+      connectorTypes: connectors.map((c) => c.connectorType).sort(),
+      semanticAttributeKeys: [...getSemanticAttributeKeys()].sort(),
+      dataSourceKinds: [...getDataSourceKinds()].sort(),
+      connectorCapabilities: [...getConnectorCapabilities()].sort(),
     },
     description:
       'KynticAI Scout public metadata. Connectors listed are generic protocol-level ' +
@@ -149,12 +182,21 @@ export function validateExtendedConnectorManifest(
  * supportedCapabilities, and aliases.
  */
 export function readConnectorManifest(connectorType: string): object {
-  const connector = getConnectorByType(connectorType)
+  const sanitised = connectorType.trim().slice(0, 200)
+  if (sanitised.length === 0) {
+    return {
+      error: 'connectorType must be a non-empty string.',
+      hint: 'Use scout_list_connectors to see available types and aliases.',
+      availableTypes: getConnectors().map((c) => c.connectorType).sort(),
+    }
+  }
+
+  const connector = getConnectorByType(sanitised)
   if (connector === undefined) {
     return {
-      error: `Connector type '${connectorType}' not found.`,
+      error: `Connector type '${sanitiseOutput(sanitised)}' not found.`,
       hint: 'Use scout_list_connectors to see available types and aliases.',
-      availableTypes: getConnectors().map((c) => c.connectorType),
+      availableTypes: getConnectors().map((c) => c.connectorType).sort(),
     }
   }
 
@@ -162,9 +204,9 @@ export function readConnectorManifest(connectorType: string): object {
     connectorType: connector.connectorType,
     displayName: connector.displayName,
     description: connector.description,
-    aliases: connector.aliases,
-    supportedDataSourceKinds: connector.supportedDataSourceKinds,
-    supportedCapabilities: connector.supportedCapabilities,
+    aliases: [...connector.aliases].sort(),
+    supportedDataSourceKinds: [...connector.supportedDataSourceKinds].sort(),
+    supportedCapabilities: [...connector.supportedCapabilities].sort(),
     configurationSchema: connector.configurationSchema,
     sampleConfiguration: connector.sampleConfiguration,
   }
@@ -281,16 +323,18 @@ export function summariseConnectors(): object {
     }
   }
 
-  const connectorDetails = connectors.map((c) => ({
-    connectorType: c.connectorType,
-    displayName: c.displayName,
-    description: c.description,
-    aliasCount: c.aliases.length,
-    capabilityCount: c.supportedCapabilities.length,
-    dataSourceKindCount: c.supportedDataSourceKinds.length,
-    schemaFieldCount: Object.keys(c.configurationSchema.properties).length,
-    requiredFieldCount: (c.configurationSchema.required ?? []).length,
-  }))
+  const connectorDetails = connectors
+    .map((c) => ({
+      connectorType: c.connectorType,
+      displayName: c.displayName,
+      description: c.description,
+      aliasCount: c.aliases.length,
+      capabilityCount: c.supportedCapabilities.length,
+      dataSourceKindCount: c.supportedDataSourceKinds.length,
+      schemaFieldCount: Object.keys(c.configurationSchema.properties).length,
+      requiredFieldCount: (c.configurationSchema.required ?? []).length,
+    }))
+    .sort((a, b) => a.connectorType.localeCompare(b.connectorType))
 
   const allCapabilities = getConnectorCapabilities()
   const fullCoverageConnectors = connectors.filter(
@@ -357,6 +401,15 @@ export function produceMetadataQualityReport(
 
   const report: AuditReport = runAudit(auditInput)
 
+  const sanitisedWarnings = report.warnings.map((w) => ({
+    ...w,
+    message: sanitiseOutput(w.message),
+  }))
+  const sanitisedRecommendations = report.recommendations.map((r) => ({
+    ...r,
+    message: sanitiseOutput(r.message),
+  }))
+
   return {
     connectorType: report.connectorType,
     displayName: report.displayName,
@@ -365,10 +418,10 @@ export function produceMetadataQualityReport(
     readinessBreakdown: report.readinessScore.breakdown,
     schemaSummary: report.schemaSummary,
     fieldClassifications: report.fieldClassifications,
-    warningCount: report.warnings.length,
-    warnings: report.warnings,
-    recommendationCount: report.recommendations.length,
-    recommendations: report.recommendations,
+    warningCount: sanitisedWarnings.length,
+    warnings: sanitisedWarnings,
+    recommendationCount: sanitisedRecommendations.length,
+    recommendations: sanitisedRecommendations,
   }
 }
 
