@@ -308,6 +308,9 @@ All endpoints support JWT bearer tokens, persisted API clients, `X-Request-Id` c
 | [Public API Contract](docs/public-api-contract.md) | GraphQL, REST, SDK, auth, pagination, error contracts |
 | [Connector Plugin Model](docs/connector-plugin-model.md) | How to build and register connectors |
 | [Connector Catalogue](docs/connector-marketplace.md) | Available connectors and enterprise placeholders |
+| [Connector Authoring Guide](docs/connector-authoring.md) | Step-by-step guide to writing a new connector |
+| [Connector Test Harness](docs/connector-test-harness.md) | Local-only validation tool for connector authors |
+| [Connector Manifest Validator](docs/connector-manifest-validator.md) | Public manifest schema and CLI |
 | [Customer Data Plane](docs/customer-data-plane.md) | Where data lives and what the customer owns |
 | [Integration Layer](docs/integration-layer.md) | How source systems and consumers integrate |
 | [Control Plane / Data Plane](docs/control-plane-data-plane.md) | Architecture split between hosted and customer-owned |
@@ -381,16 +384,20 @@ Use the [Production Install Checklist](docs/production-install-checklist.md) bef
 
 ## Testing
 
+Use `./.dotnet/dotnet` if you ran `setup-demo.sh` and do not have a global .NET 10 SDK.
+
 ```bash
 # Backend unit and integration tests
 dotnet test KynticAI.Scout.slnx
 
 # Frontend (from apps/web)
+cd apps/web
 npm run lint
 npm test
 npm run build
 
 # TypeScript SDK (from packages/typescript/scout-sdk)
+cd packages/typescript/scout-sdk
 npm test
 ```
 
@@ -412,7 +419,7 @@ This repository is the **public open-source core** of KynticAI Scout. It is desi
 
 # Commercial & Enterprise Solutions
 
-For organizations that need private connectors, managed deployment support, stronger governance controls, or production SLAs, KynticAI offers commercial Scout packages around this open-source core.
+For organisations that need private connectors, managed deployment support, stronger governance controls, or production SLAs, KynticAI offers commercial Scout packages around this open-source core.
 
 ## The Enterprise Advantage
 
@@ -446,7 +453,7 @@ Commercial package for proprietary connectors, identity integrations, deployment
 
 See [docs/open-core-boundary.md](docs/open-core-boundary.md) and [docs/enterprise-extension-points.md](docs/enterprise-extension-points.md) for the detailed boundary.
 
-> **Enterprise enquiries:** [paul@kyticai.com](mailto:paul@kyticai.com) | [kynticai.com](https://kynticai.com)
+> **Enterprise enquiries:** [paul@kynticai.com](mailto:paul@kynticai.com) | [kynticai.com](https://kynticai.com)
 
 ---
 

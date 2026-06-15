@@ -71,8 +71,10 @@ This downloads .NET 10 and Node.js into the repo, restores packages, seeds SQLit
 
 ### Quality Checks
 
+If you ran `setup-demo.sh`, use `./.dotnet/dotnet` instead of a global `dotnet` command.
+
 ```bash
-# Backend build and tests
+# Backend build and tests (use ./.dotnet/dotnet if no global .NET 10 SDK)
 dotnet build KynticAI.Scout.slnx
 dotnet test KynticAI.Scout.slnx
 

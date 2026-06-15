@@ -19,11 +19,14 @@ Scout is the public face of KynticAI. Keep it useful, auditable, and safe for pu
 
 ## Build/Test Commands
 
-- Restore/build/test .NET: `dotnet restore .\KynticAI.Scout.slnx`, `dotnet build .\KynticAI.Scout.slnx`, `dotnet test .\KynticAI.Scout.slnx`.
-- Web app: `cd apps\web`, then `npm install`, `npm run build`, `npm run lint`, `npm run test`.
-- TypeScript SDK: `cd packages\typescript\scout-sdk`, then `npm install`, `npm run build`, `npm run test`.
-- Local demo: `.\scripts\setup-demo.ps1`, then `.\scripts\start-demo.ps1`.
-- Docker API demo: `docker compose -f deploy\docker-compose.yml up scout-api --build`.
+The setup scripts install repo-local .NET and Node.js runtimes. Use `./.dotnet/dotnet` if you do not have a global .NET 10 SDK.
+
+- Restore/build/test .NET: `dotnet restore KynticAI.Scout.slnx`, `dotnet build KynticAI.Scout.slnx`, `dotnet test KynticAI.Scout.slnx`.
+- Web app: `cd apps/web`, then `npm install`, `npm run build`, `npm run lint`, `npm run test`.
+- TypeScript SDK: `cd packages/typescript/scout-sdk`, then `npm install`, `npm run build`, `npm run test`.
+- Local demo (Linux/macOS): `sh ./scripts/setup-demo.sh`, then `sh ./scripts/start-demo.sh`.
+- Local demo (Windows): `./scripts/setup-demo.ps1`, then `./scripts/start-demo.ps1`.
+- Docker API demo: `docker compose -f deploy/docker-compose.yml up scout-api --build`.
 
 ## Do-Not-Do List
 
@@ -53,6 +56,6 @@ Scout is the public face of KynticAI. Keep it useful, auditable, and safe for pu
 
 - Check `git status` before editing and preserve unrelated local changes.
 - Read nearby code and existing docs before changing behaviour or public wording.
-- Keep updates concise in `C:\Kyntic\UCL-local-aidocs\SESSION_LOG.md` after meaningful work.
+- Record session outcomes in your working notes after meaningful work.
 - Record commands run, verification results, and any skipped checks.
 - Keep this file under 200 lines and public-safe.
