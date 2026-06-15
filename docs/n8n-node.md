@@ -21,7 +21,11 @@ cd packages/typescript/n8n-node
 npm install
 npm run build
 npm test
+npm run validate:local
 ```
+
+`validate:local` runs the local build, focused tests, and `npm pack --dry-run`.
+It does not publish to npm.
 
 ## Credentials
 
@@ -45,6 +49,24 @@ Each incoming n8n item becomes one Scout event. Configure:
 - optional observed-at timestamp field
 
 When no event ID field is configured, the node creates a deterministic local fallback ID from the source system, event type, timestamp, and item index. Production workflows should prefer a stable upstream event ID for idempotency.
+
+## Local Validation And Redaction
+
+The node validates local configuration before sending an item:
+
+- `baseUrl` must be an absolute HTTP or HTTPS URL without embedded credentials, query strings, or fragments.
+- tenant and workspace slugs are trimmed, lowercased, and checked as slug values.
+- input items must be JSON objects without circular references, functions, symbols, or BigInt values.
+- mapped IDs and event names are checked against the Scout REST contract length limits.
+- mapped field names cannot point at obvious credential or secret fields.
+
+Payload keys such as `apiKey`, `token`, `secret`, `password`, `authorization`, `cookie`, `clientSecret`, `accessToken`, `refreshToken`, `privateKey`, `credential`, and `signature` are recursively replaced with `[REDACTED]` before the event is sent. Node HTTP errors report status/code hints only and do not echo request headers, API keys, or payload fragments.
+
+Deterministic fixtures for local package checks live under:
+
+```text
+packages/typescript/n8n-node/fixtures
+```
 
 ## Publication Blockers
 

@@ -1,0 +1,21 @@
+{
+  "eventId": "evt-n8n-local-001",
+  "externalUserId": "user-123",
+  "externalAccountId": "acct-456",
+  "observedAtUtc": "2026-05-29T09:10:11Z",
+  "health": "green",
+  "metadata": {
+    "source": "fixture",
+    "apiKey": "fixture-api-key"
+  },
+  "nested": {
+    "accessToken": "fixture-access-token",
+    "safeValue": "kept"
+  },
+  "items": [
+    {
+      "password": "fixture-password",
+      "count": 1
+    }
+  ]
+}

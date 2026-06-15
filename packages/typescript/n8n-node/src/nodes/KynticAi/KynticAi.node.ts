@@ -5,15 +5,16 @@ import type {
   INodeTypeDescription,
   IHttpRequestOptions,
 } from 'n8n-workflow'
-import { NodeConnectionTypes } from 'n8n-workflow'
+import { NodeConnectionTypes, NodeOperationError } from 'n8n-workflow'
 
-import { buildEventUrl, buildScoutEvent } from './eventMapper'
-
-interface KynticAiCredentials {
-  baseUrl: string
-  apiClientId: string
-  apiKey: string
-}
+import {
+  buildEventUrl,
+  buildScoutEvent,
+  formatSafeHttpError,
+  validateCredentials,
+  validateMappingOptions,
+  type KynticAiCredentials,
+} from './eventMapper'
 
 export class KynticAi implements INodeType {
   description: INodeTypeDescription = {
@@ -106,36 +107,56 @@ export class KynticAi implements INodeType {
 
   async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
     const items = this.getInputData()
-    const credentials = (await this.getCredentials('kynticAiApi')) as unknown as KynticAiCredentials
-    const tenantSlug = this.getNodeParameter('tenantSlug', 0) as string
-    const workspaceSlug = this.getNodeParameter('workspaceSlug', 0, '') as string
-    const sourceSystem = this.getNodeParameter('sourceSystem', 0) as string
-    const eventType = this.getNodeParameter('eventType', 0) as string
-    const eventIdField = this.getNodeParameter('eventIdField', 0, '') as string
-    const externalUserIdField = this.getNodeParameter('externalUserIdField', 0, '') as string
-    const externalAccountIdField = this.getNodeParameter('externalAccountIdField', 0, '') as string
-    const observedAtField = this.getNodeParameter('observedAtField', 0, '') as string
-    const includeN8nMetadata = this.getNodeParameter('includeN8nMetadata', 0, true) as boolean
     const returnData: INodeExecutionData[] = []
+    let credentials: KynticAiCredentials
+    let eventUrl: string
+    let tenantSlug: string
+    let mappingOptions: ReturnType<typeof validateMappingOptions>
 
-    for (let itemIndex = 0; itemIndex < items.length; itemIndex += 1) {
-      const item = items[itemIndex]
-      const event = buildScoutEvent(item.json, itemIndex, {
-        eventIdField,
-        workspaceSlug,
-        sourceSystem,
-        eventType,
-        externalUserIdField,
-        externalAccountIdField,
-        observedAtField,
-        includeN8nMetadata,
+    try {
+      credentials = validateCredentials(
+        (await this.getCredentials('kynticAiApi')) as unknown as Partial<KynticAiCredentials>,
+      )
+      eventUrl = buildEventUrl(credentials.baseUrl, this.getNodeParameter('tenantSlug', 0) as string)
+      tenantSlug = new URL(eventUrl).searchParams.get('tenantSlug') ?? ''
+      mappingOptions = validateMappingOptions({
+        eventIdField: this.getNodeParameter('eventIdField', 0, '') as string,
+        workspaceSlug: this.getNodeParameter('workspaceSlug', 0, '') as string,
+        sourceSystem: this.getNodeParameter('sourceSystem', 0) as string,
+        eventType: this.getNodeParameter('eventType', 0) as string,
+        externalUserIdField: this.getNodeParameter('externalUserIdField', 0, '') as string,
+        externalAccountIdField: this.getNodeParameter('externalAccountIdField', 0, '') as string,
+        observedAtField: this.getNodeParameter('observedAtField', 0, '') as string,
+        includeN8nMetadata: this.getNodeParameter('includeN8nMetadata', 0, true) as boolean,
         workflowId: this.getWorkflow().id,
         executionId: this.getExecutionId(),
       })
+    } catch (error) {
+      throw new NodeOperationError(
+        this.getNode(),
+        error instanceof Error ? error.message : 'Invalid KynticAI Scout node configuration.',
+        {
+          description: 'The node did not send any items. Check the Scout credentials and required node fields.',
+        },
+      )
+    }
+
+    for (let itemIndex = 0; itemIndex < items.length; itemIndex += 1) {
+      const item = items[itemIndex]
+      let event
+
+      try {
+        event = buildScoutEvent(item.json, itemIndex, mappingOptions)
+      } catch (error) {
+        throw new NodeOperationError(this.getNode(), error instanceof Error ? error.message : 'Invalid Scout event.', {
+          itemIndex,
+          description: 'The item was not sent to KynticAI Scout. Check the node field mapping and input item JSON.',
+        })
+      }
 
       const requestOptions: IHttpRequestOptions = {
         method: 'POST',
-        url: buildEventUrl(credentials.baseUrl, tenantSlug),
+        url: eventUrl,
         headers: {
           'Content-Type': 'application/json',
           'X-API-Client-Id': credentials.apiClientId,
@@ -145,13 +166,23 @@ export class KynticAi implements INodeType {
         json: true,
       }
 
-      const response = await this.helpers.httpRequest(requestOptions)
+      let response
+      try {
+        response = await this.helpers.httpRequest(requestOptions)
+      } catch (error) {
+        throw new NodeOperationError(this.getNode(), formatSafeHttpError(error), {
+          itemIndex,
+          description:
+            'Check the Scout API base URL, tenant slug, machine credentials, and that the API client has the events:ingest scope.',
+        })
+      }
+
       returnData.push({
         json: {
           eventId: event.eventId,
           tenantSlug,
-          sourceSystem,
-          eventType,
+          sourceSystem: event.sourceSystem,
+          eventType: event.eventType,
           accepted: response,
         },
         pairedItem: { item: itemIndex },

@@ -30,7 +30,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json && node scripts/copy-assets.cjs",
     "test": "vitest run",
-    "pack:dry-run": "npm pack --dry-run"
+    "pack:dry-run": "npm pack --dry-run",
+    "validate:local": "npm run build && npm test && npm run pack:dry-run"
   },
   "peerDependencies": {
     "n8n-workflow": ">=2.16.0"

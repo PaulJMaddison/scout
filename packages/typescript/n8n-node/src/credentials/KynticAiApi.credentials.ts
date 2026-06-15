@@ -14,8 +14,9 @@ export class KynticAiApi implements ICredentialType {
       type: 'string',
       default: 'http://127.0.0.1:5198',
       required: true,
+      validateType: 'url',
       placeholder: 'https://scout.example.internal',
-      description: 'Base URL for the KynticAI Scout API.',
+      description: 'Base URL for the KynticAI Scout API. Do not include credentials, query strings, or fragments.',
     },
     {
       displayName: 'API Client ID',

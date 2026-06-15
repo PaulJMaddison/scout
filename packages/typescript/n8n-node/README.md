@@ -11,7 +11,11 @@ cd packages/typescript/n8n-node
 npm install
 npm run build
 npm test
+npm run validate:local
 ```
+
+`validate:local` runs the TypeScript build, Vitest suite, and `npm pack --dry-run`.
+It does not publish the package.
 
 The package is not published from this repository state. The canonical plan's publish and marketplace steps remain blocked until release and workflow work is explicitly reopened.
 
@@ -40,6 +44,21 @@ Configurable node fields:
 - external account ID field
 - observed-at timestamp field
 - n8n workflow/execution metadata inclusion
+
+Local validation before each send:
+
+- `baseUrl` must be an absolute HTTP or HTTPS URL without embedded credentials, query strings, or fragments.
+- `tenantSlug` and `workspaceSlug` are trimmed, lowercased, and checked as slug values.
+- each input item must be a JSON object that can be serialised without circular references, functions, symbols, or BigInt values.
+- mapped IDs and event fields are checked against the Scout REST contract length limits before the HTTP request is made.
+- field mappings cannot point at names that look like credentials or secrets.
+
+Payload redaction is enabled by default. Keys such as `apiKey`, `token`, `secret`, `password`, `authorization`, `cookie`, `clientSecret`, `accessToken`, `refreshToken`, `privateKey`, `credential`, and `signature` are replaced with `[REDACTED]` recursively before the payload is sent to Scout. HTTP error messages reported by the node include status/code hints only and do not echo request headers, API keys, or payload fragments.
+
+Deterministic local fixtures live in `fixtures/`:
+
+- `source-event-item.json`
+- `source-event-expected.json`
 
 ## Publication Blocker
 

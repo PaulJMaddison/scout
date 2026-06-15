@@ -12,10 +12,13 @@ describe('n8n package contract', () => {
     expect(packageJson.n8n.nodes).toEqual(['dist/nodes/KynticAi/KynticAi.node.js'])
     expect(packageJson.n8n.credentials).toEqual(['dist/credentials/KynticAiApi.credentials.js'])
     expect(packageJson.scripts.build).toContain('scripts/copy-assets.cjs')
+    expect(packageJson.scripts['validate:local']).toBe('npm run build && npm test && npm run pack:dry-run')
   })
 
   it('keeps publish and marketplace automation out of the local package', () => {
     expect(packageJson.scripts.publish).toBeUndefined()
     expect(packageJson.scripts.release).toBeUndefined()
+    expect(packageJson.scripts.prepublishOnly).toBeUndefined()
+    expect(packageJson.publishConfig).toBeUndefined()
   })
 })
