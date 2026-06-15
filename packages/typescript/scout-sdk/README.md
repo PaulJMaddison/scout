@@ -50,7 +50,7 @@ npm install ../packages/typescript/scout-sdk
 ```ts
 import { createScoutClient } from '@kynticai/scout-sdk'
 
-const scoutConnection = createScoutClient({
+const scout = createScoutClient({
   baseUrl: 'http://127.0.0.1:5198',
   accessToken: process.env.SCOUT_TOKEN,
 })
@@ -101,7 +101,7 @@ const token = await scout.auth.getMachineToken({
 Or provide a lazy token provider:
 
 ```ts
-const scoutConnection = createScoutClient({
+const scout = createScoutClient({
   baseUrl: 'http://127.0.0.1:5198',
   getAccessToken: async () => process.env.SCOUT_TOKEN,
 })

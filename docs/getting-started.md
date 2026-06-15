@@ -212,14 +212,22 @@ docker run --rm -p 8080:8080 \
 ## Running Tests
 
 ```bash
-# With repo-local .NET SDK
-dotnet test KynticAI.Scout.slnx
-
-# Or using the setup script's SDK
+# If you ran setup-demo.sh, use the repo-local SDK:
 ./.dotnet/dotnet test KynticAI.Scout.slnx
+
+# Or with a global .NET 10 SDK on your PATH:
+dotnet test KynticAI.Scout.slnx
 ```
 
-All 73 core tests should pass.
+```bash
+# TypeScript SDK tests
+cd packages/typescript/scout-sdk
+npm install && npm test
+
+# Web app tests and lint (from repo root)
+cd apps/web
+npm install && npm run lint && npm test
+```
 
 ---
 
@@ -244,6 +252,9 @@ Key settings:
 
 - [Public API Contract](public-api-contract.md) — GraphQL, REST, SDK, auth, pagination, error contracts
 - [Connector Plugin Model](connector-plugin-model.md) — how to build and register connectors
+- [Connector Authoring Guide](connector-authoring.md) — step-by-step guide to writing a new connector
+- [Connector Test Harness](connector-test-harness.md) — local-only validation tool for connector authors
+- [Connector Manifest Validator](connector-manifest-validator.md) — public manifest schema and CLI
 - [Customer Data Plane](customer-data-plane.md) — where data lives and what the customer owns
 - [Integration Layer](integration-layer.md) — how source systems and consumers integrate
 - [SDK Development](sdk-development.md) — guide for TypeScript and .NET SDK contributors

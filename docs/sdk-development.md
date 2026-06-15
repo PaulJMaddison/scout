@@ -1,8 +1,8 @@
 # SDK Development
 
-KynticAI Scout includes two local/private SDK scaffolds so consuming products can integrate against stable client interfaces instead of hand-rolling GraphQL and REST requests during pilots.
+KynticAI Scout includes two SDK scaffolds so consuming products can integrate against stable client interfaces instead of hand-rolling GraphQL and REST requests during pilots.
 
-They are not currently configured for public package publishing. Treat NuGet/npm publishing as a deliberate later release task, with the private product boundary reviewed first.
+They are not currently configured for public package publishing. Treat NuGet/npm publishing as a deliberate later release task, with the product boundary reviewed first.
 
 ## Layout
 
@@ -32,8 +32,13 @@ Both SDKs expose equivalent capability groups:
 ### .NET
 
 ```bash
-./.dotnet/dotnet.exe test tests/KynticAI.Scout.Sdk.Tests/KynticAI.Scout.Sdk.Tests.csproj
-./.dotnet/dotnet.exe pack src/KynticAI.Scout.Sdk/KynticAI.Scout.Sdk.csproj -c Release
+# Linux / macOS
+./.dotnet/dotnet test tests/KynticAI.Scout.Sdk.Tests/KynticAI.Scout.Sdk.Tests.csproj
+./.dotnet/dotnet pack src/KynticAI.Scout.Sdk/KynticAI.Scout.Sdk.csproj -c Release
+
+# Windows
+.\.dotnet\dotnet.exe test tests\KynticAI.Scout.Sdk.Tests\KynticAI.Scout.Sdk.Tests.csproj
+.\.dotnet\dotnet.exe pack src\KynticAI.Scout.Sdk\KynticAI.Scout.Sdk.csproj -c Release
 ```
 
 ### TypeScript
