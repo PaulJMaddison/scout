@@ -45,6 +45,11 @@ if (result.isValid) {
 if (result.warnings.length > 0) {
   console.warn('Warnings:', result.warnings)
 }
+
+// Structured issues with machine-readable codes and field paths
+for (const issue of result.issues) {
+  console.log(`[${issue.severity}] ${issue.code} at ${issue.path}: ${issue.message}`)
+}
 ```
 
 ### Duplicate ID Detection
@@ -83,6 +88,7 @@ npx scout-validate-manifest ./manifests/ --check-duplicates
 | `capabilities` | `string[]` | No | Supported capabilities (e.g. `FetchSubject`, `Preview`). |
 | `configurationSchema` | `JsonSchemaObject` | No | Full JSON Schema for the connector configuration. |
 | `sampleConfiguration` | `object` | No | Example configuration satisfying all required schema fields. |
+| `authConfig` | `AuthConfig` | No | Authentication configuration (type, scopes, token/authorise URLs). |
 
 ### RequiredConfigField
 
@@ -100,14 +106,38 @@ npx scout-validate-manifest ./manifests/ --check-duplicates
 | `semanticAttribute` | `string` | Target KynticAI Scout semantic attribute key. |
 | `description` | `string` (optional) | Explanation of the mapping. |
 
+### AuthConfig
+
+| Field | Type | Description |
+|---|---|---|
+| `type` | `string` | Auth type: `none`, `apiKey`, `basic`, `oauth2`, `bearer`. |
+| `scopes` | `string[]` (optional) | OAuth2 scopes (must be unique). |
+| `tokenUrl` | `string` (optional) | Token endpoint (must use HTTPS). |
+| `authoriseUrl` | `string` (optional) | Authorisation endpoint (must use HTTPS). |
+
 ## Validation Rules
 
 - **Connector ID**: Must start with a lowercase letter and use camelCase (no hyphens or underscores).
 - **Version**: Must follow semantic versioning (`MAJOR.MINOR.PATCH`, optional pre-release suffix).
-- **Source types**: Unknown types produce warnings, not errors.
+- **Source types**: Unknown types produce warnings; duplicates produce warnings.
 - **Safe metadata fields**: Fields matching known credential/PII patterns (`password`, `secret`, `token`, `apiKey`, `connectionString`, etc.) are rejected.
 - **Entity mappings**: Unknown semantic attributes produce warnings, not errors.
 - **Duplicate IDs**: Checked only when `knownConnectorIds` is provided.
+- **Auth config**: Unknown auth types produce warnings; duplicate scopes are errors; `tokenUrl`/`authoriseUrl` must use HTTPS.
+- **Unsafe defaults**: Schema properties with unsafe default values (e.g. `"admin"`, `allowInsecure: true`) produce warnings.
+- **URL validation**: String values in `sampleConfiguration` that start with `http://` are rejected — use `https://`.
+- **Credential-like config fields**: `requiredConfigFields` with names matching unsafe patterns produce warnings.
+
+## Structured Issues
+
+The `ManifestValidationResult` includes an `issues` array of `ValidationIssue` objects with:
+
+- `code` — machine-readable error code (e.g. `MISSING_REQUIRED_FIELD`, `UNSAFE_FIELD_NAME`, `DUPLICATE_ENTRY`)
+- `path` — dot-delimited field path (e.g. `requiredConfigFields[0].name`)
+- `message` — human-readable description
+- `severity` — `'error'` or `'warning'`
+
+This enables programmatic error handling without parsing string messages.
 
 ## Exports
 
@@ -121,8 +151,18 @@ import {
   KNOWN_SEMANTIC_ATTRIBUTES,
   UNSAFE_FIELD_NAMES,
   KNOWN_SCHEMA_TYPES,
+  KNOWN_AUTH_TYPES,
   SEMVER_PATTERN,
   CONNECTOR_ID_PATTERN,
+  HTTPS_URL_PATTERN,
+  UNSAFE_DEFAULT_VALUES,
+  UNSAFE_DEFAULT_PROPERTY_NAMES,
+} from '@kynticai/scout-connector-validator'
+
+import type {
+  ValidationIssue,
+  ValidationErrorCode,
+  AuthConfig,
 } from '@kynticai/scout-connector-validator'
 ```
 

@@ -10,7 +10,12 @@ import type {
 } from '../src/types.js'
 
 const currentDir = dirname(fileURLToPath(import.meta.url))
-const samplePath = resolve(currentDir, '..', 'data', 'sample-connector.json')
+const dataDir = resolve(currentDir, '..', 'data')
+const samplePath = resolve(dataDir, 'sample-connector.json')
+
+function loadFixtureDefinition(name: string): SampleConnectorDefinition {
+  return JSON.parse(readFileSync(resolve(dataDir, name), 'utf-8')) as SampleConnectorDefinition
+}
 
 function loadSampleDefinition(): SampleConnectorDefinition {
   return JSON.parse(readFileSync(samplePath, 'utf-8')) as SampleConnectorDefinition
@@ -409,15 +414,204 @@ describe('report shape', () => {
     }
   })
 
-  it('covers all five test suites', async () => {
+  it('covers all seven test suites', async () => {
     const def = validDefinition()
     def.fakeFetch = (_userId: string) => ({ status: 'ok' })
     const report = await runTestHarness(def, { fetchTestUserIds: ['user-001'] })
     const suites = new Set(report.results.map((r) => r.suite))
     expect(suites.has('manifest-shape')).toBe(true)
+    expect(suites.has('structured-issues')).toBe(true)
     expect(suites.has('metadata-extraction')).toBe(true)
     expect(suites.has('entity-mapping')).toBe(true)
     expect(suites.has('error-handling')).toBe(true)
     expect(suites.has('unsafe-fields')).toBe(true)
+    expect(suites.has('auth-config')).toBe(true)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Structured issues suite
+// ---------------------------------------------------------------------------
+
+describe('structured issue tests', () => {
+  it('validates that issues are consistent for a valid connector', async () => {
+    const def = validDefinition()
+    const report = await runTestHarness(def)
+    const issueResults = report.results.filter((r) => r.suite === 'structured-issues')
+    expect(issueResults.length).toBeGreaterThanOrEqual(4)
+    expect(issueResults.every((r) => r.passed)).toBe(true)
+  })
+
+  it('validates issues are consistent for an invalid connector', async () => {
+    const def = validDefinition()
+    def.manifest = { ...def.manifest, version: 'bad' }
+    const report = await runTestHarness(def)
+    const issueResults = report.results.filter((r) => r.suite === 'structured-issues')
+    expect(issueResults.every((r) => r.passed)).toBe(true)
+  })
+
+  it('detects no private detail leakage in issue messages', async () => {
+    const def = validDefinition()
+    const report = await runTestHarness(def)
+    const leakResult = findResult(report.results, 'No issues leak private')
+    expect(leakResult?.passed).toBe(true)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Auth config suite
+// ---------------------------------------------------------------------------
+
+describe('auth config tests', () => {
+  it('skips gracefully when no authConfig is provided', async () => {
+    const def = validDefinition()
+    const report = await runTestHarness(def)
+    const result = findResult(report.results, 'Auth config block is present')
+    expect(result?.passed).toBe(true)
+    expect(result?.message).toContain('skipped')
+  })
+
+  it('passes for a valid oauth2 authConfig', async () => {
+    const def = validDefinition()
+    const manifest = def.manifest as Record<string, unknown>
+    manifest['authConfig'] = {
+      type: 'oauth2',
+      scopes: ['read', 'write'],
+      tokenUrl: 'https://auth.example.com/token',
+      authoriseUrl: 'https://auth.example.com/authorise',
+    }
+    const report = await runTestHarness(def)
+    const authResults = report.results.filter((r) => r.suite === 'auth-config')
+    expect(authResults.every((r) => r.passed)).toBe(true)
+  })
+
+  it('detects duplicate scopes', async () => {
+    const def = validDefinition()
+    const manifest = def.manifest as Record<string, unknown>
+    manifest['authConfig'] = {
+      type: 'oauth2',
+      scopes: ['read', 'write', 'read'],
+      tokenUrl: 'https://auth.example.com/token',
+    }
+    const report = await runTestHarness(def)
+    const scopeResult = findResult(report.results, 'Auth scopes contain no duplicates')
+    expect(scopeResult?.passed).toBe(false)
+    expect(scopeResult?.message).toContain('read')
+  })
+
+  it('detects non-HTTPS tokenUrl', async () => {
+    const def = validDefinition()
+    const manifest = def.manifest as Record<string, unknown>
+    manifest['authConfig'] = {
+      type: 'oauth2',
+      tokenUrl: 'http://insecure.example.com/token',
+    }
+    const report = await runTestHarness(def)
+    const urlResult = findResult(report.results, 'tokenUrl uses HTTPS')
+    expect(urlResult?.passed).toBe(false)
+  })
+
+  it('detects non-HTTPS authoriseUrl', async () => {
+    const def = validDefinition()
+    const manifest = def.manifest as Record<string, unknown>
+    manifest['authConfig'] = {
+      type: 'oauth2',
+      authoriseUrl: 'http://insecure.example.com/auth',
+    }
+    const report = await runTestHarness(def)
+    const urlResult = findResult(report.results, 'authoriseUrl uses HTTPS')
+    expect(urlResult?.passed).toBe(false)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Fixture: invalid-missing-id
+// ---------------------------------------------------------------------------
+
+describe('fixture: invalid-missing-id', () => {
+  it('fails the harness for a manifest without connectorId', async () => {
+    const def = loadFixtureDefinition('invalid-missing-id.json')
+    const report = await runTestHarness(def)
+    expect(report.passed).toBe(false)
+    const result = findResult(report.results, 'Manifest is valid')
+    expect(result?.passed).toBe(false)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Fixture: invalid-auth-config
+// ---------------------------------------------------------------------------
+
+describe('fixture: invalid-auth-config', () => {
+  it('detects invalid auth config in harness', async () => {
+    const def = loadFixtureDefinition('invalid-auth-config.json')
+    const report = await runTestHarness(def)
+    const scopeResult = findResult(report.results, 'Auth scopes contain no duplicates')
+    expect(scopeResult?.passed).toBe(false)
+  })
+
+  it('detects non-HTTPS authoriseUrl in fixture', async () => {
+    const def = loadFixtureDefinition('invalid-auth-config.json')
+    const report = await runTestHarness(def)
+    const urlResult = findResult(report.results, 'authoriseUrl uses HTTPS')
+    expect(urlResult?.passed).toBe(false)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Fixture: invalid-duplicate-scopes
+// ---------------------------------------------------------------------------
+
+describe('fixture: invalid-duplicate-scopes', () => {
+  it('still passes overall (duplicates are warnings)', async () => {
+    const def = loadFixtureDefinition('invalid-duplicate-scopes.json')
+    const report = await runTestHarness(def)
+    expect(report.manifestValidation.warnings.length).toBeGreaterThan(0)
+    expect(report.manifestValidation.warnings).toEqual(
+      expect.arrayContaining([expect.stringContaining('Duplicate')]),
+    )
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Fixture: invalid-malformed-urls
+// ---------------------------------------------------------------------------
+
+describe('fixture: invalid-malformed-urls', () => {
+  it('fails for http:// URL in sample configuration', async () => {
+    const def = loadFixtureDefinition('invalid-malformed-urls.json')
+    const report = await runTestHarness(def)
+    expect(report.passed).toBe(false)
+    const manifestResult = findResult(report.results, 'Manifest has no errors')
+    expect(manifestResult?.passed).toBe(false)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Fixture: invalid-unsafe-defaults
+// ---------------------------------------------------------------------------
+
+describe('fixture: invalid-unsafe-defaults', () => {
+  it('reports warnings for unsafe defaults', async () => {
+    const def = loadFixtureDefinition('invalid-unsafe-defaults.json')
+    const report = await runTestHarness(def)
+    expect(report.manifestValidation.warnings.length).toBeGreaterThan(0)
+    expect(report.manifestValidation.warnings).toEqual(
+      expect.arrayContaining([expect.stringContaining('admin')]),
+    )
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Fixture: invalid-bad-metadata
+// ---------------------------------------------------------------------------
+
+describe('fixture: invalid-bad-metadata', () => {
+  it('warns about credential-like config field name', async () => {
+    const def = loadFixtureDefinition('invalid-bad-metadata.json')
+    const report = await runTestHarness(def)
+    expect(report.manifestValidation.warnings).toEqual(
+      expect.arrayContaining([expect.stringContaining('password')]),
+    )
   })
 })

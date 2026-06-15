@@ -3,6 +3,7 @@ import {
   UNSAFE_FIELD_NAMES,
   KNOWN_SEMANTIC_ATTRIBUTES,
 } from '@kynticai/scout-connector-validator'
+import type { ValidationIssue } from '@kynticai/scout-connector-validator'
 import { runAudit } from '@kynticai/scout-metadata-audit'
 import type { AuditInput, JsonSchema } from '@kynticai/scout-metadata-audit'
 import type {
@@ -43,9 +44,11 @@ export async function runTestHarness(
     })
   }
 
+  runStructuredIssueTests(manifestValidation, results)
   runEntityMappingTests(definition, results)
   await runErrorHandlingTests(definition, options, results)
   runUnsafeFieldTests(definition, results)
+  runAuthConfigTests(definition, results)
 
   const passedTests = results.filter((r) => r.passed).length
   return {
@@ -371,5 +374,148 @@ function runUnsafeFieldTests(
         ? 'No unsafe field names in this mapping.'
         : `Unsafe name detected: ${sourceUnsafe ? mapping.sourceField : mapping.semanticAttribute}.`,
     })
+  }
+}
+
+function runStructuredIssueTests(
+  validation: { isValid: boolean; errors: string[]; warnings: string[]; issues: ValidationIssue[] },
+  results: TestCaseResult[],
+): void {
+  const errorIssues = validation.issues.filter((i) => i.severity === 'error')
+  const warningIssues = validation.issues.filter((i) => i.severity === 'warning')
+
+  results.push({
+    name: 'Structured issues are consistent with error count',
+    suite: 'structured-issues',
+    passed: errorIssues.length === validation.errors.length,
+    message: errorIssues.length === validation.errors.length
+      ? `${String(errorIssues.length)} error issue(s) match ${String(validation.errors.length)} error string(s).`
+      : `Mismatch: ${String(errorIssues.length)} error issues vs ${String(validation.errors.length)} error strings.`,
+  })
+
+  results.push({
+    name: 'Structured issues are consistent with warning count',
+    suite: 'structured-issues',
+    passed: warningIssues.length === validation.warnings.length,
+    message: warningIssues.length === validation.warnings.length
+      ? `${String(warningIssues.length)} warning issue(s) match ${String(validation.warnings.length)} warning string(s).`
+      : `Mismatch: ${String(warningIssues.length)} warning issues vs ${String(validation.warnings.length)} warning strings.`,
+  })
+
+  const allHaveCode = validation.issues.every((i) => typeof i.code === 'string' && i.code.length > 0)
+  results.push({
+    name: 'All issues have a non-empty error code',
+    suite: 'structured-issues',
+    passed: allHaveCode,
+    message: allHaveCode
+      ? 'All issues carry a machine-readable code.'
+      : 'One or more issues are missing an error code.',
+  })
+
+  const allHavePath = validation.issues.every((i) => typeof i.path === 'string')
+  results.push({
+    name: 'All issues have a field path',
+    suite: 'structured-issues',
+    passed: allHavePath,
+    message: allHavePath
+      ? 'All issues carry a field path.'
+      : 'One or more issues are missing a field path.',
+  })
+
+  const noLeakedDetail = validation.issues.every(
+    (i) => !i.message.includes('internal') && !i.message.includes('stack trace'),
+  )
+  results.push({
+    name: 'No issues leak private implementation detail',
+    suite: 'structured-issues',
+    passed: noLeakedDetail,
+    message: noLeakedDetail
+      ? 'No private implementation detail detected in issue messages.'
+      : 'One or more issue messages may leak private detail.',
+  })
+}
+
+function runAuthConfigTests(
+  definition: SampleConnectorDefinition,
+  results: TestCaseResult[],
+): void {
+  const { manifest } = definition
+  const auth = (manifest as unknown as Record<string, unknown>)['authConfig']
+
+  if (auth === undefined) {
+    results.push({
+      name: 'Auth config block is present',
+      suite: 'auth-config',
+      passed: true,
+      message: 'No authConfig provided; auth config tests skipped (acceptable for connectors without auth).',
+    })
+    return
+  }
+
+  results.push({
+    name: 'Auth config block is present',
+    suite: 'auth-config',
+    passed: true,
+    message: 'authConfig provided; running auth configuration tests.',
+  })
+
+  if (typeof auth !== 'object' || auth === null) {
+    results.push({
+      name: 'Auth config is a valid object',
+      suite: 'auth-config',
+      passed: false,
+      message: 'authConfig must be a JSON object.',
+    })
+    return
+  }
+
+  const authObj = auth as Record<string, unknown>
+
+  const hasType = typeof authObj['type'] === 'string' && (authObj['type'] as string).trim() !== ''
+  results.push({
+    name: 'Auth config has a type',
+    suite: 'auth-config',
+    passed: hasType,
+    message: hasType
+      ? `Auth type: "${authObj['type'] as string}".`
+      : 'authConfig.type is missing or empty.',
+  })
+
+  if (Array.isArray(authObj['scopes'])) {
+    const scopes = authObj['scopes'] as unknown[]
+    const scopeSet = new Set<string>()
+    const duplicates: string[] = []
+
+    for (const s of scopes) {
+      if (typeof s === 'string') {
+        if (scopeSet.has(s)) duplicates.push(s)
+        scopeSet.add(s)
+      }
+    }
+
+    const noDuplicates = duplicates.length === 0
+    results.push({
+      name: 'Auth scopes contain no duplicates',
+      suite: 'auth-config',
+      passed: noDuplicates,
+      message: noDuplicates
+        ? `${String(scopeSet.size)} unique scope(s).`
+        : `Duplicate scopes found: ${duplicates.join(', ')}.`,
+    })
+  }
+
+  for (const urlField of ['tokenUrl', 'authoriseUrl'] as const) {
+    const url = authObj[urlField]
+    if (typeof url === 'string') {
+      const isHttps = url.startsWith('https://')
+      results.push({
+        name: `Auth ${urlField} uses HTTPS`,
+        suite: 'auth-config',
+        passed: isHttps,
+        message: isHttps
+          ? `${urlField} uses HTTPS.`
+          : `${urlField} does not use HTTPS — production connectors should use secure URLs.`,
+      })
+    }
   }
 }

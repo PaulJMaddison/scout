@@ -6,11 +6,13 @@ Local test harness for validating KynticAI Scout connectors against public inter
 
 | Suite | Checks |
 |---|---|
-| **manifest-shape** | connectorId, displayName, version (semver), description, supportedSourceTypes, requiredConfigFields, safeMetadataFields, sampleEntityMappings, configurationSchema, sampleConfiguration |
+| **manifest-shape** | connectorId, displayName, version (semver), description, supportedSourceTypes, requiredConfigFields, safeMetadataFields, sampleEntityMappings, configurationSchema, sampleConfiguration, authConfig |
+| **structured-issues** | Validates that structured `ValidationIssue` objects are consistent with error/warning counts, all carry machine-readable codes and field paths, and no issue messages leak private implementation detail. |
 | **metadata-extraction** | Runs the `@kynticai/scout-metadata-audit` against the manifest's configurationSchema and optional sample records. Checks for error-level warnings and a minimum readiness score. |
 | **entity-mapping** | At least one mapping declared, at least one uses a recognised public semantic attribute, source fields match sample record payloads when provided. |
 | **error-handling** | Optional `fakeFetch` function: validates returned objects, tests graceful error throwing (proper `Error` instances), supports async fetch functions. |
 | **unsafe-fields** | Checks safeMetadataFields, configurationSchema properties, sampleConfiguration keys, and entity mapping field names against the public unsafe-field blocklist (passwords, tokens, secrets, PII). |
+| **auth-config** | Validates optional `authConfig` block: auth type, duplicate scopes, HTTPS enforcement for `tokenUrl`/`authoriseUrl`. |
 
 ## Installation
 
@@ -151,7 +153,7 @@ The `TestHarnessReport` includes:
 - `passed` — overall pass/fail
 - `totalTests` / `passedTests` / `failedTests` — counts
 - `results` — array of `TestCaseResult` with `name`, `suite`, `passed`, `message`
-- `manifestValidation` — raw output from `@kynticai/scout-connector-validator`
+- `manifestValidation` — raw output from `@kynticai/scout-connector-validator` (includes `issues` array with typed `ValidationIssue` objects)
 - `auditReport` — raw output from `@kynticai/scout-metadata-audit` (null if schema missing)
 
 ## Dependencies

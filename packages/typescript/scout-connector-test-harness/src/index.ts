@@ -8,6 +8,8 @@ export type {
   TestSuite,
   ConnectorManifest,
   ManifestValidationResult,
+  ValidationIssue,
+  ValidationErrorCode,
   ValidatorOptions,
   AuditReport,
   SampleRecord,

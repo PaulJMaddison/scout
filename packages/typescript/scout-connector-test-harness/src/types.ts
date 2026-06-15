@@ -1,6 +1,8 @@
 import type {
   ConnectorManifest,
   ManifestValidationResult,
+  ValidationIssue,
+  ValidationErrorCode,
   ValidatorOptions,
 } from '@kynticai/scout-connector-validator'
 import type {
@@ -45,10 +47,12 @@ export interface TestCaseResult {
 /** Test suite categories. */
 export type TestSuite =
   | 'manifest-shape'
+  | 'structured-issues'
   | 'metadata-extraction'
   | 'entity-mapping'
   | 'error-handling'
   | 'unsafe-fields'
+  | 'auth-config'
 
 /** Full test harness report. */
 export interface TestHarnessReport {
@@ -64,5 +68,5 @@ export interface TestHarnessReport {
   auditReport: AuditReport | null
 }
 
-export type { ConnectorManifest, ManifestValidationResult, ValidatorOptions }
+export type { ConnectorManifest, ManifestValidationResult, ValidationIssue, ValidationErrorCode, ValidatorOptions }
 export type { AuditReport, SampleRecord }
