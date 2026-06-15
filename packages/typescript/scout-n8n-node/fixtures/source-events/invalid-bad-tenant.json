@@ -1,0 +1,7 @@
+{
+  "tenantSlug": "BAD TENANT!!",
+  "sourceSystem": "crm",
+  "eventType": "source.crm.deal_updated",
+  "payload": {},
+  "_expectedError": "Tenant slug must be 2–64 lower-case alphanumeric characters"
+}

@@ -1,0 +1,15 @@
+{
+  "tenantSlug": "demo",
+  "sourceSystem": "crm",
+  "eventType": "source.crm.deal_updated",
+  "externalUserId": "usr-42",
+  "externalAccountId": "acc-100",
+  "payload": {
+    "dealId": "deal-789",
+    "stage": "negotiation",
+    "value": 25000,
+    "currency": "GBP",
+    "updatedAt": "2026-06-15T10:00:00Z"
+  },
+  "observedAtUtc": "2026-06-15T10:00:00Z"
+}

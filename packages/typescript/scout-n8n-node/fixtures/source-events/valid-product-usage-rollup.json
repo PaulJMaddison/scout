@@ -1,0 +1,13 @@
+{
+  "tenantSlug": "demo",
+  "sourceSystem": "product",
+  "eventType": "source.product_usage.rollup_ready",
+  "externalUserId": "usr-77",
+  "payload": {
+    "featureId": "dashboard-v2",
+    "sessionsLast7d": 14,
+    "avgDurationMinutes": 8.5,
+    "adoptionScore": 0.72
+  },
+  "observedAtUtc": "2026-06-15T08:30:00Z"
+}
