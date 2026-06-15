@@ -1,0 +1,53 @@
+{
+  "name": "@kynticai/scout-n8n-node",
+  "version": "2.8.0",
+  "description": "KynticAI Scout community node for n8n — ingest source-system events into the Scout semantic layer.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PaulJMaddison/scout.git",
+    "directory": "packages/typescript/scout-n8n-node"
+  },
+  "homepage": "https://github.com/PaulJMaddison/scout",
+  "bugs": {
+    "url": "https://github.com/PaulJMaddison/scout/issues"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/KynticAiScoutApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/KynticAiScout.node.js"
+    ]
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "pack:dry-run": "npm pack --dry-run",
+    "validate:local": "bash scripts/validate-local.sh"
+  },
+  "peerDependencies": {
+    "n8n-workflow": ">=1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.12.2",
+    "n8n-workflow": "^1.72.0",
+    "typescript": "~6.0.2",
+    "vitest": "^4.0.8"
+  }
+}

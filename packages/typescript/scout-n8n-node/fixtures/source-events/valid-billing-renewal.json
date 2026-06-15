@@ -1,0 +1,14 @@
+{
+  "tenantSlug": "pilot-alpha",
+  "sourceSystem": "billing",
+  "eventType": "source.billing.renewal_processed",
+  "externalAccountId": "acc-200",
+  "payload": {
+    "invoiceId": "inv-4567",
+    "amountPence": 120000,
+    "currency": "GBP",
+    "planTier": "professional",
+    "renewalDate": "2026-07-01"
+  },
+  "observedAtUtc": "2026-06-15T06:00:00Z"
+}

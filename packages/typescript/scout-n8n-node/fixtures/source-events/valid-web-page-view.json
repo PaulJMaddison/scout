@@ -1,0 +1,14 @@
+{
+  "tenantSlug": "demo",
+  "workspaceSlug": "marketing",
+  "sourceSystem": "web",
+  "eventType": "source.web.page_view",
+  "externalUserId": "usr-55",
+  "payload": {
+    "url": "/pricing",
+    "referrer": "google",
+    "durationMs": 12400,
+    "cta_clicked": true
+  },
+  "observedAtUtc": "2026-06-15T14:22:00Z"
+}
