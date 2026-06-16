@@ -2,7 +2,7 @@
 
 Typed TypeScript client for the [KynticAI Scout](https://github.com/PaulJMaddison/scout) API. It gives application teams a stable, fully-typed surface for REST and GraphQL calls instead of hand-rolling HTTP requests.
 
-This package is part of the public open-core. It covers authentication, context lookups, semantic facts, snapshots, selector preview, recompute, AI-safe context packages, source-system event ingestion, audit, and the contract client for services implementing the KynticAI Score API.
+This package is part of the public open-core. It covers authentication, context lookups, semantic facts, snapshots, selector preview, recompute, governed evidence packages, source-system event ingestion, audit, and the contract client for services implementing the KynticAI Score API.
 
 ## SDK Folder Structure
 
@@ -33,7 +33,7 @@ packages/typescript/scout-sdk/
 - semantic fact lookup with REST filtering and pagination options
 - selector preview and validation
 - context recompute requests
-- AI context package retrieval
+- governed evidence package retrieval
 - provider-neutral source-system event ingestion
 - audit event lookup
 - KynticAI Score API contract client

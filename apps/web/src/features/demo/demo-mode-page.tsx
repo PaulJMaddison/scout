@@ -20,8 +20,8 @@ export function DemoModePage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Step 1 of 5"
-        title="This demo page shows how raw customer data becomes better AI sales recommendations."
-        description="KynticAI Scout turns fragmented CRM, product, billing, support, and warehouse data into a governed semantic layer that your own systems can consume."
+        title="This synthetic demo shows how authorised customer data becomes an evidence-backed next action."
+        description="KynticAI Scout turns fragmented CRM, product, billing, support, email, web, and outcome signals into a governed evidence layer that your own systems and local AI consumers can use."
         actions={
           <Link to={executiveStorySteps[1].to}>
             <Button>
@@ -43,42 +43,42 @@ export function DemoModePage() {
             <div className="flex flex-wrap items-center gap-2">
               <Badge tone="accent">Legacy systems stay in place</Badge>
               <ArrowRight className="size-4 text-copper-300" />
-              <Badge tone="neutral">Scout interprets the signals</Badge>
+              <Badge tone="neutral">Scout builds governed evidence</Badge>
               <ArrowRight className="size-4 text-copper-300" />
-              <Badge tone="success">Consumers get reusable business context</Badge>
+              <Badge tone="success">Consumers get next-best-action context</Badge>
             </div>
 
             <div className="grid gap-4">
               <p className="text-xs uppercase tracking-[0.22em] text-copper-300">Executive framing</p>
               <h2 className="max-w-4xl font-display text-5xl leading-[1.02] text-ivory-50">
-                Your existing systems already contain the signals AI needs.
-                Scout turns them into meaning your systems can use.
+                Your existing systems already contain the evidence AI needs.
+                Scout turns it into governed context your systems can use.
               </h2>
               <p className="max-w-3xl text-base leading-8 text-ivory-200">
-                KynticAI Scout reads the operational estate exactly where it already lives, converts
-                disconnected events into governed business meaning, and gives product workflows, analytics, copilots, and agents a
-                shared semantic contract they can cite, trust, and reuse.
+                KynticAI Scout reads the operational estate where it already lives, converts
+                disconnected events into governed evidence, and gives product workflows, analytics, copilots, local LLMs, and agents a
+                shared context contract they can cite, trust, and reuse.
               </p>
             </div>
 
             <div className="grid gap-3 md:grid-cols-3">
               <div className="rounded-[24px] border border-white/10 bg-white/6 px-4 py-4">
                 <p className="text-xs uppercase tracking-[0.18em] text-copper-300">Before</p>
-                <p className="mt-3 text-lg font-semibold text-ivory-50">Raw CRM IDs and siloed metrics</p>
+                <p className="mt-3 text-lg font-semibold text-ivory-50">Siloed email, web, CRM, support, usage, and billing metrics</p>
                 <p className="mt-2 text-sm leading-7 text-ivory-200">
-                  AI only sees contact records, logs, and disconnected events, so the product gives weak and inconsistent recommendations.
+                  AI only sees disconnected records and events, so the product gives weak and inconsistent recommendations.
                 </p>
               </div>
               <div className="rounded-[24px] border border-white/10 bg-white/6 px-4 py-4">
                 <p className="text-xs uppercase tracking-[0.18em] text-copper-300">Middle</p>
-                <p className="mt-3 text-lg font-semibold text-ivory-50">Semantic context with confidence and provenance</p>
+                <p className="mt-3 text-lg font-semibold text-ivory-50">Evidence with confidence and provenance</p>
                 <p className="mt-2 text-sm leading-7 text-ivory-200">
-                  Selectors map signals into canonical attributes like conversion probability, preferred channel, and expansion potential.
+                  Selectors map signals into canonical attributes like conversion probability, preferred channel, similar won pattern, and expansion potential.
                 </p>
               </div>
               <div className="rounded-[24px] border border-white/10 bg-white/6 px-4 py-4">
                 <p className="text-xs uppercase tracking-[0.18em] text-copper-300">After</p>
-                <p className="mt-3 text-lg font-semibold text-ivory-50">Grounded decisions that are explainable</p>
+                <p className="mt-3 text-lg font-semibold text-ivory-50">Grounded next actions that are explainable</p>
                 <p className="mt-2 text-sm leading-7 text-ivory-200">
                   Apps, workflows, and AI systems receive structured profiles, cited facts, and warnings when signals are weak.
                 </p>
@@ -95,7 +95,7 @@ export function DemoModePage() {
             </h3>
             <p className="mt-3 text-sm leading-7 text-ink-700">
               {contextQuery.data?.summary ??
-                'This account demonstrates the core value of the product: legacy operational signals become one grounded commercial brief for product workflows and AI.'}
+                'This synthetic account demonstrates the core value of the product: operational signals become one grounded commercial brief for product workflows and AI.'}
             </p>
             <div className="mt-5 flex flex-wrap gap-2">
               {featuredFacts.map((fact) => (
@@ -261,7 +261,7 @@ export function DemoModePage() {
             <Card className="bg-ivory-25">
               <p className="font-semibold text-ink-950">4. Example Consumer Timeline</p>
               <p className="mt-2 text-sm leading-7 text-ink-700">
-                The exact moment where grounded context improves the sales support recommendation, the advised action, and the business result.
+                      The exact moment where governed evidence improves the sales support recommendation, the advised action, and the positive outcome signal to review.
               </p>
             </Card>
             <Card className="bg-ivory-25">
@@ -288,7 +288,7 @@ export function DemoModePage() {
             <Card className="bg-ivory-25">
               <p className="text-xs uppercase tracking-[0.18em] text-sage-700">What the model receives</p>
               <p className="mt-2 text-sm leading-7 text-ink-700">
-                A structured context package with semantic attributes, confidence scores, freshness metadata, and citations.
+                A structured evidence package with semantic attributes, confidence scores, freshness metadata, similar-pattern notes, and citations.
               </p>
             </Card>
             <Card className="bg-ivory-25">
@@ -300,7 +300,7 @@ export function DemoModePage() {
             <Card className="bg-ivory-25">
               <p className="text-xs uppercase tracking-[0.18em] text-sage-700">What the product gains</p>
               <p className="mt-2 text-sm leading-7 text-ink-700">
-                Better prioritisation, faster rep preparation, safer recommendations, and a clearer route from existing systems to measurable product value.
+                Better prioritisation, faster rep preparation, safer recommendations, and a clearer route from existing systems to measurable product value without guaranteed-outcome claims.
               </p>
             </Card>
           </div>

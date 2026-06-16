@@ -26,7 +26,7 @@ context response types.
 | Facts | User and account semantic fact lookup with filters. |
 | Selectors | Selector preview and validation. |
 | Recompute | Queue user context recomputation. |
-| Packages | AI-safe context package retrieval; Scout itself does not call an AI model for this package. |
+| Packages | Governed context/evidence package retrieval; Scout itself does not call an AI model for this package. |
 | Audit | Tenant audit-event lookup. |
 | Events | Provider-neutral source-system event ingestion. |
 

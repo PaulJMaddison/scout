@@ -468,7 +468,7 @@ export interface GroundedContextFactResult {
   provenanceJson: string
 }
 
-/** AI-safe context package scoped for a sales objective. Scout does not call an AI model. */
+/** Governed evidence package scoped for a sales objective. Scout does not call an AI model. */
 export interface SalesContextPackageResult {
   /** Snapshot identifier. */
   snapshotId: string

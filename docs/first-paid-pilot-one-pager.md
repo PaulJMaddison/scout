@@ -1,6 +1,6 @@
 # KynticAI Scout First Paid Pilot
 
-KynticAI Scout turns existing business data into trusted semantic context that customer-owned AI tools, workflows, apps, reports, and agents can use.
+KynticAI Scout turns authorised customer data into governed evidence packs that customer-owned AI tools, workflows, apps, reports, local LLMs, and agents can use.
 
 We do not build the brain. We build the nervous system: the customer-controlled layer that carries trusted context from existing systems to the tools the customer already owns or wants to build.
 
@@ -73,7 +73,7 @@ The buyer should finish the pilot with:
 - support prioritisation based on commercial and product signals
 - product-led growth scoring from usage, billing, and CRM summaries
 - operational readiness context for internal workflows
-- trusted context packages for customer-owned AI agents
+- governed evidence packages for customer-owned AI agents
 
 ## Commercial Proof
 

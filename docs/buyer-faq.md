@@ -6,7 +6,7 @@ This page answers common KynticAI Scout questions from CEOs, CTOs, product leade
 
 ### What does Scout do in one sentence?
 
-KynticAI Scout turns existing business data into trusted semantic context that customer-owned AI tools, workflows, apps, reports, and agents can use.
+KynticAI Scout turns authorised customer data into governed evidence packs that customer-owned AI tools, workflows, apps, reports, local LLMs, and agents can use.
 
 ### Why should we care now?
 
@@ -14,7 +14,7 @@ Most companies already have valuable operational data, but it is trapped across 
 
 ### Are we buying an AI tool?
 
-No. We do not build the brain. We build the nervous system. Customers can bring their own AI stack, workflow engine, reporting layer, or internal apps. Scout supplies governed business context.
+No. We do not build the brain. We build the nervous system. Customers can bring their own local/open-source AI stack, workflow engine, reporting layer, or internal apps. Scout supplies governed business context and evidence packs.
 
 ### What can we buy now?
 
@@ -24,7 +24,7 @@ The sellable offer today is a supported paid pilot: discovery, customer data-pla
 
 ### Where does customer data live?
 
-Operational data, connector credentials, selectors, facts, snapshots, packages, and audit logs stay in the customer-controlled data plane by default. Optional hosted control-plane services should receive commercial metadata only by default.
+Operational data, connector credentials, selectors, facts, snapshots, evidence packages, and audit logs stay in the customer-controlled data plane by default. Optional hosted control-plane services should receive commercial metadata only by default.
 
 ### Do we need to replace systems?
 
@@ -32,7 +32,7 @@ No. Scout sits beside systems of record and exposes a semantic layer above them.
 
 ### What API surfaces exist?
 
-The open core exposes GraphQL, REST v1, TypeScript SDK usage, C# SDK usage, machine-to-machine auth, selector preview/validation, recompute requests, audit/provenance lookup, and AI-safe context package retrieval. See [Public API Contract](public-api-contract.md).
+The open core exposes GraphQL, REST v1, TypeScript SDK usage, C# SDK usage, machine-to-machine auth, selector preview/validation, recompute requests, audit/provenance lookup, and governed context/evidence package retrieval. See [Public API Contract](public-api-contract.md).
 
 ### Is this production SaaS?
 
@@ -42,15 +42,15 @@ Not in this public repo. The repo is open core and can support local demos, back
 
 ### What workflow should we prove first?
 
-Pick one workflow where existing data already affects a decision but is hard to reuse safely. Examples include renewal risk, support prioritisation, energy pricing context, procurement readiness, sales next-best action, onboarding state, or product-led expansion.
+Pick one workflow where existing data already affects a decision but is hard to reuse safely. Examples include B2B SaaS sales next-best action, ecommerce abandoned basket recovery, support churn prevention, healthcare operations using synthetic/non-clinical examples, recruitment candidate matching, finance/customer retention without regulated advice claims, onboarding state, or product-led expansion.
 
 ### How does this help an AI feature?
 
-The AI or workflow receives scoped facts with confidence, freshness, evidence, and guardrails instead of a heap of raw records. Scout can retrieve an AI-safe context package without calling an AI model itself.
+The AI or workflow receives scoped facts with confidence, freshness, evidence, similar-pattern references, and guardrails instead of a heap of raw records. Scout can retrieve a governed context package without calling an AI model itself.
 
 ### What does success look like?
 
-One downstream consumer can make a better, more explainable decision because it uses governed semantic context rather than direct joins, copied exports, or unsupported prompt claims.
+One downstream consumer can make a better, more explainable recommendation because it uses governed evidence rather than direct joins, copied exports, or unsupported prompt claims. Use honest language such as "increase conversion probability", "recommend the next best action", or "surface patterns linked to successful outcomes".
 
 ## Enterprise Architects
 

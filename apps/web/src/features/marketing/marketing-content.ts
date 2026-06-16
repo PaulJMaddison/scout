@@ -101,7 +101,7 @@ The blueprint must include:
 9. provenance requirements
 10. PII masking rules
 11. audit requirements
-12. recommended AI context packages
+12. recommended governed evidence packages
 13. prompt template suggestions
 14. data quality warnings
 15. missing fields or integration gaps
@@ -163,12 +163,12 @@ export const faqEntries = [
   {
     question: 'Is Scout another AI app?',
     answer:
-      'No. Scout is context infrastructure for AI-enabled products, workflows, and agents. It creates trusted semantic context that a customer can use with their own AI tools, internal apps, reporting systems, and workflow automation.',
+      'No. Scout is data-plane infrastructure for AI-enabled products, workflows, and agents. It creates governed evidence from authorised customer data that a customer can use with their own AI tools, internal apps, reporting systems, and workflow automation.',
   },
   {
     question: 'Is this just a website?',
     answer:
-      'No. The React application is a public product site, learning experience, demo, and admin console. The underlying product value is the backend semantic data plane that connects existing systems, computes semantic facts, and exposes context through GraphQL, REST, SDKs, governed context packages, and internal services.',
+      'No. The React application is a public product site, learning experience, demo, and admin console. The underlying product value is the backend customer-owned data plane that connects existing systems, computes semantic facts, and exposes governed evidence through GraphQL, REST, SDKs, context packages, and internal services.',
   },
   {
     question: 'Can this be used without replacing existing systems?',
@@ -178,7 +178,7 @@ export const faqEntries = [
   {
     question: 'Can we bring our own AI?',
     answer:
-      'Yes. Scout does not need to own the model, agent, copilot, or AI orchestration layer. Customers can use their own AI stack while Scout supplies governed business context with evidence, confidence, freshness, provenance, masking, and auditability.',
+      'Yes. Scout does not need to own the model, agent, copilot, or AI orchestration layer. Customers can use their own local, open-source, or approved AI stack while Scout supplies governed business evidence with confidence, freshness, provenance, masking, and auditability.',
   },
   {
     question: 'What can consume Scout context?',
@@ -233,6 +233,6 @@ export const faqEntries = [
   {
     question: 'How do AI tools use the context?',
     answer:
-      'AI tools should consume governed context packages rather than raw database records. Scout can prepare structured packages containing allowed facts, citations, freshness, confidence, and masking decisions so models, agents, copilots, and recommendation flows work from supported business context.',
+      'AI tools should consume governed evidence packages rather than raw database records. Scout can prepare structured packages containing allowed facts, citations, freshness, confidence, similar-pattern references, and masking decisions so models, agents, copilots, and recommendation flows work from supported business evidence.',
   },
 ] as const

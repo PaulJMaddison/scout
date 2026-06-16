@@ -156,7 +156,7 @@ export function OnboardingPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Demo/private setup"
-        title="Turn existing systems into trusted semantic context."
+        title="Turn existing systems into governed evidence."
         description="Create a private starter workspace, admin account, semantic schema, and selector set. This flow is for local demos or deliberately enabled private setup only, and it stores no production connector credentials."
         actions={<Badge tone="success">Local/private setup</Badge>}
       />

@@ -39,8 +39,8 @@ export function LandingPage() {
 
       <PageHeader
         eyebrow="KynticAI Scout"
-        title="The governed customer data plane for enterprise AI."
-        description="Your SAP. Your Postgres. Your CRM. Made AI-ready without replatforming. Scout sits beside existing systems, maps raw data into trusted semantic facts, and serves governed context to apps, workflows, reports, copilots, and agents."
+        title="The customer-owned data plane for governed AI evidence packs."
+        description="Your SAP. Your Postgres. Your CRM. Scout keeps authorised operational data inside the customer data plane, maps source signals into evidence with provenance, and serves governed context to apps, workflows, reports, local LLMs, and agents."
         actions={
           <>
             <Link to="/pilot">
@@ -73,17 +73,17 @@ export function LandingPage() {
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-copper-300">What buyers should understand first</p>
               <h2 className="mt-4 max-w-4xl font-display text-[clamp(3rem,6vw,6rem)] leading-[0.94] text-ivory-50">
-                Existing systems stay. Meaning becomes reusable.
+                Existing systems stay. Evidence becomes reusable.
               </h2>
               <p className="mt-5 max-w-3xl text-base leading-8 text-ivory-200">
-                KynticAI Scout gives CEOs, CTOs, product leaders, and integration teams a practical route from scattered operational data to structured context with confidence, provenance, freshness, and masking. Built by an Enterprise Architect with 26 years across 100+ commercial projects.
+                KynticAI Scout gives CEOs, CTOs, product leaders, and integration teams a practical route from scattered authorised data to structured evidence with confidence, provenance, freshness, and masking. Built by an Enterprise Architect with 26 years across 100+ commercial projects.
               </p>
             </div>
             <div className="grid gap-3 lg:grid-cols-3">
               {[
-                ['Raw estate', 'CRM notes, usage events, invoices, tickets, support sentiment, and spreadsheet exports remain in their systems of record.'],
-                ['Semantic layer', 'Selectors translate source signals into facts such as renewal risk, product fit, adoption health, and preferred channel.'],
-                ['Reusable context', 'Apps, reports, agents, and product workflows receive structured context packages instead of brittle joins or copied database rows.'],
+                ['Exact private data plane', 'Email address, replies, pricing visits, registrations, CRM contacts, opportunities, tickets, usage, billing status, and won/lost outcomes remain customer-owned.'],
+                ['Evidence layer', 'Selectors translate source signals into facts such as conversion probability, support drag, product fit, adoption health, and recommended next action.'],
+                ['Reusable evidence pack', 'Apps, reports, agents, local LLMs, and product workflows receive governed packs instead of brittle joins or copied database rows.'],
               ].map(([title, body]) => (
                 <div key={title} className="rounded-[24px] border border-white/10 bg-white/6 p-4">
                   <p className="font-semibold text-ivory-50">{title}</p>
@@ -145,7 +145,7 @@ export function LandingPage() {
             'Business users cannot see why a recommendation was made or whether the source data was fresh.',
           ]}
           after={[
-            'Agents receive scoped context packages with trusted facts, confidence, provenance, freshness, and masking.',
+            'Agents receive scoped evidence packages with trusted facts, confidence, provenance, freshness, similar-pattern references, and masking.',
             'Selectors centralise how raw source data becomes semantic meaning across products and workflows.',
             'Teams can audit reads, recomputes, source events, and permission boundaries by tenant and workspace.',
           ]}
@@ -168,13 +168,13 @@ export function LandingPage() {
               },
               {
                 label: 'Package',
-                title: 'Generate trusted context snapshots',
-                body: 'Snapshots and context packages expose structured facts with provenance, masking, freshness, and audit trails.',
+                title: 'Generate governed evidence packs',
+                body: 'Snapshots and context packages expose structured facts, similar patterns, provenance, masking, freshness, and audit trails.',
               },
               {
                 label: 'Use',
                 title: 'Power better workflows and AI recommendations',
-                body: 'Sales, support, onboarding, product, marketing, and internal copilots can work from the same governed data plane.',
+                body: 'Sales, support, onboarding, product, marketing, internal copilots, and local/open-source LLMs can work from the same governed data plane.',
               },
             ]}
           />
@@ -185,9 +185,9 @@ export function LandingPage() {
             {[
               ['Faster AI rollout', 'Teams can build AI workflows on semantic context rather than waiting for a full data-platform replacement.'],
               ['Less integration waste', 'One mapping layer reduces repeated joins, bespoke ETL, and duplicated interpretation code.'],
-              ['Clearer recommendations', 'Sales recommendations can cite adoption, support, billing, lifecycle, and engagement signals.'],
+              ['Clearer recommendations', 'Sales recommendations can cite email engagement, web search, pricing-page visits, registration, CRM, opportunity, support, usage, billing, and sale outcome signals.'],
               ['Safer customer context', 'Masking and provenance are part of the context contract rather than a late prompt-writing patch.'],
-              ['More credible pilots', 'A demo can show exactly how raw customer data becomes a better recommendation, not just a polished chat response.'],
+              ['More credible pilots', 'A demo can show exactly how authorised customer-owned data becomes an evidence-backed recommendation, not just a polished chat response.'],
             ].map(([title, body]) => (
               <Card key={title} className="bg-ivory-25 shadow-none">
                 <div className="flex items-start gap-3">

@@ -15,11 +15,11 @@
 </p>
 
 <p align="center">
-  <strong>KynticAI Scout turns existing business data into trusted semantic context for AI.</strong>
+  <strong>KynticAI Scout turns authorised customer data into governed evidence for AI.</strong>
 </p>
 
 <p align="center">
-  We don't build the brain. We build the nervous system: the governed customer data plane that carries trusted business context from existing systems to the customer's own AI tools, workflows, reports, apps, and agents. 
+  We don't build the brain. We build the nervous system: the governed customer data plane that carries exact authorised context from existing systems to the customer's own AI tools, workflows, reports, apps, local LLMs, and agents.
 </p>
 
 ---
@@ -61,7 +61,9 @@ See the **[Getting Started Guide](docs/getting-started.md)** for Docker Compose 
 
 ## What Is Scout?
 
-Scout is **context infrastructure for AI-enabled products**. It does not replace your CRM, ERP, support desk, or billing system. It sits beside those systems and creates a governed semantic layer above them so that downstream consumers -- AI copilots, workflow engines, reporting tools, internal apps -- get trusted business meaning instead of raw records.
+Scout is **customer-owned data-plane infrastructure for AI-enabled products**. It does not replace your CRM, ERP, support desk, or billing system. It sits beside those systems and creates a governed semantic/evidence layer above them so that downstream consumers -- AI copilots, workflow engines, reporting tools, internal apps, local LLMs -- get trusted business meaning instead of disconnected records.
+
+The flagship UCL workflow is: source systems -> UCL exact private data plane -> Rust relationship engine -> weighted evidence pack -> local/open-source LLM -> next-best action. This public repo proves the open-core data-plane mechanics; private enterprise modules add the Rust relationship/weighting engine, private connectors, and customer-specific hardening where required.
 
 ### Key Capabilities
 
@@ -72,7 +74,7 @@ Scout is **context infrastructure for AI-enabled products**. It does not replace
 | **Context Snapshots** | Reusable business profiles with confidence, freshness, and provenance |
 | **GraphQL + REST APIs** | Every context surface available through both query styles |
 | **TypeScript & .NET SDKs** | Typed client libraries for integration teams |
-| **AI-Safe Context Packages** | Scoped, grounded context bundles -- Scout does not call an AI model |
+| **Governed Evidence Packages** | Scoped, grounded context bundles for approved consumers -- Scout does not need to call an AI model |
 | **Connector Framework** | Generic SQL, REST, CSV, mock connectors + extension points for enterprise |
 | **Audit & Provenance** | Every read, recompute, and context access is traceable |
 | **Blueprint Import** | AI-generated configuration (from Codex, Claude, ChatGPT) validated and imported |
@@ -126,7 +128,7 @@ flowchart LR
     subgraph Customer["Customer environment"]
         SourcesC["Existing systems: CRM, ERP, support, warehouse, billing, legacy SQL"]
         DataPlane["Scout data plane: connectors, selectors, semantic schema, snapshots, provenance, APIs"]
-        CConsumers["Customer consumers: apps, reports, copilots, agents, workflows"]
+        CConsumers["Customer consumers: apps, reports, copilots, local LLMs, agents, workflows"]
         SourcesC --> DataPlane
         DataPlane --> CConsumers
     end
@@ -180,13 +182,13 @@ flowchart LR
 | **Frontend** | React 19, Vite, TypeScript, TanStack Router, TanStack Query, Tailwind CSS |
 | **Backend** | ASP.NET Core (.NET 10), Hot Chocolate GraphQL, EF Core, FluentValidation, OpenTelemetry |
 | **Data** | Dual-database: operational source DB + semantic context DB (SQLite local / PostgreSQL production) |
-| **APIs** | GraphQL, REST v1, TypeScript SDK, .NET SDK, AI-safe context packages |
+| **APIs** | GraphQL, REST v1, TypeScript SDK, .NET SDK, governed context/evidence packages |
 
 ---
 
 ## Demo Walkthrough
 
-The seeded demo includes realistic B2B SaaS data: 2 tenants, 30 accounts, 80+ contacts, 200 sales activities, 560 product usage rows, 100 support tickets, and more.
+The seeded demo includes synthetic realistic B2B SaaS data: 2 tenants, 30 accounts, 80+ contacts, 200 sales activities, 560 product usage rows, 100 support tickets, email/web engagement, billing status, and sale-outcome-style signals.
 
 **Best demo record:** `demo` tenant / `User 123` / `Avery Stone` / `Larkspur Logistics Group`
 
@@ -286,7 +288,7 @@ Systems that do not want GraphQL can use the production-minded REST surface unde
 | `GET` | `/api/v1/context/accounts/{id}` | Account context lookup |
 | `GET` | `/api/v1/context/users/{id}/facts` | Semantic fact lookup with filters |
 | `GET` | `/api/v1/context/snapshots/{id}` | Context snapshot retrieval |
-| `POST` | `/api/v1/context/users/{id}/ai-safe-context-package` | AI-safe context package |
+| `POST` | `/api/v1/context/users/{id}/ai-safe-context-package` | Governed context/evidence package |
 | `POST` | `/api/v1/context/recompute` | Queue recomputation |
 | `POST` | `/api/v1/selectors/preview` | Selector preview |
 | `POST` | `/api/v1/selectors/validate` | Selector validation |

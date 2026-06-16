@@ -18,7 +18,7 @@ import type {
 
 export const featuredUserId = '123'
 export const featuredObjective =
-  'Book a 20-minute discovery call for enterprise rollout next week, using product momentum and pricing intent to justify urgency.'
+  'Recommend the next response for this email address to increase conversion probability, using product momentum, pricing intent, support status, and similar won/lost patterns.'
 
 export const executiveStorySteps = [
   { to: '/demo', label: '1. Why Scout' },
@@ -137,7 +137,7 @@ export function getTimelineNarrative(event: OperationalTimelineEventResult) {
       businessMeaning:
         normalizedDescription.includes('resolved')
           ? 'Resolved support friction lowers drag and supports a cleaner expansion story.'
-          : 'Open issues stay inside the context package so downstream systems acknowledge risk explicitly.',
+          : 'Open issues stay inside the evidence package so downstream systems acknowledge risk explicitly.',
       tone: 'warning' as const,
     }
   }
@@ -314,7 +314,7 @@ function buildInteractionTimeline(
         contextNow:
           'The product can now reuse the same commercial interpretation across workflows instead of rebuilding logic per feature.',
         aiAdvice:
-          'Use the latest grounded context package, cite the relevant facts, and avoid inventing details outside the evidence.',
+          'Use the latest grounded evidence package, cite the relevant facts, and avoid inventing details outside the evidence.',
         advisedAction: 'Continue with the grounded outreach sequence.',
         result: `The example consumer sees ${groundedFacts.length} cited facts instead of a raw user identifier.`,
         citations: groundedFacts.slice(0, 2).map((fact) => fact.citationId),
@@ -460,9 +460,9 @@ export function useExecutiveDemoData() {
         body: 'Reusable business facts available to product workflows, analytics, copilots, and agents.',
       },
       {
-        label: 'Citations',
+      label: 'Evidence pack citations',
         value: String(groundedFacts.length),
-        body: 'Evidence-backed facts sent to the model with confidence and freshness metadata.',
+        body: 'Evidence-backed facts sent to the approved consumer with confidence, freshness, and source metadata.',
       },
       {
         label: 'Snapshot confidence',

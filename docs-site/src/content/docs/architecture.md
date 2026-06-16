@@ -5,12 +5,12 @@ description: Public architecture of KynticAI Scout and its open-source data-plan
 
 KynticAI Scout is the public, MIT-licensed data-plane foundation for the
 Universal Context Layer. It runs beside existing operational systems,
-turns approved source records into governed semantic context, and exposes
-that context through GraphQL, REST, SDKs, and context packages.
+turns approved source records into governed semantic context and evidence,
+and exposes that context through GraphQL, REST, SDKs, and context packages.
 
 Scout's core context pipeline does not call an AI model. Its job is to give
-customer-owned applications, reports, workflows, agents, and AI-enabled
-products a trusted memory layer with provenance and confidence. Optional
+customer-owned applications, reports, workflows, local LLMs, agents, and
+AI-enabled products a trusted memory layer with provenance and confidence. Optional
 demo workflows can consume Scout context, but context generation remains
 grounded in approved source data.
 
@@ -37,6 +37,7 @@ Approved source systems
   -> raw payload and provenance
   -> selector execution
   -> semantic facts
+  -> governed evidence package
   -> context snapshots and packages
   -> GraphQL / REST / SDK consumers
 ```
@@ -48,7 +49,7 @@ evaluation and PostgreSQL for production-style self-hosting.
 ## Data Planes And Control Planes
 
 Scout is designed as a customer data plane. Customer operational data,
-connector credentials, context facts, snapshots, and audit data stay inside
+connector credentials, context facts, evidence packages, snapshots, and audit data stay inside
 the self-hosted Scout environment.
 
 The public repo also contains metadata types used for SaaS-style account,
@@ -80,6 +81,7 @@ Important controls include:
 - confidence and freshness on facts
 - audit records for context and administration activity
 - provenance on facts and context packages
+- support for next-best-action evidence packs without sending raw data to Cloud
 - production readiness checks for unsafe development settings
 
 ## Open Source And Enterprise

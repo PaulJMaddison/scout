@@ -274,7 +274,7 @@ public static class VersionedRestEndpointRouteBuilderExtensions
                 var result = await service.GetSalesContextPackageAsync(
                     new SalesContextPackageInput(resolvedTenantSlug, externalUserId, request.Objective),
                     cancellationToken);
-                return result is null ? NotFound(httpContext, "context.package_not_found", "AI-safe context package was not found.") : Results.Ok(result);
+                return result is null ? NotFound(httpContext, "context.package_not_found", "Governed evidence package was not found.") : Results.Ok(result);
             }))
             .WithName("V1GetAiSafeContextPackage");
 

@@ -7,19 +7,19 @@ const useCases = [
   {
     title: 'Sales recommendations',
     audience: 'Revenue teams',
-    body: 'Turn CRM, product usage, billing, lifecycle, and support signals into account context that explains who to contact, why now, and which evidence supports the recommendation.',
+    body: 'Turn email reply, meeting booked, web search, pricing visit, registration, CRM contact, opportunity, product usage, billing, support, and won/lost outcome signals into a next-best-action recommendation.',
     icon: UsersRound,
   },
   {
     title: 'Customer success health',
     audience: 'CS and account management',
-    body: 'Combine onboarding, adoption, support, billing, and engagement facts into trusted health signals that show whether the account needs help, expansion, or review.',
+    body: 'Combine onboarding, adoption, support, billing, engagement, and similar retained/lost patterns into trusted health signals that show whether the account needs help, expansion, or review.',
     icon: BarChart3,
   },
   {
     title: 'Support prioritisation',
     audience: 'Support operations',
-    body: 'Put ticket severity in context with account value, renewal risk, product adoption, and relationship state so teams can prioritise with evidence.',
+    body: 'Put ticket severity in context with account value, renewal risk, product adoption, billing status, and relationship state so teams can prioritise with evidence.',
     icon: Headphones,
   },
   {
@@ -47,8 +47,8 @@ export function UseCasesPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Use cases"
-        title="Turn existing business data into practical outcomes across sales, support, product, marketing, and operations."
-        description="The same semantic layer can serve many teams because selectors turn raw source data into trusted facts once, then expose those facts through context snapshots, APIs, SDKs, and governed packages."
+        title="Turn authorised customer data into evidence-backed recommendations across sales, support, product, marketing, and operations."
+        description="The same customer-owned data plane can serve many teams because selectors turn source data into trusted evidence once, then expose it through context snapshots, APIs, SDKs, and governed packages."
         actions={
           <>
             <Link to="/demo">
@@ -71,22 +71,22 @@ export function UseCasesPage() {
               {
                 label: 'Source estate',
                 title: 'Signals already exist across the business',
-                body: 'CRM history, product activity, support tickets, billing state, email engagement, and warehouse roll-ups remain in their current systems.',
+                body: 'Email address, replies, meetings booked, web searches, pricing visits, registrations, CRM contacts, opportunities, support tickets, product usage, billing status, and won/lost outcomes remain in their current systems.',
               },
               {
                 label: 'Selectors',
-                title: 'Raw signals become trusted commercial facts',
-                body: 'Selectors calculate attributes such as conversion probability, support drag, budget readiness, plan interest, and recommended sales motion.',
+                title: 'Signals become trusted commercial evidence',
+                body: 'Selectors calculate attributes such as conversion probability, support drag, budget readiness, plan interest, similar successful pattern, and recommended next action.',
               },
               {
                 label: 'Context package',
-                title: 'The AI agent receives a structured brief',
-                body: 'The package includes allowed facts, confidence, provenance, freshness, masking decisions, and warnings when supporting evidence is weak.',
+                title: 'The local AI consumer receives a structured brief',
+                body: 'The package includes allowed facts, confidence, provenance, freshness, masking decisions, similar-pattern references, and warnings when supporting evidence is weak.',
               },
               {
                 label: 'Outcome',
                 title: 'The recommendation is clearer and easier to defend',
-                body: 'Sales teams see why a recommendation exists, which source systems contributed, and whether the data is fresh enough to act on.',
+                body: 'Sales teams see why a recommendation exists, which source systems contributed, and whether the data is fresh enough to act on. The goal is to increase conversion probability, not guarantee a sale.',
               },
             ]}
           />

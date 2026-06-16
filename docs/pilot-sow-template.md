@@ -12,7 +12,7 @@ The pilot does not create a general self-serve SaaS subscription unless a separa
 
 ## 2. Pilot Objectives
 
-- prove that existing customer data can be mapped into trusted semantic context
+- prove that authorised customer data can be mapped into governed evidence packs for the agreed workflow
 - keep systems of record in place
 - expose governed context to one agreed downstream consumer
 - validate confidence, freshness, provenance, audit, and masking expectations

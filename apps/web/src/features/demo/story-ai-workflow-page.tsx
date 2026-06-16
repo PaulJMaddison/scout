@@ -32,7 +32,7 @@ export function StoryAiWorkflowPage() {
                 <div>
                   <p className="font-display text-3xl">Grounded context in, explainable action out.</p>
                   <p className="mt-3 text-sm leading-7 text-ivory-200">
-                    This recommendation engine works from a structured context package with {salesPackageQuery.data?.facts.length ?? 0} cited facts, confidence metadata, and freshness rules. Scout creates the context; the sales assistant is just one consumer.
+                    This recommendation engine works from a structured evidence package with {salesPackageQuery.data?.facts.length ?? 0} cited facts, confidence metadata, and freshness rules. Scout creates the context; the sales assistant is just one consumer.
                   </p>
                 </div>
               </div>

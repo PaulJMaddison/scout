@@ -4,7 +4,7 @@ This is a non-lawyer drafting aid for legal review. It is not legal advice and m
 
 ## Product Boundary
 
-KynticAI Scout turns existing business data into trusted semantic context that customer-owned AI tools, workflows, apps, reports, and agents can use. We do not build the brain. We build the nervous system.
+KynticAI Scout turns authorised customer data into governed evidence packs that customer-owned AI tools, workflows, apps, reports, local LLMs, and agents can use. We do not build the brain. We build the nervous system.
 
 The customer data plane is designed to run beside the customer's systems. Raw operational data, connector credentials, selectors, context facts, snapshots, provenance, local audit logs, and customer-specific configuration stay in the customer data plane by default.
 

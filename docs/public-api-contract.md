@@ -2,7 +2,7 @@
 
 This page explains the public KynticAI Scout API contract for context consumers, selector tooling, provenance review, machine-to-machine access, and SDK usage.
 
-Scout does not need to call an AI model to be useful. The core contract is that a customer-owned data plane turns approved operational signals into governed semantic context, then exposes that context to customer-owned apps, reports, workflows, agents, and AI tools through GraphQL, REST, SDKs, and context packages.
+Scout does not need to call an AI model to be useful. The core contract is that a customer-owned data plane turns approved operational signals into governed semantic context and evidence, then exposes that context to customer-owned apps, reports, workflows, agents, local LLMs, and AI tools through GraphQL, REST, SDKs, and context packages.
 
 ## Boundary
 
@@ -141,7 +141,7 @@ curl -X POST "http://127.0.0.1:5198/api/v1/selectors/validate?tenantSlug=demo" \
   }'
 ```
 
-Retrieve an AI-safe context package without Scout calling an AI model:
+Retrieve a governed context/evidence package without Scout calling an AI model:
 
 ```bash
 curl -X POST "http://127.0.0.1:5198/api/v1/context/users/123/ai-safe-context-package?tenantSlug=demo" \
@@ -214,7 +214,7 @@ Errors use the v1 envelope:
 
 ## GraphQL Examples
 
-GraphQL samples live in [samples/graphql/demo-queries.graphql](../samples/graphql/demo-queries.graphql). They cover user context, account context, context snapshots, semantic catalogues, selector preview, selector validation, recomputation, audit events, AI-safe context packages, prompt templates, and the mock agent-run path.
+GraphQL samples live in [samples/graphql/demo-queries.graphql](../samples/graphql/demo-queries.graphql). They cover user context, account context, context snapshots, semantic catalogues, selector preview, selector validation, recomputation, audit events, governed context packages, prompt templates, and the mock agent-run path.
 
 Use `salesContextPackage` when the consumer only needs grounded context. Use `createAgentRun` only for the example AI workflow where Scout calls the configured mock or provider-backed structured LLM client.
 
