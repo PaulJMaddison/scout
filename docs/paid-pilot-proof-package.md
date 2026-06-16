@@ -2,6 +2,8 @@
 
 Use this package for fast buyer proof before a scoping call. It is designed to prove a real operational pattern without claiming self-serve SaaS or vendor-certified connector coverage.
 
+Connector marketplace and n8n status should be taken from [Connector Marketplace Investor Story](connector-marketplace-investor-story.md). The safe public position is: generic Scout connector proof is implemented, the n8n node is local-package partial, Enterprise connectors are scoped privately, and no public marketplace or published connector is claimed.
+
 ## Two-Minute Demo Video Script
 
 1. Show the source data: a PostgreSQL or SQL table with customer, commercial, support, pricing, or operational fields.

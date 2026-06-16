@@ -11,6 +11,10 @@ It is a write-only node for sending provider-neutral source-system events to:
 POST /api/v1/events/source-system?tenantSlug=<tenant>
 ```
 
+Investor/data-room wording should keep this status as **partial**: local package
+readiness exists, but npm publication and n8n marketplace submission are not
+claimed. See `docs/connector-marketplace-investor-story.md` in the repo.
+
 ## Local Checks
 
 ```bash
