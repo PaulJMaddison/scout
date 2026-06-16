@@ -1,15 +1,15 @@
 ---
 title: What is KynticAI Scout?
-description: An introduction to KynticAI Scout — open-source context infrastructure for AI-enabled products.
+description: An introduction to KynticAI Scout — open-source customer data-plane infrastructure for AI-enabled products.
 ---
 
 ## Overview
 
-**KynticAI Scout** is open-source context infrastructure for AI-enabled
-products. It sits beside your existing systems — CRM, ERP, support desk,
-billing, data warehouses — and creates a governed semantic layer above them
-so that downstream consumers receive trusted business meaning instead of raw
-records.
+**KynticAI Scout** is open-source customer data-plane infrastructure for
+AI-enabled products. It sits beside your existing systems — CRM, ERP,
+support desk, billing, data warehouses — and creates a governed semantic
+and evidence layer above them so that downstream consumers receive trusted
+business meaning instead of raw records.
 
 Scout does not replace any source system. It does not call an AI model. It
 builds the *nervous system* that carries business context from existing
@@ -25,7 +25,7 @@ dashboards, and internal applications.
 | **Semantic Facts** | Discrete governed units of business meaning with audit metadata |
 | **GraphQL + REST APIs** | Every context surface available through both query styles |
 | **TypeScript & .NET SDKs** | Typed client libraries for integration teams |
-| **AI-Safe Context Packages** | Scoped, grounded context bundles — Scout does not call an AI model |
+| **Governed Evidence Packages** | Exact linked records, citations, masking decisions, and next-best-action context — Scout does not call an AI model |
 | **Connector Framework** | Generic SQL, REST, CSV, mock connectors and extension points |
 | **Audit & Provenance** | Every read, recompute, and context access is traceable |
 | **Blueprint Import** | AI-generated configuration validated and imported without calling AI APIs |
@@ -34,10 +34,12 @@ dashboards, and internal applications.
 ## Architecture
 
 Scout operates as a **customer data plane** — it runs in your environment
-and your data stays under your control.
+and your operational data stays under your control.
 
 ```
 Existing Systems ──► Connectors ──► Selector Engine ──► Semantic Schema
+                                                            │
+                                                Exact Records + Evidence
                                                             │
                                                     Context Snapshots
                                                             │
@@ -48,8 +50,16 @@ Existing Systems ──► Connectors ──► Selector Engine ──► Semant
                                                workflows, agents)
 ```
 
-An optional hosted control plane manages only commercial metadata —
-accounts, licences, and downloads. It never receives raw customer data.
+For the demo sales workflow, exact authorised data includes normalised email
+address, CRM contact/account, account registration/profile, sales activity,
+opportunities, email replies, meetings booked, web conversion and pricing-page
+events, support tickets, product usage summaries, billing health, and won/lost
+outcome signals.
+
+An optional hosted Cloud/control plane manages only commercial metadata —
+accounts, licences, downloads, support access, update channels, and optional
+aggregate usage. It is not required for the data plane and must not receive raw
+customer data by default.
 
 ## Licence
 

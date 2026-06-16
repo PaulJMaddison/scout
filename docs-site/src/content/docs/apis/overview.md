@@ -8,6 +8,14 @@ for TypeScript and .NET. Use GraphQL when consumers need shaped context
 queries. Use REST for conventional HTTP integrations, machine clients,
 event ingestion, and OpenAPI-based tooling.
 
+The versioned REST surface also exposes `POST /api/v1/intelligence/next-action`
+for the customer data-plane demo flow. It links exact authorised records such
+as CRM contact/account, email engagement, web conversion, opportunities,
+support, usage, billing, and won/lost outcome signals into an evidence pack
+with relationships, weighted signals, provenance, governance decisions, and a
+recommended next action. Raw records stay in the data plane; optional
+Cloud/control-plane payloads are metadata-only by default.
+
 ## Public Surfaces
 
 | Surface | Path or package | Reference |

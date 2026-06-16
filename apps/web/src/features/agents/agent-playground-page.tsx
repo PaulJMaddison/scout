@@ -135,8 +135,8 @@ export function AgentPlaygroundPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Example consumer"
-        title="Intelligent Sales Support uses Scout context to generate grounded sales recommendations."
-        description="This playground is one consumer of the data plane. Build a context package for a sales objective, then produce a strategy, email draft, and follow-up plan that cite the exact facts behind the advice."
+        title="Intelligent Sales Support uses Scout evidence packs to generate grounded sales recommendations."
+        description="This playground is one consumer of the data plane. Build an evidence package for a sales objective, then produce a strategy, email draft, and next-best-action plan that cite the exact facts behind the advice."
         actions={
           <Button
             type="button"
@@ -199,7 +199,7 @@ export function AgentPlaygroundPage() {
                 <div>
                   <p className="font-display text-2xl">Guardrails in effect</p>
                   <p className="mt-2 text-sm leading-7 text-ivory-200">
-                    The selected model only sees the governed package below, must cite facts, and should recommend human review whenever the evidence gets thin. Scout supplies the context; the customer can bring the AI.
+                    The selected model only sees the governed evidence package below, must cite facts, and should recommend human review whenever the evidence gets thin. Scout supplies the context; the customer can bring the AI.
                   </p>
                 </div>
               </div>
@@ -219,8 +219,8 @@ export function AgentPlaygroundPage() {
 
         <div className="grid gap-4 xl:col-span-1">
           <Panel
-            eyebrow="Grounded package"
-            title={contextPackageQuery.data?.fullName ?? 'Context package'}
+            eyebrow="Governed evidence pack"
+            title={contextPackageQuery.data?.fullName ?? 'Evidence package'}
             action={
               contextPackageQuery.data ? (
                 <div className="flex flex-wrap gap-2">
@@ -269,7 +269,7 @@ export function AgentPlaygroundPage() {
                         <div>
                           <p className="font-semibold text-ink-950">Review before sending</p>
                           <p className="text-sm text-ink-700">
-                            The context package has weak or missing signals that the model must acknowledge.
+                            The evidence package has weak or missing signals that the model must acknowledge.
                           </p>
                         </div>
                         {contextPackageQuery.data.weakSignalMessages.map((signal) => (
@@ -324,14 +324,14 @@ export function AgentPlaygroundPage() {
 
                 <JsonViewer
                   value={safeJsonParse(contextPackageQuery.data.contextPackageJson, {})}
-                  title="Context package JSON sent to this consumer"
+                  title="Evidence package JSON sent to this consumer"
                   height="h-72 lg:h-80 2xl:h-[420px]"
                 />
               </div>
             ) : (
               <Card className="bg-ivory-25">
                 <p className="text-sm leading-7 text-ink-700">
-                  Choose a user and objective to build the grounded payload the model will receive.
+                  Choose a user and objective to build the grounded evidence package the model will receive.
                 </p>
               </Card>
             )}
@@ -438,7 +438,7 @@ export function AgentPlaygroundPage() {
                   <div className="flex items-center gap-3">
                     <Sparkles className="size-5 text-copper-700" />
                     <div>
-                      <p className="font-display text-2xl text-ink-950">Follow-up recommendations</p>
+                      <p className="font-display text-2xl text-ink-950">Next-best-action recommendations</p>
                       <p className="text-sm text-ink-600">Actionable next steps with rationale and citations.</p>
                     </div>
                   </div>
@@ -536,7 +536,7 @@ export function AgentPlaygroundPage() {
             ) : (
               <Card className="bg-ivory-25">
                 <p className="text-sm leading-7 text-ink-700">
-                  Generate a recommendation to inspect how this example consumer uses the grounded package to produce a strategy, an email draft, and follow-up guidance.
+                  Generate a recommendation to inspect how this example consumer uses the governed evidence pack to produce a strategy, an email draft, and next-best-action guidance.
                 </p>
               </Card>
             )}

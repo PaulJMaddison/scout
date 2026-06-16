@@ -6,7 +6,7 @@ This page answers common KynticAI Scout questions from CEOs, CTOs, product leade
 
 ### What does Scout do in one sentence?
 
-KynticAI Scout turns authorised customer data into governed evidence packs that customer-owned AI tools, workflows, apps, reports, local LLMs, and agents can use.
+KynticAI Scout turns exact authorised customer data into governed evidence packs that customer-owned AI tools, workflows, apps, reports, local LLMs, and agents can use.
 
 ### Why should we care now?
 
@@ -24,7 +24,9 @@ The sellable offer today is a supported paid pilot: discovery, customer data-pla
 
 ### Where does customer data live?
 
-Operational data, connector credentials, selectors, facts, snapshots, evidence packages, and audit logs stay in the customer-controlled data plane by default. Optional hosted control-plane services should receive commercial metadata only by default.
+Operational data, connector credentials, customer-specific mappings, exact linked records, selectors, facts, snapshots, local evidence packages, and audit logs stay in the customer-controlled data plane by default. Optional Cloud/control-plane services should receive commercial metadata only by default.
+
+For the sales walkthrough, exact authorised data includes normalised email address, CRM contact/account, account registration/profile, sales activity, opportunities, email replies, meetings booked, web conversion and pricing-page events, support tickets, product usage summaries, billing health, and prior won/lost outcome signals.
 
 ### Do we need to replace systems?
 
@@ -46,21 +48,21 @@ Pick one workflow where existing data already affects a decision but is hard to 
 
 ### How does this help an AI feature?
 
-The AI or workflow receives scoped facts with confidence, freshness, evidence, similar-pattern references, and guardrails instead of a heap of raw records. Scout can retrieve a governed context package without calling an AI model itself.
+The AI or workflow receives scoped facts with confidence, freshness, evidence, exact-record citations, similar-pattern references, relationships, masking decisions, and guardrails instead of a heap of raw records. Scout can retrieve a governed context package or next-action evidence pack without calling an AI model itself.
 
 ### What does success look like?
 
-One downstream consumer can make a better, more explainable recommendation because it uses governed evidence rather than direct joins, copied exports, or unsupported prompt claims. Use honest language such as "increase conversion probability", "recommend the next best action", or "surface patterns linked to successful outcomes".
+One downstream consumer can make a better, more explainable recommendation because it uses governed evidence rather than direct joins, copied exports, or unsupported prompt claims. Use honest language such as "increase conversion probability", "recommend the next-best action", or "surface patterns linked to successful outcomes".
 
 ## Enterprise Architects
 
 ### What is the architecture pattern?
 
-Scout has a customer data plane beside source systems and an optional hosted/control-plane relationship for commercial metadata. The data plane owns source access, selectors, facts, snapshots, APIs, provenance, audit, masking, and local configuration.
+Scout has a customer data plane beside source systems and an optional Cloud/control-plane relationship for commercial metadata. The data plane owns source access, exact linked records, selectors, facts, snapshots, evidence packs, APIs, provenance, audit, masking, and local configuration.
 
 ### How do we handle vendor connectors?
 
-The public repo includes generic SQL, REST, CSV, mock connectors, catalogue metadata, and extension points. Real paid vendor connector implementations belong in private enterprise scope and should be commercially agreed per customer.
+The public repo includes generic SQL, REST, CSV, mock connectors, catalogue metadata, and extension points. Real paid vendor connector implementations, Rust relationship weighting, and customer-specific mappings belong in private enterprise scope and should be commercially agreed per customer.
 
 ### What should not be promised yet?
 
@@ -68,4 +70,4 @@ Do not promise a complete self-serve SaaS product, live hosted billing, producti
 
 ### What should be shown in a sales call?
 
-Show the local demo first, then the backend API flow. Walk through fragmented operational data, selector mapping, context facts, provenance, AI-safe package retrieval, and a downstream workflow decision. Close by explaining the paid pilot scope and open-core boundary.
+Show the local demo first, then the backend API flow. Walk through fragmented operational data, selector mapping, exact linked records, context facts, provenance, governed evidence-pack retrieval, next-best-action output, and a downstream workflow decision. Close by explaining the paid pilot scope and open-core boundary.

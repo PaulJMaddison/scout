@@ -68,7 +68,7 @@ export const typeScriptSdkExample = `const context = await scout.users.getContex
 
 const accountContext = await scout.accounts.getContext("acme", "ACC-12345")
 
-const package = await scout.packages.getAiContextForUser(
+const evidencePack = await scout.packages.getAiContextForUser(
   "acme",
   "123",
   "recommendation_generation",
@@ -78,7 +78,7 @@ export const csharpSdkExample = `var context = await scout.Users.GetContextAsync
 
 var accountContext = await scout.Accounts.GetContextAsync("acme", "ACC-12345");
 
-var package = await scout.Packages.GetAiContextForUserAsync(
+var evidencePack = await scout.Packages.GetAiContextForUserAsync(
     "acme",
     "123",
     "recommendation_generation");`
@@ -168,7 +168,7 @@ export const faqEntries = [
   {
     question: 'Is this just a website?',
     answer:
-      'No. The React application is a public product site, learning experience, demo, and admin console. The underlying product value is the backend customer-owned data plane that connects existing systems, computes semantic facts, and exposes governed evidence through GraphQL, REST, SDKs, context packages, and internal services.',
+      'No. The React application in this repo is a data-plane guide, seeded demo, and admin console. It is not the main public marketing website. The underlying product value is the backend customer-owned data plane that connects existing systems, computes semantic facts, links exact records, and exposes governed evidence through GraphQL, REST, SDKs, evidence packs, and internal services.',
   },
   {
     question: 'Can this be used without replacing existing systems?',
@@ -198,7 +198,7 @@ export const faqEntries = [
   {
     question: 'What would be paid later?',
     answer:
-      'Paid/private offerings cover real enterprise connectors across CRM, warehouse, email, chat, calendar, analytics, work management, and knowledge systems, plus SSO/SAML, SCIM, vault integrations, advanced governance, compliance exports, deployment packs, SLA tooling, hosted account management, billing, commercial licence portals, download portals, update channels, support portals, aggregate usage reporting, cloud operations, and implementation services. The public repo remains a credible open source core rather than a crippled teaser.',
+      'Paid/private offerings cover Rust relationship weighting; real enterprise connectors across CRM, warehouse, email, chat, calendar, analytics, work management, and knowledge systems; plus SSO/SAML, SCIM, vault integrations, advanced governance, compliance exports, deployment packs, SLA tooling, optional Cloud/control-plane account management, billing, commercial licence portals, download portals, update channels, support portals, aggregate usage reporting, cloud operations, and implementation services. The public repo remains a credible open source core rather than a crippled teaser.',
   },
   {
     question: 'Where would paid code live?',
@@ -208,7 +208,7 @@ export const faqEntries = [
   {
     question: 'Would there be one website or two?',
     answer:
-      'For now, one polished site is the better choice. The current React site can explain the open source core, the backend integration layer, the future private cloud/control-plane direction, the demo/admin console, and the future enterprise boundary in one coherent experience. A split into separate marketing and hosted-app sites only becomes necessary later if a managed control-plane offering grows significantly.',
+      'This repository should not become the main public marketing website. The React app here should stay focused on the open source core, customer data-plane walkthrough, seeded demo, admin console, and public/private boundary. A separate marketing site can point people here when they want to inspect or run the product.',
   },
   {
     question: 'How would an external system call Scout?',
@@ -233,6 +233,6 @@ export const faqEntries = [
   {
     question: 'How do AI tools use the context?',
     answer:
-      'AI tools should consume governed evidence packages rather than raw database records. Scout can prepare structured packages containing allowed facts, citations, freshness, confidence, similar-pattern references, and masking decisions so models, agents, copilots, and recommendation flows work from supported business evidence.',
+      'AI tools should consume governed evidence packages rather than raw database records. Scout can prepare structured packages containing exact linked records, allowed facts, citations, freshness, confidence, similar-pattern references, relationship summaries, and masking decisions so models, agents, copilots, and recommendation flows work from supported business evidence.',
   },
 ] as const

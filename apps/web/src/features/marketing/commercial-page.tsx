@@ -7,9 +7,9 @@ export function CommercialPage() {
     body: string
     icon: typeof CloudCog
   }> = [
-    { title: 'Future private cloud control plane', body: 'A paid/private cloud offering can manage accounts, licences, downloads, support, update channels, and aggregate usage without requiring raw operational data by default.', icon: CloudCog },
+    { title: 'Optional Cloud/control plane', body: 'A paid/private control-plane offering can manage accounts, licences, downloads, support, update channels, and aggregate usage without requiring raw operational data by default.', icon: CloudCog },
     { title: 'Private cloud or single tenant', body: 'A paid/private deployment can add stronger isolation, customer-controlled networking, and commercial operations around the customer-owned data plane.', icon: Lock },
-    { title: 'Enterprise connectors and governance add-ons', body: 'Paid/private packages provide real CRM, warehouse, email, chat, calendar, analytics, work management, and knowledge connectors, plus SSO/SAML, SCIM, vault integrations, advanced governance, compliance exports, deployment packs, and SLA tooling outside the public repo.', icon: ServerCog },
+    { title: 'Enterprise connectors, weighting, and governance add-ons', body: 'Paid/private packages provide Rust relationship weighting; real CRM, warehouse, email, chat, calendar, analytics, work management, and knowledge connectors; plus SSO/SAML, SCIM, vault integrations, advanced governance, compliance exports, deployment packs, and SLA tooling outside the public repo.', icon: ServerCog },
     { title: 'Implementation services', body: 'Accelerate source onboarding, semantic schema design, selector packs, and product integration work.', icon: Handshake },
     { title: 'Support and SLA', body: 'Provide named support, operational guidance, and response expectations for production teams.', icon: LifeBuoy },
     { title: 'Commercial rollout help', body: 'Work with CTOs, architects, and product teams on platform shape, governance, rollout sequencing, and operating model.', icon: Building2 },
@@ -20,7 +20,7 @@ export function CommercialPage() {
       <PageHeader
         eyebrow="Commercial options"
         title="Paid/private enterprise and cloud options beside the public open-core repository."
-        description="The public repo contains the safe open core and self-hosted data-plane foundations. Commercial modules can add real enterprise connectors with metadata-only defaults, enterprise identity, vaults, advanced governance, compliance exports, deployment packs, SLA tooling, hosted account management, billing, licence portals, downloads, update channels, support portals, and cloud operations."
+        description="The public repo contains the safe open core and self-hosted data-plane foundations. Commercial modules can add Rust relationship weighting, real enterprise connectors with metadata-only defaults, enterprise identity, vaults, advanced governance, compliance exports, deployment packs, SLA tooling, and optional Cloud/control-plane services for hosted account management, billing, licence portals, downloads, update channels, support portals, and cloud operations."
       />
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -57,7 +57,7 @@ export function CommercialPage() {
 
       <Panel eyebrow="Not self-serve SaaS yet" title="Confidence without overclaiming">
         <p className="text-sm leading-7 text-ink-700">
-          KynticAI Scout is sellable today as open core plus implementation-led paid pilot. Fully managed account signup, live billing, licence portal, support portal, automated connector provisioning, and hands-off SaaS operations are future/private cloud-control-plane work.
+          KynticAI Scout is sellable today as open core plus implementation-led paid pilot. Fully managed account signup, live billing, licence portal, support portal, automated connector provisioning, and hands-off SaaS operations are optional commercial Cloud/control-plane work outside this public repo.
         </p>
       </Panel>
 

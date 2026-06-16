@@ -1,12 +1,12 @@
 # Hosted PostgreSQL Deployment
 
-This guide describes the first production-like deployment shape for the public KynticAI Scout repo: React as a static site, ASP.NET Core as a Docker web service, PostgreSQL as managed databases, and SQLite only for local demo mode.
+This guide describes the first production-like deployment shape for the public KynticAI Scout repo: React as a static docs/demo/admin app, ASP.NET Core as a Docker web service, PostgreSQL as managed databases, and SQLite only for local demo mode.
 
 It is not the full future managed control plane. The open-core backend still operates as the customer data plane: connectors, selectors, context facts, provenance, audit logs, and credentials stay in the customer-controlled environment unless the customer explicitly exports them.
 
 ## Target Architecture
 
-- `apps/web` builds to static files with `npm run build` and can be hosted by Render Static Sites, Netlify, Cloudflare Pages, S3/CloudFront, or the bundled nginx image.
+- `apps/web` builds to static docs/demo/admin files with `npm run build` and can be hosted by Render Static Sites, Netlify, Cloudflare Pages, S3/CloudFront, or the bundled nginx image.
 - `src/KynticAI.Scout.Api` builds with `src/KynticAI.Scout.Api/Dockerfile` and listens on port `8080`.
 - Hosted mode uses PostgreSQL for both `ScoutDbContext` and `CustomerOpsDbContext`.
 - Local demo mode remains SQLite-backed and does not require Docker.

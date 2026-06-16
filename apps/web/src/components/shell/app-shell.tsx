@@ -20,6 +20,7 @@ import {
   Library,
   LayoutDashboard,
   Menu,
+  Network,
   PlugZap,
   RadioTower,
   ScrollText,
@@ -68,7 +69,7 @@ const navigationSections: NavigationSection[] = [
       { to: '/open-core', label: 'Open core and repo strategy', icon: GitBranch, public: true },
       { to: '/pricing', label: 'Pricing and deployment', icon: Gauge, public: true },
       { to: '/docs', label: 'Docs', icon: Library, public: true },
-      { to: '/demo', label: 'Sales demo', icon: Flag, public: true },
+      { to: '/demo', label: 'Data-plane demo', icon: Flag, public: true },
       { to: '/onboarding', label: 'Company onboarding', icon: Fingerprint, public: true },
       { to: '/faq', label: 'FAQ', icon: HelpCircle, public: true },
     ],
@@ -114,6 +115,7 @@ const navigationSections: NavigationSection[] = [
     title: 'Product Proof',
     items: [
       { to: '/customers', label: '360 Customer Profile', icon: AppWindow, roles: ['tenant_admin', 'sales_rep'] },
+      { to: '/relationship-intelligence', label: 'Relationship Intelligence', icon: Network, roles: ['tenant_admin', 'sales_rep'] },
       { to: '/agent-playground', label: 'Example Sales Support', icon: WandSparkles, roles: ['tenant_admin', 'sales_rep'] },
       { to: '/overview', label: 'Operational Overview', icon: LayoutDashboard, roles: ['tenant_admin', 'sales_rep'] },
     ],
@@ -213,20 +215,20 @@ export function AppShell() {
 
           <div className="mt-8 rounded-[26px] border border-white/10 bg-white/5 p-4 text-ivory-100">
             <p className="text-xs uppercase tracking-[0.2em] text-ivory-300/70">
-              {isPublicMode ? 'Website mode' : 'Workspace'}
+              {isPublicMode ? 'Docs/demo mode' : 'Workspace'}
             </p>
-            <p className="mt-3 text-lg font-semibold">{isPublicMode ? 'Open core public site' : session.tenantSlug}</p>
+            <p className="mt-3 text-lg font-semibold">{isPublicMode ? 'Open-core data plane' : session.tenantSlug}</p>
             <p className="mt-1 text-sm text-ivory-300/80">
               {isPublicMode
-                ? 'Product vision, integration patterns, commercial boundary, and demo paths in one place.'
+                ? 'Docs, demo walkthrough, admin-console entry points, and public/private boundary in one place.'
                 : session.displayName}
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               {isPublicMode ? (
                 <>
                   <Badge tone="accent">Open source core</Badge>
-                  <Badge tone="neutral">Backend integration layer</Badge>
-                  <Badge tone="success">Future private cloud and enterprise options</Badge>
+                  <Badge tone="neutral">Customer-owned data plane</Badge>
+                  <Badge tone="success">Optional Cloud/control-plane metadata</Badge>
                 </>
               ) : (
                 <>
@@ -335,7 +337,7 @@ export function AppShell() {
               {isPublicMode ? (
                 <Badge tone="neutral">
                   <Activity className="mr-2 size-3.5" />
-                  Open core, demo, and context infrastructure in one site
+                  Open core data-plane docs, demo, and admin console
                 </Badge>
               ) : (
                 <Badge tone="neutral">

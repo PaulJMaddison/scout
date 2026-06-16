@@ -37,7 +37,7 @@ Use placeholder local files only. Do not paste real customer credentials into th
 
 2. Lead capture path is tested locally.
    - If the cloud API is running locally, submit a fictional lead only.
-   - If the public site is not wired to the cloud API in the current build, document the API request that the form will make and keep this as a manual step.
+   - If the public docs/demo app is not wired to the Cloud API in the current build, document the API request that the form will make and keep this as a manual step.
 
 3. Cloud account is created.
    - Use the cloud local seed/demo operator account.

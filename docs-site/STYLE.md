@@ -20,7 +20,7 @@ release automation, or deployment automation.
 
 Do not document:
 
-- private Fortress internals
+- private enterprise internals
 - proprietary engine internals
 - private implementation details
 - private connector code

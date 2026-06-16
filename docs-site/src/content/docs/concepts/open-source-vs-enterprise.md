@@ -1,20 +1,22 @@
 ---
 title: Open Source vs Enterprise
-description: What ships in the free KynticAI Scout open-source core and what requires a commercial licence.
+description: What ships in the free KynticAI Scout open-source data-plane core and what requires a commercial licence.
 ---
 
 KynticAI follows an **open-core** model. The public **Scout** repository is
-the free, MIT-licensed foundation. **Fortress** is the private enterprise
-edition available under a commercial licence.
+the free, MIT-licensed customer data-plane foundation. Private enterprise
+modules are available separately under a commercial licence.
 
 ## What's Included in Scout (Open Source)
 
-Scout is a complete, self-hostable context infrastructure platform. The
+Scout is a complete, self-hostable customer data-plane platform. The
 open-source repository includes:
 
 | Area | What You Get |
 |---|---|
 | **Semantic Engine** | Selector execution, fact materialisation, confidence scoring |
+| **Exact Linked Records** | Subject-scoped records, citations, masking decisions, and provenance |
+| **Evidence Packs** | Governed context packages for approved consumers and next-best-action workflows |
 | **Context Snapshots** | Point-in-time business profiles with provenance |
 | **GraphQL + REST APIs** | Full query surface for all context data |
 | **TypeScript SDK** | Typed client for Node.js and browser environments |
@@ -29,14 +31,15 @@ open-source repository includes:
 | **Docker Support** | Single-container and Compose-based deployment |
 | **Demo Data** | Realistic seeded B2B SaaS dataset for evaluation |
 
-## What Requires a Commercial Licence (Fortress)
+## What Requires a Commercial Licence
 
-Fortress is the enterprise edition of KynticAI. It extends the Scout core
-with capabilities designed for production enterprise deployments. Fortress
-is not included in the Scout repository and is not open source.
+Private enterprise modules extend the Scout core with capabilities designed
+for production enterprise deployments. They are not included in the Scout
+repository and are not open source.
 
 Enterprise capabilities include:
 
+- Rust relationship weighting and outcome-pattern scoring
 - Vendor-certified connectors (e.g. Salesforce, HubSpot, Dynamics,
   Snowflake, SAP, and others)
 - Enterprise SSO / SAML / SCIM identity integration
@@ -46,32 +49,32 @@ Enterprise capabilities include:
 - SLA-backed support
 
 :::note
-Fortress internals are not published in the Scout repository. The list
+Private enterprise internals are not published in the Scout repository. The list
 above describes the *category* of enterprise capability, not implementation
 details.
 :::
 
 ## How They Relate
 
-Scout defines stable public extension interfaces. Fortress implements those
-interfaces in a separate private codebase. Enterprise modules plug into the
-Scout core via dependency injection — no forking required.
+Scout defines stable public extension interfaces. Private enterprise modules
+implement those interfaces in a separate private codebase. Enterprise modules
+plug into the Scout core via dependency injection — no forking required.
 
 ```
 ┌─────────────────────────────────────────────┐
 │  KynticAI Scout (open source, MIT)          │
-│  Semantic engine, APIs, SDKs, admin UI,     │
-│  generic connectors, extension contracts    │
+│  Customer data plane, APIs, SDKs, admin UI, │
+│  exact records, generic connectors, seams   │
 ├─────────────────────────────────────────────┤
-│  KynticAI Fortress (commercial licence)     │
-│  Enterprise connectors, SSO, governance,    │
-│  compliance, managed deployment             │
+│  Private enterprise modules                 │
+│  Rust weighting, paid connectors, SSO,      │
+│  governance, compliance, managed deployment │
 └─────────────────────────────────────────────┘
 ```
 
 ## Enquiries
 
-For enterprise licensing or technical questions about Fortress, visit
+For enterprise licensing or technical questions, visit
 [kynticai.com](https://kynticai.com).
 
 ## Next Steps

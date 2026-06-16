@@ -6,13 +6,13 @@ This document describes those extension points and the boundary around them.
 
 For the full public/private product boundary, see [open-core-boundary.md](open-core-boundary.md).
 
-Commercial enterprise implementations include real Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, NetSuite, Microsoft 365 / Outlook, Gmail / Google Workspace, Slack, Microsoft Teams, Outlook Calendar, Google Calendar, Segment, Amplitude, Mixpanel, PostHog, Jira, Linear, Confluence, Notion, SharePoint, and Google Drive connectors; SSO/SAML; SCIM; credential vault integrations; advanced governance; compliance exports; private deployment packs; and SLA tooling. Those implementations are paid/private and are not included in this public repo.
+Commercial enterprise implementations include Rust relationship weighting; real Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, NetSuite, Microsoft 365 / Outlook, Gmail / Google Workspace, Slack, Microsoft Teams, Outlook Calendar, Google Calendar, Segment, Amplitude, Mixpanel, PostHog, Jira, Linear, Confluence, Notion, SharePoint, and Google Drive connectors; SSO/SAML; SCIM; credential vault integrations; advanced governance; compliance exports; private deployment packs; and SLA tooling. Those implementations are paid/private and are not included in this public repo.
 
 ## Principles
 
 - The public repo defines contracts, DTOs, DI hooks, and safe defaults.
 - Enterprise packages can implement those contracts in a separate private repo, expected to be called `scout-enterprise`.
-- The public repo must not contain paid implementations for commercial connectors, enterprise auth, billing, credential vaults, enterprise policy engines, compliance exporters, or commercial deployment packs.
+- The public repo must not contain paid implementations for Rust relationship weighting, commercial connectors, enterprise auth, billing, credential vaults, enterprise policy engines, compliance exporters, or commercial deployment packs.
 - Public code can describe the contract. Private code should own the enterprise implementation.
 
 ## Current extension points
@@ -48,12 +48,13 @@ The open source core provides:
 - mock or no-op implementations suitable for local development and testing
 - provider-neutral metadata models where needed to keep the public core coherent
 
-The public repo should keep the semantic engine, context facts and snapshots, GraphQL and REST APIs, SQLite demo, PostgreSQL support, mock connectors, safe generic SQL/file examples, extension interfaces, marketing, and documentation.
+The public repo should keep the semantic engine, exact linked records, context facts and snapshots, governed evidence packs, GraphQL and REST APIs, SQLite demo, PostgreSQL support, mock connectors, safe generic SQL/file examples, extension interfaces, in-repo demo/admin copy, and documentation.
 
 ## What a private enterprise repo should provide later
 
 Enterprise packages may later provide:
 
+- Rust relationship weighting, outcome-pattern scoring, and private relationship-engine hardening
 - real enterprise connectors, including email, chat, calendar, analytics, issue, project, document, and knowledge-system adapters
 - SSO/SAML implementations
 - Stripe, Paddle, or other billing-provider integrations
@@ -72,13 +73,14 @@ Those private packages should consume public contracts from `scout` rather than 
 These features may have public interfaces, DTOs, docs, or no-op defaults, but their real implementations should not be committed to this repository:
 
 1. Real enterprise connectors.
-2. SSO/SAML.
-3. Stripe/Paddle billing.
-4. Customer specific deployment templates.
-5. Private cloud automation.
-6. Credential vault integrations.
-7. Enterprise policy engine.
-8. Compliance report exporters.
+2. Rust relationship-weighting modules.
+3. SSO/SAML.
+4. Stripe/Paddle billing.
+5. Customer specific deployment templates.
+6. Private cloud automation.
+7. Credential vault integrations.
+8. Enterprise policy engine.
+9. Compliance report exporters.
 
 ## DI model
 
@@ -105,8 +107,3 @@ If you add a new extension point:
 - add documentation for how a private package would register the implementation
 
 Do not add vendor-specific or customer-specific enterprise implementations to this repository.
-# Enterprise Extension Points
-
-The public repository exposes stable seams so private paid enterprise packages can plug into the customer-owned data plane without copying open-core implementation code.
-
-Commercial enterprise implementations include real Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, NetSuite, Microsoft 365 / Outlook, Gmail / Google Workspace, Slack, Microsoft Teams, Outlook Calendar, Google Calendar, Segment, Amplitude, Mixpanel, PostHog, Jira, Linear, Confluence, Notion, SharePoint, and Google Drive connectors; SSO/SAML; SCIM; credential vault integrations; advanced governance; compliance exports; private deployment packs; and SLA tooling. Those implementations are paid/private and are not included in this public repo.

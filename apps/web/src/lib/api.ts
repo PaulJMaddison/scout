@@ -22,6 +22,8 @@ import type {
   GovernancePolicy,
   LoginRequest,
   LicenceStatus,
+  NextActionInput,
+  NextActionResult,
   OnboardingResult,
   OperatorAccountSummary,
   OrganisationSettings,
@@ -1049,6 +1051,30 @@ export const api = {
       { input },
     )
     return data.salesContextPackage
+  },
+
+  async generateNextAction(input: NextActionInput) {
+    return restRequest<NextActionResult>(
+      `/api/v1/intelligence/next-action?tenantSlug=${encodeURIComponent(input.tenantSlug)}`,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          tenant: input.tenantSlug,
+          subjectType: input.subjectType,
+          subjectIdentifier: input.subjectIdentifier,
+          objective: input.objective,
+          purpose: input.purpose,
+          actorRole: input.actorRole,
+        }),
+      },
+      {
+        allowDemoFallback: true,
+        fallback: async () => {
+          const { mockGenerateNextAction } = await import('@/mocks/mock-api')
+          return mockGenerateNextAction(input)
+        },
+      },
+    )
   },
 
   async upsertDataSource(input: UpsertDataSourceInput) {

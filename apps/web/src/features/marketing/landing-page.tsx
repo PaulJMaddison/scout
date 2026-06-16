@@ -18,7 +18,7 @@ export function LandingPage() {
             Most systems were designed to manage work, not empower.
           </p>
           <p className="mt-4 max-w-xl text-sm leading-7 text-ink-600">
-            Scout is the governed customer data plane from KynticAI: semantic context, provenance, selectors, connectors, and SDKs for enterprise AI workflows.
+            Scout is the governed customer data plane from KynticAI: exact linked records, semantic context, provenance, selectors, connectors, evidence packs, and SDKs for AI-enabled products.
           </p>
         </div>
         <div className="grid gap-4 rounded-[24px] border border-copper-500/18 bg-ivory-25 p-5 md:grid-cols-[14rem_1fr] md:items-center">
@@ -51,12 +51,12 @@ export function LandingPage() {
             </Link>
             <Link to="/demo">
               <Button variant="secondary">
-                See the sales demo
+                Open the data-plane demo
                 <ArrowRight className="size-4" />
               </Button>
             </Link>
             <Link to="/platform">
-              <Button variant="secondary">Explore the platform</Button>
+              <Button variant="secondary">Explore the data plane</Button>
             </Link>
           </>
         }
@@ -81,9 +81,9 @@ export function LandingPage() {
             </div>
             <div className="grid gap-3 lg:grid-cols-3">
               {[
-                ['Exact private data plane', 'Email address, replies, pricing visits, registrations, CRM contacts, opportunities, tickets, usage, billing status, and won/lost outcomes remain customer-owned.'],
-                ['Evidence layer', 'Selectors translate source signals into facts such as conversion probability, support drag, product fit, adoption health, and recommended next action.'],
-                ['Reusable evidence pack', 'Apps, reports, agents, local LLMs, and product workflows receive governed packs instead of brittle joins or copied database rows.'],
+                ['Exact customer data plane', 'Email address, replies, meetings booked, pricing visits, registrations, CRM contacts, opportunities, tickets, usage, billing health, and won/lost outcomes remain customer-owned.'],
+                ['Evidence layer', 'Selectors and relationship links translate source signals into facts such as conversion probability, support drag, product fit, adoption health, and recommended next action.'],
+                ['Reusable evidence pack', 'Apps, reports, agents, local LLMs, and product workflows receive governed packs with citations instead of brittle joins or copied database rows.'],
               ].map(([title, body]) => (
                 <div key={title} className="rounded-[24px] border border-white/10 bg-white/6 p-4">
                   <p className="font-semibold text-ivory-50">{title}</p>
@@ -185,7 +185,7 @@ export function LandingPage() {
             {[
               ['Faster AI rollout', 'Teams can build AI workflows on semantic context rather than waiting for a full data-platform replacement.'],
               ['Less integration waste', 'One mapping layer reduces repeated joins, bespoke ETL, and duplicated interpretation code.'],
-              ['Clearer recommendations', 'Sales recommendations can cite email engagement, web search, pricing-page visits, registration, CRM, opportunity, support, usage, billing, and sale outcome signals.'],
+              ['Clearer recommendations', 'Sales recommendations can cite email engagement, web conversion, pricing-page visits, registration, CRM, opportunity, support, usage, billing, and sale outcome signals.'],
               ['Safer customer context', 'Masking and provenance are part of the context contract rather than a late prompt-writing patch.'],
               ['More credible pilots', 'A demo can show exactly how authorised customer-owned data becomes an evidence-backed recommendation, not just a polished chat response.'],
             ].map(([title, body]) => (
@@ -208,7 +208,7 @@ export function LandingPage() {
           {[
             ['Open source core', 'Run the demo, inspect selectors, and learn the architecture.'],
             ['Self-hosted backend', 'Deploy GraphQL, REST, SDKs, API clients, and webhooks around your systems.'],
-            ['Future control plane', 'Use private cloud/control-plane services later for account, licence, and operational workflows.'],
+            ['Optional Cloud/control plane', 'Use commercial control-plane services later for accounts, licences, downloads, support access, update channels, and aggregate usage metadata.'],
             ['Private cloud', 'Use single-tenant isolation, regional control, and enterprise governance.'],
             ['Integration layer', 'Embed Scout behind a product or platform as the semantic contract.'],
           ].map(([title, body]) => (

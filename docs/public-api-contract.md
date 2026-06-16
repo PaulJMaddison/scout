@@ -2,13 +2,15 @@
 
 This page explains the public KynticAI Scout API contract for context consumers, selector tooling, provenance review, machine-to-machine access, and SDK usage.
 
-Scout does not need to call an AI model to be useful. The core contract is that a customer-owned data plane turns approved operational signals into governed semantic context and evidence, then exposes that context to customer-owned apps, reports, workflows, agents, local LLMs, and AI tools through GraphQL, REST, SDKs, and context packages.
+Scout does not need to call an AI model to be useful. The core contract is that a customer-owned data plane turns approved operational signals into governed semantic context and evidence, then exposes that context to customer-owned apps, reports, workflows, agents, local LLMs, and AI tools through GraphQL, REST, SDKs, evidence packs, and context packages.
 
 ## Boundary
 
 The public repo includes the open-core API surface, SDK scaffolds, selector engine, generic connectors, mock connectors, context facts, snapshots, provenance, audit, and extension points.
 
 It does not include paid enterprise connector implementations, hosted account management, live billing, production SSO, vendor-certified connector packs, customer-specific mappings, or managed SaaS operations.
+
+For next-best-action workflows, exact authorised data remains in the customer data plane: normalised email address, CRM contact/account, account registration/profile, sales activity, opportunities, email replies, meetings booked, web conversion and pricing-page events, support tickets, product usage summaries, billing health, and won/lost outcome signals. Optional Cloud/control-plane payloads should contain only metadata such as package IDs, hashed subject/account identifiers, record counts, relationship type names, weighted signal summaries, citation IDs, recommendation score/timing, confidence, caveats, and governance rules.
 
 ## Tenant And Workspace Scoping
 
@@ -151,6 +153,24 @@ curl -X POST "http://127.0.0.1:5198/api/v1/context/users/123/ai-safe-context-pac
     "objective": "Prepare a renewal-risk brief for the account team."
   }'
 ```
+
+Generate a next-action evidence pack from exact linked records in the customer data plane:
+
+```bash
+curl -X POST "http://127.0.0.1:5198/api/v1/intelligence/next-action?tenantSlug=demo" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tenant": "demo",
+    "subjectType": "email",
+    "subjectIdentifier": "avery@example.test",
+    "objective": "sale",
+    "purpose": "customer_outreach",
+    "actorRole": "sales_rep"
+  }'
+```
+
+The response includes `exactLinkedRecords`, `relationships`, `similarWonLostPatterns`, `weightedSignals`, `recommendedNextAction`, `provenance`, `governance`, and `evidencePack`. Deterministic links cover email-to-contact, contact-to-account, account-to-opportunity, account/contact-to-activity, contact-to-email-engagement, account/contact-to-web-conversion, account/contact-to-support-ticket, account/contact-to-product-usage, account-to-billing, and account/contact-to-outcome. `evidencePack.localDataPlanePackageJson` is the customer-local package. `evidencePack.cloudControlPlanePayloadJson` is an aggregate-metadata-only projection for optional Cloud/control-plane reporting; it carries counts, hashes, weights, relationship type names, opaque citation IDs, and `cloudPayloadContainsRawCustomerData: false`.
 
 Look up audit and provenance activity:
 

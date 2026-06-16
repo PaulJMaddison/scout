@@ -541,6 +541,135 @@ export interface SalesSupportResponse {
   overallConfidence: number
 }
 
+export interface NextActionInput {
+  tenantSlug: string
+  subjectType: 'email' | 'contact' | 'account'
+  subjectIdentifier: string
+  objective: 'sale' | 'conversion' | 'churn' | 'support' | 'retention'
+  purpose: string
+  actorRole: AuthenticatedOperator['role']
+}
+
+export interface ExactLinkedRecordSummaryResult {
+  citationId: string
+  recordType: string
+  recordId: string
+  externalId: string
+  label: string
+  summary: string
+  observedAtUtc?: string | null
+  isMasked: boolean
+  fields: Record<string, string>
+}
+
+export interface ExactLinkedRecordsSummaryResult {
+  recordCounts: Record<string, number>
+  records: ExactLinkedRecordSummaryResult[]
+}
+
+export interface RelationshipResult {
+  relationshipId: string
+  relationshipType: string
+  linkKind: string
+  sourceType: string
+  sourceId: string
+  targetType: string
+  targetId: string
+  confidence: number
+  weight: number
+  rationale: string
+  citationIds: string[]
+}
+
+export interface SimilarPatternMatchResult {
+  matchId: string
+  matchedSubjectType: string
+  matchedSubjectId: string
+  matchedAccountId: string
+  outcome: 'won' | 'lost' | string
+  similarityScore: number
+  outcomeWeight: number
+  relationshipTypes: string[]
+  reasons: string[]
+  citationIds: string[]
+}
+
+export interface WeightedSignalResult {
+  signalKey: string
+  label: string
+  direction: string
+  weight: number
+  score: number
+  contribution: number
+  explanation: string
+  citationIds: string[]
+}
+
+export interface RecommendedNextActionResult {
+  action: string
+  timing: string
+  rationale: string
+  score: number
+  citationIds: string[]
+}
+
+export interface DraftResponseResult {
+  channel: string
+  subject: string
+  body: string
+  citationIds: string[]
+  requiresHumanReview: boolean
+}
+
+export interface ProvenanceCitationResult {
+  citationId: string
+  sourceEntityType: string
+  sourceEntityId: string
+  evidenceType: string
+  summary: string
+  isMasked: boolean
+}
+
+export interface GovernanceDecisionResult {
+  isAllowed: boolean
+  dataPlane: string
+  rawDataRetainedInCustomerDataPlane: boolean
+  cloudPayloadContainsRawCustomerData: boolean
+  appliedRules: string[]
+  maskedFields: string[]
+  deniedFields: string[]
+  cloudControlPlanePayloadJson: string
+}
+
+export interface EvidencePackResult {
+  evidencePackId: string
+  packageVersion: string
+  generatedAtUtc: string
+  localDataPlanePackageJson: string
+  cloudControlPlanePayloadJson: string
+  cloudPayloadContainsRawCustomerData: boolean
+}
+
+export interface NextActionResult {
+  tenantSlug: string
+  subjectType: string
+  subjectIdentifier: string
+  objective: string
+  purpose: string
+  actorRole: AuthenticatedOperator['role'] | string
+  exactLinkedRecords: ExactLinkedRecordsSummaryResult
+  relationships: RelationshipResult[]
+  similarWonLostPatterns: SimilarPatternMatchResult[]
+  weightedSignals: WeightedSignalResult[]
+  recommendedNextAction: RecommendedNextActionResult
+  draftResponse?: DraftResponseResult | null
+  confidence: number
+  caveats: string[]
+  provenance: ProvenanceCitationResult[]
+  governance: GovernanceDecisionResult
+  evidencePack: EvidencePackResult
+}
+
 export interface RecommendationEvidence {
   citationId: string
   factId: string

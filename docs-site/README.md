@@ -80,7 +80,7 @@ docs-site/
 ## Brand Guidelines
 
 - Use **KynticAI** (with `AI`) for the public brand.
-- Product tier: **KynticAI Scout** (open source) / **KynticAI Fortress** (enterprise).
+- Product tier: **KynticAI Scout** (open source) / private enterprise modules (commercial).
 - Use British English for all user-facing copy.
 - Colour palette follows the Aged Book / Sovereign Rust direction — see `src/styles/custom.css`.
 - Public images must use approved logo files from `docs/images/brand`; the

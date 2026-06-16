@@ -51,8 +51,8 @@ export function DocsPage() {
               },
               {
                 label: 'Second',
-                title: 'Walk through the sales demo',
-                body: 'See how authorised customer data becomes evidence-backed next-action recommendations with confidence and provenance.',
+                title: 'Walk through the data-plane demo',
+                body: 'See how exact authorised customer data becomes evidence-backed next-action recommendations with confidence, provenance, and masking decisions.',
               },
               {
                 label: 'Third',

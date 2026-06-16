@@ -6,7 +6,8 @@ description: Public architecture of KynticAI Scout and its open-source data-plan
 KynticAI Scout is the public, MIT-licensed data-plane foundation for the
 Universal Context Layer. It runs beside existing operational systems,
 turns approved source records into governed semantic context and evidence,
-and exposes that context through GraphQL, REST, SDKs, and context packages.
+and exposes that context through GraphQL, REST, SDKs, evidence packs, and
+context packages.
 
 Scout's core context pipeline does not call an AI model. Its job is to give
 customer-owned applications, reports, workflows, local LLMs, agents, and
@@ -21,13 +22,14 @@ grounded in approved source data.
 | Source access | Generic SQL, REST, CSV, file, and mock-safe connector paths. |
 | Selector engine | Rules that map approved source fields into semantic attributes. |
 | Semantic schema | Canonical attributes, data types, confidence, freshness, and provenance. |
-| Context records | User, account, fact, snapshot, package, audit, and recomputation records. |
+| Context records | User, account, exact linked record, relationship, fact, snapshot, package, audit, and recomputation records. |
 | API surfaces | Authenticated GraphQL, REST v1, legacy REST, TypeScript SDK, and .NET SDK. |
 | Admin console | Local React admin/demo console for schemas, selectors, sources, and context. |
 
 Private enterprise connector implementations, customer-specific mappings,
-managed deployment code, private engine internals, and proprietary roadmap
-material are intentionally outside the Scout repository.
+managed deployment code, Rust relationship-weighting modules, private engine
+internals, and proprietary roadmap material are intentionally outside the Scout
+repository.
 
 ## Runtime Shape
 
@@ -37,7 +39,8 @@ Approved source systems
   -> raw payload and provenance
   -> selector execution
   -> semantic facts
-  -> governed evidence package
+  -> exact linked records and governed evidence package
+  -> recommended next action for an approved consumer
   -> context snapshots and packages
   -> GraphQL / REST / SDK consumers
 ```
@@ -49,13 +52,20 @@ evaluation and PostgreSQL for production-style self-hosting.
 ## Data Planes And Control Planes
 
 Scout is designed as a customer data plane. Customer operational data,
-connector credentials, context facts, evidence packages, snapshots, and audit data stay inside
-the self-hosted Scout environment.
+connector credentials, exact linked records, context facts, local evidence
+packages, snapshots, and audit data stay inside the self-hosted Scout
+environment.
 
 The public repo also contains metadata types used for SaaS-style account,
 workspace, licence, API-client, billing-usage, and onboarding records. In
 the open-source repo these are public-safe data-plane foundations, not a
 hosted control-plane deployment promise.
+
+Optional Cloud/control-plane payloads should stay metadata-only by default:
+package IDs, licence/account state, hashed subject identifiers, aggregate
+usage, update metadata, and support metadata. They should not require raw
+source records, connector credentials, local evidence-pack JSON, or context
+facts to leave the customer data plane.
 
 ## Core Projects
 
@@ -78,6 +88,7 @@ Important controls include:
 - role and API-client scope checks
 - protected connector credentials
 - selector validation before execution
+- exact authorised records linked by citation ID
 - confidence and freshness on facts
 - audit records for context and administration activity
 - provenance on facts and context packages
@@ -86,9 +97,9 @@ Important controls include:
 
 ## Open Source And Enterprise
 
-Scout defines the public extension contracts. KynticAI Fortress is the
-commercial enterprise edition and lives outside this repository. The public
-docs describe only the category boundary: vendor-specific connectors,
+Scout defines the public extension contracts. Private commercial enterprise
+modules live outside this repository. The public docs describe only the
+category boundary: Rust relationship weighting, vendor-specific connectors,
 enterprise identity, managed deployment support, and advanced governance
 belong outside Scout.
 

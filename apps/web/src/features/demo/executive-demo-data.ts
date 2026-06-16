@@ -126,7 +126,7 @@ export function getTimelineNarrative(event: OperationalTimelineEventResult) {
     return {
       semanticLift: 'Improves conversion confidence and sales motion',
       businessMeaning:
-        'Rep activity becomes a reusable signal for probability, timing, and the next best commercial move.',
+        'Rep activity becomes a reusable signal for probability, timing, and the next-best action.',
       tone: 'success' as const,
     }
   }
@@ -462,7 +462,7 @@ export function useExecutiveDemoData() {
       {
       label: 'Evidence pack citations',
         value: String(groundedFacts.length),
-        body: 'Evidence-backed facts sent to the approved consumer with confidence, freshness, and source metadata.',
+        body: 'Exact evidence-backed facts sent to the approved consumer with confidence, freshness, source metadata, and citations.',
       },
       {
         label: 'Snapshot confidence',

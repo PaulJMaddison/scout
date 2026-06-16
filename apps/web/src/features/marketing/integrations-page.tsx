@@ -10,7 +10,7 @@ export function IntegrationsPage() {
       <PageHeader
         eyebrow="Integrations"
         title="Connect existing systems without forcing the business to replace them."
-        description="Scout can act as a self-hosted backend, future managed integration layer, private-cloud service, or embedded product component. It accepts source events, reads operational systems inside the customer environment, runs selectors, and exposes trusted context through GraphQL, REST, SDKs, and webhooks."
+        description="Scout can act as a self-hosted customer data plane or embedded product component. It accepts source events, reads operational systems inside the customer environment, runs selectors, and exposes trusted context through GraphQL, REST, SDKs, and webhooks. Optional Cloud/control-plane services remain commercial metadata concerns."
         actions={
           <>
             <Link to="/connectors">
@@ -110,7 +110,7 @@ export function IntegrationsPage() {
         <CodeBlock title="Source or webhook event shape" language="json" code={webhookExample} />
       </section>
 
-      <Panel eyebrow="Operational controls" title="The integration layer is built for hosted multi-tenant operation">
+        <Panel eyebrow="Operational controls" title="The integration layer is built for scoped customer data-plane operation">
         <div className="grid gap-4 md:grid-cols-3">
           {[
             [ShieldCheck, 'Tenant and workspace scope', 'API clients, source events, selectors, snapshots, audit events, and usage records stay tenant-scoped.'],

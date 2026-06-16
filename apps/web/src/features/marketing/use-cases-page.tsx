@@ -7,7 +7,7 @@ const useCases = [
   {
     title: 'Sales recommendations',
     audience: 'Revenue teams',
-    body: 'Turn email reply, meeting booked, web search, pricing visit, registration, CRM contact, opportunity, product usage, billing, support, and won/lost outcome signals into a next-best-action recommendation.',
+    body: 'Turn email reply, meeting booked, web conversion, pricing visit, registration, CRM contact, opportunity, product usage, billing, support, and won/lost outcome signals into a next-best-action recommendation.',
     icon: UsersRound,
   },
   {
@@ -71,7 +71,7 @@ export function UseCasesPage() {
               {
                 label: 'Source estate',
                 title: 'Signals already exist across the business',
-                body: 'Email address, replies, meetings booked, web searches, pricing visits, registrations, CRM contacts, opportunities, support tickets, product usage, billing status, and won/lost outcomes remain in their current systems.',
+                body: 'Email address, replies, meetings booked, web conversion events, pricing visits, registrations, CRM contacts, opportunities, support tickets, product usage, billing status, and won/lost outcomes remain in their current systems.',
               },
               {
                 label: 'Selectors',
@@ -127,7 +127,7 @@ export function UseCasesPage() {
         </div>
       </Panel>
 
-      <Panel eyebrow="Anonymised ERP platform pattern" title="The same pattern works beyond the sales demo">
+      <Panel eyebrow="Anonymised ERP platform pattern" title="The same pattern works beyond the data-plane demo">
         <p className="text-sm leading-7 text-ink-700">
           A recent ERP platform engagement showed why this matters. Legacy databases, CRM-style records, operational systems, and fragmented business data were not replaced first. A semantic data plane over existing data let a new web platform and AI-enabled workflows consume customer, account, workflow, and operational meaning. Scout productises that pattern for paid pilots while keeping the customer-specific mappings and data under customer control.
         </p>

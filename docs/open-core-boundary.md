@@ -9,11 +9,11 @@ This repository is public-facing. It must not contain private strategy, customer
 The intended long-term structure is:
 
 - `scout`
-  The public product core, demo, SDKs, extension contracts, GraphQL and REST APIs, and local/backend-only runtime.
+  The public customer data-plane core, demo/admin console, SDKs, extension contracts, GraphQL and REST APIs, and local/backend-only runtime.
 - `scout-enterprise`
-  A future private repository for paid enterprise extensions such as enterprise connectors, SSO, advanced governance, and managed deployment assets
+  A future private repository for paid enterprise extensions such as Rust relationship weighting, enterprise connectors, SSO, advanced governance, and managed deployment assets
 - `scout-cloud`
-  An optional future repository for hosted SaaS control plane, billing, operations, and cloud-specific platform concerns
+  An optional future repository for commercial/control-plane concerns such as hosted account management, billing, licences, downloads, support access, update channels, aggregate usage, and cloud operations
 
 The public repo should define the stable contracts and composition points that let those future codebases depend on the open core without copying it.
 
@@ -26,7 +26,7 @@ The public repository should remain a credible, useful open source core. It shou
 - self-host the core
 - explore the APIs and SDKs
 - experiment with selectors, context snapshots, provenance, and audit flows
-- build context consumers such as apps, workflows, reporting tools, copilots, and agents
+- build context consumers such as apps, workflows, reporting tools, copilots, local LLMs, and agents
 - build extensions against stable public contracts
 
 The public repo should not become a disguised commercial distribution channel for paid enterprise implementation code.
@@ -36,13 +36,13 @@ The public repo should not become a disguised commercial distribution channel fo
 The current repo already contains the main public core surfaces:
 
 - semantic selector execution and fact materialisation in the application and infrastructure projects
-- context facts, context snapshots, semantic attribute definitions, provenance, confidence, freshness, masking, and audit primitives
+- exact linked records, context facts, context snapshots, semantic attribute definitions, provenance, confidence, freshness, masking, and audit primitives
 - GraphQL and REST API surfaces
 - SQLite local demo mode with fictional seed data
 - PostgreSQL support and migrations
 - mock connector support and generic SQL/REST connector plugins
 - extension interfaces for future enterprise modules
-- React marketing, demo, and admin UI
+- React docs/demo/admin UI for evaluating the data plane
 - documentation for SaaS architecture, connector plugins, SDKs, product positioning, and context consumers
 
 That shape is intentional. The public repo should prove the architecture and remain useful without shipping private enterprise implementation code.
@@ -52,7 +52,8 @@ That shape is intentional. The public repo should prove the architecture and rem
 The public repo is the right home for:
 
 - the semantic engine and selector execution logic
-- context facts and context snapshots
+- exact linked records, context facts, and context snapshots
+- governed evidence-pack and next-best-action API patterns
 - provenance, freshness, confidence, and audit primitives
 - GraphQL and REST APIs
 - SDKs and developer tooling
@@ -61,13 +62,13 @@ The public repo is the right home for:
 - SQL connector examples when they are generic, safe, and free of customer-specific schema assumptions
 - file connector examples or file-upload fixtures when they use fictional data and do not imply managed enterprise ingestion
 - generic REST connector examples that demonstrate the contract without becoming a vendor-specific integration
-- extension interfaces for connectors, auth, secrets, policy evaluation, audit export, context package export, approval workflows, promotion, and usage metering
+- extension interfaces for connectors, auth, secrets, policy evaluation, relationship weighting, audit export, context package export, approval workflows, promotion, and usage metering
 - safe mock or no-op default implementations for those interfaces
 - SaaS/control-plane foundation metadata models for tenants, workspaces, subscriptions, API clients, onboarding, context package manifests, and usage metering, provided they stay provider-neutral
 - local licence and control-plane configuration seams, provided they do not phone home or unlock private code inside the public repo
-- context package generation patterns and delivery-channel metadata
+- context package generation patterns, next-best-action evidence packs, and delivery-channel metadata
 - demo UI, samples, and fictional seed data
-- marketing and documentation that explain architecture, extension patterns, product positioning, and the public/private boundary
+- documentation and in-repo demo copy that explain architecture, extension patterns, product positioning, and the public/private boundary
 
 ## What is explicitly public
 
@@ -81,14 +82,15 @@ Keep these in the open core:
 6. Mock connectors.
 7. SQL and file connector examples if they are generic, safe, and fictional.
 8. Extension interfaces.
-9. Marketing and documentation.
+9. Documentation and demo/admin copy.
 
 The key rule is that public code may define a stable contract and a safe generic implementation. Public code should not implement a paid, vendor-specific, customer-specific, or deployment-specific enterprise feature.
 
 ## What does not belong in this repository
 
-These should normally live in a future private enterprise repository, future private cloud/control-plane codebase, or professional services delivery materials:
+These should normally live in a future private enterprise repository, optional commercial Cloud/control-plane codebase, or professional services delivery materials:
 
+- Rust relationship-weighting implementation modules and private relationship-engine internals
 - real enterprise connectors such as Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, NetSuite, Microsoft 365 / Outlook, Gmail / Google Workspace, Slack, Microsoft Teams, Outlook Calendar, Google Calendar, Segment, Amplitude, Mixpanel, PostHog, Jira, Linear, Confluence, Notion, SharePoint, Google Drive, SAP, ServiceNow, customer data warehouses, or other paid packaged integrations
 - SSO or SAML implementations
 - hosted SaaS control-plane implementation
@@ -109,13 +111,14 @@ These should normally live in a future private enterprise repository, future pri
 Do not implement these publicly:
 
 1. Real enterprise connectors.
-2. SSO/SAML.
-3. Stripe/Paddle billing.
-4. Customer specific deployment templates.
-5. Private cloud automation.
-6. Credential vault integrations.
-7. Enterprise policy engine.
-8. Compliance report exporters.
+2. Private Rust relationship-weighting modules.
+3. SSO/SAML.
+4. Stripe/Paddle billing.
+5. Customer specific deployment templates.
+6. Private cloud automation.
+7. Credential vault integrations.
+8. Enterprise policy engine.
+9. Compliance report exporters.
 
 ## Public interfaces vs private implementations
 
@@ -160,7 +163,7 @@ If a connector knows the business semantics of a named vendor or a named custome
 
 Public code can include simple local authentication, API client metadata, provider-neutral usage records, no-op policy evaluators, mock audit exporters, and interfaces that describe how enterprise modules plug in.
 
-Private code should implement enterprise SSO/SAML, billing provider integration, entitlement enforcement, policy engines, compliance exporters, vault integrations, private cloud automation, and customer-specific deployment packs.
+Private code should implement Rust relationship weighting, enterprise SSO/SAML, billing provider integration, entitlement enforcement, policy engines, compliance exporters, vault integrations, private cloud automation, and customer-specific deployment packs.
 
 ## Decision rule
 

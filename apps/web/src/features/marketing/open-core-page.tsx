@@ -15,7 +15,7 @@ export function OpenCorePage() {
           <div className="grid gap-3">
             {[
               ['Open source core runtime', 'Backend services, GraphQL, REST, selector execution, context snapshots, provenance, audit, and backend-only mode.'],
-              ['Demo and admin console', 'The React site continues to function as the public product site, learning experience, seeded demo, and admin console.'],
+              ['Demo and admin console', 'The React app in this repo functions as the data-plane guide, seeded demo, and admin console. It is not the main public marketing website.'],
               ['Extension interfaces', 'Public abstractions, plugin contracts, SDKs, documentation, samples, and guides that make the product understandable and extensible.'],
               ['Honest product framing', 'Clear explanation of what is open source today, what is roadmap, and what would later sit behind a commercial support or deployment model.'],
             ].map(([title, body]) => (
@@ -72,7 +72,7 @@ export function OpenCorePage() {
               <div>
                 <p className="font-semibold text-ink-950">`scout-enterprise`</p>
                 <p className="mt-2 text-sm leading-7 text-ink-700">
-                  Private paid repository for real enterprise connectors across CRM, warehouse, email, chat, calendar, analytics, work management, and knowledge systems, plus SSO/SAML, SCIM, vaults, advanced governance, compliance exports, deployment packs, and SLA tooling.
+                  Private paid repository for Rust relationship weighting, real enterprise connectors across CRM, warehouse, email, chat, calendar, analytics, work management, and knowledge systems, plus SSO/SAML, SCIM, vaults, advanced governance, compliance exports, deployment packs, and SLA tooling.
                 </p>
               </div>
             </div>
@@ -83,7 +83,7 @@ export function OpenCorePage() {
               <div>
                 <p className="font-semibold text-ink-950">`scout-cloud`</p>
                 <p className="mt-2 text-sm leading-7 text-ink-700">
-                  Private cloud/control-plane repository for hosted account management, billing, licence portals, downloads, update channels, support portals, aggregate usage reporting, and cloud operations.
+                  Optional commercial Cloud/control-plane repository for hosted account management, billing, licence portals, downloads, update channels, support portals, aggregate usage reporting, and cloud operations.
                 </p>
               </div>
             </div>
@@ -122,10 +122,10 @@ export function OpenCorePage() {
         <Panel eyebrow="Practical message" title="How the site should explain the model">
           <div className="grid gap-3">
             {[
-              'The React UI is the public site, demo, and admin console. The long-term product value is the backend semantic integration layer.',
+              'The React UI is the in-repo guide, seeded demo, and admin console. The long-term product value is the backend customer-owned data plane.',
               'The public repo remains the open source core and demo, not a throwaway marketing artefact.',
-              'Enterprise and cloud features can be discussed commercially while making clear that their implementation code is private and not shipped here.',
-              'One website is enough for now. Later, if the SaaS grows, the marketing/docs site and hosted product can be split cleanly.',
+              'Enterprise features and optional Cloud/control-plane features can be discussed commercially while making clear that their implementation code is private and not shipped here.',
+              'The main public marketing website belongs outside this repo; this app should stay focused on open-core docs, demo proof, and data-plane administration.',
             ].map((line) => (
               <Card key={line} className="bg-ivory-25">
                 <p className="text-sm leading-7 text-ink-700">{line}</p>

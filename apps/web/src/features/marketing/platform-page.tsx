@@ -14,7 +14,7 @@ export function PlatformPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="KynticAI Scout"
-        title="Turn authorised customer data into governed evidence packs for local AI."
+        title="Turn exact authorised customer data into governed evidence packs for approved consumers."
         description="It does not replace your systems. It gives CRM, ERP, warehouse, support, billing, telemetry, web events, email engagement, spreadsheets, SQL databases, and internal applications a shared evidence layer."
         actions={
           <>
@@ -40,7 +40,7 @@ export function PlatformPage() {
             <div className="flex flex-wrap gap-2">
               <Badge tone="accent">Open source core</Badge>
               <Badge tone="neutral">Backend integration layer</Badge>
-              <Badge tone="success">Future private cloud and enterprise options</Badge>
+              <Badge tone="success">Optional Cloud/control-plane metadata</Badge>
             </div>
             <div>
               <p className="text-xs uppercase tracking-[0.22em] text-copper-300">What it does</p>
@@ -50,8 +50,8 @@ export function PlatformPage() {
               <p className="mt-4 max-w-3xl text-base leading-8 text-ivory-200">
                 KynticAI Scout sits beside the systems you already run, maps authorised fields and events into governed
                 business evidence, and publishes that context through APIs, SDKs, governed context packages, and internal
-                services. The React UI in this repository is the public site, demo, and admin console. The durable product
-                value is the backend customer-owned data plane.
+                services. The React UI in this repository is the docs/demo/admin console for evaluating the data plane.
+                The durable product value is the backend customer-owned data plane.
               </p>
             </div>
             <div className="grid gap-3 md:grid-cols-3">
@@ -73,7 +73,7 @@ export function PlatformPage() {
                 <p className="text-xs uppercase tracking-[0.18em] text-copper-300">For product teams</p>
                 <p className="mt-3 text-lg font-semibold text-ivory-50">Ground recommendations in evidence</p>
                 <p className="mt-2 text-sm leading-7 text-ivory-200">
-                  AI and workflow logic receive structured evidence with freshness, confidence, provenance, masking rules, and similar outcome patterns.
+                  AI and workflow logic receive structured evidence with exact record citations, freshness, confidence, provenance, masking rules, and similar outcome patterns.
                 </p>
               </div>
             </div>
@@ -137,8 +137,8 @@ export function PlatformPage() {
           />
           <FlowStep
             step="3. Govern"
-            title="Store weighted evidence"
-            body="Context facts and snapshots retain confidence, freshness, provenance, auditability, masking status, recomputation history, and similar-pattern references so recommendations can be trusted and traced."
+            title="Store governed evidence"
+            body="Context facts, exact linked records, and snapshots retain confidence, freshness, provenance, auditability, masking status, recomputation history, and similar-pattern references so recommendations can be trusted and traced."
             tone="warning"
           />
           <FlowStep
@@ -153,9 +153,9 @@ export function PlatformPage() {
       <Panel eyebrow="Customer data plane" title="The paid pilot proves the self-hosted semantic layer first">
         <div className="grid gap-4 md:grid-cols-3">
           {[
-            ['Runs beside customer systems', 'Connector configuration, selectors, context facts, snapshots, evidence packs, provenance, and audit logs stay in the customer-controlled environment by default.'],
+            ['Runs beside customer systems', 'Connector configuration, selectors, exact linked records, context facts, snapshots, evidence packs, provenance, and audit logs stay in the customer-controlled environment by default.'],
             ['Feeds customer-owned consumers', 'Customer apps, workflows, reports, copilots, local LLMs, and agents can consume context without adopting our AI stack.'],
-            ['Future control plane stays separate', 'Accounts, billing, licences, downloads, support, and update channels are future/private control-plane concerns, not complete self-serve SaaS in this repo.'],
+            ['Optional Cloud stays separate', 'Accounts, billing, licences, downloads, support, update channels, and aggregate usage are commercial control-plane concerns, not the customer data plane.'],
           ].map(([title, body]) => (
             <Card key={title} className="bg-ivory-25">
               <p className="font-semibold text-ink-950">{title}</p>
@@ -196,7 +196,7 @@ export function PlatformPage() {
           <div className="grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
             {[
               ['Apps', 'Internal and customer-facing products can show trusted account, customer, product, and billing meaning.'],
-              ['Agents', 'Agents can receive scoped evidence packages with citations, freshness, similar-pattern references, masking, and audit visibility.'],
+              ['Agents', 'Agents can receive scoped evidence packages with exact-record citations, freshness, similar-pattern references, masking, and audit visibility.'],
               ['Workflows', 'Automation can trigger from semantic state changes rather than raw events alone.'],
               ['Analytics', 'Reporting tools can use shared business facts with confidence and provenance.'],
               ['Copilots', 'Internal copilots can answer questions from governed customer and account context.'],

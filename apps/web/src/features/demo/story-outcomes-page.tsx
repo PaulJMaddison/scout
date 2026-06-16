@@ -25,7 +25,7 @@ export function StoryOutcomesPage() {
     {
       label: 'Safer example output',
       value: `${groundedFacts.length}`,
-      footnote: 'Cited facts are shipped with confidence and freshness, which lowers unsupported recommendations.',
+      footnote: 'Cited facts and exact linked records are shipped with confidence and freshness, which lowers unsupported recommendations.',
       accent: 'sage' as const,
     },
     {
@@ -82,7 +82,7 @@ export function StoryOutcomesPage() {
                 <div>
                   <p className="font-semibold text-ink-950">More useful AI interactions</p>
                   <p className="mt-2 text-sm leading-7 text-ink-700">
-                    The example sales support consumer produces a strategy, an email draft, and follow-up guidance that are explainable because they are tied to the same evidence package your humans can inspect.
+                    The example sales support consumer produces a strategy, an email draft, and next-best-action guidance that are explainable because they are tied to the same evidence package your humans can inspect.
                   </p>
                 </div>
               </div>
@@ -93,7 +93,7 @@ export function StoryOutcomesPage() {
                 <div>
                   <p className="font-semibold text-ink-950">Less hand waving in governance reviews</p>
                   <p className="mt-2 text-sm leading-7 text-ink-700">
-                    Confidence, freshness, provenance, masking, and audit are not post-hoc controls. They are native parts of the context product.
+                    Confidence, freshness, provenance, masking, exact-record citations, and audit are not post-hoc controls. They are native parts of the context product.
                   </p>
                 </div>
               </div>
@@ -124,7 +124,7 @@ export function StoryOutcomesPage() {
             <Card className="bg-ivory-25">
               <p className="font-semibold text-ink-950">3. Ship grounded AI features safely</p>
               <p className="mt-2 text-sm leading-7 text-ink-700">
-                Give AI systems, apps, and workflows evidence packages with citations, not raw fragments. That makes the product more useful and easier to defend commercially.
+                Give AI systems, apps, and workflows evidence packages with exact-record citations, not raw fragments. That makes the product more useful and easier to defend commercially.
               </p>
             </Card>
           </div>
@@ -191,7 +191,7 @@ export function StoryOutcomesPage() {
                   <div>
                     <p className="font-semibold text-ink-950">Example Sales Support consumer</p>
                     <p className="mt-2 text-sm leading-7 text-ink-700">
-                      Show the evidence package, the generated outreach, and the "why this was recommended" trace.
+                      Show the evidence package, the generated outreach, the recommended next-best action, and the "why this was recommended" trace.
                     </p>
                   </div>
                 </div>

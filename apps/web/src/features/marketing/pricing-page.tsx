@@ -31,13 +31,13 @@ const plans = [
   {
     name: 'Enterprise/private deployment',
     label: 'Scoped from GBP 50,000',
-    body: 'Private enterprise connector modules, governance hardening, customer-specific deployment design, and support model through a paid agreement.',
+    body: 'Private enterprise connector modules, Rust relationship weighting, governance hardening, customer-specific deployment design, and support model through a paid agreement.',
     bestFor: 'Larger or regulated estates',
   },
   {
-    name: 'Future private cloud/control plane',
+    name: 'Optional Cloud/control plane',
     label: 'Future/private work',
-    body: 'Hosted account management, billing, licences, downloads, support access, update channels, entitlement metadata, and optional aggregate usage.',
+    body: 'Optional commercial control plane for hosted account management, billing, licences, downloads, support access, update channels, entitlement metadata, and aggregate usage only.',
     bestFor: 'Customers that later want managed commercial operations',
   },
 ]
@@ -100,7 +100,7 @@ export function PricingPage() {
           {[
             [GitBranch, 'Open source core', 'Run locally with SQLite and fictional seed data. Useful for evaluation and learning.'],
             [ServerCog, 'Self-hosted backend', 'Deploy the API and workers with PostgreSQL while retaining your own operations model.'],
-            [CloudCog, 'Future control plane', 'Use a hosted control plane when speed and managed operations matter more than owning runtime.'],
+            [CloudCog, 'Optional Cloud/control plane', 'Use hosted commercial services for accounts, licences, downloads, support access, update channels, and aggregate usage metadata.'],
             [LockKeyhole, 'Private cloud', 'Use stronger tenant isolation, regional deployment, and enterprise governance controls.'],
             [Building2, 'Integration layer', 'Embed Scout behind a product or internal platform as the semantic contract over source systems.'],
           ].map(([Icon, title, body]) => (
@@ -124,7 +124,7 @@ export function PricingPage() {
             after={[
               'Clean billing-provider interfaces and no-op provider defaults are present.',
               'Connector, credential, health-check, and catalogue extension points are safe to build against.',
-              'The open core remains credible while paid pilot delivery, private connector modules, and future control-plane work can live outside the public repository.',
+              'The open core remains credible while paid pilot delivery, private connector modules, Rust relationship weighting, and optional control-plane work can live outside the public repository.',
             ]}
           />
         </Panel>

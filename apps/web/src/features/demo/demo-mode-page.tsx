@@ -20,8 +20,8 @@ export function DemoModePage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Step 1 of 5"
-        title="This synthetic demo shows how authorised customer data becomes an evidence-backed next action."
-        description="KynticAI Scout turns fragmented CRM, product, billing, support, email, web, and outcome signals into a governed evidence layer that your own systems and local AI consumers can use."
+        title="This synthetic demo shows how exact authorised customer data becomes an evidence-backed next action."
+        description="KynticAI Scout links CRM contact/account, registration, opportunity, email, web, support, product usage, billing, and won/lost outcome signals inside the customer data plane, then serves governed evidence to your own systems and local AI consumers."
         actions={
           <Link to={executiveStorySteps[1].to}>
             <Button>
@@ -45,7 +45,7 @@ export function DemoModePage() {
               <ArrowRight className="size-4 text-copper-300" />
               <Badge tone="neutral">Scout builds governed evidence</Badge>
               <ArrowRight className="size-4 text-copper-300" />
-              <Badge tone="success">Consumers get next-best-action context</Badge>
+              <Badge tone="success">Consumers get cited next-best actions</Badge>
             </div>
 
             <div className="grid gap-4">
@@ -56,7 +56,7 @@ export function DemoModePage() {
               </h2>
               <p className="max-w-3xl text-base leading-8 text-ivory-200">
                 KynticAI Scout reads the operational estate where it already lives, converts
-                disconnected events into governed evidence, and gives product workflows, analytics, copilots, local LLMs, and agents a
+                disconnected events into exact cited evidence, and gives product workflows, analytics, copilots, local LLMs, and agents a
                 shared context contract they can cite, trust, and reuse.
               </p>
             </div>
@@ -71,16 +71,16 @@ export function DemoModePage() {
               </div>
               <div className="rounded-[24px] border border-white/10 bg-white/6 px-4 py-4">
                 <p className="text-xs uppercase tracking-[0.18em] text-copper-300">Middle</p>
-                <p className="mt-3 text-lg font-semibold text-ivory-50">Evidence with confidence and provenance</p>
+                <p className="mt-3 text-lg font-semibold text-ivory-50">Exact evidence with confidence and provenance</p>
                 <p className="mt-2 text-sm leading-7 text-ivory-200">
-                  Selectors map signals into canonical attributes like conversion probability, preferred channel, similar won pattern, and expansion potential.
+                  Selectors and relationship links map authorised signals into canonical attributes like conversion probability, preferred channel, similar won pattern, and expansion potential.
                 </p>
               </div>
               <div className="rounded-[24px] border border-white/10 bg-white/6 px-4 py-4">
                 <p className="text-xs uppercase tracking-[0.18em] text-copper-300">After</p>
                 <p className="mt-3 text-lg font-semibold text-ivory-50">Grounded next actions that are explainable</p>
                 <p className="mt-2 text-sm leading-7 text-ivory-200">
-                  Apps, workflows, and AI systems receive structured profiles, cited facts, and warnings when signals are weak.
+                  Apps, workflows, and AI systems receive structured profiles, cited facts, relationship summaries, and warnings when signals are weak.
                 </p>
               </div>
             </div>
@@ -125,7 +125,7 @@ export function DemoModePage() {
                   <div>
                     <p className="font-semibold text-ink-950">The semantic lift is visible, not magical</p>
                     <p className="mt-2 text-sm leading-7 text-ink-700">
-                      You can walk through the exact timeline from raw signal to canonical business meaning to a governed example recommendation.
+                      You can walk through the exact timeline from authorised source signal to canonical business meaning to a governed example recommendation.
                     </p>
                   </div>
                 </div>
@@ -205,10 +205,10 @@ export function DemoModePage() {
             </Card>
 
             <Card className="bg-ivory-25">
-              <p className="text-xs uppercase tracking-[0.18em] text-copper-700">Future control plane</p>
-              <p className="mt-3 font-semibold text-ink-950">Not complete self-serve SaaS yet</p>
+              <p className="text-xs uppercase tracking-[0.18em] text-copper-700">Optional control plane</p>
+              <p className="mt-3 font-semibold text-ink-950">Commercial metadata, not raw customer data</p>
               <p className="mt-2 text-sm leading-7 text-ink-700">
-                Hosted account management, live billing, licence portal, support portal, and update-channel automation are future/private cloud work.
+                Hosted account management, live billing, licence portal, support portal, and update-channel automation are optional commercial Cloud/control-plane work.
               </p>
             </Card>
           </div>
@@ -223,10 +223,10 @@ export function DemoModePage() {
               <div className="rounded-[20px] border border-ink-900/8 bg-white/70 px-4 py-4">
                 <p className="text-xs uppercase tracking-[0.18em] text-sage-700">Email</p>
                 <a
-                  href="mailto:paul@kyticai.com"
+                  href="mailto:paul@kynticai.com"
                   className="mt-2 block text-base font-semibold text-ink-950 underline decoration-copper-300 underline-offset-4"
                 >
-                  paul@kyticai.com
+                  paul@kynticai.com
                 </a>
               </div>
               <div className="rounded-[20px] border border-ink-900/8 bg-white/70 px-4 py-4">
@@ -261,7 +261,7 @@ export function DemoModePage() {
             <Card className="bg-ivory-25">
               <p className="font-semibold text-ink-950">4. Example Consumer Timeline</p>
               <p className="mt-2 text-sm leading-7 text-ink-700">
-                      The exact moment where governed evidence improves the sales support recommendation, the advised action, and the positive outcome signal to review.
+                      The exact moment where governed evidence improves the sales support recommendation, the next-best action, and the positive outcome signal to review.
               </p>
             </Card>
             <Card className="bg-ivory-25">
@@ -288,7 +288,7 @@ export function DemoModePage() {
             <Card className="bg-ivory-25">
               <p className="text-xs uppercase tracking-[0.18em] text-sage-700">What the model receives</p>
               <p className="mt-2 text-sm leading-7 text-ink-700">
-                A structured evidence package with semantic attributes, confidence scores, freshness metadata, similar-pattern notes, and citations.
+                A structured evidence package with exact linked records, semantic attributes, confidence scores, freshness metadata, similar-pattern notes, relationships, masking decisions, and citations.
               </p>
             </Card>
             <Card className="bg-ivory-25">

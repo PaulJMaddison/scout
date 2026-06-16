@@ -15,6 +15,8 @@ import type {
   GroundedContextFactResult,
   LicenceStatus,
   LoginRequest,
+  NextActionInput,
+  NextActionResult,
   OnboardingResult,
   OperationalSummary,
   PagedResponse,
@@ -584,6 +586,460 @@ export async function mockImportBlueprint(input: BlueprintImportInput): Promise<
   await new Promise((resolve) => window.setTimeout(resolve, 420))
   const result = blueprintResult('Imported', input.blueprintJson ?? prettyJson(sampleBlueprint), true)
   return result
+}
+
+export async function mockGenerateNextAction(input: NextActionInput): Promise<NextActionResult> {
+  await new Promise((resolve) => window.setTimeout(resolve, 180))
+  return buildMockNextAction(input)
+}
+
+function buildMockNextAction(input: NextActionInput): NextActionResult {
+  const sessionRole = authStore.getSession()?.role
+  const actorRole = input.actorRole || sessionRole || 'sales_rep'
+  const canViewPii = ['platform_owner', 'tenant_admin', 'analyst'].includes(actorRole)
+  const canViewBusinessDetails = actorRole !== 'read_only'
+  const canViewSensitiveDetails = ['platform_owner', 'tenant_admin', 'analyst'].includes(actorRole)
+  const user =
+    mockState.users.find((entry) =>
+      [entry.externalUserId, entry.email, 'CON-10000', 'ACC-2000', 'larkspur-logistics.example']
+        .map((value) => value.toLowerCase())
+        .includes(input.subjectIdentifier.trim().toLowerCase()),
+    ) ?? mockState.users[0]
+  const accountName = canViewBusinessDetails ? user.companyName : 'Account ACC-2000'
+  const accountDomain = canViewBusinessDetails ? 'larkspur-logistics.example' : 'sha256:f2b4df6e7c40'
+  const contactName = canViewPii ? user.fullName : 'Avery ***'
+  const contactEmail = canViewPii ? user.email : maskEmail(user.email)
+  const contactLabel = canViewPii ? user.fullName : 'Contact CON-10000'
+  const subjectIdentifier =
+    input.subjectType === 'email' && !canViewPii
+      ? maskEmail(input.subjectIdentifier)
+      : input.subjectType === 'account' && !canViewBusinessDetails
+        ? 'sha256:acc2000d9c10'
+        : input.subjectIdentifier.trim()
+  const maskedFields = [
+    ...(!canViewPii ? ['contact.email', 'contact.fullName'] : []),
+    ...(!canViewBusinessDetails ? ['account.name', 'account.domain'] : []),
+    ...(!canViewSensitiveDetails ? ['supportTicket.subject', 'salesActivity.summary'] : []),
+  ]
+  const records: NextActionResult['exactLinkedRecords']['records'] = [
+    {
+      citationId: 'EVID-01',
+      recordType: 'CustomerAccount',
+      recordId: 'acct-record-2000',
+      externalId: 'ACC-2000',
+      label: accountName,
+      summary: `${accountName} is a synthetic enterprise logistics account in expansion stage.`,
+      observedAtUtc: isoDaysAgo(2),
+      isMasked: !canViewBusinessDetails,
+      fields: {
+        externalAccountId: 'ACC-2000',
+        name: accountName,
+        domain: accountDomain,
+        industry: 'Logistics',
+        segment: 'enterprise',
+        lifecycleStage: 'expansion',
+      },
+    },
+    {
+      citationId: 'EVID-02',
+      recordType: 'CustomerContact',
+      recordId: 'contact-record-10000',
+      externalId: 'CON-10000',
+      label: contactLabel,
+      summary: `${contactLabel} is the revenue operations decision maker for this synthetic account.`,
+      observedAtUtc: isoDaysAgo(1),
+      isMasked: !canViewPii,
+      fields: {
+        externalContactId: 'CON-10000',
+        externalUserId: user.externalUserId,
+        fullName: contactName,
+        email: contactEmail,
+        jobTitle: user.jobTitle,
+        preferredChannel: 'email',
+        isDecisionMaker: 'true',
+      },
+    },
+    {
+      citationId: 'EVID-03',
+      recordType: 'SalesOpportunity',
+      recordId: 'opp-record-8000',
+      externalId: 'OPP-8000',
+      label: 'Enterprise expansion opportunity',
+      summary: 'Proposal-stage expansion opportunity at 78% probability.',
+      observedAtUtc: isoDaysAgo(2),
+      isMasked: false,
+      fields: {
+        stage: 'proposal',
+        probabilityPercent: '78',
+        opportunityType: 'expansion',
+        isOpen: 'true',
+      },
+    },
+    {
+      citationId: 'EVID-04',
+      recordType: 'EmailEngagementEvent',
+      recordId: 'email-event-4100',
+      externalId: 'EMAIL-4100',
+      label: 'Meeting booked reply',
+      summary: 'The contact replied to the enterprise expansion sequence and booked a meeting.',
+      observedAtUtc: isoDaysAgo(1),
+      isMasked: false,
+      fields: {
+        campaign: 'Enterprise Expansion Sequence',
+        eventType: 'meeting_booked',
+        channel: 'email',
+      },
+    },
+    {
+      citationId: 'EVID-05',
+      recordType: 'WebConversionEvent',
+      recordId: 'web-event-5100',
+      externalId: 'WEB-5100',
+      label: 'Enterprise pricing visit',
+      summary: 'Pricing and rollout content was viewed after the latest email reply.',
+      observedAtUtc: isoDaysAgo(1),
+      isMasked: false,
+      fields: {
+        eventType: 'pricing_viewed',
+        page: 'pricing',
+        intent: 'enterprise-demand',
+        score: '92',
+      },
+    },
+    {
+      citationId: 'EVID-06',
+      recordType: 'SupportTicket',
+      recordId: 'ticket-record-1200',
+      externalId: 'TCK-1200',
+      label: 'Integration rollout issue',
+      summary: canViewSensitiveDetails
+        ? 'One integration rollout issue is open and should be acknowledged before escalation.'
+        : 'One open integration issue is visible, with sensitive details masked.',
+      observedAtUtc: isoDaysAgo(4),
+      isMasked: !canViewSensitiveDetails,
+      fields: {
+        severity: 'medium',
+        status: 'open',
+        category: 'integration',
+        subject: canViewSensitiveDetails ? 'Open issue affecting rollout readiness' : '[masked]',
+      },
+    },
+    {
+      citationId: 'EVID-07',
+      recordType: 'ProductUsageSummary',
+      recordId: 'usage-record-7100',
+      externalId: 'USAGE-7100',
+      label: 'High adoption usage window',
+      summary: '27 active days, broad feature adoption, and enterprise trial activation in the last 30 days.',
+      observedAtUtc: isoDaysAgo(0),
+      isMasked: false,
+      fields: {
+        activeDays30: '27',
+        featureAdoptionScore: '91',
+        trialActivated: 'true',
+      },
+    },
+    {
+      citationId: 'EVID-08',
+      recordType: 'BillingMetric',
+      recordId: 'billing-record-3100',
+      externalId: 'BILL-3100',
+      label: 'Healthy billing posture',
+      summary: 'Billing posture is healthy with no recent payment failures.',
+      observedAtUtc: isoDaysAgo(0),
+      isMasked: false,
+      fields: {
+        paymentStatus: 'healthy',
+        daysPastDue: '0',
+        paymentFailures30d: '0',
+      },
+    },
+    {
+      citationId: 'EVID-09',
+      recordType: 'OutcomeSignal',
+      recordId: 'outcome-record-9000',
+      externalId: 'OUT-OPP-7999',
+      label: 'Prior similar expansion won',
+      summary: 'A prior synthetic enterprise expansion with similar activity closed won.',
+      observedAtUtc: isoDaysAgo(45),
+      isMasked: false,
+      fields: {
+        outcome: 'won',
+        source: 'closed opportunity',
+      },
+    },
+  ]
+  const recordCounts = records.reduce<Record<string, number>>((counts, record) => {
+    counts[record.recordType] = (counts[record.recordType] ?? 0) + 1
+    return counts
+  }, {})
+  const relationships = [
+    relationship('REL-01', 'EmailToContact', 'deterministic', 'email', 'sha256:contact-email', 'CustomerContact', 'CON-10000', 1, 1, 'Normalised email address resolved to this contact.', ['EVID-02']),
+    relationship('REL-02', 'ContactToAccount', 'deterministic', 'CustomerContact', 'CON-10000', 'CustomerAccount', 'ACC-2000', 1, 1, 'Contact carries the account foreign key.', ['EVID-01', 'EVID-02']),
+    relationship('REL-03', 'AccountToOpportunity', 'deterministic', 'CustomerAccount', 'ACC-2000', 'SalesOpportunity', 'OPP-8000', 1, 0.88, 'Open opportunity carries the account foreign key.', ['EVID-01', 'EVID-03']),
+    relationship('REL-04', 'ContactToEmailEngagement', 'deterministic', 'CustomerContact', 'CON-10000', 'EmailEngagementEvent', 'EMAIL-4100', 1, 0.78, 'Email reply is tied to the same contact.', ['EVID-02', 'EVID-04']),
+    relationship('REL-05', 'AccountToWebConversion', 'deterministic', 'CustomerAccount', 'ACC-2000', 'WebConversionEvent', 'WEB-5100', 1, 0.8, 'Pricing visit is tied to the account and campaign source.', ['EVID-01', 'EVID-05']),
+    relationship('REL-06', 'AccountToSupportTicket', 'deterministic', 'CustomerAccount', 'ACC-2000', 'SupportTicket', 'TCK-1200', 1, 0.7, 'Support ticket remains attached as a risk signal.', ['EVID-01', 'EVID-06']),
+    relationship('REL-07', 'AccountToProductUsage', 'deterministic', 'CustomerAccount', 'ACC-2000', 'ProductUsageSummary', 'USAGE-7100', 1, 0.76, 'Usage summary is tied to the account.', ['EVID-01', 'EVID-07']),
+    relationship('REL-08', 'AccountToBilling', 'deterministic', 'CustomerAccount', 'ACC-2000', 'BillingMetric', 'BILL-3100', 1, 0.7, 'Billing metric is tied to the account.', ['EVID-01', 'EVID-08']),
+    relationship('REL-09', 'SimilarSuccessfulSalePath', 'probabilistic', 'CustomerAccount', 'ACC-2000', 'SimilarPatternMatch', 'PAT-01', 0.83, 0.82, 'Similar won pattern matched on segment, usage, web journey, and email response.', ['PAT-01', 'EVID-09']),
+    relationship('REL-10', 'SimilarSupportBlockers', 'probabilistic', 'CustomerAccount', 'ACC-2000', 'SimilarPatternMatch', 'PAT-02', 0.64, 0.62, 'Similar lost pattern warns that unresolved implementation issues can slow conversion.', ['PAT-02', 'EVID-06']),
+  ]
+  const similarWonLostPatterns = [
+    {
+      matchId: 'PAT-01',
+      matchedSubjectType: 'contact',
+      matchedSubjectId: canViewPii ? 'CON-WON-1842' : 'sha256:won1842',
+      matchedAccountId: canViewBusinessDetails ? 'ACC-SYN-WON-01' : 'sha256:acctwon01',
+      outcome: 'won',
+      similarityScore: 0.83,
+      outcomeWeight: 0.82,
+      relationshipTypes: ['SameSegment', 'SameRoleSeniority', 'SimilarProductUsagePattern', 'SimilarWebJourney', 'SimilarEmailResponsePattern', 'SimilarSuccessfulSalePath'],
+      reasons: [
+        'Enterprise logistics account with the same revenue operations buyer role.',
+        'Pricing activity, trial activation, and email reply sequence closely match the current account.',
+        'Healthy billing posture was present before the won outcome.',
+      ],
+      citationIds: ['PAT-01', 'EVID-04', 'EVID-05', 'EVID-07', 'EVID-08'],
+    },
+    {
+      matchId: 'PAT-02',
+      matchedSubjectType: 'account',
+      matchedSubjectId: canViewBusinessDetails ? 'ACC-SYN-LOST-04' : 'sha256:acctlost04',
+      matchedAccountId: canViewBusinessDetails ? 'ACC-SYN-LOST-04' : 'sha256:acctlost04',
+      outcome: 'lost',
+      similarityScore: 0.64,
+      outcomeWeight: -0.42,
+      relationshipTypes: ['SameSegment', 'SimilarSupportBlockers', 'SimilarWebJourney'],
+      reasons: [
+        'Similar pricing interest stalled when implementation risk was not acknowledged early.',
+        'Open support detail should remain visible in the next action.',
+      ],
+      citationIds: ['PAT-02', 'EVID-06'],
+    },
+  ]
+  const weightedSignals = [
+    weightedSignal('pricing-intent', 'Pricing and rollout intent', 'positive', 0.18, 0.92, 0.17, 'Fresh pricing and rollout views indicate active commercial evaluation.', ['EVID-05']),
+    weightedSignal('email-response', 'Email response momentum', 'positive', 0.16, 0.88, 0.14, 'A meeting-booked reply reinforces email as the next channel.', ['EVID-04']),
+    weightedSignal('active-usage', 'Active product usage', 'positive', 0.2, 0.91, 0.18, 'Usage is broad enough to support an enterprise rollout discussion.', ['EVID-07']),
+    weightedSignal('similar-won-patterns', 'Similar won patterns', 'positive', 0.14, 0.83, 0.12, 'The closest matched synthetic pattern closed won.', ['PAT-01']),
+    weightedSignal('support-blockers', 'Open implementation issue', 'negative', 0.12, 0.36, -0.08, 'A live integration issue reduces confidence and should be acknowledged.', ['EVID-06', 'PAT-02']),
+    weightedSignal('billing-health', 'Billing readiness', 'positive', 0.08, 1, 0.08, 'No payment failures or past-due days are present.', ['EVID-08']),
+  ]
+  const recommendedNextAction = {
+    action: 'Send a short email-led enterprise rollout note and ask for a 20-minute implementation planning call.',
+    timing: 'Within 24 hours while the pricing and meeting-booked signals are fresh.',
+    rationale: 'The strongest evidence points to active commercial evaluation, but the message should acknowledge the open integration issue before asking for an expansion commitment.',
+    score: 0.84,
+    citationIds: ['EVID-04', 'EVID-05', 'EVID-06', 'EVID-07', 'PAT-01'],
+  }
+  const draftResponse = {
+    channel: 'email',
+    subject: `${accountName}: next step for enterprise rollout planning`,
+    body:
+      `Hi ${contactName},\n\n` +
+      `Your team just showed fresh enterprise rollout intent through the meeting-booked reply and pricing activity [EVID-04, EVID-05]. The product usage window also suggests the workflow is active enough for a practical implementation discussion [EVID-07].\n\n` +
+      `I would keep the next step focused: review the open integration point first, then agree the rollout milestone that would make enterprise expansion worth pursuing [EVID-06].\n\n` +
+      `Would a 20-minute planning call this week be useful?\n\nBest,\nScout Sales`,
+    citationIds: ['EVID-04', 'EVID-05', 'EVID-06', 'EVID-07'],
+    requiresHumanReview: true,
+  }
+  const caveats = [
+    'One open integration support issue reduces confidence and should be acknowledged before escalation.',
+    'Similar-pattern evidence is directional because it compares synthetic account journeys rather than a production machine-learning model.',
+    'The draft is grounded in cited evidence but still needs human review before customer contact.',
+  ]
+  const provenance = [
+    ...records.map((record) => ({
+      citationId: record.citationId,
+      sourceEntityType: record.recordType,
+      sourceEntityId: record.externalId,
+      evidenceType: record.recordType === 'OutcomeSignal' ? 'outcome' : 'exact-record',
+      summary: record.summary,
+      isMasked: record.isMasked,
+    })),
+    {
+      citationId: 'PAT-01',
+      sourceEntityType: 'SimilarPatternMatch',
+      sourceEntityId: 'PAT-01',
+      evidenceType: 'similar-won-pattern',
+      summary: 'Synthetic won pattern matched on account segment, buyer seniority, usage, pricing journey, and email response.',
+      isMasked: !canViewPii || !canViewBusinessDetails,
+    },
+    {
+      citationId: 'PAT-02',
+      sourceEntityType: 'SimilarPatternMatch',
+      sourceEntityId: 'PAT-02',
+      evidenceType: 'similar-lost-pattern',
+      summary: 'Synthetic lost pattern matched on unresolved implementation risk.',
+      isMasked: !canViewBusinessDetails,
+    },
+  ]
+  const cloudPayload = {
+    packageId: 'EP-SYN-REL-001',
+    packageVersion: '2026-06-16.relationship-intelligence.v1',
+    tenantSlug: input.tenantSlug,
+    dataPlane: 'customer-owned-data-plane',
+    rawDataRetainedInCustomerDataPlane: true,
+    containsRawCustomerData: false,
+    subject: {
+      type: input.subjectType,
+      identifierHash: 'sha256:subject-synthetic-7a1c',
+      accountHash: 'sha256:account-synthetic-2000',
+    },
+    objective: input.objective,
+    purposeCategory: input.purpose === 'customer_outreach' ? 'customer_outreach' : 'custom',
+    actorRole,
+    projectionLevel: 'aggregate-metadata-only',
+    rawCustomerDataPolicy: 'counts-hashes-weights-and-opaque-citation-ids-only',
+    exactRecordCounts: recordCounts,
+    relationshipTypes: [...new Set(relationships.map((item) => item.relationshipType))].sort(),
+    weightedSignals: weightedSignals.map((signal) => ({
+      signalKey: signal.signalKey,
+      direction: signal.direction,
+      weight: signal.weight,
+      score: signal.score,
+      contribution: signal.contribution,
+      citationIds: signal.citationIds,
+    })),
+    recommendation: {
+      action: recommendedNextAction.action,
+      timing: recommendedNextAction.timing,
+      score: recommendedNextAction.score,
+      citationIds: recommendedNextAction.citationIds,
+    },
+    confidence: 0.84,
+    caveats,
+    citationIds: provenance.map((item) => item.citationId),
+    governance: {
+      appliedRules: [
+        'exact-data-query-runs-in-customer-owned-data-plane',
+        'cloud-control-plane-payload-excludes-raw-customer-data',
+        `purpose-category:${input.purpose === 'customer_outreach' ? 'customer_outreach' : 'custom'}`,
+        `actor-role:${actorRole}`,
+      ],
+      maskedFields,
+      deniedFields: [],
+    },
+  }
+  const localPackage = {
+    packageVersion: cloudPayload.packageVersion,
+    packageId: cloudPayload.packageId,
+    tenantSlug: input.tenantSlug,
+    dataPlane: 'customer-owned',
+    subject: {
+      type: input.subjectType,
+      identifier: subjectIdentifier,
+      accountId: canViewBusinessDetails ? 'ACC-2000' : 'sha256:acc2000d9c10',
+    },
+    objective: input.objective,
+    purpose: input.purpose,
+    actorRole,
+    exactLinkedRecords: { recordCounts, records },
+    relationships,
+    similarWonLostPatterns,
+    weightedSignals,
+    recommendedNextAction,
+    draftResponse,
+    confidence: 0.84,
+    caveats,
+    provenance,
+    governance: {
+      appliedRules: cloudPayload.governance.appliedRules,
+      maskedFields,
+      deniedFields: [],
+      rawDataRetainedInCustomerDataPlane: true,
+    },
+  }
+
+  return {
+    tenantSlug: input.tenantSlug,
+    subjectType: input.subjectType,
+    subjectIdentifier,
+    objective: input.objective,
+    purpose: input.purpose,
+    actorRole,
+    exactLinkedRecords: {
+      recordCounts,
+      records,
+    },
+    relationships,
+    similarWonLostPatterns,
+    weightedSignals,
+    recommendedNextAction,
+    draftResponse,
+    confidence: 0.84,
+    caveats,
+    provenance,
+    governance: {
+      isAllowed: true,
+      dataPlane: 'customer-owned-data-plane',
+      rawDataRetainedInCustomerDataPlane: true,
+      cloudPayloadContainsRawCustomerData: false,
+      appliedRules: cloudPayload.governance.appliedRules,
+      maskedFields,
+      deniedFields: [],
+      cloudControlPlanePayloadJson: prettyJson(cloudPayload),
+    },
+    evidencePack: {
+      evidencePackId: cloudPayload.packageId,
+      packageVersion: cloudPayload.packageVersion,
+      generatedAtUtc: isoNow(),
+      localDataPlanePackageJson: prettyJson(localPackage),
+      cloudControlPlanePayloadJson: prettyJson(cloudPayload),
+      cloudPayloadContainsRawCustomerData: false,
+    },
+  }
+}
+
+function relationship(
+  relationshipId: string,
+  relationshipType: string,
+  linkKind: string,
+  sourceType: string,
+  sourceId: string,
+  targetType: string,
+  targetId: string,
+  confidence: number,
+  weight: number,
+  rationale: string,
+  citationIds: string[],
+): NextActionResult['relationships'][number] {
+  return {
+    relationshipId,
+    relationshipType,
+    linkKind,
+    sourceType,
+    sourceId,
+    targetType,
+    targetId,
+    confidence,
+    weight,
+    rationale,
+    citationIds,
+  }
+}
+
+function weightedSignal(
+  signalKey: string,
+  label: string,
+  direction: string,
+  weight: number,
+  score: number,
+  contribution: number,
+  explanation: string,
+  citationIds: string[],
+): NextActionResult['weightedSignals'][number] {
+  return {
+    signalKey,
+    label,
+    direction,
+    weight,
+    score,
+    contribution,
+    explanation,
+    citationIds,
+  }
 }
 
 export async function mockGraphqlRequest<T>(

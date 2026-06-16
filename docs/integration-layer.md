@@ -102,7 +102,7 @@ Use [Connector Marketplace Skeleton](connector-marketplace.md) to identify which
 Start with one workflow and a small source set:
 
 1. Pick one business decision, such as increasing conversion probability, renewal risk, expansion readiness, account routing, service escalation, or onboarding next best action.
-2. Identify the minimum approved signals from SQL, CRM, support, billing, telemetry, email engagement, web search, pricing-page visits, account registration, product usage, or won/lost outcome data.
+2. Identify the minimum approved signals from SQL, CRM, support, billing, telemetry, email engagement, web conversion, pricing-page visits, account registration, product usage, or won/lost outcome data.
 3. Build selectors for the semantic facts needed by the workflow.
 4. Expose a context snapshot or governed evidence package to one customer-owned consumer.
 5. Measure whether the workflow became faster, more accurate, safer, or easier to audit.

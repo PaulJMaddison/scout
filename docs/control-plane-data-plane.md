@@ -6,7 +6,7 @@ The important rule is simple: operational customer data does not need to leave t
 
 ## Customer Data Plane
 
-The customer data plane is the self-hosted Scout runtime. It manages source connectors, selector execution, semantic attributes, context snapshots, context facts, provenance, audit logs, GraphQL, REST, API keys, local users, local roles, and access to customer operational systems.
+The customer data plane is the self-hosted Scout runtime. It manages source connectors, connector credentials, customer-approved mappings, selector execution, semantic attributes, exact linked records, context snapshots, context facts, evidence packs, provenance, audit logs, GraphQL, REST, API keys, local users, local roles, and access to customer operational systems.
 
 Typical data-plane components:
 
@@ -14,19 +14,25 @@ Typical data-plane components:
 - PostgreSQL in production or SQLite for the local demo
 - customer connector configuration and credentials
 - selector definitions and selector execution history
-- semantic schema, context snapshots, context facts, and provenance
+- semantic schema, exact linked records, context snapshots, context facts, evidence packs, and provenance
 - audit events, source events, recompute jobs, and governance policies
 - GraphQL, REST, SDK, and webhook/event ingestion endpoints
 
-The public repository includes safe generic connectors, mock connectors, and paid/private connector placeholders only. Paid enterprise connector code, customer-specific mappings, and private deployment packs should live outside this repo.
+The public repository includes safe generic connectors, mock connectors, and paid/private connector placeholders only. Paid enterprise connector code, customer-specific mappings, private Rust relationship-weighting modules, and private deployment packs should live outside this repo.
 
 ## Hosted Control Plane
 
-The hosted control plane is a future commercial seam, not a requirement for the open-core product. It may manage accounts, plans, licences, downloads, documentation, support access, update channels, and optional aggregate usage reporting.
+The hosted control plane is an optional commercial seam, not a requirement for the open-core product. It may manage accounts, plans, licences, downloads, documentation, support access, update channels, and optional aggregate usage reporting.
 
-Paid/private cloud control-plane modules may also manage hosted account management, billing, commercial licence portals, download portals, support portals, and cloud operations. They are commercial implementations outside this public repo.
+Paid/private Cloud/control-plane modules may also manage hosted account management, billing, commercial licence portals, download portals, support portals, and cloud operations. They are commercial implementations outside this public repo.
 
-Control-plane metadata should be limited to operational account information and licensing state. It must not require raw CRM records, ERP records, support tickets, product usage, billing events, customer emails, chat messages, calendar descriptions, issue descriptions, documents, attachments, warehouse rows, analytics event payloads, or context facts to leave the customer environment.
+Control-plane metadata should be limited to operational account information, licence state, package/update metadata, support access, entitlement metadata, and optional aggregate usage. It must not require raw CRM records, ERP records, support tickets, product usage, billing events, customer emails, chat messages, calendar descriptions, issue descriptions, documents, attachments, warehouse rows, analytics event payloads, local evidence-pack JSON, exact linked records, or context facts to leave the customer environment.
+
+## Evidence Pack Boundary
+
+When Scout generates a next-best-action evidence pack, the local customer data plane may use exact authorised records such as normalised email address, CRM contact/account, account registration/profile, sales activity, opportunities, email replies, meetings booked, web conversion and pricing-page events, support tickets, product usage summaries, billing health, and won/lost outcome signals.
+
+The optional Cloud/control-plane payload should stay metadata-only by default: package ID, version, tenant slug, hashed subject/account identifiers, objective, purpose, actor role, exact-record counts, relationship type names, weighted signal summaries with citation IDs, recommended action score/timing, confidence, caveats, and masking/denial rules.
 
 ## v2 Public Repo Foundations
 
@@ -48,7 +54,7 @@ These foundations deliberately do not integrate a payment provider, phone home, 
 flowchart LR
     subgraph Customer["Customer environment"]
         Sources["CRM, ERP, support, warehouse, product DB, billing, spreadsheets, legacy SQL"]
-        DataPlane["Scout data plane\nconnectors, selectors, semantic schema, context snapshots, APIs"]
+        DataPlane["Scout data plane\nconnectors, selectors, exact records, evidence packs, APIs"]
         Consumers["Customer consumers\napps, reports, copilots, agents, workflows"]
         Sources --> DataPlane
         DataPlane --> Consumers
@@ -71,16 +77,12 @@ flowchart LR
 - source records and raw payloads
 - connector credentials
 - selector source data
+- exact linked records
 - context facts and context snapshots
 - provenance records
-- prompt context packages that include customer data
+- local evidence packs and prompt context packages that include customer data
 - tenant audit logs unless the customer explicitly exports them
 
 ## Future Private Work
 
-Future paid or private repositories may add SSO, enterprise connectors, commercial licence signing, hosted account management, private cloud deployment packs, compliance reporting, support bundles, and SLA tooling. Those modules should plug into the public extension interfaces without turning the open-core repo into a crippled teaser.
-# Control Plane And Customer Data Plane
-
-The public repository implements the customer-owned data-plane foundations. Source connectors, selector execution, semantic attributes, context snapshots, context facts, provenance, audit logs, REST, GraphQL, API keys, local users, local roles, and customer operational data remain in the customer environment by default.
-
-Paid/private cloud control-plane modules may manage hosted account management, billing, commercial licences, downloads, update channels, support access, aggregate usage reporting, and cloud operations. They must not require raw customer operational records, connector credentials, context facts, or prompt packages to leave the customer data plane by default.
+Future paid or private repositories may add Rust relationship weighting, SSO, enterprise connectors, commercial licence signing, hosted account management, private cloud deployment packs, compliance reporting, support bundles, and SLA tooling. Those modules should plug into the public extension interfaces without turning the open-core repo into a crippled teaser.

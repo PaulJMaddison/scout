@@ -9,9 +9,10 @@ We do not build the brain. We build the nervous system. Scout carries trusted bu
 The customer data plane is the part of Scout that runs near the customer's source systems. It owns:
 
 - source access and connector configuration
+- connector credentials and customer-approved source mappings
 - selector definitions and selector execution
 - semantic attributes and context facts
-- context snapshots, context packages, and governed evidence packs
+- exact linked records, context snapshots, context packages, and governed evidence packs
 - confidence, freshness, explanations, provenance, masking, and audit
 - API clients, local users, roles, scopes, and operational configuration
 - REST, GraphQL, SDK, and internal-service access for downstream consumers
@@ -26,19 +27,36 @@ Those systems remain systems of record. Scout does not require the customer to r
 
 ## What Leaves The Data Plane By Default
 
-By default, raw operational records, connector credentials, context facts, context snapshots, prompt context packages, message bodies, document bodies, attachments, local databases, logs with sensitive payloads, and customer-specific mappings should not leave the customer-controlled data plane.
+By default, raw operational records, connector credentials, customer-specific mappings, exact linked records, context facts, context snapshots, local evidence-pack JSON, prompt context packages, message bodies, document bodies, attachments, local databases, and logs with sensitive payloads should not leave the customer-controlled data plane.
 
-An optional hosted or private control plane can manage commercial metadata such as accounts, licences, downloads, update channels, support access, entitlement metadata, and optional aggregate usage. It should not receive raw operational customer data by default.
+An optional hosted or private Cloud/control plane can manage commercial metadata such as accounts, licences, downloads, update channels, support access, entitlement metadata, and optional aggregate usage. It should not receive raw operational customer data by default.
+
+Cloud-safe payloads may include package IDs, package version, tenant slug, objective, purpose, actor role, hashed subject/account identifiers, exact-record counts, relationship type names, weighted signal summaries with citation IDs, recommended action timing/score, confidence, caveats, and masking/denial rules. They must not include raw CRM records, support-ticket text, billing rows, customer email addresses, account names/domains, source payloads, connector secrets, or local evidence-pack JSON by default.
+
+## Exact Authorised Data In The Demo Plane
+
+For the synthetic sales walkthrough, Scout links only the customer-approved records needed for the selected subject and objective:
+
+- normalised email address and CRM contact/account profile
+- account registration or profile fields
+- sales activity, open opportunity, and prior won/lost outcome signals
+- email replies or meetings booked
+- web conversion and pricing-page events
+- support tickets and support status
+- product usage summaries
+- billing health, payment status, and days-past-due signals
+
+These records are carried as exact linked records with citation IDs. Deterministic relationships such as email-to-contact, contact-to-account, account-to-opportunity, account/contact-to-activity, contact-to-email-engagement, account/contact-to-web-conversion, account/contact-to-support-ticket, account/contact-to-product-usage, account-to-billing, and account/contact-to-outcome are built in the local data plane. Similar won/lost patterns and weighted signals can then support a recommended next action. Optional Cloud/control-plane projections remain aggregate metadata only: counts, hashes, weights, relationship type names, and opaque citation IDs, not raw operational records.
 
 ## How Context Is Produced
 
 1. Approved source signals are read from existing systems or safe exports.
 2. Selectors map authorised fields, events, and metrics into semantic attributes.
 3. Context facts are written with confidence, freshness, explanation, and provenance.
-4. Evidence packs can link email address, email reply or meeting booked, web search, pricing-page visit, account registration, CRM contact, opportunity, support ticket, product usage, billing status, and won/lost sale outcome.
+4. Evidence packs can link email address, email reply or meeting booked, web conversion, pricing-page visit, account registration/profile, CRM contact, opportunity, support ticket, product usage, billing health, and won/lost sale outcome.
 5. Context snapshots version the facts for a user, account, workflow, or other business entity.
-6. Downstream consumers retrieve context through REST, GraphQL, SDKs, internal services, or governed context packages.
-7. In the wider UCL direction, the private Rust relationship engine weights the evidence pack before a local/open-source LLM recommends a next-best action.
+6. Downstream consumers retrieve context through REST, GraphQL, SDKs, internal services, governed evidence packages, or `POST /api/v1/intelligence/next-action`.
+7. In the wider UCL direction, private enterprise modules add Rust relationship weighting before a customer-owned/local AI tool, workflow engine, or app recommends a next-best action.
 
 ## Why It Matters Commercially
 
@@ -50,4 +68,4 @@ A buyer can prove one workflow without a replatforming programme. A CTO can veri
 
 The public repo includes the reusable open core: local demo, customer data-plane foundations, APIs, SDKs, generic connectors, mock connectors, selector engine, provenance, audit, docs, and extension points.
 
-Paid/private scope can include enterprise connector implementations, SSO, SCIM, advanced governance, compliance exports, deployment packs, SLAs, private cloud support, and future hosted control-plane operations. Those paid implementations are intentionally not shipped in this public repository.
+Paid/private scope can include enterprise connector implementations, Rust relationship weighting, SSO, SCIM, advanced governance, compliance exports, deployment packs, SLAs, private cloud support, and optional hosted control-plane operations. Those paid implementations are intentionally not shipped in this public repository.
