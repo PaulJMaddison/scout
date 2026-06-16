@@ -7,6 +7,11 @@ const repoRoot = path.resolve(__dirname, '..', '..');
 const outDir = path.join(repoRoot, 'docs', 'images');
 const baseUrl = 'http://127.0.0.1:4173';
 
+const browserTestsEnabled = (process.env.KYNTIC_RUN_BROWSER_TESTS ?? '').toLowerCase();
+if (browserTestsEnabled !== '1' && browserTestsEnabled !== 'true') {
+  throw new Error('README screenshot capture is opt-in. Set KYNTIC_RUN_BROWSER_TESTS=1 to launch Playwright.');
+}
+
 const shots = [
   { route: '/demo', file: 'demo-mode-landing.png' },
   { route: '/overview', file: 'dashboard-overview.png' },

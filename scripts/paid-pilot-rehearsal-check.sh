@@ -15,6 +15,15 @@ require_path() {
   fi
 }
 
+require_opt_in() {
+  local name="$1" purpose="$2"
+  local value="${!name:-}"
+  if [[ "$value" != "1" && "${value,,}" != "true" ]]; then
+    echo "$purpose is opt-in. Set $name=1 to run this external proof path." >&2
+    exit 1
+  fi
+}
+
 invoke_repo_script() {
   local repo="$1" script="$2"
   shift 2
@@ -50,6 +59,7 @@ invoke_repo_script "$CLOUD_REPO" "scripts/check-release-alignment.sh" 2>/dev/nul
   echo "WARNING: Cloud release alignment check not available as .sh"
 
 if [ "$SKIP_ENTERPRISE_CONNECTOR_SMOKE" != "true" ]; then
+  require_opt_in "KYNTIC_RUN_EXTERNAL_DOTNET_TESTS" "Enterprise connector smoke"
   CONNECTOR_SMOKE="$ENTERPRISE_REPO/scripts/connector-smoke-test.ps1"
   require_path "$CONNECTOR_SMOKE"
   if [ -f "$ENTERPRISE_REPO/scripts/connector-smoke-test.sh" ]; then

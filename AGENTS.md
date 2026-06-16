@@ -19,11 +19,13 @@ Scout is the public face of KynticAI. Keep it useful, auditable, and safe for pu
 
 ## Build/Test Commands
 
-- Restore/build/test .NET: `dotnet restore .\KynticAI.Scout.slnx`, `dotnet build .\KynticAI.Scout.slnx`, `dotnet test .\KynticAI.Scout.slnx`.
+- Restore/build/unit .NET: `dotnet restore .\KynticAI.Scout.slnx`, `dotnet build .\KynticAI.Scout.slnx`, `dotnet test .\tests\KynticAI.Scout.UnitTests\KynticAI.Scout.UnitTests.csproj`, `dotnet test .\tests\KynticAI.Scout.Sdk.Tests\KynticAI.Scout.Sdk.Tests.csproj`.
 - Web app: `cd apps\web`, then `npm install`, `npm run build`, `npm run lint`, `npm run test`.
 - TypeScript SDK: `cd packages\typescript\scout-sdk`, then `npm install`, `npm run build`, `npm run test`.
 - Local demo: `.\scripts\setup-demo.ps1`, then `.\scripts\start-demo.ps1`.
-- Docker API demo: `docker compose -f deploy\docker-compose.yml up scout-api --build`.
+- Browser proof: `cd apps\web`, set `KYNTIC_RUN_BROWSER_TESTS=1`, then `npm run test:e2e`.
+- Docker/PostgreSQL and enterprise connector proof paths require `KYNTIC_RUN_EXTERNAL_DOTNET_TESTS=1`; see `LOCAL_VALIDATION.md`.
+- Laptop local-folder rule: before running tests on this machine, check `C:\Kyntic\UCL-local-aidocs\LOCAL_LAPTOP_TEST_COMMANDS.md` and use the nearest safe command for the folder touched; docs-only changes can use `git diff --check`.
 
 ## Do-Not-Do List
 

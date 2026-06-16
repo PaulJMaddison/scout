@@ -17,6 +17,15 @@ require_path() {
   echo "OK: $purpose"
 }
 
+require_opt_in() {
+  local name="$1" purpose="$2"
+  local value="${!name:-}"
+  if [[ "$value" != "1" && "${value,,}" != "true" ]]; then
+    echo "$purpose is opt-in. Set $name=1 to run this external proof path." >&2
+    exit 1
+  fi
+}
+
 invoke_step() {
   local name="$1"
   shift
@@ -53,6 +62,7 @@ enterprise_repo_checks() {
   require_path "$ENTERPRISE_REPO/scripts/start-postgres-proof.ps1" "enterprise Postgres proof script"
   require_path "$ENTERPRISE_REPO/scripts/package-enterprise-preview.ps1" "enterprise package dry-run script"
   if [ "$SKIP_ENTERPRISE_CONNECTOR_SMOKE" != "true" ]; then
+    require_opt_in "KYNTIC_RUN_EXTERNAL_DOTNET_TESTS" "Enterprise connector smoke"
     bash "$ENTERPRISE_REPO/scripts/connector-smoke-test.sh" \
       --provider postgres \
       --config-path "$ENTERPRISE_REPO/samples/postgres/connector-proof.config.json" \

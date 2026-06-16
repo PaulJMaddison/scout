@@ -29,7 +29,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "node ../../scripts/require-env.mjs KYNTIC_RUN_BROWSER_TESTS \"Playwright browser tests\" && playwright test"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

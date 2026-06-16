@@ -382,8 +382,9 @@ Use the [Production Install Checklist](docs/production-install-checklist.md) bef
 ## Testing
 
 ```bash
-# Backend unit and integration tests
-dotnet test KynticAI.Scout.slnx
+# Backend unit tests
+dotnet test tests/KynticAI.Scout.UnitTests/KynticAI.Scout.UnitTests.csproj
+dotnet test tests/KynticAI.Scout.Sdk.Tests/KynticAI.Scout.Sdk.Tests.csproj
 
 # Frontend (from apps/web)
 npm run lint
@@ -393,6 +394,8 @@ npm run build
 # TypeScript SDK (from packages/typescript/scout-sdk)
 npm test
 ```
+
+Browser proof and production-style rehearsal paths are opt-in. Use `KYNTIC_RUN_BROWSER_TESTS=1 npm run test:e2e` for Playwright, and set `KYNTIC_RUN_EXTERNAL_DOTNET_TESTS=1` before Docker/PostgreSQL or enterprise connector smoke rehearsals. See [LOCAL_VALIDATION.md](LOCAL_VALIDATION.md) for the local-safe command set.
 
 ---
 
