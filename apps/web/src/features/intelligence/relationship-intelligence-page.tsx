@@ -235,8 +235,8 @@ export function RelationshipIntelligencePage() {
     [result?.weightedSignals],
   )
   const cloudPayload = useMemo(
-    () => safeJsonParse(result?.evidencePack.cloudControlPlanePayloadJson ?? '{}', {}),
-    [result?.evidencePack.cloudControlPlanePayloadJson],
+    () => safeJsonParse(result?.evidencePack.cloudAggregateUsagePayloadJson ?? '{}', {}),
+    [result?.evidencePack.cloudAggregateUsagePayloadJson],
   )
   const totalRecords = result
     ? Object.values(result.exactLinkedRecords.recordCounts).reduce((total, count) => total + count, 0)
@@ -541,7 +541,7 @@ export function RelationshipIntelligencePage() {
             action={
               result ? (
                 <Badge tone={result.governance.cloudPayloadContainsRawCustomerData ? 'danger' : 'success'}>
-                  {result.governance.cloudPayloadContainsRawCustomerData ? 'Raw cloud payload' : 'Cloud-safe projection'}
+                  {result.governance.cloudPayloadContainsRawCustomerData ? 'Raw cloud payload' : 'Cloud aggregate usage'}
                 </Badge>
               ) : null
             }
@@ -609,7 +609,7 @@ export function RelationshipIntelligencePage() {
                   </div>
                 </Card>
 
-                <JsonViewer value={cloudPayload} title="Cloud/control-plane projection" height="h-72" />
+                <JsonViewer value={cloudPayload} title="Cloud aggregate usage payload" height="h-72" />
               </div>
             ) : (
               <Card className="bg-ivory-25">Loading governance indicators...</Card>
@@ -677,8 +677,8 @@ export function RelationshipIntelligencePage() {
                 </Card>
               </div>
               <JsonViewer
-                value={safeJsonParse(result.evidencePack.localDataPlanePackageJson, {})}
-                title="Local customer data-plane package"
+                value={safeJsonParse(result.evidencePack.localDerivedEvidencePackageJson, {})}
+                title="Local derived evidence package"
                 height="h-[420px]"
               />
             </div>

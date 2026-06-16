@@ -26,13 +26,13 @@ The hosted control plane is an optional commercial seam, not a requirement for t
 
 Paid/private Cloud/control-plane modules may also manage hosted account management, billing, commercial licence portals, download portals, support portals, and cloud operations. They are commercial implementations outside this public repo.
 
-Control-plane metadata should be limited to operational account information, licence state, package/update metadata, support access, entitlement metadata, and optional aggregate usage. It must not require raw CRM records, ERP records, support tickets, product usage, billing events, customer emails, chat messages, calendar descriptions, issue descriptions, documents, attachments, warehouse rows, analytics event payloads, local evidence-pack JSON, exact linked records, or context facts to leave the customer environment.
+Control-plane metadata should be limited to operational account information, licence state, package/update metadata, support access, entitlement metadata, and optional aggregate usage. It must not require raw CRM records, ERP records, support tickets, product usage, billing events, customer emails, chat messages, calendar descriptions, issue descriptions, documents, attachments, warehouse rows, analytics event payloads, local evidence-pack JSON, exact linked records, context facts, citations, weighted signals, recommendations, confidence, caveats, or per-entity relationship metadata to leave the customer environment.
 
 ## Evidence Pack Boundary
 
 When Scout generates a next-best-action evidence pack, the local customer data plane may use exact authorised records such as normalised email address, CRM contact/account, account registration/profile, sales activity, opportunities, email replies, meetings booked, web conversion and pricing-page events, support tickets, product usage summaries, billing health, and won/lost outcome signals.
 
-The optional Cloud/control-plane payload should stay metadata-only by default: package ID, version, tenant slug, hashed subject/account identifiers, objective, purpose, actor role, exact-record counts, relationship type names, weighted signal summaries with citation IDs, recommended action score/timing, confidence, caveats, and masking/denial rules.
+The optional Cloud/control-plane payload for next-action usage is a Cloud aggregate usage payload only. It may carry tenant/control-plane identifiers, package version, feature usage counters, health/status, timestamps, and audit/control-plane event metadata. It must not carry raw records, context facts or snapshots, local evidence packs, prompts, generated content, recommendations, citation IDs, weighted signals, relationship type names, confidence, caveats, hashed subject/account identifiers, or per-entity relationship metadata.
 
 ## v2 Public Repo Foundations
 

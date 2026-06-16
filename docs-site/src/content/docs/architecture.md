@@ -61,11 +61,13 @@ workspace, licence, API-client, billing-usage, and onboarding records. In
 the open-source repo these are public-safe data-plane foundations, not a
 hosted control-plane deployment promise.
 
-Optional Cloud/control-plane payloads should stay metadata-only by default:
-package IDs, licence/account state, hashed subject identifiers, aggregate
-usage, update metadata, and support metadata. They should not require raw
-source records, connector credentials, local evidence-pack JSON, or context
-facts to leave the customer data plane.
+Optional Cloud/control-plane payloads should stay aggregate-usage-only by
+default: tenant/control-plane identifiers, package version, feature counters,
+health/status, timestamps, and audit/control-plane event metadata. They should
+not require raw source records, connector credentials, local evidence-pack
+JSON, context facts or snapshots, recommendations, citation IDs, weighted
+signals, relationship types, confidence, caveats, or per-entity relationship
+metadata to leave the customer data plane.
 
 ## Core Projects
 

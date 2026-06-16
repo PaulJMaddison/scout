@@ -194,10 +194,11 @@ public sealed class V1RestApiIntegrationTests
         Assert.Contains(nextAction.Payload["relationships"]!.AsArray(), item =>
             item?["relationshipType"]?.GetValue<string>() == "AccountToWebConversion"
             && item?["linkKind"]?.GetValue<string>() == "deterministic");
-        var cloudProjection = JsonNode.Parse(nextAction.Payload["evidencePack"]!["cloudControlPlanePayloadJson"]!.GetValue<string>())!.AsObject();
-        Assert.Equal("aggregate-metadata-only", cloudProjection["projectionLevel"]!.GetValue<string>());
-        Assert.NotNull(cloudProjection["exactRecordCounts"]);
-        Assert.NotNull(cloudProjection["relationshipTypes"]);
+        var cloudProjection = JsonNode.Parse(nextAction.Payload["evidencePack"]!["cloudAggregateUsagePayloadJson"]!.GetValue<string>())!.AsObject();
+        Assert.Equal("cloud-aggregate-usage", cloudProjection["payloadKind"]!.GetValue<string>());
+        Assert.NotNull(cloudProjection["featureUsageCounters"]);
+        Assert.Null(cloudProjection["exactRecordCounts"]);
+        Assert.Null(cloudProjection["relationshipTypes"]);
 
         var attributes = await ReadJsonAsync(client.GetAsync("/api/v1/semantic-attributes?q=accountHealth&pageSize=5"));
         Assert.Single(attributes.Payload["items"]!.AsArray());

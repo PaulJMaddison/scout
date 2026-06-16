@@ -177,17 +177,17 @@ describe('RelationshipIntelligencePage', () => {
         dataPlane: 'customer-owned-data-plane',
         rawDataRetainedInCustomerDataPlane: true,
         cloudPayloadContainsRawCustomerData: false,
-        appliedRules: ['cloud-control-plane-payload-excludes-raw-customer-data'],
+        appliedRules: ['cloud-aggregate-usage-payload-excludes-raw-and-derived-customer-intelligence'],
         maskedFields: ['contact.email'],
         deniedFields: [],
-        cloudControlPlanePayloadJson: '{"projectionLevel":"aggregate-metadata-only"}',
+        cloudAggregateUsagePayloadJson: '{"payloadKind":"cloud-aggregate-usage"}',
       },
       evidencePack: {
         evidencePackId: 'EP-SYN-REL-001',
         packageVersion: '2026-06-16.relationship-intelligence.v1',
         generatedAtUtc: '2026-06-16T12:00:00Z',
-        localDataPlanePackageJson: '{"records":2}',
-        cloudControlPlanePayloadJson: '{"projectionLevel":"aggregate-metadata-only"}',
+        localDerivedEvidencePackageJson: '{"records":2}',
+        cloudAggregateUsagePayloadJson: '{"payloadKind":"cloud-aggregate-usage"}',
         cloudPayloadContainsRawCustomerData: false,
       },
     })
@@ -203,7 +203,7 @@ describe('RelationshipIntelligencePage', () => {
     expect(screen.getByLabelText('Identifier')).toHaveValue('avery.stone@larkspur-logistics.example')
     expect(screen.getByText('Draft response with citations')).toBeInTheDocument()
     expect(screen.getByText('Won pattern')).toBeInTheDocument()
-    expect(screen.getByText('Cloud-safe projection')).toBeInTheDocument()
+    expect(screen.getByText('Cloud aggregate usage')).toBeInTheDocument()
     expect(screen.getByText('contact.email')).toBeInTheDocument()
     expect(screen.getAllByText('EVID-01').length).toBeGreaterThan(0)
   })

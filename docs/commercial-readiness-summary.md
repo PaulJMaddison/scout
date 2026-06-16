@@ -1,5 +1,7 @@
 # Commercial Readiness Summary
 
+Workspace naming source of truth: [`../../docs/source-of-truth-naming-map.md`](../../docs/source-of-truth-naming-map.md).
+
 KynticAI Scout is ready to show publicly and ready for paid pilot conversations. It is nearly ready for paid pilot delivery after live hosting configuration, legal review, and first-customer operational setup. It is not ready for complete self-serve SaaS and must not be sold that way.
 
 ## Ready To Show Publicly
@@ -51,6 +53,7 @@ Remaining before first customer install:
 - cloud control plane stores or needs raw customer operational data
 - paid enterprise implementation code is in the public repo
 - real customer IdP support is validated before a customer IdP proof
+- customer traction, customer proof, or customer deployment without real dated evidence such as replies, meetings, LOIs, pilots, revenue, signed acceptance, or equivalent records
 
 ## Best Sales Wording
 

@@ -69,6 +69,6 @@ public sealed record EvidencePack(
     IReadOnlyList<OutcomeSignal> OutcomeSignals,
     IReadOnlyList<SimilarPatternMatch> SimilarPatternMatches,
     IReadOnlyList<RecommendationEvidence> RecommendationEvidence,
-    string LocalDataPlanePackageJson,
-    string CloudControlPlanePayloadJson,
+    string LocalDerivedEvidencePackageJson,
+    string CloudAggregateUsagePayloadJson,
     bool CloudPayloadContainsRawCustomerData);

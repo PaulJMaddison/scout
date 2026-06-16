@@ -31,7 +31,7 @@ By default, raw operational records, connector credentials, customer-specific ma
 
 An optional hosted or private Cloud/control plane can manage commercial metadata such as accounts, licences, downloads, update channels, support access, entitlement metadata, and optional aggregate usage. It should not receive raw operational customer data by default.
 
-Cloud-safe payloads may include package IDs, package version, tenant slug, objective, purpose, actor role, hashed subject/account identifiers, exact-record counts, relationship type names, weighted signal summaries with citation IDs, recommended action timing/score, confidence, caveats, and masking/denial rules. They must not include raw CRM records, support-ticket text, billing rows, customer email addresses, account names/domains, source payloads, connector secrets, or local evidence-pack JSON by default.
+Cloud aggregate usage payloads may include tenant/control-plane identifiers, package version, feature usage counters, health/status, timestamps, and audit/control-plane event metadata. They must not include raw CRM records, support-ticket text, billing rows, customer email addresses, account names/domains, source payloads, connector secrets, context facts/snapshots, prompts, generated content, local evidence-pack JSON, recommendations, citation IDs, weighted signals, relationship type names, confidence, caveats, hashed subject/account identifiers, or per-entity relationship metadata by default.
 
 ## Exact Authorised Data In The Demo Plane
 
@@ -46,7 +46,9 @@ For the synthetic sales walkthrough, Scout links only the customer-approved reco
 - product usage summaries
 - billing health, payment status, and days-past-due signals
 
-These records are carried as exact linked records with citation IDs. Deterministic relationships such as email-to-contact, contact-to-account, account-to-opportunity, account/contact-to-activity, contact-to-email-engagement, account/contact-to-web-conversion, account/contact-to-support-ticket, account/contact-to-product-usage, account-to-billing, and account/contact-to-outcome are built in the local data plane. Similar won/lost patterns and weighted signals can then support a recommended next action. Optional Cloud/control-plane projections remain aggregate metadata only: counts, hashes, weights, relationship type names, and opaque citation IDs, not raw operational records.
+These records are carried as exact linked records with citation IDs. Deterministic relationships such as email-to-contact, contact-to-account, account-to-opportunity, account/contact-to-activity, contact-to-email-engagement, account/contact-to-web-conversion, account/contact-to-support-ticket, account/contact-to-product-usage, account-to-billing, and account/contact-to-outcome are built in the local data plane. Similar won/lost patterns and weighted signals can then support a recommended next action. Optional Cloud/control-plane output remains aggregate usage metadata only: counters, status, timestamps, package version, and audit/control-plane event metadata, not relationship types, weights, recommendations, confidence, caveats, citation IDs, raw operational records, or per-entity relationship metadata.
+
+The B2B SaaS sales/customer-success path remains the primary demo. The companion relationship-intelligence proof fixture also covers ecommerce conversion, support churn, recruitment, finance retention, and healthcare operations with synthetic records only. Those examples are local proof artefacts for deterministic tests and docs, not production customer deployments, regulated datasets, vendor-certified connector runs, or traction evidence.
 
 ## How Context Is Produced
 

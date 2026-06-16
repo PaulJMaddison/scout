@@ -19,6 +19,7 @@ public sealed class NextActionIntelligenceService(
     : INextActionIntelligenceService
 {
     private const string PackageVersion = "2026-06-16.relationship-intelligence.v1";
+    private const string CloudAggregateUsagePayloadVersion = "2026-06-16.cloud-aggregate-usage.v1";
 
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
@@ -97,7 +98,7 @@ public sealed class NextActionIntelligenceService(
             records);
 
         var packageId = $"EP-{Guid.NewGuid():N}";
-        var localPackageJson = JsonSerializer.Serialize(new
+        var localDerivedEvidencePackageJson = JsonSerializer.Serialize(new
         {
             packageVersion = PackageVersion,
             packageId,
@@ -131,19 +132,9 @@ public sealed class NextActionIntelligenceService(
             }
         }, JsonOptions);
 
-        var cloudPayloadJson = BuildCloudControlPlanePayloadJson(
-            packageId,
+        var cloudAggregateUsagePayloadJson = BuildCloudAggregateUsagePayloadJson(
             tenantSlug,
-            input,
-            effectiveRole,
-            subject,
-            exactSummary,
-            relationships,
-            weightedSignals,
-            recommendedAction,
-            confidence,
-            caveats,
-            provenance,
+            clock.UtcNow,
             governance);
 
         var governanceResult = new GovernanceDecisionResult(
@@ -154,14 +145,14 @@ public sealed class NextActionIntelligenceService(
             AppliedRules: governance.AppliedRules,
             MaskedFields: governance.MaskedFields.OrderBy(x => x, StringComparer.Ordinal).ToList(),
             DeniedFields: governance.DeniedFields.OrderBy(x => x, StringComparer.Ordinal).ToList(),
-            CloudControlPlanePayloadJson: cloudPayloadJson);
+            CloudAggregateUsagePayloadJson: cloudAggregateUsagePayloadJson);
 
         var evidencePack = new EvidencePackResult(
             packageId,
             PackageVersion,
             clock.UtcNow,
-            localPackageJson,
-            cloudPayloadJson,
+            localDerivedEvidencePackageJson,
+            cloudAggregateUsagePayloadJson,
             CloudPayloadContainsRawCustomerData: false);
 
         var result = new NextActionResult(
@@ -190,7 +181,7 @@ public sealed class NextActionIntelligenceService(
             nameof(EvidencePack),
             packageId,
             Guid.NewGuid().ToString("N"),
-            cloudPayloadJson,
+            cloudAggregateUsagePayloadJson,
             beforeJson: null,
             afterJson: null,
             clock.UtcNow));
@@ -1236,6 +1227,16 @@ public sealed class NextActionIntelligenceService(
             ? blockerCitations.Concat(positiveCitations).Distinct(StringComparer.OrdinalIgnoreCase).Take(6).ToList()
             : positiveCitations;
 
+        if (objective is "support")
+        {
+            return new RecommendedNextActionResult(
+                "Prioritise the linked support blocker and send a status update",
+                "Today",
+                "The support objective should be grounded in the open ticket and account activity evidence.",
+                Math.Round(score, 4),
+                citations);
+        }
+
         if (exactContext.OpenSupportTickets.Count > 0
             || (exactContext.LatestBilling?.DaysPastDue ?? 0) > 0
             || (exactContext.LatestBilling?.PaymentFailures30d ?? 0) > 0)
@@ -1263,16 +1264,6 @@ public sealed class NextActionIntelligenceService(
                     "The exact links show some commercial intent, but the evidence is not strong enough for a direct close ask.",
                     Math.Round(score, 4),
                     citations);
-        }
-
-        if (objective is "support")
-        {
-            return new RecommendedNextActionResult(
-                "Prioritise the linked support blocker and send a status update",
-                "Today",
-                "The support objective should be grounded in the open ticket and account activity evidence.",
-                Math.Round(score, 4),
-                citations);
         }
 
         return new RecommendedNextActionResult(
@@ -1360,6 +1351,13 @@ public sealed class NextActionIntelligenceService(
         {
             score += 0.10m;
             reasons.Add("same account domain");
+            types.Add(RelationshipType.SameDomain);
+        }
+
+        if (string.Equals(subject.Account.Industry, candidate.Account.Industry, StringComparison.OrdinalIgnoreCase))
+        {
+            score += 0.18m;
+            reasons.Add($"same target domain: {subject.Account.Industry}");
             types.Add(RelationshipType.SameDomain);
         }
 
@@ -1534,91 +1532,47 @@ public sealed class NextActionIntelligenceService(
         return new RelationshipWeight(type, normalizedObjective, weight, "evidence", $"Weight for {type} under {normalizedObjective} objective.");
     }
 
-    private static string BuildCloudControlPlanePayloadJson(
-        string packageId,
+    private static string BuildCloudAggregateUsagePayloadJson(
         string tenantSlug,
-        NextActionInput input,
-        OperatorRole effectiveRole,
-        SubjectContext subject,
-        ExactLinkedRecordsSummaryResult exactSummary,
-        IReadOnlyList<RelationshipResult> relationships,
-        IReadOnlyList<WeightedSignalResult> weightedSignals,
-        RecommendedNextActionResult recommendedAction,
-        decimal confidence,
-        IReadOnlyList<string> caveats,
-        IReadOnlyList<ProvenanceCitationResult> provenance,
+        DateTime generatedAtUtc,
         GovernanceContext governance)
         => JsonSerializer.Serialize(new
         {
-            packageId,
+            payloadKind = "cloud-aggregate-usage",
+            payloadVersion = CloudAggregateUsagePayloadVersion,
             packageVersion = PackageVersion,
             tenantSlug,
-            dataPlane = "customer-owned-data-plane",
-            rawDataRetainedInCustomerDataPlane = true,
-            containsRawCustomerData = false,
-            subject = new
+            feature = "next-action",
+            eventName = "intelligence.next-action.generated",
+            status = "succeeded",
+            generatedAtUtc,
+            featureUsageCounters = new
             {
-                type = NormalizeSubjectType(input.SubjectType),
-                identifierHash = HashValue($"{tenantSlug}:{input.SubjectType}:{input.SubjectIdentifier}"),
-                accountHash = HashValue(subject.Account.ExternalAccountId)
+                nextActionGenerateRequests = 1,
+                dataPlanePackageBuilds = 1
             },
-            objective = NormalizeObjective(input.Objective),
-            purposeCategory = CloudPurposeCategory(input.Purpose),
-            purposeHash = HashValue(input.Purpose),
-            actorRole = RoleToContractValue(effectiveRole),
-            projectionLevel = "aggregate-metadata-only",
-            rawCustomerDataPolicy = "counts-hashes-weights-and-opaque-citation-ids-only",
-            exactRecordCounts = exactSummary.RecordCounts,
-            relationshipTypes = relationships.Select(x => x.RelationshipType).Distinct(StringComparer.Ordinal).OrderBy(x => x, StringComparer.Ordinal).ToArray(),
-            weightedSignals = weightedSignals.Select(x => new
+            controlPlaneCounters = new
             {
-                x.SignalKey,
-                x.Direction,
-                x.Weight,
-                x.Score,
-                x.Contribution,
-                x.CitationIds
-            }),
-            recommendation = new
-            {
-                recommendedAction.Action,
-                recommendedAction.Timing,
-                recommendedAction.Score,
-                recommendedAction.CitationIds
+                appliedRuleCount = governance.AppliedRules.Count,
+                maskedFieldCount = governance.MaskedFields.Count,
+                deniedFieldCount = governance.DeniedFields.Count
             },
-            confidence,
-            caveats,
-            citationIds = provenance.Select(x => x.CitationId).ToArray(),
-            governance = new
+            dataBoundary = new
             {
-                appliedRules = CloudSafeAppliedRules(governance.AppliedRules, input.Purpose),
-                maskedFields = governance.MaskedFields.OrderBy(x => x, StringComparer.Ordinal).ToArray(),
-                deniedFields = governance.DeniedFields.OrderBy(x => x, StringComparer.Ordinal).ToArray()
+                rawDataRetainedInCustomerDataPlane = true,
+                containsRawCustomerData = false,
+                containsContextFacts = false,
+                containsContextSnapshots = false,
+                containsEvidencePacks = false,
+                containsPrompts = false,
+                containsGeneratedContent = false,
+                containsRecommendations = false,
+                containsCitationIds = false,
+                containsWeightedSignals = false,
+                containsPerEntityRelationshipMetadata = false,
+                containsDerivedRelationshipIntelligence = false
             }
         }, JsonOptions);
-
-    private static IReadOnlyList<string> CloudSafeAppliedRules(IReadOnlyList<string> appliedRules, string purpose)
-    {
-        var purposeCategory = CloudPurposeCategory(purpose);
-        return appliedRules
-            .Select(rule => rule.StartsWith("purpose:", StringComparison.OrdinalIgnoreCase)
-                ? $"purpose-category:{purposeCategory}"
-                : rule)
-            .ToList();
-    }
-
-    private static string CloudPurposeCategory(string purpose)
-    {
-        var normalized = purpose.Trim().ToLowerInvariant().Replace("-", "_", StringComparison.Ordinal);
-        return normalized switch
-        {
-            "customer_outreach" or "sales_outreach" or "commercial_outreach" => "customer_outreach",
-            "support_followup" or "support_follow_up" or "support_update" => "support_followup",
-            "retention" or "retention_checkin" or "retention_check_in" => "retention",
-            "renewal" or "renewal_review" => "renewal",
-            _ => "custom"
-        };
-    }
 
     private static decimal SimilarityFromDistance(params int[] values)
     {
@@ -1898,7 +1852,7 @@ public sealed class NextActionIntelligenceService(
             var rules = new List<string>
             {
                 "exact-data-query-runs-in-customer-owned-data-plane",
-                "cloud-control-plane-payload-excludes-raw-customer-data",
+                "cloud-aggregate-usage-payload-excludes-raw-and-derived-customer-intelligence",
                 $"purpose:{purpose.Trim().ToLowerInvariant()}",
                 $"actor-role:{RoleToContractValue(role)}"
             };

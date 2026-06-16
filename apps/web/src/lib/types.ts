@@ -638,15 +638,15 @@ export interface GovernanceDecisionResult {
   appliedRules: string[]
   maskedFields: string[]
   deniedFields: string[]
-  cloudControlPlanePayloadJson: string
+  cloudAggregateUsagePayloadJson: string
 }
 
 export interface EvidencePackResult {
   evidencePackId: string
   packageVersion: string
   generatedAtUtc: string
-  localDataPlanePackageJson: string
-  cloudControlPlanePayloadJson: string
+  localDerivedEvidencePackageJson: string
+  cloudAggregateUsagePayloadJson: string
   cloudPayloadContainsRawCustomerData: boolean
 }
 

@@ -45,6 +45,7 @@ public sealed class RelationshipIntelligenceProofIntegrationTests
         AssertLinkedRecord(result, "CustomerAccount");
         AssertLinkedRecord(result, "EmailEngagementEvent");
         AssertLinkedRecord(result, "WebConversionEvent");
+        AssertLinkedRecord(result, "SupportTicket");
         AssertLinkedRecord(result, "ProductUsageSummary");
         AssertLinkedRecord(result, "BillingMetric");
 
@@ -64,7 +65,7 @@ public sealed class RelationshipIntelligenceProofIntegrationTests
 
         Assert.NotEmpty(recommendedCitationIds);
         Assert.All(recommendedCitationIds, citationId => Assert.Contains(citationId, provenanceIds));
-        Assert.Contains("Northstar Analytics", result["evidencePack"]!["localDataPlanePackageJson"]!.GetValue<string>(), StringComparison.Ordinal);
+        Assert.Contains("Northstar Analytics", result["evidencePack"]!["localDerivedEvidencePackageJson"]!.GetValue<string>(), StringComparison.Ordinal);
     }
 
     [Fact]
@@ -92,6 +93,97 @@ public sealed class RelationshipIntelligenceProofIntegrationTests
     }
 
     [Fact]
+    public async Task NextAction_AllFocusedSyntheticDomains_ReturnExpectedProofShapes()
+    {
+        await using var factory = new RelationshipIntelligenceWebApplicationFactory();
+        await SeedProofDataAsync(factory.Services);
+        using var client = factory.CreateClient();
+        Authenticate(client, OperatorRole.TenantAdmin);
+
+        foreach (var scenario in FocusedDomainScenarios())
+        {
+            var result = await GenerateNextActionAsync(
+                client,
+                new V1NextActionRequest("demo", "email", scenario.SubjectIdentifier, scenario.Objective, scenario.Purpose, "tenant_admin"));
+
+            Assert.Equal(scenario.ExpectedNextBestAction, result["recommendedNextAction"]!["action"]!.GetValue<string>());
+
+            foreach (var recordType in RequiredDomainRecordTypes)
+            {
+                AssertLinkedRecord(result, recordType);
+            }
+
+            foreach (var relationshipType in RequiredDeterministicRelationshipTypes)
+            {
+                AssertDeterministicRelationship(result, relationshipType);
+            }
+
+            AssertSignalScore(result, "pricing-intent", expectPositiveScore: true);
+            AssertSignalScore(result, "active-usage", expectPositiveScore: true);
+            AssertSignalScore(result, "opportunity-momentum", expectPositiveScore: true);
+            AssertSignalScore(result, "support-blockers", scenario.ExpectedBlockerSignals.Contains("support-blockers", StringComparer.Ordinal));
+            AssertSignalScore(result, "billing-blockers", scenario.ExpectedBlockerSignals.Contains("billing-blockers", StringComparer.Ordinal));
+
+            Assert.Contains(result["weightedSignals"]!.AsArray(), signal =>
+                signal?["direction"]?.GetValue<string>() == "positive"
+                && signal?["score"]?.GetValue<decimal>() > 0m);
+            Assert.Contains(result["similarWonLostPatterns"]!.AsArray(), pattern =>
+                pattern?["outcome"]?.GetValue<string>() == "won"
+                && pattern?["similarityScore"]?.GetValue<decimal>() >= 0.45m);
+            Assert.Contains(result["similarWonLostPatterns"]!.AsArray(), pattern =>
+                pattern?["outcome"]?.GetValue<string>() == "lost"
+                && pattern?["similarityScore"]?.GetValue<decimal>() >= 0.45m);
+
+            if (scenario.ExpectStaleCaveat)
+            {
+                Assert.Contains(result["caveats"]!.AsArray(), caveat =>
+                    caveat?.GetValue<string>().Contains("outside the current 30-day decision window", StringComparison.OrdinalIgnoreCase) == true);
+            }
+        }
+
+        Authenticate(client, OperatorRole.ReadOnly);
+        foreach (var scenario in FocusedDomainScenarios())
+        {
+            var result = await GenerateNextActionAsync(
+                client,
+                new V1NextActionRequest("demo", "email", scenario.SubjectIdentifier, scenario.Objective, scenario.Purpose, "read_only"));
+
+            Assert.Contains(result["governance"]!["maskedFields"]!.AsArray(), field => field?.GetValue<string>() == "contact.email");
+            Assert.Contains(result["governance"]!["maskedFields"]!.AsArray(), field => field?.GetValue<string>() == "account.name");
+            Assert.DoesNotContain(scenario.SubjectIdentifier, result["evidencePack"]!["localDerivedEvidencePackageJson"]!.GetValue<string>(), StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(scenario.AccountName, result["evidencePack"]!["cloudAggregateUsagePayloadJson"]!.GetValue<string>(), StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    [Fact]
+    public void SyntheticFixtureDocumentsEveryTargetDomain()
+    {
+        var fixturePath = Path.Combine(FindRepositoryRoot(), "samples", "relationship-intelligence", "exact-data-proof.synthetic.json");
+        var fixture = JsonNode.Parse(File.ReadAllText(fixturePath))!.AsObject();
+        var domains = fixture["domains"]!.AsArray();
+        var domainNames = domains
+            .Select(domain => domain!["domain"]!.GetValue<string>())
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var scenario in FocusedDomainScenarios())
+        {
+            Assert.Contains(scenario.Domain, domainNames);
+            var domain = domains.Single(item => item!["domain"]!.GetValue<string>().Equals(scenario.Domain, StringComparison.OrdinalIgnoreCase))!.AsObject();
+            Assert.Equal(scenario.ExpectedNextBestAction, domain["expectedNextBestAction"]!["action"]!.GetValue<string>());
+            Assert.NotEmpty(domain["blockers"]!.AsArray());
+            Assert.NotEmpty(domain["positiveSignals"]!.AsArray());
+            Assert.Contains(domain["expectedSimilarOutcomes"]!.AsArray(), outcome => outcome?["outcome"]?.GetValue<string>() == "won");
+            Assert.Contains(domain["expectedSimilarOutcomes"]!.AsArray(), outcome => outcome?["outcome"]?.GetValue<string>() == "lost");
+            Assert.NotEmpty(domain["governanceExamples"]!.AsArray());
+        }
+
+        Assert.True(fixture["dataPolicy"]!["containsCustomerData"]!.GetValue<bool>() is false);
+        Assert.True(fixture["dataPolicy"]!["containsPatientData"]!.GetValue<bool>() is false);
+        Assert.True(fixture["dataPolicy"]!["containsCandidateData"]!.GetValue<bool>() is false);
+        Assert.True(fixture["dataPolicy"]!["containsFinancialAccountData"]!.GetValue<bool>() is false);
+    }
+
+    [Fact]
     public async Task NextAction_ReadOnlyGovernance_MasksEvidenceAndCloudProjection()
     {
         await using var factory = new RelationshipIntelligenceWebApplicationFactory();
@@ -110,13 +202,21 @@ public sealed class RelationshipIntelligenceProofIntegrationTests
         Assert.Contains(result["governance"]!["maskedFields"]!.AsArray(), field => field?.GetValue<string>() == "contact.email");
         Assert.Contains(result["governance"]!["maskedFields"]!.AsArray(), field => field?.GetValue<string>() == "account.name");
 
-        var localPackage = result["evidencePack"]!["localDataPlanePackageJson"]!.GetValue<string>();
-        var cloudPackage = result["evidencePack"]!["cloudControlPlanePayloadJson"]!.GetValue<string>();
+        var localPackage = result["evidencePack"]!["localDerivedEvidencePackageJson"]!.GetValue<string>();
+        var cloudPackage = result["evidencePack"]!["cloudAggregateUsagePayloadJson"]!.GetValue<string>();
+        var cloudJson = JsonNode.Parse(cloudPackage)!.AsObject();
         Assert.DoesNotContain("mara.singh@northstar-saas.example", localPackage, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("Mara Singh", localPackage, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("mara.singh@northstar-saas.example", cloudPackage, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("Northstar Analytics", cloudPackage, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("\"records\"", cloudPackage, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("\"relationshipTypes\"", cloudPackage, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("\"weightedSignals\"", cloudPackage, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("\"citationIds\"", cloudPackage, StringComparison.OrdinalIgnoreCase);
+        Assert.Null(cloudJson["relationshipTypes"]);
+        Assert.Null(cloudJson["weightedSignals"]);
+        Assert.Null(cloudJson["recommendation"]);
+        Assert.Null(cloudJson["citationIds"]);
     }
 
     [Fact]
@@ -144,7 +244,7 @@ public sealed class RelationshipIntelligenceProofIntegrationTests
 
         var insufficient = await GenerateNextActionAsync(
             client,
-            new V1NextActionRequest("demo", "email", "nina.patel@northern-clinic-ops.example", "support", "support_followup", "tenant_admin"));
+            new V1NextActionRequest("demo", "email", "iris.chen@clinic-lite-ops.example", "support", "support_followup", "tenant_admin"));
         Assert.Contains(insufficient["caveats"]!.AsArray(), caveat =>
             caveat?.GetValue<string>().Contains("Insufficient exact operational evidence", StringComparison.OrdinalIgnoreCase) == true);
         Assert.Contains(insufficient["caveats"]!.AsArray(), caveat =>
@@ -180,7 +280,7 @@ public sealed class RelationshipIntelligenceProofIntegrationTests
         Assert.True(result["relationships"]!.AsArray().Count >= 10);
         Assert.True(result["similarWonLostPatterns"]!.AsArray().Count >= 2);
         Assert.True(result["exactLinkedRecords"]!["records"]!.AsArray().Count < 100);
-        Assert.DoesNotContain("mara.singh", result["evidencePack"]!["cloudControlPlanePayloadJson"]!.GetValue<string>(), StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("mara.singh", result["evidencePack"]!["cloudAggregateUsagePayloadJson"]!.GetValue<string>(), StringComparison.OrdinalIgnoreCase);
     }
 
     private static async Task<JsonObject> GenerateNextActionAsync(HttpClient client, V1NextActionRequest request)
@@ -196,6 +296,129 @@ public sealed class RelationshipIntelligenceProofIntegrationTests
             record?["recordType"]?.GetValue<string>() == recordType
             && record?["citationId"]?.GetValue<string>().StartsWith("EVID-", StringComparison.Ordinal) == true);
     }
+
+    private static void AssertDeterministicRelationship(JsonObject result, string relationshipType)
+    {
+        Assert.Contains(result["relationships"]!.AsArray(), relationship =>
+            relationship?["relationshipType"]?.GetValue<string>() == relationshipType
+            && relationship?["linkKind"]?.GetValue<string>() == "deterministic"
+            && relationship?["citationIds"]?.AsArray().Count > 0);
+    }
+
+    private static void AssertSignalScore(JsonObject result, string signalKey, bool expectPositiveScore)
+    {
+        var signal = result["weightedSignals"]!.AsArray()
+            .Single(item => item!["signalKey"]!.GetValue<string>() == signalKey)!
+            .AsObject();
+        var score = signal["score"]!.GetValue<decimal>();
+
+        if (expectPositiveScore)
+        {
+            Assert.True(score > 0m, $"Expected {signalKey} to carry a positive score.");
+            return;
+        }
+
+        Assert.True(score >= 0m, $"Expected {signalKey} to be present as a governed blocker signal.");
+    }
+
+    private static string FindRepositoryRoot()
+    {
+        var directory = new DirectoryInfo(AppContext.BaseDirectory);
+        while (directory is not null)
+        {
+            if (File.Exists(Path.Combine(directory.FullName, "KynticAI.Scout.slnx")))
+            {
+                return directory.FullName;
+            }
+
+            directory = directory.Parent;
+        }
+
+        throw new InvalidOperationException("Could not locate repository root.");
+    }
+
+    private static IReadOnlyList<DomainProofScenario> FocusedDomainScenarios() =>
+    [
+        new(
+            "B2B SaaS",
+            "mara.singh@northstar-saas.example",
+            "Northstar Analytics",
+            "sale",
+            "customer_outreach",
+            "Send a focused executive follow-up and propose a pricing or implementation call",
+            [],
+            ExpectStaleCaveat: false),
+        new(
+            "Ecommerce",
+            "leah.brooks@cartwheel-commerce.example",
+            "Cartwheel Commerce",
+            "conversion",
+            "conversion_recovery",
+            "Send a focused executive follow-up and propose a pricing or implementation call",
+            [],
+            ExpectStaleCaveat: false),
+        new(
+            "Support churn",
+            "oscar.reed@signalbridge-support.example",
+            "SignalBridge Support",
+            "churn",
+            "retention",
+            "Resolve commercial blockers before asking for expansion",
+            ["support-blockers", "billing-blockers"],
+            ExpectStaleCaveat: false),
+        new(
+            "Recruitment",
+            "elena.morris@hirelane-recruiting.example",
+            "Hirelane Recruiting",
+            "sale",
+            "customer_outreach",
+            "Resolve commercial blockers before asking for expansion",
+            ["support-blockers"],
+            ExpectStaleCaveat: true),
+        new(
+            "Finance retention",
+            "calvin.ito@redwood-finance.example",
+            "Redwood Finance Trust",
+            "retention",
+            "retention",
+            "Resolve commercial blockers before asking for expansion",
+            ["support-blockers", "billing-blockers"],
+            ExpectStaleCaveat: false),
+        new(
+            "Healthcare operations",
+            "nina.patel@northern-clinic-ops.example",
+            "Northern Clinic Operations",
+            "support",
+            "support_followup",
+            "Prioritise the linked support blocker and send a status update",
+            ["support-blockers"],
+            ExpectStaleCaveat: false)
+    ];
+
+    private static readonly string[] RequiredDomainRecordTypes =
+    [
+        "CustomerAccount",
+        "CustomerContact",
+        "SalesOpportunity",
+        "SalesActivity",
+        "EmailEngagementEvent",
+        "WebConversionEvent",
+        "SupportTicket",
+        "ProductUsageSummary",
+        "BillingMetric"
+    ];
+
+    private static readonly string[] RequiredDeterministicRelationshipTypes =
+    [
+        "EmailToContact",
+        "ContactToAccount",
+        "AccountToOpportunity",
+        "ContactToEmailEngagement",
+        "AccountToWebConversion",
+        "AccountToSupportTicket",
+        "AccountToProductUsage",
+        "AccountToBilling"
+    ];
 
     private static async Task SeedProofDataAsync(IServiceProvider services, bool includeScale = false)
     {
@@ -248,6 +471,7 @@ public sealed class RelationshipIntelligenceProofIntegrationTests
             "Revenue Operations",
             true);
         AddJourneySignals(dbContext, tenantId, b2b, ProofNow, "b2b-saas", "proposal", 84, true, 25, 88, 8, 3, 0, 0, 0, 0, 8_400m);
+        AddResolvedSupportTicket(dbContext, tenantId, b2b, "ticket-b2b-saas-resolved", "onboarding", "Implementation security review resolved.", ProofNow.AddDays(-9), ProofNow.AddDays(-6));
 
         var b2bWon = AddAccountAndContact(
             dbContext,
@@ -305,6 +529,9 @@ public sealed class RelationshipIntelligenceProofIntegrationTests
             "Marketing",
             true);
         AddJourneySignals(dbContext, tenantId, ecommerce, ProofNow, "ecommerce", "negotiation", 76, true, 20, 76, 10, 2, 0, 0, 0, 0, 4_200m);
+        AddResolvedSupportTicket(dbContext, tenantId, ecommerce, "ticket-ecommerce-resolved", "tracking", "Checkout event mapping confirmed.", ProofNow.AddDays(-8), ProofNow.AddDays(-5));
+        AddOutcomeCohort(dbContext, tenantId, "ecommerce-won", "Hearth Cart Co", "hearth-cart.example", "Ecommerce", "mid-market", "customer", "Maya Kent", "maya.kent@hearth-cart.example", "Head of Growth", "director", "Marketing", "closed_won", 100, 21, 78, 9, 2, 0, 0, 0, 0, 4_300m);
+        AddOutcomeCohort(dbContext, tenantId, "ecommerce-lost", "Basket Drift", "basket-drift.example", "Ecommerce", "mid-market", "closed", "Ollie Byrne", "ollie.byrne@basket-drift.example", "Head of Growth", "director", "Marketing", "closed_lost", 0, 16, 52, 4, 1, 1, 0, 0, 0, 3_700m);
 
         var supportChurn = AddAccountAndContact(
             dbContext,
@@ -324,6 +551,8 @@ public sealed class RelationshipIntelligenceProofIntegrationTests
             "Support",
             true);
         AddJourneySignals(dbContext, tenantId, supportChurn, ProofNow, "support-churn", "negotiation", 79, true, 22, 79, 6, 2, 3, 1, 18, 2, 5_600m);
+        AddOutcomeCohort(dbContext, tenantId, "support-churn-won", "Beacon Desk", "beacon-desk.example", "Support Operations", "mid-market", "customer", "Rosa Grant", "rosa.grant@beacon-desk.example", "Director of Customer Support", "director", "Support", "closed_won", 100, 23, 80, 6, 2, 1, 0, 0, 0, 5_700m);
+        AddOutcomeCohort(dbContext, tenantId, "support-churn-lost", "Queuefall Support", "queuefall-support.example", "Support Operations", "mid-market", "closed", "Samir Cole", "samir.cole@queuefall-support.example", "Director of Customer Support", "director", "Support", "closed_lost", 0, 17, 58, 3, 1, 3, 1, 24, 2, 5_200m);
 
         var recruitment = AddAccountAndContact(
             dbContext,
@@ -342,7 +571,9 @@ public sealed class RelationshipIntelligenceProofIntegrationTests
             "vp",
             "Talent",
             true);
-        AddJourneySignals(dbContext, tenantId, recruitment, ProofNow.AddDays(-75), "recruitment-stale", "proposal", 72, true, 19, 71, 5, 1, 0, 0, 0, 0, 3_900m);
+        AddJourneySignals(dbContext, tenantId, recruitment, ProofNow.AddDays(-75), "recruitment-stale", "proposal", 72, true, 19, 71, 5, 1, 1, 1, 0, 0, 3_900m);
+        AddOutcomeCohort(dbContext, tenantId, "recruitment-won", "TalentLoop Search", "talentloop-search.example", "Recruitment", "mid-market", "customer", "Helena Frost", "helena.frost@talentloop-search.example", "VP Talent Operations", "vp", "Talent", "closed_won", 100, 20, 73, 5, 1, 0, 0, 0, 0, 4_000m);
+        AddOutcomeCohort(dbContext, tenantId, "recruitment-lost", "Pipeline Drift Hiring", "pipeline-drift-hiring.example", "Recruitment", "mid-market", "closed", "Theo Park", "theo.park@pipeline-drift-hiring.example", "VP Talent Operations", "vp", "Talent", "closed_lost", 0, 12, 48, 2, 0, 1, 1, 0, 0, 3_600m);
 
         var finance = AddAccountAndContact(
             dbContext,
@@ -361,22 +592,45 @@ public sealed class RelationshipIntelligenceProofIntegrationTests
             "director",
             "Finance",
             true);
-        AddJourneySignals(dbContext, tenantId, finance, ProofNow, "finance-retention", "renewal", 64, true, 26, 81, 4, 1, 1, 0, 0, 0, 12_500m);
+        AddJourneySignals(dbContext, tenantId, finance, ProofNow, "finance-retention", "renewal", 64, true, 26, 81, 4, 1, 1, 0, 14, 1, 12_500m);
+        AddOutcomeCohort(dbContext, tenantId, "finance-retention-won", "Cedar Ledger Bank", "cedar-ledger.example", "Financial Services", "enterprise", "customer", "Priya Nair", "priya.nair@cedar-ledger.example", "Head of Client Retention", "director", "Finance", "closed_won", 100, 27, 82, 4, 1, 0, 0, 0, 0, 12_800m);
+        AddOutcomeCohort(dbContext, tenantId, "finance-retention-lost", "Harbour Arrears Group", "harbour-arrears.example", "Financial Services", "enterprise", "closed", "Martin Vale", "martin.vale@harbour-arrears.example", "Head of Client Retention", "director", "Finance", "closed_lost", 0, 18, 56, 2, 0, 2, 1, 21, 2, 11_900m);
 
-        AddAccountAndContact(
+        var healthcare = AddAccountAndContact(
             dbContext,
             tenantId,
-            "acct-healthcare-insufficient",
+            "acct-healthcare-operations",
             "Northern Clinic Operations",
             "northern-clinic-ops.example",
             "Healthcare Operations",
             "mid-market",
             "onboarding",
-            "contact-healthcare-insufficient",
-            "user-healthcare-insufficient",
+            "contact-healthcare-operations",
+            "user-healthcare-operations",
             "Nina Patel",
             "nina.patel@northern-clinic-ops.example",
             "Operations Lead",
+            "manager",
+            "Operations",
+            false);
+        AddJourneySignals(dbContext, tenantId, healthcare, ProofNow, "healthcare-operations", "proposal", 68, true, 17, 69, 3, 1, 2, 1, 0, 0, 6_500m);
+        AddOutcomeCohort(dbContext, tenantId, "healthcare-operations-won", "WardFlow Clinics", "wardflow-clinics.example", "Healthcare Operations", "mid-market", "customer", "Anika Rao", "anika.rao@wardflow-clinics.example", "Operations Lead", "manager", "Operations", "closed_won", 100, 18, 70, 3, 1, 1, 1, 0, 0, 6_700m);
+        AddOutcomeCohort(dbContext, tenantId, "healthcare-operations-lost", "Clinic Queue Partners", "clinic-queue-partners.example", "Healthcare Operations", "mid-market", "closed", "Ben Walters", "ben.walters@clinic-queue-partners.example", "Operations Lead", "manager", "Operations", "closed_lost", 0, 10, 42, 1, 0, 3, 1, 0, 0, 6_100m);
+
+        AddAccountAndContact(
+            dbContext,
+            tenantId,
+            "acct-healthcare-insufficient",
+            "Clinic Lite Operations",
+            "clinic-lite-ops.example",
+            "Healthcare Operations",
+            "mid-market",
+            "onboarding",
+            "contact-healthcare-insufficient",
+            "user-healthcare-insufficient",
+            "Iris Chen",
+            "iris.chen@clinic-lite-ops.example",
+            "Operations Coordinator",
             "manager",
             "Operations",
             false);
@@ -441,6 +695,94 @@ public sealed class RelationshipIntelligenceProofIntegrationTests
         dbContext.CustomerContacts.Add(contact);
         dbContext.CustomerUsers.Add(user);
         return new ProofSubject(account, contact);
+    }
+
+    private static void AddOutcomeCohort(
+        CustomerOpsDbContext dbContext,
+        Guid tenantId,
+        string key,
+        string accountName,
+        string accountDomain,
+        string industry,
+        string segment,
+        string lifecycleStage,
+        string contactName,
+        string email,
+        string jobTitle,
+        string seniority,
+        string department,
+        string opportunityStage,
+        int probability,
+        int activeDays30,
+        int featureAdoptionScore,
+        int pricingVisits30d,
+        int emailReplies30d,
+        int openSupportTickets,
+        int severeSupportTickets,
+        int daysPastDue,
+        int paymentFailures30d,
+        decimal monthlyRecurringRevenue)
+    {
+        var subject = AddAccountAndContact(
+            dbContext,
+            tenantId,
+            $"acct-{key}",
+            accountName,
+            accountDomain,
+            industry,
+            segment,
+            lifecycleStage,
+            $"contact-{key}",
+            $"user-{key}",
+            contactName,
+            email,
+            jobTitle,
+            seniority,
+            department,
+            true);
+        AddJourneySignals(
+            dbContext,
+            tenantId,
+            subject,
+            ProofNow,
+            key,
+            opportunityStage,
+            probability,
+            false,
+            activeDays30,
+            featureAdoptionScore,
+            pricingVisits30d,
+            emailReplies30d,
+            openSupportTickets,
+            severeSupportTickets,
+            daysPastDue,
+            paymentFailures30d,
+            monthlyRecurringRevenue);
+    }
+
+    private static void AddResolvedSupportTicket(
+        CustomerOpsDbContext dbContext,
+        Guid tenantId,
+        ProofSubject subject,
+        string externalTicketId,
+        string category,
+        string summary,
+        DateTime openedAtUtc,
+        DateTime resolvedAtUtc)
+    {
+        dbContext.SupportTickets.Add(SupportTicket.Create(
+            tenantId,
+            subject.Account.Id,
+            subject.Contact.Id,
+            externalTicketId,
+            "medium",
+            "resolved",
+            category,
+            summary,
+            openedAtUtc,
+            resolvedAtUtc,
+            8,
+            ProofNow));
     }
 
     private static void AddJourneySignals(
@@ -698,6 +1040,16 @@ public sealed class RelationshipIntelligenceProofIntegrationTests
         => typeof(T).BaseType!.GetProperty("Id")!.SetValue(entity, id);
 
     private sealed record ProofSubject(CustomerAccount Account, CustomerContact Contact);
+
+    private sealed record DomainProofScenario(
+        string Domain,
+        string SubjectIdentifier,
+        string AccountName,
+        string Objective,
+        string Purpose,
+        string ExpectedNextBestAction,
+        IReadOnlyList<string> ExpectedBlockerSignals,
+        bool ExpectStaleCaveat);
 
     private static class SeedIds
     {

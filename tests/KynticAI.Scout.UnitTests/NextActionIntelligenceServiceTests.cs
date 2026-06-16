@@ -116,11 +116,11 @@ public sealed class NextActionIntelligenceServiceTests
         Assert.Equal("a***@example.test", contact.Fields["email"]);
         Assert.Contains("contact.email", result.Governance.MaskedFields);
         Assert.Contains("account.name", result.Governance.MaskedFields);
-        Assert.DoesNotContain("avery@example.test", result.EvidencePack.LocalDataPlanePackageJson, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("avery@example.test", result.EvidencePack.LocalDerivedEvidencePackageJson, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
-    public async Task CloudBoundOutputs_DoNotContainRawCustomerData()
+    public async Task CloudBoundOutputs_DoNotContainRawDataOrDerivedIntelligence()
     {
         await using var harness = await NextActionHarness.CreateAsync(openSupportTickets: 1, daysPastDue: 9);
 
@@ -129,24 +129,135 @@ public sealed class NextActionIntelligenceServiceTests
             CancellationToken.None);
 
         Assert.NotNull(result);
-        var cloudPayload = result.EvidencePack.CloudControlPlanePayloadJson;
+        var cloudPayload = result.EvidencePack.CloudAggregateUsagePayloadJson;
         var cloudJson = JsonNode.Parse(cloudPayload)!.AsObject();
+        var dataBoundary = cloudJson["dataBoundary"]!.AsObject();
         Assert.False(result.EvidencePack.CloudPayloadContainsRawCustomerData);
-        Assert.Equal("aggregate-metadata-only", cloudJson["projectionLevel"]!.GetValue<string>());
-        Assert.Equal("custom", cloudJson["purposeCategory"]!.GetValue<string>());
-        Assert.NotNull(cloudJson["purposeHash"]);
-        Assert.NotNull(cloudJson["exactRecordCounts"]);
-        Assert.NotNull(cloudJson["relationshipTypes"]);
+        Assert.Equal(result.EvidencePack.CloudAggregateUsagePayloadJson, result.Governance.CloudAggregateUsagePayloadJson);
+        Assert.Equal("cloud-aggregate-usage", cloudJson["payloadKind"]!.GetValue<string>());
+        Assert.Equal("next-action", cloudJson["feature"]!.GetValue<string>());
+        Assert.Equal("succeeded", cloudJson["status"]!.GetValue<string>());
+        Assert.NotNull(cloudJson["featureUsageCounters"]);
+        Assert.False(dataBoundary["containsRawCustomerData"]!.GetValue<bool>());
+        Assert.False(dataBoundary["containsContextFacts"]!.GetValue<bool>());
+        Assert.False(dataBoundary["containsContextSnapshots"]!.GetValue<bool>());
+        Assert.False(dataBoundary["containsEvidencePacks"]!.GetValue<bool>());
+        Assert.False(dataBoundary["containsPrompts"]!.GetValue<bool>());
+        Assert.False(dataBoundary["containsGeneratedContent"]!.GetValue<bool>());
+        Assert.False(dataBoundary["containsRecommendations"]!.GetValue<bool>());
+        Assert.False(dataBoundary["containsCitationIds"]!.GetValue<bool>());
+        Assert.False(dataBoundary["containsWeightedSignals"]!.GetValue<bool>());
+        Assert.False(dataBoundary["containsPerEntityRelationshipMetadata"]!.GetValue<bool>());
+        Assert.False(dataBoundary["containsDerivedRelationshipIntelligence"]!.GetValue<bool>());
+        Assert.Null(cloudJson["subject"]);
+        Assert.Null(cloudJson["objective"]);
+        Assert.Null(cloudJson["purposeCategory"]);
+        Assert.Null(cloudJson["purposeHash"]);
+        Assert.Null(cloudJson["actorRole"]);
+        Assert.Null(cloudJson["exactRecordCounts"]);
+        Assert.Null(cloudJson["relationshipTypes"]);
+        Assert.Null(cloudJson["weightedSignals"]);
+        Assert.Null(cloudJson["recommendation"]);
+        Assert.Null(cloudJson["confidence"]);
+        Assert.Null(cloudJson["caveats"]);
+        Assert.Null(cloudJson["citationIds"]);
+        Assert.Null(cloudJson["governance"]);
         Assert.DoesNotContain("Avery", cloudPayload, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("avery@example.test", cloudPayload, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("Acme Corp", cloudPayload, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("acme.example", cloudPayload, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("raw-purpose-7781", cloudPayload, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("Payment blocker blocks rollout", cloudPayload, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("EmailToContact", cloudPayload, StringComparison.Ordinal);
+        Assert.DoesNotContain("ContactToAccount", cloudPayload, StringComparison.Ordinal);
+        Assert.DoesNotContain("pricing-intent", cloudPayload, StringComparison.Ordinal);
+        Assert.DoesNotContain("support-blockers", cloudPayload, StringComparison.Ordinal);
+        Assert.DoesNotContain("billing-blockers", cloudPayload, StringComparison.Ordinal);
+        Assert.DoesNotContain(result.RecommendedNextAction.Action, cloudPayload, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("EVID-", cloudPayload, StringComparison.Ordinal);
+        Assert.DoesNotContain("PAT-", cloudPayload, StringComparison.Ordinal);
         Assert.DoesNotContain("\"records\"", cloudPayload, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("\"fields\"", cloudPayload, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("\"summary\"", cloudPayload, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("Avery", result.EvidencePack.LocalDataPlanePackageJson, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("\"relationshipTypes\"", cloudPayload, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("\"weightedSignals\"", cloudPayload, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("\"citationIds\"", cloudPayload, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("Avery", result.EvidencePack.LocalDerivedEvidencePackageJson, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("\"relationships\"", result.EvidencePack.LocalDerivedEvidencePackageJson, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("\"weightedSignals\"", result.EvidencePack.LocalDerivedEvidencePackageJson, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("\"recommendedAction\"", result.EvidencePack.LocalDerivedEvidencePackageJson, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("\"citationId\"", result.EvidencePack.LocalDerivedEvidencePackageJson, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task ExactCustomerPayloadsRemainOnlyInLocalCustomerDataPlaneArtifacts()
+    {
+        await using var harness = await NextActionHarness.CreateAsync(openSupportTickets: 1, daysPastDue: 9);
+
+        var result = await harness.Service.GenerateNextActionAsync(
+            SaleRequest("email", "avery@example.test", purpose: "customer_outreach"),
+            CancellationToken.None);
+
+        Assert.NotNull(result);
+        var localPackage = result.EvidencePack.LocalDerivedEvidencePackageJson;
+        var cloudPayload = result.EvidencePack.CloudAggregateUsagePayloadJson;
+        var persistedAuditPayloads = string.Join(
+            "\n",
+            await harness.ScoutDbContext.AuditEvents
+                .Select(x => x.MetadataJson)
+                .ToListAsync());
+
+        foreach (var fragment in new[]
+        {
+            "Avery Stone",
+            "avery@example.test",
+            "Acme Corp",
+            "acme.example",
+            "Payment blocker blocks rollout",
+            "\"exactLinkedRecords\"",
+            "\"relationships\"",
+            "\"weightedSignals\"",
+            "\"recommendedAction\"",
+            "\"citationId\""
+        })
+        {
+            Assert.Contains(fragment, localPackage, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(fragment, cloudPayload, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain(fragment, persistedAuditPayloads, StringComparison.OrdinalIgnoreCase);
+        }
+
+        Assert.Contains("\"payloadKind\":\"cloud-aggregate-usage\"", persistedAuditPayloads, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void NextActionValidationFailures_DoNotEchoSensitivePayloads()
+    {
+        const string sensitivePayload = "rawCrmRecords Avery Stone avery@example.test +44 7700 900123 Payment blocker blocks rollout token=secret";
+        var validator = new NextActionInputValidator();
+
+        var result = validator.Validate(new NextActionInput(
+            "demo",
+            sensitivePayload,
+            sensitivePayload,
+            "send-generated-recommendation",
+            sensitivePayload,
+            "tenant_admin"));
+
+        Assert.False(result.IsValid);
+        var failureMessage = string.Join("\n", result.Errors.Select(x => x.ErrorMessage));
+
+        foreach (var fragment in new[]
+        {
+            "rawCrmRecords",
+            "Avery Stone",
+            "avery@example.test",
+            "+44 7700 900123",
+            "Payment blocker blocks rollout",
+            "token=secret"
+        })
+        {
+            Assert.DoesNotContain(fragment, failureMessage, StringComparison.OrdinalIgnoreCase);
+        }
     }
 
     private static NextActionInput SaleRequest(

@@ -2,6 +2,8 @@
 
 Public documentation site for [KynticAI Scout](https://github.com/PaulJMaddison/scout), built with [Astro Starlight](https://starlight.astro.build/).
 
+Workspace naming source of truth: [`../../docs/source-of-truth-naming-map.md`](../../docs/source-of-truth-naming-map.md).
+
 ## Prerequisites
 
 - **Node.js 22+** (or use the repo-local Node installed by `scripts/ensure-node.sh`)
@@ -80,7 +82,7 @@ docs-site/
 ## Brand Guidelines
 
 - Use **KynticAI** (with `AI`) for the public brand.
-- Product tier: **KynticAI Scout** (open source) / private enterprise modules (commercial).
+- Product tier: **KynticAI Scout** (open core) / scoped private Enterprise modules / optional Cloud control plane.
 - Use British English for all user-facing copy.
 - Colour palette follows the Aged Book / Sovereign Rust direction — see `src/styles/custom.css`.
 - Public images must use approved logo files from `docs/images/brand`; the

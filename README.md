@@ -24,6 +24,8 @@
 
 ---
 
+> **Naming and maturity note:** Workspace naming is defined in [source-of-truth-naming-map.md](../docs/source-of-truth-naming-map.md). This README describes the open-core Scout/UCL data plane and local demo; it does not claim complete self-serve SaaS maturity, vendor-certified connectors, live customer deployments, or customer traction.
+
 ## Quick Start
 
 Get a working local demo in three commands:
@@ -63,11 +65,11 @@ See the **[Getting Started Guide](docs/getting-started.md)** for Docker Compose 
 
 Scout is **customer-owned data-plane infrastructure for AI-enabled products**. It does not replace your CRM, ERP, support desk, or billing system. It sits beside those systems and creates a governed semantic/evidence layer above them so that downstream consumers -- AI copilots, workflow engines, reporting tools, internal apps, local LLMs -- get trusted business meaning instead of disconnected records.
 
-The flagship UCL workflow is: source systems -> exact customer data plane -> relationship-weighted evidence pack -> customer-owned/local AI or workflow engine -> next-best action. This public repo proves the open-core data-plane mechanics: source access, selectors, semantic facts, exact linked records, provenance, masking, audit, APIs, SDKs, and a local demo/admin console. Private enterprise modules add Rust relationship weighting, paid/private connectors, enterprise identity/governance, and customer-specific hardening where required.
+The flagship UCL workflow is: source systems -> exact customer data plane -> relationship-weighted evidence pack -> customer-owned/local AI or workflow engine -> next-best action. This public repo demonstrates the open-core data-plane mechanics: source access, selectors, semantic facts, exact linked records, provenance, masking, audit, APIs, SDKs, and a local demo/admin console. Private enterprise modules add Rust relationship weighting, paid/private connectors, enterprise identity/governance, and customer-specific hardening where required.
 
 For the seeded sales walkthrough, "authorised data" means subject-scoped records approved for the customer data plane: normalised email address, CRM contact/account, account registration/profile, sales activity, email replies or meetings booked, web conversion and pricing-page events, open opportunities, support tickets, product usage summaries, billing health, and prior won/lost outcome signals. Those records, citations, local evidence-pack JSON, connector credentials, selectors, facts, snapshots, and audit logs stay in the customer-controlled environment by default.
 
-Scout Cloud is optional commercial/control-plane support only. It can manage accounts, licences, downloads, support access, update channels, and optional aggregate usage metadata; it is not required to run the data plane and must not receive raw customer operational data by default.
+Scout Cloud is optional commercial/control-plane support only. It can manage accounts, licences, downloads, support access, update channels, and optional aggregate usage metadata; it is not required to run the data plane and must not receive raw customer operational data or derived relationship intelligence by default.
 
 ### Key Capabilities
 
@@ -78,7 +80,7 @@ Scout Cloud is optional commercial/control-plane support only. It can manage acc
 | **Context Snapshots** | Reusable business profiles with confidence, freshness, and provenance |
 | **GraphQL + REST APIs** | Every context surface available through both query styles |
 | **TypeScript & .NET SDKs** | Typed client libraries for integration teams |
-| **Governed Evidence Packages** | Exact linked records, relationships, weighted signals, citations, masking decisions, and next-best-action context for approved consumers -- Scout does not need to call an AI model |
+| **Governed Evidence Packages** | Local/customer-data-plane exact linked records, relationships, weighted signals, citations, masking decisions, and next-best-action context for approved consumers -- Scout does not need to call an AI model |
 | **Connector Framework** | Generic SQL, REST, CSV, mock connectors + extension points for enterprise |
 | **Audit & Provenance** | Every read, recompute, and context access is traceable |
 | **Blueprint Import** | AI-generated configuration (from Codex, Claude, ChatGPT) validated and imported |
@@ -125,7 +127,7 @@ flowchart TB
     APIs --> Consumers
 ```
 
-**Customer data stays in the customer's environment.** The data plane owns source access, connector credentials, selectors, exact linked records, facts, snapshots, evidence packs, provenance, audit, and APIs. An optional Cloud/control-plane relationship manages only commercial metadata such as accounts, licences, downloads, support access, update channels, and optional aggregate usage.
+**Customer data stays in the customer's environment.** The data plane owns source access, connector credentials, selectors, exact linked records, facts, snapshots, evidence packs, provenance, audit, and APIs. An optional Cloud/control-plane relationship manages only commercial metadata such as accounts, licences, downloads, support access, update channels, and optional aggregate usage. Cloud aggregate usage payloads are limited to control-plane metadata such as tenant identifiers, package version, feature counters, status, timestamps, and event metadata; they must not carry raw records, context facts or snapshots, evidence packs, prompts, generated content, recommendations, citation IDs, weighted signals, or per-entity relationship metadata.
 
 ```mermaid
 flowchart LR
@@ -194,7 +196,9 @@ flowchart LR
 
 The seeded demo includes synthetic realistic B2B SaaS data: 2 tenants, 30 accounts, 80+ contacts, 200 sales activities, 560 product usage rows, 100 support tickets, email/web engagement, billing status, account registration/profile fields, open opportunities, and prior won/lost outcome signals.
 
-The demo evidence pack is intentionally exact and inspectable. It links the authorised records in the customer data plane, carries citation IDs and masking decisions, shows deterministic relationships such as email-to-contact and contact-to-account, includes similar won/lost patterns where present, and produces a grounded recommended next action for a customer-owned consumer.
+The demo evidence pack is intentionally exact and inspectable. It links the authorised records in the customer data plane, carries citation IDs and masking decisions, shows deterministic relationships such as email-to-contact and contact-to-account, includes similar won/lost patterns where present, and produces a grounded recommended next action for a customer-owned consumer. The optional Cloud aggregate usage payload for the same flow contains only control-plane usage metadata, not the derived evidence package.
+
+The primary walkthrough remains B2B SaaS revenue/customer success. A separate deterministic proof fixture at `samples/relationship-intelligence/exact-data-proof.synthetic.json` also covers ecommerce conversion, support churn, recruitment, finance retention, and healthcare operations using synthetic records only. Those cross-domain fixtures are proof artefacts for local tests and docs; they are not customer production deployments, live customer data, vendor certification, or traction claims.
 
 **Best demo record:** `demo` tenant / `User 123` / `Avery Stone` / `Larkspur Logistics Group`
 
@@ -286,7 +290,7 @@ See the [TypeScript SDK README](packages/typescript/scout-sdk/README.md) and [Pu
 
 ## REST API v1
 
-Systems that do not want GraphQL can use the production-minded REST surface under `/api/v1`. Core endpoints:
+Systems that do not want GraphQL can use the deployment-oriented REST surface under `/api/v1`. Core endpoints:
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -339,7 +343,7 @@ The backend supports three explicit modes:
 |---|---|
 | `LocalDemo` | Default. SQLite, fictional seed data, React demo. |
 | `BackendOnly` | API-first mode for GraphQL, REST, SDK, and service-client work. |
-| `SaaS` | Hosted control-plane-compatible mode for PostgreSQL deployments. |
+| `SaaS` | Hosted/control-plane-compatible PostgreSQL mode. This is a runtime mode name, not a claim that Scout is complete self-serve SaaS. |
 
 Use `/api/platform/config` to inspect the effective mode and enabled feature flags at runtime.
 
@@ -404,7 +408,7 @@ npm run build
 npm test
 ```
 
-Browser proof and production-style rehearsal paths are opt-in. Use `KYNTIC_RUN_BROWSER_TESTS=1 npm run test:e2e` for Playwright, and set `KYNTIC_RUN_EXTERNAL_DOTNET_TESTS=1` before Docker/PostgreSQL or enterprise connector smoke rehearsals. See [LOCAL_VALIDATION.md](LOCAL_VALIDATION.md) for the local-safe command set.
+Safe validation should produce successful .NET restore/build output, passing backend unit and SDK tests, clean frontend lint/test/build output, and passing TypeScript SDK tests. Browser proof and production-style rehearsal paths are opt-in. Use `KYNTIC_RUN_BROWSER_TESTS=1 npm run test:e2e` for Playwright, and set `KYNTIC_RUN_EXTERNAL_DOTNET_TESTS=1` before Docker/PostgreSQL or enterprise connector smoke rehearsals. See [LOCAL_VALIDATION.md](LOCAL_VALIDATION.md) for the full local-safe command set, required variables, and known partial proofs.
 
 ---
 
@@ -424,7 +428,7 @@ This repository is the **public open-source core** of KynticAI Scout. It is desi
 
 # Commercial & Enterprise Solutions
 
-For organisations that need private connectors, managed deployment support, stronger governance controls, Rust relationship weighting, or production SLAs, KynticAI offers commercial Scout packages around this open-source core.
+For organisations that need private connectors, managed deployment support, stronger governance controls, Rust relationship weighting, or production support, KynticAI scopes commercial Scout packages around this open-source core. Formal SLA or customer-production commitments require a signed support process, named owners, and deployment evidence.
 
 ## The Enterprise Advantage
 
@@ -435,26 +439,26 @@ Implementation-specific runtime components for high-volume data planes and laten
 Support for private cloud, single-tenant, or air-gapped on-premise deployments where customer operational data remains inside the agreed customer-controlled perimeter.
 
 ### Scout Enterprise Connectors
-Paid/private connector modules for enterprise systems such as CRM, ERP, warehouse, support, email, chat, analytics, work management, and knowledge platforms.
+Scoped paid/private connector modules and adapter work for enterprise systems such as CRM, ERP, warehouse, support, email, chat, analytics, work management, and knowledge platforms. These are not vendor-certified turnkey connectors unless a specific customer/vendor path has passed the required validation.
 
 ### Architectural Governance
-Full SSO/SCIM integration, granular RBAC (Role-Based Access Control) and automated compliance auditing for regulated industries.
+Private modules and extension points for SSO/SCIM integration, granular RBAC (Role-Based Access Control), and compliance/audit workflows where a customer deployment requires them.
 
 ### Contextual Intelligence
 Optional private modules for Rust relationship weighting, outcome-pattern matching, and cross-domain reasoning that build on the governed evidence packages created by Scout.
 
 ### Mission-Critical Support
-Implementation-led paid pilots with full delivery support and commercial SLAs for production-grade environments.
+Implementation-led paid pilots with delivery support. Formal commercial SLAs for production-grade environments are a contracted support/process commitment, not an automatic README claim.
 
 ---
 
 # Access & Licensing
 
 ## Scout Cloud & Managed Hosting
-Optional commercial/control-plane package for account workflows, licence operations, downloads, support access, update-channel support, and aggregate usage metadata. Cloud is not required for the customer-owned data plane.
+Optional commercial/control-plane package for account workflows, licence operations, downloads, support access, update-channel support, and aggregate usage metadata. Cloud is not required for the customer-owned data plane and must not receive next-action evidence packs, recommendations, citations, weighted signals, or per-entity relationship metadata by default.
 
 ## Scout Enterprise Features
-Commercial package for proprietary connectors, identity integrations, deployment packs, governance modules, and production support.
+Commercial package for proprietary connectors, identity integrations, deployment packs, governance modules, and scoped production support. Connector and support claims must be validated per customer/vendor environment.
 
 See [docs/open-core-boundary.md](docs/open-core-boundary.md) and [docs/enterprise-extension-points.md](docs/enterprise-extension-points.md) for the detailed boundary.
 

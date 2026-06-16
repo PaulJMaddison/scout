@@ -88,14 +88,14 @@ public sealed record GovernanceDecisionResult(
     IReadOnlyList<string> AppliedRules,
     IReadOnlyList<string> MaskedFields,
     IReadOnlyList<string> DeniedFields,
-    string CloudControlPlanePayloadJson);
+    string CloudAggregateUsagePayloadJson);
 
 public sealed record EvidencePackResult(
     string EvidencePackId,
     string PackageVersion,
     DateTime GeneratedAtUtc,
-    string LocalDataPlanePackageJson,
-    string CloudControlPlanePayloadJson,
+    string LocalDerivedEvidencePackageJson,
+    string CloudAggregateUsagePayloadJson,
     bool CloudPayloadContainsRawCustomerData);
 
 public sealed record NextActionResult(
