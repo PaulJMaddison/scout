@@ -278,6 +278,30 @@ public static class VersionedRestEndpointRouteBuilderExtensions
             }))
             .WithName("V1GetAiSafeContextPackage");
 
+        reader.MapPost("/intelligence/next-action", async (
+                V1NextActionRequest request,
+                string? tenantSlug,
+                INextActionIntelligenceService service,
+                ICurrentActorService actorService,
+                CancellationToken cancellationToken) =>
+            await ExecuteAsync(async httpContext =>
+            {
+                var resolvedTenantSlug = ResolveTenantSlug(actorService, tenantSlug ?? request.Tenant);
+                var result = await service.GenerateNextActionAsync(
+                    new NextActionInput(
+                        resolvedTenantSlug,
+                        request.SubjectType,
+                        request.SubjectIdentifier,
+                        request.Objective,
+                        request.Purpose,
+                        request.ActorRole),
+                    cancellationToken);
+                return result is null
+                    ? NotFound(httpContext, "intelligence.subject_not_found", "The intelligence subject was not found.")
+                    : Results.Ok(result);
+            }))
+            .WithName("V1GenerateNextAction");
+
         writer.MapPost("/context/recompute", async (
                 V1RecomputeRequest request,
                 string? tenantSlug,

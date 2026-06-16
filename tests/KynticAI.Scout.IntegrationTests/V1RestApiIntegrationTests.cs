@@ -178,6 +178,27 @@ public sealed class V1RestApiIntegrationTests
         Assert.Equal("user-123", contextPackage.Payload["externalUserId"]!.GetValue<string>());
         Assert.Equal("Book a discovery call for enterprise rollout.", contextPackage.Payload["salesObjective"]!.GetValue<string>());
 
+        var nextAction = await ReadJsonAsync(client.PostAsJsonAsync(
+            "/api/v1/intelligence/next-action",
+            new V1NextActionRequest("demo", "email", "avery@example.test", "sale", "customer_outreach", "sales_rep")));
+        Assert.Equal("sale", nextAction.Payload["objective"]!.GetValue<string>());
+        Assert.False(nextAction.Payload["governance"]!["cloudPayloadContainsRawCustomerData"]!.GetValue<bool>());
+        Assert.Contains(nextAction.Payload["exactLinkedRecords"]!["records"]!.AsArray(), item =>
+            item?["recordType"]?.GetValue<string>() == "CustomerContact");
+        Assert.Contains(nextAction.Payload["relationships"]!.AsArray(), item =>
+            item?["relationshipType"]?.GetValue<string>() == "EmailToContact"
+            && item?["linkKind"]?.GetValue<string>() == "deterministic");
+        Assert.Contains(nextAction.Payload["relationships"]!.AsArray(), item =>
+            item?["relationshipType"]?.GetValue<string>() == "AccountToSalesActivity"
+            && item?["linkKind"]?.GetValue<string>() == "deterministic");
+        Assert.Contains(nextAction.Payload["relationships"]!.AsArray(), item =>
+            item?["relationshipType"]?.GetValue<string>() == "AccountToWebConversion"
+            && item?["linkKind"]?.GetValue<string>() == "deterministic");
+        var cloudProjection = JsonNode.Parse(nextAction.Payload["evidencePack"]!["cloudControlPlanePayloadJson"]!.GetValue<string>())!.AsObject();
+        Assert.Equal("aggregate-metadata-only", cloudProjection["projectionLevel"]!.GetValue<string>());
+        Assert.NotNull(cloudProjection["exactRecordCounts"]);
+        Assert.NotNull(cloudProjection["relationshipTypes"]);
+
         var attributes = await ReadJsonAsync(client.GetAsync("/api/v1/semantic-attributes?q=accountHealth&pageSize=5"));
         Assert.Single(attributes.Payload["items"]!.AsArray());
 
@@ -728,9 +749,22 @@ public sealed class V1RestApiIntegrationTests
         var opsTenant = CustomerOpsTenant.Create("demo", "Demo Tenant", utcNow);
         var account = CustomerAccount.Create(opsTenant.Id, "acct-123", "Acme Corp", "acme.example", "Logistics", "enterprise", "EMEA", "customer", "Dana", 500, 1_000_000m, utcNow);
         var contact = CustomerContact.Create(opsTenant.Id, account.Id, "contact-123", "user-123", "Avery Stone", "avery@example.test", "VP Revenue", "executive", "Revenue", "email", true, utcNow);
+        var wonAccount = CustomerAccount.Create(opsTenant.Id, "acct-won", "Larkspur Logistics", "larkspur.example", "Logistics", "enterprise", "EMEA", "customer", "Dana", 480, 2_500_000m, utcNow);
+        var wonContact = CustomerContact.Create(opsTenant.Id, wonAccount.Id, "contact-won", "user-won", "Morgan Stone", "morgan@larkspur.example", "VP Revenue", "executive", "Revenue", "email", true, utcNow);
         customerOpsDbContext.CustomerOpsTenants.Add(opsTenant);
         customerOpsDbContext.CustomerAccounts.Add(account);
+        customerOpsDbContext.CustomerAccounts.Add(wonAccount);
         customerOpsDbContext.CustomerContacts.Add(contact);
+        customerOpsDbContext.CustomerContacts.Add(wonContact);
+        customerOpsDbContext.SalesOpportunities.Add(SalesOpportunity.Create(opsTenant.Id, account.Id, contact.Id, "opp-123", "Acme enterprise expansion", "proposal", 75_000m, 78, utcNow.AddDays(14), "expansion", true, utcNow));
+        customerOpsDbContext.SalesOpportunities.Add(SalesOpportunity.Create(opsTenant.Id, wonAccount.Id, wonContact.Id, "opp-won", "Larkspur enterprise outcome", "closed_won", 70_000m, 100, utcNow.AddDays(-30), "new-business", false, utcNow));
+        customerOpsDbContext.SalesActivities.Add(SalesActivity.Create(opsTenant.Id, account.Id, contact.Id, "meeting", "outbound", "positive_reply", "Champion asked for implementation pricing.", utcNow.AddDays(-2), utcNow));
+        customerOpsDbContext.EmailEngagementEvents.Add(EmailEngagementEvent.Create(opsTenant.Id, contact.Id, "Enterprise Expansion", "reply", "email", "{}", utcNow.AddDays(-1), utcNow));
+        customerOpsDbContext.WebConversionEvents.Add(WebConversionEvent.Create(opsTenant.Id, account.Id, contact.Id, "pricing_viewed", "pricing", "enterprise-demand", "email", 81m, utcNow.AddDays(-1), utcNow));
+        customerOpsDbContext.ProductUsageSummaries.Add(ProductUsageSummary.Create(opsTenant.Id, account.Id, contact.Id, utcNow.Date, 24, 18, 42, 6, 64, 44, 50, 86, utcNow));
+        customerOpsDbContext.ProductUsageSummaries.Add(ProductUsageSummary.Create(opsTenant.Id, wonAccount.Id, wonContact.Id, utcNow.Date, 23, 17, 39, 5, 59, 41, 50, 84, utcNow));
+        customerOpsDbContext.BillingMetrics.Add(BillingMetric.Create(opsTenant.Id, account.Id, utcNow.Date, 7_200m, 86_400m, 0, 0, 6, "healthy", utcNow));
+        customerOpsDbContext.BillingMetrics.Add(BillingMetric.Create(opsTenant.Id, wonAccount.Id, utcNow.Date, 7_000m, 84_000m, 0, 0, 5, "healthy", utcNow));
 
         await contextDbContext.SaveChangesAsync();
         await customerOpsDbContext.SaveChangesAsync();

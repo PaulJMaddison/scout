@@ -24,6 +24,14 @@ public sealed record V1RecomputeRequest(
 public sealed record V1AiSafeContextPackageRequest(
     string Objective);
 
+public sealed record V1NextActionRequest(
+    string? Tenant,
+    string SubjectType,
+    string SubjectIdentifier,
+    string Objective,
+    string Purpose,
+    string ActorRole);
+
 public sealed record V1SelectorPreviewRequest(
     string ExternalUserId,
     Guid? SelectorDefinitionId,

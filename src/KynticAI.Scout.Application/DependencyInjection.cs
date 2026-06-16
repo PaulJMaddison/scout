@@ -11,6 +11,7 @@ public static class DependencyInjection
     public static IServiceCollection AddScoutApplication(this IServiceCollection services)
     {
         services.AddScoped<IScoutService, ScoutService>();
+        services.AddScoped<INextActionIntelligenceService, NextActionIntelligenceService>();
         services.AddScoped<IBlueprintImportService, BlueprintImportService>();
         services.AddScoped<IBillingPlanCatalog, BillingPlanCatalog>();
         services.AddScoped<IUsageMeteringService, UsageMeteringService>();

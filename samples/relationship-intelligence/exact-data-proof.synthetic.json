@@ -1,0 +1,546 @@
+{
+  "dataset": "kynticai-scout-ucl-exact-data-relationship-intelligence-proof",
+  "version": "2026-06-16",
+  "dataPolicy": {
+    "classification": "synthetic-operational-data-only",
+    "containsCustomerData": false,
+    "containsPatientData": false,
+    "containsCandidateData": false,
+    "containsFinancialAccountData": false,
+    "notes": [
+      "All names, domains, account identifiers, event identifiers, and operational values are fictional.",
+      "Healthcare, recruitment, and finance examples use operational account data only, not regulated personal records."
+    ]
+  },
+  "recordFamilies": [
+    "accounts",
+    "contacts",
+    "registrations",
+    "emails",
+    "webEvents",
+    "supportTickets",
+    "usage",
+    "billing",
+    "opportunities",
+    "outcomes"
+  ],
+  "domains": [
+    {
+      "domain": "B2B SaaS",
+      "proofSubject": "mara.singh@northstar-saas.example",
+      "accounts": [
+        {
+          "externalAccountId": "acct-b2b-saas",
+          "name": "Northstar Analytics",
+          "domain": "northstar-saas.example",
+          "industry": "B2B SaaS",
+          "segment": "enterprise",
+          "lifecycleStage": "evaluation"
+        }
+      ],
+      "contacts": [
+        {
+          "externalContactId": "contact-b2b-saas",
+          "externalUserId": "user-b2b-saas",
+          "fullName": "Mara Singh",
+          "email": "mara.singh@northstar-saas.example",
+          "jobTitle": "VP Revenue Operations",
+          "seniority": "vp",
+          "department": "Revenue Operations",
+          "isDecisionMaker": true
+        }
+      ],
+      "registrations": [
+        {
+          "externalUserId": "user-b2b-saas",
+          "workspaceRole": "admin",
+          "activatedAtUtc": "2026-05-26T12:00:00Z",
+          "lastSeenAtUtc": "2026-06-16T10:00:00Z",
+          "isTrialUser": true
+        }
+      ],
+      "emails": [
+        {
+          "eventType": "meeting_booked",
+          "campaignName": "Relationship Intelligence Proof",
+          "occurredAtUtc": "2026-06-15T12:00:00Z"
+        },
+        {
+          "eventType": "reply",
+          "campaignName": "Relationship Intelligence Proof",
+          "occurredAtUtc": "2026-06-14T12:00:00Z"
+        }
+      ],
+      "webEvents": [
+        {
+          "eventType": "trial_activated",
+          "page": "trial-start",
+          "campaign": "exact-data-proof",
+          "intentScore": 70,
+          "occurredAtUtc": "2026-06-15T12:00:00Z"
+        },
+        {
+          "eventType": "pricing_viewed",
+          "page": "pricing",
+          "campaign": "exact-data-proof",
+          "intentScore": 71,
+          "occurredAtUtc": "2026-06-14T12:00:00Z"
+        }
+      ],
+      "supportTickets": [],
+      "usage": [
+        {
+          "summaryDateUtc": "2026-06-16T00:00:00Z",
+          "activeDays30": 25,
+          "pricingPageVisits30d": 8,
+          "automationRuns30d": 88,
+          "featureAdoptionScore": 88
+        }
+      ],
+      "billing": [
+        {
+          "metricDateUtc": "2026-06-16T00:00:00Z",
+          "monthlyRecurringRevenue": 8400,
+          "daysPastDue": 0,
+          "paymentFailures30d": 0,
+          "billingStatus": "healthy"
+        }
+      ],
+      "opportunities": [
+        {
+          "externalOpportunityId": "opp-b2b-saas",
+          "stage": "proposal",
+          "amount": 84000,
+          "probabilityPercent": 84,
+          "isOpen": true
+        }
+      ],
+      "outcomes": []
+    },
+    {
+      "domain": "Ecommerce",
+      "proofSubject": "leah.brooks@cartwheel-commerce.example",
+      "accounts": [
+        {
+          "externalAccountId": "acct-ecommerce",
+          "name": "Cartwheel Commerce",
+          "domain": "cartwheel-commerce.example",
+          "industry": "Ecommerce",
+          "segment": "mid-market",
+          "lifecycleStage": "trial"
+        }
+      ],
+      "contacts": [
+        {
+          "externalContactId": "contact-ecommerce",
+          "externalUserId": "user-ecommerce",
+          "fullName": "Leah Brooks",
+          "email": "leah.brooks@cartwheel-commerce.example",
+          "jobTitle": "Head of Growth",
+          "seniority": "director",
+          "department": "Marketing",
+          "isDecisionMaker": true
+        }
+      ],
+      "registrations": [
+        {
+          "externalUserId": "user-ecommerce",
+          "workspaceRole": "admin",
+          "activatedAtUtc": "2026-05-26T12:00:00Z",
+          "lastSeenAtUtc": "2026-06-16T10:00:00Z",
+          "isTrialUser": true
+        }
+      ],
+      "emails": [
+        {
+          "eventType": "meeting_booked",
+          "campaignName": "Conversion Proof",
+          "occurredAtUtc": "2026-06-15T12:00:00Z"
+        }
+      ],
+      "webEvents": [
+        {
+          "eventType": "pricing_viewed",
+          "page": "pricing",
+          "campaign": "cart-conversion",
+          "intentScore": 79,
+          "occurredAtUtc": "2026-06-15T12:00:00Z"
+        }
+      ],
+      "supportTickets": [],
+      "usage": [
+        {
+          "summaryDateUtc": "2026-06-16T00:00:00Z",
+          "activeDays30": 20,
+          "pricingPageVisits30d": 10,
+          "automationRuns30d": 76,
+          "featureAdoptionScore": 76
+        }
+      ],
+      "billing": [
+        {
+          "metricDateUtc": "2026-06-16T00:00:00Z",
+          "monthlyRecurringRevenue": 4200,
+          "daysPastDue": 0,
+          "paymentFailures30d": 0,
+          "billingStatus": "healthy"
+        }
+      ],
+      "opportunities": [
+        {
+          "externalOpportunityId": "opp-ecommerce",
+          "stage": "negotiation",
+          "amount": 42000,
+          "probabilityPercent": 76,
+          "isOpen": true
+        }
+      ],
+      "outcomes": []
+    },
+    {
+      "domain": "Support churn",
+      "proofSubject": "oscar.reed@signalbridge-support.example",
+      "accounts": [
+        {
+          "externalAccountId": "acct-support-churn",
+          "name": "SignalBridge Support",
+          "domain": "signalbridge-support.example",
+          "industry": "Support Operations",
+          "segment": "mid-market",
+          "lifecycleStage": "renewal"
+        }
+      ],
+      "contacts": [
+        {
+          "externalContactId": "contact-support-churn",
+          "externalUserId": "user-support-churn",
+          "fullName": "Oscar Reed",
+          "email": "oscar.reed@signalbridge-support.example",
+          "jobTitle": "Director of Customer Support",
+          "seniority": "director",
+          "department": "Support",
+          "isDecisionMaker": true
+        }
+      ],
+      "registrations": [
+        {
+          "externalUserId": "user-support-churn",
+          "workspaceRole": "admin",
+          "activatedAtUtc": "2026-05-26T12:00:00Z",
+          "lastSeenAtUtc": "2026-06-16T10:00:00Z",
+          "isTrialUser": false
+        }
+      ],
+      "emails": [
+        {
+          "eventType": "meeting_booked",
+          "campaignName": "Retention Proof",
+          "occurredAtUtc": "2026-06-15T12:00:00Z"
+        }
+      ],
+      "webEvents": [
+        {
+          "eventType": "pricing_viewed",
+          "page": "pricing",
+          "campaign": "retention-proof",
+          "intentScore": 72,
+          "occurredAtUtc": "2026-06-15T12:00:00Z"
+        }
+      ],
+      "supportTickets": [
+        {
+          "externalTicketId": "ticket-support-churn-0",
+          "severity": "critical",
+          "status": "open",
+          "category": "operations",
+          "openedAtUtc": "2026-06-13T12:00:00Z"
+        },
+        {
+          "externalTicketId": "ticket-support-churn-1",
+          "severity": "medium",
+          "status": "open",
+          "category": "operations",
+          "openedAtUtc": "2026-06-12T12:00:00Z"
+        }
+      ],
+      "usage": [
+        {
+          "summaryDateUtc": "2026-06-16T00:00:00Z",
+          "activeDays30": 22,
+          "pricingPageVisits30d": 6,
+          "automationRuns30d": 79,
+          "featureAdoptionScore": 79
+        }
+      ],
+      "billing": [
+        {
+          "metricDateUtc": "2026-06-16T00:00:00Z",
+          "monthlyRecurringRevenue": 5600,
+          "daysPastDue": 18,
+          "paymentFailures30d": 2,
+          "billingStatus": "watch"
+        }
+      ],
+      "opportunities": [
+        {
+          "externalOpportunityId": "opp-support-churn",
+          "stage": "negotiation",
+          "amount": 56000,
+          "probabilityPercent": 79,
+          "isOpen": true
+        }
+      ],
+      "outcomes": []
+    },
+    {
+      "domain": "Recruitment",
+      "proofSubject": "elena.morris@hirelane-recruiting.example",
+      "accounts": [
+        {
+          "externalAccountId": "acct-recruitment-stale",
+          "name": "Hirelane Recruiting",
+          "domain": "hirelane-recruiting.example",
+          "industry": "Recruitment",
+          "segment": "mid-market",
+          "lifecycleStage": "evaluation"
+        }
+      ],
+      "contacts": [
+        {
+          "externalContactId": "contact-recruitment-stale",
+          "externalUserId": "user-recruitment-stale",
+          "fullName": "Elena Morris",
+          "email": "elena.morris@hirelane-recruiting.example",
+          "jobTitle": "VP Talent Operations",
+          "seniority": "vp",
+          "department": "Talent",
+          "isDecisionMaker": true
+        }
+      ],
+      "registrations": [
+        {
+          "externalUserId": "user-recruitment-stale",
+          "workspaceRole": "admin",
+          "activatedAtUtc": "2026-05-26T12:00:00Z",
+          "lastSeenAtUtc": "2026-06-16T10:00:00Z",
+          "isTrialUser": true
+        }
+      ],
+      "emails": [
+        {
+          "eventType": "reply",
+          "campaignName": "Recruitment Proof",
+          "occurredAtUtc": "2026-04-01T12:00:00Z"
+        }
+      ],
+      "webEvents": [
+        {
+          "eventType": "pricing_viewed",
+          "page": "pricing",
+          "campaign": "recruitment-proof",
+          "intentScore": 71,
+          "occurredAtUtc": "2026-03-27T12:00:00Z"
+        }
+      ],
+      "supportTickets": [],
+      "usage": [
+        {
+          "summaryDateUtc": "2026-04-02T00:00:00Z",
+          "activeDays30": 19,
+          "pricingPageVisits30d": 5,
+          "automationRuns30d": 71,
+          "featureAdoptionScore": 71
+        }
+      ],
+      "billing": [
+        {
+          "metricDateUtc": "2026-04-02T00:00:00Z",
+          "monthlyRecurringRevenue": 3900,
+          "daysPastDue": 0,
+          "paymentFailures30d": 0,
+          "billingStatus": "healthy"
+        }
+      ],
+      "opportunities": [
+        {
+          "externalOpportunityId": "opp-recruitment-stale",
+          "stage": "proposal",
+          "amount": 39000,
+          "probabilityPercent": 72,
+          "isOpen": true
+        }
+      ],
+      "outcomes": []
+    },
+    {
+      "domain": "Finance retention",
+      "proofSubject": "calvin.ito@redwood-finance.example",
+      "accounts": [
+        {
+          "externalAccountId": "acct-finance-retention",
+          "name": "Redwood Finance Trust",
+          "domain": "redwood-finance.example",
+          "industry": "Financial Services",
+          "segment": "enterprise",
+          "lifecycleStage": "renewal"
+        }
+      ],
+      "contacts": [
+        {
+          "externalContactId": "contact-finance-retention",
+          "externalUserId": "user-finance-retention",
+          "fullName": "Calvin Ito",
+          "email": "calvin.ito@redwood-finance.example",
+          "jobTitle": "Head of Client Retention",
+          "seniority": "director",
+          "department": "Finance",
+          "isDecisionMaker": true
+        }
+      ],
+      "registrations": [
+        {
+          "externalUserId": "user-finance-retention",
+          "workspaceRole": "admin",
+          "activatedAtUtc": "2026-05-26T12:00:00Z",
+          "lastSeenAtUtc": "2026-06-16T10:00:00Z",
+          "isTrialUser": false
+        }
+      ],
+      "emails": [
+        {
+          "eventType": "reply",
+          "campaignName": "Finance Retention Proof",
+          "occurredAtUtc": "2026-06-15T12:00:00Z"
+        }
+      ],
+      "webEvents": [
+        {
+          "eventType": "pricing_viewed",
+          "page": "pricing",
+          "campaign": "finance-retention",
+          "intentScore": 72,
+          "occurredAtUtc": "2026-06-15T12:00:00Z"
+        }
+      ],
+      "supportTickets": [
+        {
+          "externalTicketId": "ticket-finance-retention-0",
+          "severity": "medium",
+          "status": "open",
+          "category": "operations",
+          "openedAtUtc": "2026-06-13T12:00:00Z"
+        }
+      ],
+      "usage": [
+        {
+          "summaryDateUtc": "2026-06-16T00:00:00Z",
+          "activeDays30": 26,
+          "pricingPageVisits30d": 4,
+          "automationRuns30d": 81,
+          "featureAdoptionScore": 81
+        }
+      ],
+      "billing": [
+        {
+          "metricDateUtc": "2026-06-16T00:00:00Z",
+          "monthlyRecurringRevenue": 12500,
+          "daysPastDue": 0,
+          "paymentFailures30d": 0,
+          "billingStatus": "healthy"
+        }
+      ],
+      "opportunities": [
+        {
+          "externalOpportunityId": "opp-finance-retention",
+          "stage": "renewal",
+          "amount": 125000,
+          "probabilityPercent": 64,
+          "isOpen": true
+        }
+      ],
+      "outcomes": []
+    },
+    {
+      "domain": "Healthcare operations",
+      "proofSubject": "nina.patel@northern-clinic-ops.example",
+      "accounts": [
+        {
+          "externalAccountId": "acct-healthcare-insufficient",
+          "name": "Northern Clinic Operations",
+          "domain": "northern-clinic-ops.example",
+          "industry": "Healthcare Operations",
+          "segment": "mid-market",
+          "lifecycleStage": "onboarding"
+        }
+      ],
+      "contacts": [
+        {
+          "externalContactId": "contact-healthcare-insufficient",
+          "externalUserId": "user-healthcare-insufficient",
+          "fullName": "Nina Patel",
+          "email": "nina.patel@northern-clinic-ops.example",
+          "jobTitle": "Operations Lead",
+          "seniority": "manager",
+          "department": "Operations",
+          "isDecisionMaker": false
+        }
+      ],
+      "registrations": [
+        {
+          "externalUserId": "user-healthcare-insufficient",
+          "workspaceRole": "member",
+          "activatedAtUtc": "2026-05-26T12:00:00Z",
+          "lastSeenAtUtc": "2026-06-16T10:00:00Z",
+          "isTrialUser": false
+        }
+      ],
+      "emails": [],
+      "webEvents": [],
+      "supportTickets": [],
+      "usage": [],
+      "billing": [],
+      "opportunities": [],
+      "outcomes": []
+    }
+  ],
+  "cohortOutcomes": [
+    {
+      "domain": "B2B SaaS",
+      "externalAccountId": "acct-b2b-won",
+      "externalContactId": "contact-b2b-won",
+      "outcome": "won",
+      "relationshipTypesExpected": [
+        "SameSegment",
+        "SameRoleSeniority",
+        "SimilarProductUsagePattern",
+        "SimilarWebJourney",
+        "SimilarEmailResponsePattern"
+      ]
+    },
+    {
+      "domain": "B2B SaaS",
+      "externalAccountId": "acct-b2b-lost",
+      "externalContactId": "contact-b2b-lost",
+      "outcome": "lost",
+      "relationshipTypesExpected": [
+        "SameSegment",
+        "SameRoleSeniority",
+        "SimilarProductUsagePattern",
+        "SimilarWebJourney",
+        "SimilarEmailResponsePattern"
+      ]
+    }
+  ],
+  "scaleGeneration": {
+    "usedByTest": "RelationshipIntelligenceProofIntegrationTests.NextAction_ScaleProof_HandlesThousandsOfSyntheticOperationalRecords",
+    "accountCount": 1100,
+    "contactsPerAccount": 1,
+    "registrationsPerContact": 1,
+    "emailEventsPerContact": 2,
+    "webEventsPerContact": 2,
+    "usageSummariesPerContact": 1,
+    "billingMetricsPerAccount": 1,
+    "opportunitiesPerAccount": 1,
+    "minimumGeneratedOperationalRecords": 5000
+  }
+}

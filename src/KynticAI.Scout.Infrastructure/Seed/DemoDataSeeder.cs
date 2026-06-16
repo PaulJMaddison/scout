@@ -238,6 +238,23 @@ public static class DemoDataSeeder
                     utcNow));
             }
 
+            var closedOutcomeIsWon = scenario.OpenOpportunityProbability >= 58
+                && scenario.SupportDragScore < 45
+                && scenario.PaymentFailures30 == 0;
+            opportunities.Add(SalesOpportunity.Create(
+                tenant.Id,
+                account.Id,
+                primaryContact.Id,
+                $"OPP-{opportunityIdCounter++:0000}",
+                $"{scenario.AccountName} Prior {TitleCase(scenario.PlanInterestSignal)} Outcome",
+                closedOutcomeIsWon ? "closed_won" : "closed_lost",
+                Math.Round(scenario.OpportunityAmount * 0.82m, 2),
+                closedOutcomeIsWon ? 100 : 0,
+                utcNow.AddDays(-45 - index),
+                "new-business",
+                false,
+                utcNow));
+
             var activityCount = index < 20 ? 7 : 6;
             for (var activityIndex = 0; activityIndex < activityCount; activityIndex++)
             {
