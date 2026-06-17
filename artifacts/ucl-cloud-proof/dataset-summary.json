@@ -1,0 +1,21 @@
+{
+  "connectorCounts": {
+    "billing": 250,
+    "crm": 250,
+    "product": 250,
+    "support": 250
+  },
+  "counts": {
+    "accounts": 300,
+    "attributionPaths": 400,
+    "events": 6000,
+    "exactDataItems": 1000,
+    "failureCases": 5,
+    "relationshipSets": 300,
+    "relationships": 400
+  },
+  "enterpriseCalled": false,
+  "eventLimitRespected": true,
+  "generatedAtUtc": "2026-06-17T18:44:31.158371Z",
+  "schema": "KynticAI.Scout.UclCloudProofSummary.v1"
+}
