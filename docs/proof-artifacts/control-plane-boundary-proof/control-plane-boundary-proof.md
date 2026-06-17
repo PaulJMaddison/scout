@@ -2,7 +2,7 @@
 
 Verdict: **PASS**
 
-Generated at UTC: `2026-06-17T20:03:41.579193Z`
+Generated at UTC: `2026-06-17T20:37:10.447481Z`
 
 Status: deterministic synthetic Scout/UCL proof artefact. Cloud receives aggregate/control-plane metadata only; private evidence packs and `BasicRelationshipEngine` fallback data remain in the customer data plane.
 
