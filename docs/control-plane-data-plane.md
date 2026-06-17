@@ -85,4 +85,4 @@ flowchart LR
 
 ## Future Private Work
 
-Future paid or private repositories may add Rust relationship weighting, SSO, enterprise connectors, commercial licence signing, hosted account management, private cloud deployment packs, compliance reporting, support bundles, and SLA tooling. Those modules should plug into the public extension interfaces without turning the open-core repo into a crippled teaser.
+Future paid or private repositories may add the canonical Enterprise Rust relationship/weighting/traversal engine, SSO, enterprise connectors, commercial licence signing, hosted account management, private cloud deployment packs, compliance reporting, support bundles, and SLA tooling. Those modules should plug into the public extension interfaces without turning the open-core repo into a crippled teaser.

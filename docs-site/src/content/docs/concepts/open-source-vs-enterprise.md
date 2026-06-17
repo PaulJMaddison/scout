@@ -16,7 +16,7 @@ open-source repository includes:
 |---|---|
 | **Semantic Engine** | Selector execution, fact materialisation, confidence scoring |
 | **Exact Linked Records** | Subject-scoped records, citations, masking decisions, and provenance |
-| **Evidence Packs** | Governed context packages for approved consumers and next-best-action workflows |
+| **Evidence Packs** | Governed context packages for approved consumers, basic/public relationship intelligence, fallback/demo weights, and next-best-action workflows |
 | **Context Snapshots** | Point-in-time business profiles with provenance |
 | **GraphQL + REST APIs** | Full query surface for all context data |
 | **TypeScript SDK** | Typed client for Node.js and browser environments |
@@ -39,7 +39,7 @@ repository and are not open source.
 
 Enterprise capabilities include:
 
-- Rust relationship weighting and outcome-pattern scoring
+- canonical Enterprise Rust relationship weighting/traversal and outcome-pattern scoring
 - Vendor-certified connectors (e.g. Salesforce, HubSpot, Dynamics,
   Snowflake, SAP, and others)
 - Enterprise SSO / SAML / SCIM identity integration
@@ -67,7 +67,7 @@ plug into the Scout core via dependency injection — no forking required.
 │  exact records, generic connectors, seams   │
 ├─────────────────────────────────────────────┤
 │  Private enterprise modules                 │
-│  Rust weighting, paid connectors, SSO,      │
+│  Enterprise Rust weighting, connectors, SSO │
 │  governance, compliance, managed deployment │
 └─────────────────────────────────────────────┘
 ```

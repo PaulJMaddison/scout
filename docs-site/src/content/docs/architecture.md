@@ -27,9 +27,9 @@ grounded in approved source data.
 | Admin console | Local React admin/demo console for schemas, selectors, sources, and context. |
 
 Private enterprise connector implementations, customer-specific mappings,
-managed deployment code, Rust relationship-weighting modules, private engine
-internals, and proprietary roadmap material are intentionally outside the Scout
-repository.
+managed deployment code, the canonical Enterprise Rust relationship-weighting
+and traversal modules, private engine internals, and proprietary roadmap
+material are intentionally outside the Scout repository.
 
 ## Runtime Shape
 
@@ -40,6 +40,7 @@ Approved source systems
   -> selector execution
   -> semantic facts
   -> exact linked records and governed evidence package
+  -> optional Scout fallback/demo weights or Enterprise canonical traversal
   -> recommended next action for an approved consumer
   -> context snapshots and packages
   -> GraphQL / REST / SDK consumers
@@ -101,9 +102,9 @@ Important controls include:
 
 Scout defines the public extension contracts. Private commercial enterprise
 modules live outside this repository. The public docs describe only the
-category boundary: Rust relationship weighting, vendor-specific connectors,
-enterprise identity, managed deployment support, and advanced governance
-belong outside Scout.
+category boundary: canonical Enterprise Rust relationship weighting/traversal,
+vendor-specific connectors, enterprise identity, managed deployment support,
+and advanced governance belong outside Scout.
 
 See [Open Source vs Enterprise](/concepts/open-source-vs-enterprise/) for
 the support boundary and [Connector Authoring](/connectors/authoring/) for

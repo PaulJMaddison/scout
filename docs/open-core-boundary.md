@@ -11,7 +11,7 @@ The intended long-term structure is:
 - `scout`
   The public customer data-plane core, demo/admin console, SDKs, extension contracts, GraphQL and REST APIs, and local/backend-only runtime.
 - `scout-enterprise`
-  A future private repository for paid enterprise extensions such as Rust relationship weighting, enterprise connectors, SSO, advanced governance, and managed deployment assets
+  A future private repository for paid enterprise extensions such as canonical Rust relationship weighting/traversal, enterprise connectors, SSO, advanced governance, and managed deployment assets
 - `scout-cloud`
   An optional future repository for commercial/control-plane concerns such as hosted account management, billing, licences, downloads, support access, update channels, aggregate usage, and cloud operations
 
@@ -163,7 +163,7 @@ If a connector knows the business semantics of a named vendor or a named custome
 
 Public code can include simple local authentication, API client metadata, provider-neutral usage records, no-op policy evaluators, mock audit exporters, and interfaces that describe how enterprise modules plug in.
 
-Private code should implement Rust relationship weighting, enterprise SSO/SAML, billing provider integration, entitlement enforcement, policy engines, compliance exporters, vault integrations, private cloud automation, and customer-specific deployment packs.
+Private code should implement canonical Rust relationship weighting/traversal, enterprise SSO/SAML, billing provider integration, entitlement enforcement, policy engines, compliance exporters, vault integrations, private cloud automation, and customer-specific deployment packs.
 
 ## Decision rule
 

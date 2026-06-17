@@ -4,7 +4,7 @@ Generated on 16 June 2026 for KynticAI Scout.
 
 ## Scope
 
-This local proof demonstrates exact-data relationship intelligence using synthetic operational data only. It covers B2B SaaS revenue/customer success, ecommerce conversion, support churn, recruitment, finance retention, and healthcare operations.
+This local proof demonstrates exact-data relationship intelligence using synthetic operational data only. It covers B2B SaaS revenue/customer success, ecommerce conversion, support churn, recruitment, finance retention, and healthcare operations. Scout weights in this proof are basic public/open-core fallback or demo weights; canonical relationship weighting and traversal belong to the Enterprise Rust engine.
 
 These are proof fixtures, not customer production deployments. They do not contain customer data, patient data, candidate records, financial account data, credentials, vendor sandbox output, production SLA evidence, or customer traction claims.
 

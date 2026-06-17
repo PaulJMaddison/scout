@@ -46,7 +46,7 @@ For the synthetic sales walkthrough, Scout links only the customer-approved reco
 - product usage summaries
 - billing health, payment status, and days-past-due signals
 
-These records are carried as exact linked records with citation IDs. Deterministic relationships such as email-to-contact, contact-to-account, account-to-opportunity, account/contact-to-activity, contact-to-email-engagement, account/contact-to-web-conversion, account/contact-to-support-ticket, account/contact-to-product-usage, account-to-billing, and account/contact-to-outcome are built in the local data plane. Similar won/lost patterns and weighted signals can then support a recommended next action. Optional Cloud/control-plane output remains aggregate usage metadata only: counters, status, timestamps, package version, and audit/control-plane event metadata, not relationship types, weights, recommendations, confidence, caveats, citation IDs, raw operational records, or per-entity relationship metadata.
+These records are carried as exact linked records with citation IDs. Deterministic relationships such as email-to-contact, contact-to-account, account-to-opportunity, account/contact-to-activity, contact-to-email-engagement, account/contact-to-web-conversion, account/contact-to-support-ticket, account/contact-to-product-usage, account-to-billing, and account/contact-to-outcome are built in the local data plane. Scout may emit basic/public fallback or demo weighted signals to support a recommended next action; canonical weighting and traversal belong to the Enterprise Rust relationship/weighting/traversal engine. Optional Cloud/control-plane output remains aggregate usage metadata only: counters, status, timestamps, package version, and audit/control-plane event metadata, not relationship types, weights, recommendations, confidence, caveats, citation IDs, raw operational records, or per-entity relationship metadata.
 
 The B2B SaaS sales/customer-success path remains the primary demo. The companion relationship-intelligence proof fixture also covers ecommerce conversion, support churn, recruitment, finance retention, and healthcare operations with synthetic records only. Those examples are local proof artefacts for deterministic tests and docs, not production customer deployments, regulated datasets, vendor-certified connector runs, or traction evidence.
 
@@ -58,7 +58,7 @@ The B2B SaaS sales/customer-success path remains the primary demo. The companion
 4. Evidence packs can link email address, email reply or meeting booked, web conversion, pricing-page visit, account registration/profile, CRM contact, opportunity, support ticket, product usage, billing health, and won/lost sale outcome.
 5. Context snapshots version the facts for a user, account, workflow, or other business entity.
 6. Downstream consumers retrieve context through REST, GraphQL, SDKs, internal services, governed evidence packages, or `POST /api/v1/intelligence/next-action`.
-7. In the wider UCL direction, private enterprise modules add Rust relationship weighting before a customer-owned/local AI tool, workflow engine, or app recommends a next-best action.
+7. In the wider UCL direction, private enterprise modules add the canonical Rust relationship/weighting/traversal engine before a customer-owned/local AI tool, workflow engine, or app recommends a next-best action.
 
 ## Why It Matters Commercially
 
@@ -70,4 +70,4 @@ A buyer can prove one workflow without a replatforming programme. A CTO can veri
 
 The public repo includes the reusable open core: local demo, customer data-plane foundations, APIs, SDKs, generic connectors, mock connectors, selector engine, provenance, audit, docs, and extension points.
 
-Paid/private scope can include enterprise connector implementations, Rust relationship weighting, SSO, SCIM, advanced governance, compliance exports, deployment packs, SLAs, private cloud support, and optional hosted control-plane operations. Those paid implementations are intentionally not shipped in this public repository.
+Paid/private scope can include enterprise connector implementations, canonical Rust relationship weighting/traversal, SSO, SCIM, advanced governance, compliance exports, deployment packs, SLAs, private cloud support, and optional hosted control-plane operations. Those paid implementations are intentionally not shipped in this public repository.

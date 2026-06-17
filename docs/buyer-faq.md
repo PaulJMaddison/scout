@@ -62,7 +62,7 @@ Scout has a customer data plane beside source systems and an optional Cloud/cont
 
 ### How do we handle vendor connectors?
 
-The public repo includes generic SQL, REST, CSV, mock connectors, catalogue metadata, and extension points. Real paid vendor connector implementations, Rust relationship weighting, and customer-specific mappings belong in private enterprise scope and should be commercially agreed per customer.
+The public repo includes generic SQL, REST, CSV, mock connectors, catalogue metadata, extension points, and basic/public fallback or demo relationship weights. Real paid vendor connector implementations, canonical Enterprise Rust relationship weighting/traversal, and customer-specific mappings belong in private enterprise scope and should be commercially agreed per customer.
 
 ### What should not be promised yet?
 
