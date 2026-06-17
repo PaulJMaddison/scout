@@ -96,7 +96,8 @@ public sealed record EvidencePackResult(
     DateTime GeneratedAtUtc,
     string LocalDerivedEvidencePackageJson,
     string CloudAggregateUsagePayloadJson,
-    bool CloudPayloadContainsRawCustomerData);
+    bool CloudPayloadContainsRawCustomerData,
+    string EnterpriseRelationshipEngineHandoffJson);
 
 public sealed record NextActionResult(
     string TenantSlug,

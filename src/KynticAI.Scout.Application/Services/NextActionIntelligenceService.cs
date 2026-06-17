@@ -16,13 +16,12 @@ public sealed class NextActionIntelligenceService(
     ICustomerOpsDbContext customerOpsDbContext,
     IClock clock,
     ICurrentActorService currentActorService,
+    BasicRelationshipEngine relationshipEngine,
+    EnterpriseRelationshipEngineHandoff enterpriseRelationshipEngineHandoff,
     IValidator<NextActionInput> validator)
     : INextActionIntelligenceService
 {
     private const string PackageVersion = UclEvidencePackContractVersions.EvidencePackV1;
-    private const string RelationshipWeightingScope = "basic-public-fallback-demo";
-    private const string CanonicalRelationshipWeightingOwner = "Enterprise";
-    private const string CanonicalRelationshipWeightingEngine = "Enterprise Rust relationship/weighting/traversal engine";
 
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
@@ -123,11 +122,7 @@ public sealed class NextActionIntelligenceService(
             relationships,
             patternContext.Patterns,
             weightedSignals,
-            new UclRelationshipWeightingV1(
-                RelationshipWeightingScope,
-                false,
-                CanonicalRelationshipWeightingOwner,
-                CanonicalRelationshipWeightingEngine),
+            relationshipEngine.BuildWeightingContract(),
             recommendedAction,
             draft,
             confidence,
@@ -145,6 +140,14 @@ public sealed class NextActionIntelligenceService(
         }
 
         var localDerivedEvidencePackageJson = JsonSerializer.Serialize(localEvidencePack, JsonOptions);
+        var enterpriseHandoff = enterpriseRelationshipEngineHandoff.BuildArtifact(localEvidencePack);
+        var enterpriseHandoffValidation = UclEnterpriseRelationshipEngineHandoffV1Validator.Validate(enterpriseHandoff);
+        if (!enterpriseHandoffValidation.IsValid)
+        {
+            throw new InvalidOperationException($"UclEnterpriseRelationshipEngineHandoffV1 validation failed: {string.Join("; ", enterpriseHandoffValidation.Errors)}");
+        }
+
+        var enterpriseRelationshipEngineHandoffJson = JsonSerializer.Serialize(enterpriseHandoff, JsonOptions);
 
         var cloudAggregateUsagePayload = BuildCloudAggregateUsagePayload(
             tenantSlug,
@@ -173,7 +176,8 @@ public sealed class NextActionIntelligenceService(
             generatedAtUtc,
             localDerivedEvidencePackageJson,
             cloudAggregateUsagePayloadJson,
-            CloudPayloadContainsRawCustomerData: false);
+            CloudPayloadContainsRawCustomerData: false,
+            EnterpriseRelationshipEngineHandoffJson: enterpriseRelationshipEngineHandoffJson);
 
         var result = new NextActionResult(
             tenantSlug,
@@ -421,7 +425,7 @@ public sealed class NextActionIntelligenceService(
                 "CustomerContact",
                 contact.Id.ToString("D"),
                 1.0m,
-                RelationshipWeightFor(RelationshipType.EmailToContact, input.Objective),
+                input.Objective,
                 "Normalised email address resolved to this contact.",
                 [contactRecord.CitationId]));
             relationships.Add(BuildRelationship(
@@ -433,7 +437,7 @@ public sealed class NextActionIntelligenceService(
                 "CustomerAccount",
                 subject.Account.Id.ToString("D"),
                 1.0m,
-                RelationshipWeightFor(RelationshipType.ContactToAccount, input.Objective),
+                input.Objective,
                 "Contact carries a customer account foreign key.",
                 [contactRecord.CitationId, accountCitation.CitationId]));
         }
@@ -470,7 +474,7 @@ public sealed class NextActionIntelligenceService(
                 "SalesOpportunity",
                 opportunity.Id.ToString("D"),
                 1.0m,
-                RelationshipWeightFor(RelationshipType.AccountToOpportunity, input.Objective),
+                input.Objective,
                 "Opportunity carries the account foreign key.",
                 [accountCitation.CitationId, opportunityRecord.CitationId]));
 
@@ -506,7 +510,7 @@ public sealed class NextActionIntelligenceService(
                     "OutcomeSignal",
                     $"OUT-{opportunity.Id:D}",
                     1.0m,
-                    RelationshipWeightFor(RelationshipType.AccountToOutcome, input.Objective),
+                    input.Objective,
                     $"Closed opportunity records a {outcome} outcome.",
                     [accountCitation.CitationId, outcomeRecord.CitationId]));
 
@@ -522,7 +526,7 @@ public sealed class NextActionIntelligenceService(
                         "OutcomeSignal",
                         $"OUT-{opportunity.Id:D}",
                         1.0m,
-                        RelationshipWeightFor(RelationshipType.ContactToOutcome, input.Objective),
+                        input.Objective,
                         $"Closed opportunity records a {outcome} outcome for the linked contact.",
                         [contactCitation, outcomeRecord.CitationId]));
                 }
@@ -559,7 +563,7 @@ public sealed class NextActionIntelligenceService(
                 "SalesActivity",
                 activity.Id.ToString("D"),
                 1.0m,
-                RelationshipWeightFor(RelationshipType.AccountToSalesActivity, input.Objective),
+                input.Objective,
                 "Sales activity carries the account foreign key.",
                 [accountCitation.CitationId, activityRecord.CitationId]));
             if (activity.CustomerContactId.HasValue
@@ -574,7 +578,7 @@ public sealed class NextActionIntelligenceService(
                     "SalesActivity",
                     activity.Id.ToString("D"),
                     1.0m,
-                    RelationshipWeightFor(RelationshipType.ContactToSalesActivity, input.Objective),
+                    input.Objective,
                     "Sales activity carries the contact foreign key.",
                     [contactCitation, activityRecord.CitationId]));
             }
@@ -609,7 +613,7 @@ public sealed class NextActionIntelligenceService(
                 "EmailEngagementEvent",
                 engagement.Id.ToString("D"),
                 1.0m,
-                RelationshipWeightFor(RelationshipType.ContactToEmailEngagement, input.Objective),
+                input.Objective,
                 "Email engagement event carries the contact foreign key.",
                 [engagementRecord.CitationId]));
         }
@@ -644,7 +648,7 @@ public sealed class NextActionIntelligenceService(
                 "WebConversionEvent",
                 webEvent.Id.ToString("D"),
                 1.0m,
-                RelationshipWeightFor(RelationshipType.AccountToWebConversion, input.Objective),
+                input.Objective,
                 "Web conversion event carries the account foreign key.",
                 [accountCitation.CitationId, webRecord.CitationId]));
             if (webEvent.CustomerContactId.HasValue)
@@ -658,7 +662,7 @@ public sealed class NextActionIntelligenceService(
                     "WebConversionEvent",
                     webEvent.Id.ToString("D"),
                     1.0m,
-                    RelationshipWeightFor(RelationshipType.ContactToWebConversion, input.Objective),
+                    input.Objective,
                     "Web conversion event carries the contact foreign key.",
                     [webRecord.CitationId]));
             }
@@ -695,7 +699,7 @@ public sealed class NextActionIntelligenceService(
                 "SupportTicket",
                 ticket.Id.ToString("D"),
                 1.0m,
-                RelationshipWeightFor(RelationshipType.AccountToSupportTicket, input.Objective),
+                input.Objective,
                 "Support ticket carries the account foreign key.",
                 [accountCitation.CitationId, supportRecord.CitationId]));
             if (ticket.CustomerContactId.HasValue)
@@ -709,7 +713,7 @@ public sealed class NextActionIntelligenceService(
                     "SupportTicket",
                     ticket.Id.ToString("D"),
                     1.0m,
-                    RelationshipWeightFor(RelationshipType.ContactToSupportTicket, input.Objective),
+                    input.Objective,
                     "Support ticket carries the contact foreign key.",
                     [supportRecord.CitationId]));
             }
@@ -747,7 +751,7 @@ public sealed class NextActionIntelligenceService(
                 "ProductUsageSummary",
                 usage.Id.ToString("D"),
                 1.0m,
-                RelationshipWeightFor(RelationshipType.AccountToProductUsage, input.Objective),
+                input.Objective,
                 "Product usage summary carries the account foreign key.",
                 [accountCitation.CitationId, usageRecord.CitationId]));
             if (usage.CustomerContactId.HasValue)
@@ -761,7 +765,7 @@ public sealed class NextActionIntelligenceService(
                     "ProductUsageSummary",
                     usage.Id.ToString("D"),
                     1.0m,
-                    RelationshipWeightFor(RelationshipType.ContactToProductUsage, input.Objective),
+                    input.Objective,
                     "Product usage summary carries the contact foreign key.",
                     [usageRecord.CitationId]));
             }
@@ -799,7 +803,7 @@ public sealed class NextActionIntelligenceService(
                 "BillingMetric",
                 billing.Id.ToString("D"),
                 1.0m,
-                RelationshipWeightFor(RelationshipType.AccountToBilling, input.Objective),
+                input.Objective,
                 "Billing metric carries the account foreign key.",
                 [accountCitation.CitationId, billingRecord.CitationId]));
         }
@@ -920,7 +924,7 @@ public sealed class NextActionIntelligenceService(
                     "CustomerContact",
                     candidate.Id.ToString("D"),
                     similarity.Score,
-                    RelationshipWeightFor(relationshipType, input.Objective),
+                    input.Objective,
                     $"Similarity matched: {string.Join("; ", similarity.Reasons)}",
                     [citationId]));
             }
@@ -1498,7 +1502,7 @@ public sealed class NextActionIntelligenceService(
         return result;
     }
 
-    private static RelationshipResult BuildRelationship(
+    private RelationshipResult BuildRelationship(
         RelationshipIdAllocator relationshipIds,
         RelationshipType relationshipType,
         string linkKind,
@@ -1507,50 +1511,21 @@ public sealed class NextActionIntelligenceService(
         string targetType,
         string targetId,
         decimal confidence,
-        RelationshipWeight weight,
+        string objective,
         string rationale,
         IReadOnlyList<string> citationIds)
-        => new(
+        => relationshipEngine.BuildRelationship(
             relationshipIds.Next(),
-            relationshipType.ToString(),
+            relationshipType,
             linkKind,
             sourceType,
             sourceId,
             targetType,
             targetId,
-            Math.Round(confidence, 4),
-            weight.Weight,
+            confidence,
+            objective,
             rationale,
             citationIds);
-
-    private static RelationshipWeight RelationshipWeightFor(RelationshipType type, string objective)
-    {
-        var normalizedObjective = NormalizeObjective(objective);
-        var weight = type switch
-        {
-            RelationshipType.EmailToContact => 1.00m,
-            RelationshipType.ContactToAccount => 1.00m,
-            RelationshipType.AccountToOpportunity => normalizedObjective is "sale" or "conversion" ? 0.88m : 0.48m,
-            RelationshipType.AccountToSalesActivity or RelationshipType.ContactToSalesActivity => normalizedObjective is "sale" or "conversion" ? 0.74m : 0.54m,
-            RelationshipType.ContactToEmailEngagement => normalizedObjective is "sale" or "conversion" ? 0.78m : 0.44m,
-            RelationshipType.AccountToWebConversion or RelationshipType.ContactToWebConversion => normalizedObjective is "sale" or "conversion" ? 0.80m : 0.42m,
-            RelationshipType.AccountToSupportTicket or RelationshipType.ContactToSupportTicket => normalizedObjective is "support" or "churn" or "retention" ? 0.86m : 0.70m,
-            RelationshipType.AccountToProductUsage or RelationshipType.ContactToProductUsage => 0.76m,
-            RelationshipType.AccountToBilling => 0.70m,
-            RelationshipType.AccountToOutcome or RelationshipType.ContactToOutcome => 0.92m,
-            RelationshipType.SimilarSuccessfulSalePath => 0.82m,
-            RelationshipType.SimilarProductUsagePattern => 0.72m,
-            RelationshipType.SimilarWebJourney => 0.66m,
-            RelationshipType.SimilarEmailResponsePattern => 0.64m,
-            RelationshipType.SimilarSupportBlockers => 0.62m,
-            RelationshipType.SameSegment => 0.48m,
-            RelationshipType.SameRoleSeniority => 0.44m,
-            RelationshipType.SameDomain => 0.38m,
-            _ => 0.50m
-        };
-
-        return new RelationshipWeight(type, normalizedObjective, weight, "evidence", $"Weight for {type} under {normalizedObjective} objective.");
-    }
 
     private static UclCloudAggregateUsageV1 BuildCloudAggregateUsagePayload(
         string tenantSlug,

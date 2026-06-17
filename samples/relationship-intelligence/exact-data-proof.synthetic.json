@@ -20,6 +20,19 @@
       "The fixture is proof data for local deterministic tests and docs. It is not customer production evidence, live traction, or vendor certification."
     ]
   },
+  "enterpriseCanonicalWeightingHandoff": {
+    "fallbackEngine": "BasicRelationshipEngine",
+    "canonicalOwner": "Enterprise",
+    "runtimeArtifactField": "evidencePack.enterpriseRelationshipEngineHandoffJson",
+    "sampleArtifactPath": "samples/relationship-intelligence/enterprise-canonical-weighting-handoff.sample.json",
+    "schemaPath": "schema/ucl-enterprise-relationship-engine-handoff-v1.schema.json",
+    "requiresLiveEnterpriseService": false,
+    "notes": [
+      "Scout/UCL fallback weights are public proof weights and are not canonical.",
+      "EnterpriseRelationshipEngineHandoff emits candidate relationships and provenance for Enterprise canonical weighting proof runners.",
+      "The handoff must not include Enterprise-only formulae, scoring configuration, vector/index paths, embeddings, or private weighting internals."
+    ]
+  },
   "recordFamilies": [
     "accounts",
     "contacts",
@@ -1048,6 +1061,7 @@
     "Each focused domain has exact source-like records for account, contact, registration, email, web, support, usage, billing, and opportunity evidence.",
     "Each focused domain documents blockers, positive signals, expected similar won/lost outcomes, governance/masking examples, and expected next-best action.",
     "The executable proof verifies the same domain matrix through the local REST next-action endpoint.",
+    "The executable proof verifies that Scout emits an EnterpriseRelationshipEngineHandoff artifact for canonical relationship weighting instead of claiming canonical ownership.",
     "B2B SaaS remains the primary demo path and the first subject in the fixture."
   ],
   "scaleGeneration": {

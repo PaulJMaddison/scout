@@ -65,7 +65,7 @@ See the **[Getting Started Guide](docs/getting-started.md)** for Docker Compose 
 
 Scout is **customer-owned data-plane infrastructure for AI-enabled products**. It does not replace your CRM, ERP, support desk, or billing system. It sits beside those systems and creates a governed semantic/evidence layer above them so that downstream consumers -- AI copilots, workflow engines, reporting tools, internal apps, local LLMs -- get trusted business meaning instead of disconnected records.
 
-The flagship UCL workflow is: source systems -> exact customer data plane -> governed evidence pack -> Enterprise Rust relationship/weighting/traversal engine when canonical weighting is required -> customer-owned/local AI or workflow engine -> next-best action. This public repo demonstrates the open-core data-plane mechanics: source access, selectors, semantic facts, exact linked records, provenance, masking, audit, APIs, SDKs, basic/public relationship intelligence, fallback/demo weights, and a local demo/admin console. Private enterprise modules add the canonical Rust relationship/weighting/traversal engine, paid/private connectors, enterprise identity/governance, and customer-specific hardening where required.
+The flagship UCL workflow is: source systems -> exact customer data plane -> governed evidence pack -> Enterprise Rust relationship/weighting/traversal engine when canonical weighting is required -> customer-owned/local AI or workflow engine -> next-best action. This public repo demonstrates the open-core data-plane mechanics: source access, selectors, semantic facts, exact linked records, provenance, masking, audit, APIs, SDKs, basic/public relationship intelligence, `BasicRelationshipEngine` fallback weights, Enterprise canonical-weighting handoff artefacts, and a local demo/admin console. Private enterprise modules add the canonical Rust relationship/weighting/traversal engine, paid/private connectors, enterprise identity/governance, and customer-specific hardening where required.
 
 For the seeded sales walkthrough, "authorised data" means subject-scoped records approved for the customer data plane: normalised email address, CRM contact/account, account registration/profile, sales activity, email replies or meetings booked, web conversion and pricing-page events, open opportunities, support tickets, product usage summaries, billing health, and prior won/lost outcome signals. Those records, citations, local evidence-pack JSON, connector credentials, selectors, facts, snapshots, and audit logs stay in the customer-controlled environment by default.
 
@@ -299,7 +299,7 @@ Systems that do not want GraphQL can use the deployment-oriented REST surface un
 | `GET` | `/api/v1/context/users/{id}/facts` | Semantic fact lookup with filters |
 | `GET` | `/api/v1/context/snapshots/{id}` | Context snapshot retrieval |
 | `POST` | `/api/v1/context/users/{id}/ai-safe-context-package` | Governed context/evidence package |
-| `POST` | `/api/v1/intelligence/next-action` | Exact linked records, governed evidence pack, fallback/demo weighted signals, and recommended next action |
+| `POST` | `/api/v1/intelligence/next-action` | Exact linked records, governed evidence pack, `BasicRelationshipEngine` fallback weighted signals, Enterprise handoff JSON, and recommended next action |
 | `POST` | `/api/v1/context/recompute` | Queue recomputation |
 | `POST` | `/api/v1/selectors/preview` | Selector preview |
 | `POST` | `/api/v1/selectors/validate` | Selector validation |

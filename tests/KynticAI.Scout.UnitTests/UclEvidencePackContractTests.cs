@@ -109,6 +109,34 @@ public sealed class UclEvidencePackContractTests
     }
 
     [Fact]
+    public void EnterpriseRelationshipEngineHandoffSample_IsValidAndPublicSafe()
+    {
+        var payload = File.ReadAllText(Path.Combine(
+            FindRepositoryRoot(),
+            "samples/relationship-intelligence/enterprise-canonical-weighting-handoff.sample.json"));
+        var validation = UclEnterpriseRelationshipEngineHandoffV1Validator.ValidateJson(payload);
+        var artifact = JsonSerializer.Deserialize<UclEnterpriseRelationshipEngineHandoffV1>(payload, JsonOptions);
+
+        Assert.True(validation.IsValid, string.Join(Environment.NewLine, validation.Errors));
+        Assert.NotNull(artifact);
+        Assert.Equal("ucl.enterprise-relationship-engine-handoff", artifact.ArtifactKind);
+        Assert.Equal("BasicRelationshipEngine", artifact.FallbackEngine);
+        Assert.False(artifact.RequiresLiveEnterpriseService);
+        Assert.False(artifact.EnterpriseOnlyInternalsIncluded);
+        Assert.False(artifact.RelationshipWeighting.ScoutWeightsAreCanonical);
+        Assert.Equal("Enterprise", artifact.RelationshipWeighting.CanonicalOwner);
+        Assert.NotEmpty(artifact.CandidateRelationships);
+        Assert.Contains(artifact.RequiredEnterpriseOutputs, output => output == "canonicalRelationshipWeights");
+        Assert.Contains(artifact.RequiredEnterpriseOutputs, output => output == "canonicalTraversalSignals");
+        AssertForbiddenPropertyAbsent(JsonNode.Parse(payload), "canonicalWeight");
+        AssertForbiddenPropertyAbsent(JsonNode.Parse(payload), "enterpriseWeight");
+        AssertForbiddenPropertyAbsent(JsonNode.Parse(payload), "privateWeight");
+        AssertForbiddenPropertyAbsent(JsonNode.Parse(payload), "weightFormula");
+        AssertForbiddenPropertyAbsent(JsonNode.Parse(payload), "rustScoringConfig");
+        AssertForbiddenPropertyAbsent(JsonNode.Parse(payload), "vectorPipeline");
+    }
+
+    [Fact]
     public void UnsafeCloudPayloadExamples_AreRejectedByLocalValidator()
     {
         var fixtures = LoadFixtureArray("samples/evidence-pack/v1/unsafe-cloud-payload-examples.json");
@@ -145,6 +173,25 @@ public sealed class UclEvidencePackContractTests
         Assert.False(boundary.ContainsPerEntityRelationshipMetadata);
         Assert.False(boundary.ContainsDerivedRelationshipIntelligence);
         Assert.False(boundary.ContainsPerCustomerDerivedIntelligence);
+    }
+
+    private static void AssertForbiddenPropertyAbsent(JsonNode? node, string propertyName)
+    {
+        if (node is JsonObject obj)
+        {
+            Assert.DoesNotContain(obj, property => property.Key.Equals(propertyName, StringComparison.OrdinalIgnoreCase));
+            foreach (var property in obj)
+            {
+                AssertForbiddenPropertyAbsent(property.Value, propertyName);
+            }
+        }
+        else if (node is JsonArray array)
+        {
+            foreach (var item in array)
+            {
+                AssertForbiddenPropertyAbsent(item, propertyName);
+            }
+        }
     }
 
     private static JsonArray LoadFixtureArray(string relativePath)

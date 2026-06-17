@@ -1,0 +1,97 @@
+{
+  "artifactKind": "ucl.enterprise-relationship-engine-handoff",
+  "artifactVersion": "ucl.enterprise-relationship-engine-handoff.v1",
+  "handoffId": "ERH-sample-b2b-saas",
+  "packageKind": "ucl.evidence-pack",
+  "packageVersion": "ucl.evidence-pack.v1",
+  "packageId": "EP-sample-b2b-saas",
+  "generatedAtUtc": "2026-06-16T12:00:00Z",
+  "tenantSlug": "demo",
+  "dataPlane": "customer-owned-data-plane",
+  "producer": "KynticAI Scout",
+  "fallbackEngine": "BasicRelationshipEngine",
+  "relationshipWeighting": {
+    "scope": "basic-public-fallback-demo",
+    "scoutWeightsAreCanonical": false,
+    "canonicalOwner": "Enterprise",
+    "canonicalEngine": "Enterprise Rust relationship/weighting/traversal engine"
+  },
+  "requiresLiveEnterpriseService": false,
+  "enterpriseOnlyInternalsIncluded": false,
+  "subject": {
+    "subjectType": "email",
+    "subjectIdentifier": "mara.singh@northstar-saas.example",
+    "externalAccountId": "acct-b2b-saas",
+    "primaryContactId": "contact-b2b-saas"
+  },
+  "objective": "sale",
+  "purpose": "customer_outreach",
+  "actorRole": "tenant_admin",
+  "evidenceSummary": {
+    "recordCounts": {
+      "CustomerAccount": 1,
+      "CustomerContact": 1
+    },
+    "exactRecordCount": 2,
+    "candidateRelationshipCount": 2,
+    "provenanceCitationCount": 2
+  },
+  "candidateRelationships": [
+    {
+      "relationshipId": "REL-01",
+      "relationshipType": "EmailToContact",
+      "linkKind": "deterministic",
+      "sourceType": "email",
+      "sourceId": "sha256:sample-email",
+      "targetType": "CustomerContact",
+      "targetId": "contact-b2b-saas",
+      "confidence": 1.0,
+      "scoutFallbackWeight": 1.0,
+      "fallbackWeightScope": "basic-public-fallback-demo",
+      "rationale": "Normalised email address resolved to this contact.",
+      "citationIds": [
+        "EVID-02"
+      ]
+    },
+    {
+      "relationshipId": "REL-02",
+      "relationshipType": "ContactToAccount",
+      "linkKind": "deterministic",
+      "sourceType": "CustomerContact",
+      "sourceId": "contact-b2b-saas",
+      "targetType": "CustomerAccount",
+      "targetId": "acct-b2b-saas",
+      "confidence": 1.0,
+      "scoutFallbackWeight": 1.0,
+      "fallbackWeightScope": "basic-public-fallback-demo",
+      "rationale": "Contact carries a customer account foreign key.",
+      "citationIds": [
+        "EVID-02",
+        "EVID-01"
+      ]
+    }
+  ],
+  "provenance": [
+    {
+      "citationId": "EVID-01",
+      "sourceEntityType": "CustomerAccount",
+      "sourceEntityId": "acct-b2b-saas",
+      "evidenceType": "exact-record",
+      "summary": "Synthetic proof account for Enterprise canonical weighting handoff.",
+      "isMasked": false
+    },
+    {
+      "citationId": "EVID-02",
+      "sourceEntityType": "CustomerContact",
+      "sourceEntityId": "contact-b2b-saas",
+      "evidenceType": "exact-record",
+      "summary": "Synthetic proof contact for Enterprise canonical weighting handoff.",
+      "isMasked": false
+    }
+  ],
+  "requiredEnterpriseOutputs": [
+    "canonicalRelationshipWeights",
+    "canonicalTraversalSignals",
+    "canonicalWeightingDecisionTrace"
+  ]
+}

@@ -108,6 +108,34 @@ public sealed class NextActionIntelligenceServiceTests
     }
 
     [Fact]
+    public void BasicRelationshipEngine_ProducesLocalFallbackWeightsAndEnterpriseOwnershipMetadata()
+    {
+        var engine = new BasicRelationshipEngine();
+
+        var relationship = engine.BuildRelationship(
+            "REL-01",
+            RelationshipType.AccountToOpportunity,
+            "deterministic",
+            "CustomerAccount",
+            "account-1",
+            "SalesOpportunity",
+            "opportunity-1",
+            1.0m,
+            "sale",
+            "Opportunity carries the account foreign key.",
+            ["EVID-01"]);
+        var weighting = engine.BuildWeightingContract();
+
+        Assert.Equal("AccountToOpportunity", relationship.RelationshipType);
+        Assert.Equal("deterministic", relationship.LinkKind);
+        Assert.Equal(0.88m, relationship.Weight);
+        Assert.Equal("basic-public-fallback-demo", weighting.Scope);
+        Assert.False(weighting.ScoutWeightsAreCanonical);
+        Assert.Equal("Enterprise", weighting.CanonicalOwner);
+        Assert.Contains("Enterprise Rust", weighting.CanonicalEngine, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task ReadOnlyActors_ReceiveMaskedFields()
     {
         await using var harness = await NextActionHarness.CreateAsync(role: OperatorRole.ReadOnly);
@@ -262,6 +290,75 @@ public sealed class NextActionIntelligenceServiceTests
     }
 
     [Fact]
+    public async Task EnterpriseRelationshipEngineHandoff_IsGeneratedWithRequiredFields()
+    {
+        await using var harness = await NextActionHarness.CreateAsync();
+
+        var result = await harness.Service.GenerateNextActionAsync(
+            SaleRequest("email", "avery@example.test"),
+            CancellationToken.None);
+
+        Assert.NotNull(result);
+        var handoff = JsonSerializer.Deserialize<UclEnterpriseRelationshipEngineHandoffV1>(
+            result.EvidencePack.EnterpriseRelationshipEngineHandoffJson,
+            JsonOptions);
+        Assert.NotNull(handoff);
+        var validation = UclEnterpriseRelationshipEngineHandoffV1Validator.Validate(handoff);
+        Assert.True(validation.IsValid, string.Join(Environment.NewLine, validation.Errors));
+        Assert.Equal("ucl.enterprise-relationship-engine-handoff", handoff.ArtifactKind);
+        Assert.Equal("ucl.enterprise-relationship-engine-handoff.v1", handoff.ArtifactVersion);
+        Assert.Equal(result.EvidencePack.EvidencePackId, handoff.PackageId);
+        Assert.Equal("KynticAI Scout", handoff.Producer);
+        Assert.Equal("BasicRelationshipEngine", handoff.FallbackEngine);
+        Assert.False(handoff.RequiresLiveEnterpriseService);
+        Assert.False(handoff.EnterpriseOnlyInternalsIncluded);
+        Assert.False(handoff.RelationshipWeighting.ScoutWeightsAreCanonical);
+        Assert.Equal("Enterprise", handoff.RelationshipWeighting.CanonicalOwner);
+        Assert.Equal(result.Relationships.Count, handoff.CandidateRelationships.Count);
+        Assert.Equal(result.ExactLinkedRecords.Records.Count, handoff.EvidenceSummary.ExactRecordCount);
+        Assert.Equal(result.Provenance.Count, handoff.EvidenceSummary.ProvenanceCitationCount);
+        Assert.Contains(handoff.RequiredEnterpriseOutputs, x => x == "canonicalRelationshipWeights");
+        Assert.Contains(handoff.RequiredEnterpriseOutputs, x => x == "canonicalTraversalSignals");
+
+        var provenanceIds = handoff.Provenance.Select(x => x.CitationId).ToHashSet(StringComparer.Ordinal);
+        Assert.All(handoff.CandidateRelationships, relationship =>
+        {
+            Assert.Equal("basic-public-fallback-demo", relationship.FallbackWeightScope);
+            Assert.NotEmpty(relationship.CitationIds);
+            Assert.All(relationship.CitationIds, citationId => Assert.Contains(citationId, provenanceIds));
+        });
+    }
+
+    [Fact]
+    public async Task EnterpriseRelationshipEngineHandoff_ExcludesEnterpriseOnlyWeightInternals()
+    {
+        await using var harness = await NextActionHarness.CreateAsync();
+
+        var result = await harness.Service.GenerateNextActionAsync(
+            SaleRequest("email", "avery@example.test"),
+            CancellationToken.None);
+
+        Assert.NotNull(result);
+        var handoffJson = result.EvidencePack.EnterpriseRelationshipEngineHandoffJson;
+        var handoff = JsonNode.Parse(handoffJson)!.AsObject();
+
+        Assert.False(handoff["enterpriseOnlyInternalsIncluded"]!.GetValue<bool>());
+        Assert.False(handoff["requiresLiveEnterpriseService"]!.GetValue<bool>());
+        AssertForbiddenPropertyAbsent(handoff, "canonicalWeight");
+        AssertForbiddenPropertyAbsent(handoff, "enterpriseWeight");
+        AssertForbiddenPropertyAbsent(handoff, "privateWeight");
+        AssertForbiddenPropertyAbsent(handoff, "weightFormula");
+        AssertForbiddenPropertyAbsent(handoff, "canonicalFormula");
+        AssertForbiddenPropertyAbsent(handoff, "rustScoringConfig");
+        AssertForbiddenPropertyAbsent(handoff, "lanceDbPath");
+        AssertForbiddenPropertyAbsent(handoff, "embedding");
+        AssertForbiddenPropertyAbsent(handoff, "vectorPipeline");
+        Assert.DoesNotContain("UCL owns canonical relationship weighting", handoffJson, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("Scout canonical weighting", handoffJson, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("complex UCL engine", handoffJson, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
     public async Task ExactCustomerPayloadsRemainOnlyInLocalCustomerDataPlaneArtifacts()
     {
         await using var harness = await NextActionHarness.CreateAsync(openSupportTickets: 1, daysPastDue: 9);
@@ -339,6 +436,25 @@ public sealed class NextActionIntelligenceServiceTests
         string purpose = "customer_outreach")
         => new("demo", subjectType, subjectIdentifier, "sale", purpose, actorRole);
 
+    private static void AssertForbiddenPropertyAbsent(JsonNode? node, string propertyName)
+    {
+        if (node is JsonObject obj)
+        {
+            Assert.DoesNotContain(obj, property => property.Key.Equals(propertyName, StringComparison.OrdinalIgnoreCase));
+            foreach (var property in obj)
+            {
+                AssertForbiddenPropertyAbsent(property.Value, propertyName);
+            }
+        }
+        else if (node is JsonArray array)
+        {
+            foreach (var item in array)
+            {
+                AssertForbiddenPropertyAbsent(item, propertyName);
+            }
+        }
+    }
+
     private sealed class NextActionHarness : IAsyncDisposable
     {
         private NextActionHarness(
@@ -408,6 +524,8 @@ public sealed class NextActionIntelligenceServiceTests
                 customerOpsDbContext,
                 clock,
                 new TestCurrentActorService(actor),
+                new BasicRelationshipEngine(),
+                new EnterpriseRelationshipEngineHandoff(),
                 new NextActionInputValidator());
 
             return new NextActionHarness(scoutDbContext, customerOpsDbContext, service);

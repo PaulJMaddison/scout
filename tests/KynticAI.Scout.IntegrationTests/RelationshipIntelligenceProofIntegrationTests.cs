@@ -66,6 +66,19 @@ public sealed class RelationshipIntelligenceProofIntegrationTests
         Assert.NotEmpty(recommendedCitationIds);
         Assert.All(recommendedCitationIds, citationId => Assert.Contains(citationId, provenanceIds));
         Assert.Contains("Northstar Analytics", result["evidencePack"]!["localDerivedEvidencePackageJson"]!.GetValue<string>(), StringComparison.Ordinal);
+
+        var handoffJson = result["evidencePack"]!["enterpriseRelationshipEngineHandoffJson"]!.GetValue<string>();
+        var handoff = JsonNode.Parse(handoffJson)!.AsObject();
+        Assert.Equal("ucl.enterprise-relationship-engine-handoff", handoff["artifactKind"]!.GetValue<string>());
+        Assert.Equal("ucl.enterprise-relationship-engine-handoff.v1", handoff["artifactVersion"]!.GetValue<string>());
+        Assert.Equal("BasicRelationshipEngine", handoff["fallbackEngine"]!.GetValue<string>());
+        Assert.False(handoff["requiresLiveEnterpriseService"]!.GetValue<bool>());
+        Assert.False(handoff["enterpriseOnlyInternalsIncluded"]!.GetValue<bool>());
+        Assert.False(handoff["relationshipWeighting"]!["scoutWeightsAreCanonical"]!.GetValue<bool>());
+        Assert.Equal("Enterprise", handoff["relationshipWeighting"]!["canonicalOwner"]!.GetValue<string>());
+        Assert.NotEmpty(handoff["candidateRelationships"]!.AsArray());
+        Assert.Contains(handoff["requiredEnterpriseOutputs"]!.AsArray(), output =>
+            output?.GetValue<string>() == "canonicalRelationshipWeights");
     }
 
     [Fact]

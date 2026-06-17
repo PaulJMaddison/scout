@@ -6,6 +6,8 @@ public static class UclEvidencePackContractVersions
     public const string EvidencePackV1 = "ucl.evidence-pack.v1";
     public const string CloudAggregateUsageKind = "cloud-aggregate-usage";
     public const string CloudAggregateUsageV1 = "ucl.cloud-aggregate-usage.v1";
+    public const string EnterpriseRelationshipEngineHandoffKind = "ucl.enterprise-relationship-engine-handoff";
+    public const string EnterpriseRelationshipEngineHandoffV1 = "ucl.enterprise-relationship-engine-handoff.v1";
     public const string CustomerOwnedDataPlane = "customer-owned-data-plane";
 }
 
@@ -92,3 +94,47 @@ public sealed record UclCloudDataBoundaryV1(
     bool ContainsPerEntityRelationshipMetadata,
     bool ContainsDerivedRelationshipIntelligence,
     bool ContainsPerCustomerDerivedIntelligence);
+
+public sealed record UclEnterpriseRelationshipEngineHandoffV1(
+    string ArtifactKind,
+    string ArtifactVersion,
+    string HandoffId,
+    string PackageKind,
+    string PackageVersion,
+    string PackageId,
+    DateTime GeneratedAtUtc,
+    string TenantSlug,
+    string DataPlane,
+    string Producer,
+    string FallbackEngine,
+    UclRelationshipWeightingV1 RelationshipWeighting,
+    bool RequiresLiveEnterpriseService,
+    bool EnterpriseOnlyInternalsIncluded,
+    UclEvidenceSubjectV1 Subject,
+    string Objective,
+    string Purpose,
+    string ActorRole,
+    UclEnterpriseRelationshipHandoffEvidenceSummaryV1 EvidenceSummary,
+    IReadOnlyList<UclEnterpriseRelationshipHandoffCandidateV1> CandidateRelationships,
+    IReadOnlyList<ProvenanceCitationResult> Provenance,
+    IReadOnlyList<string> RequiredEnterpriseOutputs);
+
+public sealed record UclEnterpriseRelationshipHandoffEvidenceSummaryV1(
+    IReadOnlyDictionary<string, int> RecordCounts,
+    int ExactRecordCount,
+    int CandidateRelationshipCount,
+    int ProvenanceCitationCount);
+
+public sealed record UclEnterpriseRelationshipHandoffCandidateV1(
+    string RelationshipId,
+    string RelationshipType,
+    string LinkKind,
+    string SourceType,
+    string SourceId,
+    string TargetType,
+    string TargetId,
+    decimal Confidence,
+    decimal ScoutFallbackWeight,
+    string FallbackWeightScope,
+    string Rationale,
+    IReadOnlyList<string> CitationIds);

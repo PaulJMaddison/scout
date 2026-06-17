@@ -446,3 +446,330 @@ public static class UclCloudAggregateUsageV1Validator
         return false;
     }
 }
+
+public static class UclEnterpriseRelationshipEngineHandoffV1Validator
+{
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+
+    private static readonly HashSet<string> ForbiddenPropertyNames = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "canonicalWeight",
+        "canonicalWeights",
+        "enterpriseWeight",
+        "enterpriseWeights",
+        "privateWeight",
+        "privateWeights",
+        "weightFormula",
+        "canonicalFormula",
+        "scoringConfig",
+        "rustScoringConfig",
+        "lanceDb",
+        "lanceDbPath",
+        "embedding",
+        "embeddings",
+        "vectorPipeline"
+    };
+
+    public static UclContractValidationResult Validate(UclEnterpriseRelationshipEngineHandoffV1 artifact)
+        => ValidateJson(JsonSerializer.Serialize(artifact, JsonOptions));
+
+    public static UclContractValidationResult ValidateJson(string artifactJson)
+    {
+        var errors = new List<string>();
+        JsonObject? root;
+        try
+        {
+            root = JsonNode.Parse(artifactJson) as JsonObject;
+        }
+        catch (JsonException ex)
+        {
+            return UclContractValidationResult.Invalid([$"artifact is not valid JSON: {ex.Message}"]);
+        }
+
+        if (root is null)
+        {
+            return UclContractValidationResult.Invalid(["artifact root must be a JSON object."]);
+        }
+
+        RequireString(root, "artifactKind", UclEvidencePackContractVersions.EnterpriseRelationshipEngineHandoffKind, errors);
+        RequireString(root, "artifactVersion", UclEvidencePackContractVersions.EnterpriseRelationshipEngineHandoffV1, errors);
+        RequireNonEmptyString(root, "handoffId", errors);
+        RequireString(root, "packageKind", UclEvidencePackContractVersions.EvidencePackKind, errors);
+        RequireString(root, "packageVersion", UclEvidencePackContractVersions.EvidencePackV1, errors);
+        RequireNonEmptyString(root, "packageId", errors);
+        RequireDateTime(root, "generatedAtUtc", errors);
+        RequireNonEmptyString(root, "tenantSlug", errors);
+        RequireString(root, "dataPlane", UclEvidencePackContractVersions.CustomerOwnedDataPlane, errors);
+        RequireNonEmptyString(root, "producer", errors);
+        RequireString(root, "fallbackEngine", "BasicRelationshipEngine", errors);
+        RequireBoolean(root, "requiresLiveEnterpriseService", expected: false, errors);
+        RequireBoolean(root, "enterpriseOnlyInternalsIncluded", expected: false, errors);
+        ValidateRelationshipWeighting(root["relationshipWeighting"], errors);
+        ValidateSubject(root["subject"], errors);
+        RequireNonEmptyString(root, "objective", errors);
+        RequireNonEmptyString(root, "purpose", errors);
+        RequireNonEmptyString(root, "actorRole", errors);
+        ValidateEvidenceSummary(root["evidenceSummary"], errors);
+        var provenanceIds = ValidateProvenance(root["provenance"], errors);
+        ValidateCandidateRelationships(root["candidateRelationships"], provenanceIds, errors);
+        ValidateRequiredEnterpriseOutputs(root["requiredEnterpriseOutputs"], errors);
+        RejectForbiddenPropertyNames(root, "$", errors);
+
+        return errors.Count == 0
+            ? UclContractValidationResult.Valid
+            : UclContractValidationResult.Invalid(errors);
+    }
+
+    private static void ValidateRelationshipWeighting(JsonNode? node, List<string> errors)
+    {
+        if (node is not JsonObject obj)
+        {
+            errors.Add("relationshipWeighting must be an object.");
+            return;
+        }
+
+        RequireString(obj, "scope", "basic-public-fallback-demo", errors);
+        RequireBoolean(obj, "scoutWeightsAreCanonical", expected: false, errors);
+        RequireString(obj, "canonicalOwner", "Enterprise", errors);
+        RequireNonEmptyString(obj, "canonicalEngine", errors);
+    }
+
+    private static void ValidateSubject(JsonNode? node, List<string> errors)
+    {
+        if (node is not JsonObject obj)
+        {
+            errors.Add("subject must be an object.");
+            return;
+        }
+
+        RequireNonEmptyString(obj, "subjectType", errors);
+        RequireNonEmptyString(obj, "subjectIdentifier", errors);
+        RequireNonEmptyString(obj, "externalAccountId", errors);
+        if (obj["primaryContactId"] is not null && !TryGetString(obj["primaryContactId"], out _))
+        {
+            errors.Add("subject.primaryContactId must be a string or null.");
+        }
+    }
+
+    private static void ValidateEvidenceSummary(JsonNode? node, List<string> errors)
+    {
+        if (node is not JsonObject obj)
+        {
+            errors.Add("evidenceSummary must be an object.");
+            return;
+        }
+
+        if (obj["recordCounts"] is not JsonObject)
+        {
+            errors.Add("evidenceSummary.recordCounts must be an object.");
+        }
+
+        RequireNonNegativeInteger(obj, "exactRecordCount", errors);
+        RequireNonNegativeInteger(obj, "candidateRelationshipCount", errors);
+        RequireNonNegativeInteger(obj, "provenanceCitationCount", errors);
+    }
+
+    private static HashSet<string> ValidateProvenance(JsonNode? node, List<string> errors)
+    {
+        var provenanceIds = new HashSet<string>(StringComparer.Ordinal);
+        if (node is not JsonArray provenance || provenance.Count == 0)
+        {
+            errors.Add("provenance must be a non-empty array.");
+            return provenanceIds;
+        }
+
+        foreach (var item in provenance)
+        {
+            if (item is not JsonObject obj)
+            {
+                errors.Add("provenance entries must be objects.");
+                continue;
+            }
+
+            if (!TryGetString(obj["citationId"], out var citationId) || string.IsNullOrWhiteSpace(citationId))
+            {
+                errors.Add("provenance.citationId is required.");
+                continue;
+            }
+
+            if (!provenanceIds.Add(citationId))
+            {
+                errors.Add($"provenance citation ID {citationId} is duplicated.");
+            }
+
+            RequireNonEmptyString(obj, "sourceEntityType", errors);
+            RequireNonEmptyString(obj, "sourceEntityId", errors);
+            RequireNonEmptyString(obj, "evidenceType", errors);
+        }
+
+        return provenanceIds;
+    }
+
+    private static void ValidateCandidateRelationships(JsonNode? node, HashSet<string> provenanceIds, List<string> errors)
+    {
+        if (node is not JsonArray relationships || relationships.Count == 0)
+        {
+            errors.Add("candidateRelationships must be a non-empty array.");
+            return;
+        }
+
+        foreach (var item in relationships)
+        {
+            if (item is not JsonObject obj)
+            {
+                errors.Add("candidateRelationships entries must be objects.");
+                continue;
+            }
+
+            RequireNonEmptyString(obj, "relationshipId", errors);
+            RequireNonEmptyString(obj, "relationshipType", errors);
+            RequireNonEmptyString(obj, "linkKind", errors);
+            RequireNonEmptyString(obj, "sourceType", errors);
+            RequireNonEmptyString(obj, "sourceId", errors);
+            RequireNonEmptyString(obj, "targetType", errors);
+            RequireNonEmptyString(obj, "targetId", errors);
+            RequireDecimalRange(obj, "confidence", 0m, 1m, errors);
+            RequireDecimal(obj, "scoutFallbackWeight", errors);
+            RequireString(obj, "fallbackWeightScope", "basic-public-fallback-demo", errors);
+            RequireNonEmptyString(obj, "rationale", errors);
+            ValidateCitationIds(obj["citationIds"], provenanceIds, errors);
+        }
+    }
+
+    private static void ValidateCitationIds(JsonNode? node, HashSet<string> provenanceIds, List<string> errors)
+    {
+        if (node is not JsonArray citationIds || citationIds.Count == 0)
+        {
+            errors.Add("candidateRelationships.citationIds must be a non-empty array.");
+            return;
+        }
+
+        foreach (var item in citationIds)
+        {
+            if (!TryGetString(item, out var citationId) || string.IsNullOrWhiteSpace(citationId))
+            {
+                errors.Add("candidateRelationships.citationIds entries must be strings.");
+                continue;
+            }
+
+            if (!provenanceIds.Contains(citationId))
+            {
+                errors.Add($"candidate relationship cites {citationId} without matching provenance.");
+            }
+        }
+    }
+
+    private static void ValidateRequiredEnterpriseOutputs(JsonNode? node, List<string> errors)
+    {
+        if (node is not JsonArray outputs || outputs.Count == 0)
+        {
+            errors.Add("requiredEnterpriseOutputs must be a non-empty array.");
+            return;
+        }
+
+        var outputNames = outputs
+            .Where(item => TryGetString(item, out _))
+            .Select(item => item!.GetValue<string>())
+            .ToHashSet(StringComparer.Ordinal);
+
+        foreach (var required in new[] { "canonicalRelationshipWeights", "canonicalTraversalSignals" })
+        {
+            if (!outputNames.Contains(required))
+            {
+                errors.Add($"requiredEnterpriseOutputs must include {required}.");
+            }
+        }
+    }
+
+    private static void RejectForbiddenPropertyNames(JsonNode? node, string path, List<string> errors)
+    {
+        if (node is JsonObject obj)
+        {
+            foreach (var property in obj)
+            {
+                var propertyPath = $"{path}.{property.Key}";
+                if (ForbiddenPropertyNames.Contains(property.Key))
+                {
+                    errors.Add($"{propertyPath} is forbidden in Enterprise relationship handoff artifacts.");
+                }
+
+                RejectForbiddenPropertyNames(property.Value, propertyPath, errors);
+            }
+        }
+        else if (node is JsonArray array)
+        {
+            for (var index = 0; index < array.Count; index++)
+            {
+                RejectForbiddenPropertyNames(array[index], $"{path}[{index}]", errors);
+            }
+        }
+    }
+
+    private static void RequireString(JsonObject root, string propertyName, string expectedValue, List<string> errors)
+    {
+        if (!TryGetString(root[propertyName], out var value) || value != expectedValue)
+        {
+            errors.Add($"{propertyName} must be '{expectedValue}'.");
+        }
+    }
+
+    private static void RequireNonEmptyString(JsonObject root, string propertyName, List<string> errors)
+    {
+        if (!TryGetString(root[propertyName], out var value) || string.IsNullOrWhiteSpace(value))
+        {
+            errors.Add($"{propertyName} must be a non-empty string.");
+        }
+    }
+
+    private static void RequireBoolean(JsonObject root, string propertyName, bool expected, List<string> errors)
+    {
+        if (root[propertyName] is not JsonValue value || !value.TryGetValue(out bool actual) || actual != expected)
+        {
+            errors.Add($"{propertyName} must be {expected.ToString().ToLowerInvariant()}.");
+        }
+    }
+
+    private static void RequireDateTime(JsonObject root, string propertyName, List<string> errors)
+    {
+        if (!TryGetString(root[propertyName], out var value) || !DateTime.TryParse(value, out _))
+        {
+            errors.Add($"{propertyName} must be an ISO 8601 timestamp.");
+        }
+    }
+
+    private static void RequireNonNegativeInteger(JsonObject root, string propertyName, List<string> errors)
+    {
+        if (root[propertyName] is not JsonValue value || !value.TryGetValue(out int actual) || actual < 0)
+        {
+            errors.Add($"{propertyName} must be a non-negative integer.");
+        }
+    }
+
+    private static void RequireDecimal(JsonObject root, string propertyName, List<string> errors)
+    {
+        if (root[propertyName] is not JsonValue value || !value.TryGetValue(out decimal _))
+        {
+            errors.Add($"{propertyName} must be a number.");
+        }
+    }
+
+    private static void RequireDecimalRange(JsonObject root, string propertyName, decimal minimum, decimal maximum, List<string> errors)
+    {
+        if (root[propertyName] is not JsonValue value || !value.TryGetValue(out decimal actual) || actual < minimum || actual > maximum)
+        {
+            errors.Add($"{propertyName} must be between {minimum} and {maximum}.");
+        }
+    }
+
+    private static bool TryGetString(JsonNode? node, out string value)
+    {
+        if (node is JsonValue jsonValue && jsonValue.TryGetValue(out string? candidate) && candidate is not null)
+        {
+            value = candidate;
+            return true;
+        }
+
+        value = string.Empty;
+        return false;
+    }
+}
