@@ -1,0 +1,50 @@
+{
+  "caveats": [
+    "Insufficient evidence is available for a reliable domain-specific conclusion."
+  ],
+  "citations": [
+    {
+      "accountId": "acct-020",
+      "citationId": "SUPPORT_CHURN-CIT-01",
+      "exactLocalCitation": "Synthetic web events signal 20 for support-churn.",
+      "observedAtUtc": "2026-06-16T04:00:00Z",
+      "provenance": {
+        "connector": "web_events",
+        "sourceRecordSha256": "a944b79a06c8bdbc0ed2fcee10b2e854f28814bdeefc3a9aafc1c54336b7b43b",
+        "synthetic": true
+      },
+      "source": "web_events",
+      "sourceRecordId": "evt_b4cac1668b84"
+    },
+    {
+      "accountId": "acct-021",
+      "citationId": "SUPPORT_CHURN-CIT-02",
+      "exactLocalCitation": "Synthetic support metadata signal 21 for support-churn.",
+      "observedAtUtc": "2026-06-16T03:00:00Z",
+      "provenance": {
+        "connector": "support_metadata",
+        "sourceRecordSha256": "208b2cb805dc6b904efe7501190143e66ffa168ab522d1fca2d8ef4bfb18c38f",
+        "synthetic": true
+      },
+      "source": "support_metadata",
+      "sourceRecordId": "evt_690ac2128174"
+    }
+  ],
+  "domain": "support-churn",
+  "productBoundaries": {
+    "clarityRequired": false,
+    "enterpriseCanonicalRustWeightingCalled": false,
+    "importanceRequired": false,
+    "uclOwnsExactPrivateEvidencePacks": true
+  },
+  "relationshipIntelligence": {
+    "canonicalWeighting": "not-run",
+    "mode": "basic-public-fallback"
+  },
+  "schema": "ucl.evidence-pack.v1",
+  "subject": {
+    "accountId": "acct-020",
+    "synthetic": true
+  },
+  "summary": "Synthetic UCL evidence pack for support-churn; no Enterprise, Clarity, or Importance dependency."
+}

@@ -1,0 +1,128 @@
+{
+  "caveats": [
+    "Evidence conflicts across sources; treat the relationship signal as unresolved."
+  ],
+  "citations": [
+    {
+      "accountId": "acct-010",
+      "citationId": "ECOMMERCE-CIT-01",
+      "exactLocalCitation": "Synthetic product usage signal 10 for ecommerce.",
+      "observedAtUtc": "2026-06-16T14:00:00Z",
+      "provenance": {
+        "connector": "product_usage",
+        "sourceRecordSha256": "05f49e8db96b486be6736ce3f4e81d0c541d60402ab13e6ba1ba0b300076b1cf",
+        "synthetic": true
+      },
+      "source": "product_usage",
+      "sourceRecordId": "evt_1eb2fc7c70c2"
+    },
+    {
+      "accountId": "acct-011",
+      "citationId": "ECOMMERCE-CIT-02",
+      "exactLocalCitation": "Synthetic billing aggregates signal 11 for ecommerce.",
+      "observedAtUtc": "2026-06-16T13:00:00Z",
+      "provenance": {
+        "connector": "billing_aggregates",
+        "sourceRecordSha256": "306befe5d6b80792196dd951dc1789342d48ef2b5f73d803b16c6a005be7b742",
+        "synthetic": true
+      },
+      "source": "billing_aggregates",
+      "sourceRecordId": "evt_775c63ddb6be"
+    },
+    {
+      "accountId": "acct-012",
+      "citationId": "ECOMMERCE-CIT-03",
+      "exactLocalCitation": "Synthetic crm signal 12 for ecommerce.",
+      "observedAtUtc": "2026-06-16T12:00:00Z",
+      "provenance": {
+        "connector": "crm",
+        "sourceRecordSha256": "025d21b31c778d137dd37477f621eceb56c128400983a290641b08bf725ef5a6",
+        "synthetic": true
+      },
+      "source": "crm",
+      "sourceRecordId": "evt_1303fe2575bb"
+    },
+    {
+      "accountId": "acct-013",
+      "citationId": "ECOMMERCE-CIT-04",
+      "exactLocalCitation": "Synthetic email metadata signal 13 for ecommerce.",
+      "observedAtUtc": "2026-06-16T11:00:00Z",
+      "provenance": {
+        "connector": "email_metadata",
+        "sourceRecordSha256": "b2da668138e8e6f0ad9edd308b8747d2c07b24d11d74be82903768c35c4dee00",
+        "synthetic": true
+      },
+      "source": "email_metadata",
+      "sourceRecordId": "evt_c83136ce78b3"
+    },
+    {
+      "accountId": "acct-014",
+      "citationId": "ECOMMERCE-CIT-05",
+      "exactLocalCitation": "Synthetic web events signal 14 for ecommerce.",
+      "observedAtUtc": "2026-06-16T10:00:00Z",
+      "provenance": {
+        "connector": "web_events",
+        "sourceRecordSha256": "0c37e82ab49d4b912f914318da5ef125eef098c0ce3ea26091f251e7a7a91b4e",
+        "synthetic": true
+      },
+      "source": "web_events",
+      "sourceRecordId": "evt_3af31f7a2d7f"
+    },
+    {
+      "accountId": "acct-015",
+      "citationId": "ECOMMERCE-CIT-06",
+      "exactLocalCitation": "Synthetic support metadata signal 15 for ecommerce.",
+      "observedAtUtc": "2026-06-16T09:00:00Z",
+      "provenance": {
+        "connector": "support_metadata",
+        "sourceRecordSha256": "8615c6aa15612add5869e3678546c6d1971b6043bf5715f5f9f5497859a13c9f",
+        "synthetic": true
+      },
+      "source": "support_metadata",
+      "sourceRecordId": "evt_84468ad2c2e4"
+    },
+    {
+      "accountId": "acct-016",
+      "citationId": "ECOMMERCE-CIT-07",
+      "exactLocalCitation": "Synthetic product usage signal 16 for ecommerce.",
+      "observedAtUtc": "2026-06-16T08:00:00Z",
+      "provenance": {
+        "connector": "product_usage",
+        "sourceRecordSha256": "92c1193451ef52dd5f442c962d4608798920fe6aa47daf3d2677a8d9443f92a1",
+        "synthetic": true
+      },
+      "source": "product_usage",
+      "sourceRecordId": "evt_61310530fea5"
+    },
+    {
+      "accountId": "acct-017",
+      "citationId": "ECOMMERCE-CIT-08",
+      "exactLocalCitation": "Synthetic billing aggregates signal 17 for ecommerce.",
+      "observedAtUtc": "2026-06-16T07:00:00Z",
+      "provenance": {
+        "connector": "billing_aggregates",
+        "sourceRecordSha256": "b5f2f2daa71b7581586cf7bc51d88526b554affe65b2085bbe3b69a41cfdd078",
+        "synthetic": true
+      },
+      "source": "billing_aggregates",
+      "sourceRecordId": "evt_ec2cbf5d5009"
+    }
+  ],
+  "domain": "ecommerce",
+  "productBoundaries": {
+    "clarityRequired": false,
+    "enterpriseCanonicalRustWeightingCalled": false,
+    "importanceRequired": false,
+    "uclOwnsExactPrivateEvidencePacks": true
+  },
+  "relationshipIntelligence": {
+    "canonicalWeighting": "not-run",
+    "mode": "basic-public-fallback"
+  },
+  "schema": "ucl.evidence-pack.v1",
+  "subject": {
+    "accountId": "acct-010",
+    "synthetic": true
+  },
+  "summary": "Synthetic UCL evidence pack for ecommerce; no Enterprise, Clarity, or Importance dependency."
+}

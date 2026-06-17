@@ -1,0 +1,23 @@
+{
+  "accounts": 300,
+  "contactsUsers": 1000,
+  "domains": [
+    "b2b-saas",
+    "ecommerce",
+    "support-churn",
+    "recruitment",
+    "finance-retention",
+    "healthcare-operations"
+  ],
+  "maximumOperationalEventsRequested": 6000,
+  "operationalEvents": 6000,
+  "sources": [
+    "crm",
+    "email_metadata",
+    "web_events",
+    "support_metadata",
+    "product_usage",
+    "billing_aggregates"
+  ],
+  "synthetic": true
+}

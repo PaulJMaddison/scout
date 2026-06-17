@@ -1,0 +1,14 @@
+{
+  "aggregateCounts": {
+    "caveatCount": 0,
+    "citationsProduced": 8,
+    "evidencePacksProduced": 1
+  },
+  "domain": "ecommerce",
+  "health": {
+    "lastRunStatus": "pass",
+    "syntheticDataset": true
+  },
+  "metadataOnly": true,
+  "schema": "ucl.cloud-aggregate-control-plane.v1"
+}

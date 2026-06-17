@@ -1,0 +1,129 @@
+{
+  "access": "masked-read-only",
+  "caveats": [
+    "Masked/read-only view: exact local citation text and account identifiers are redacted."
+  ],
+  "citations": [
+    {
+      "accountId": "[MASKED]",
+      "citationId": "SUPPORT_CHURN-CIT-01",
+      "exactLocalCitation": "[MASKED: read-only role cannot view exact local citation text]",
+      "observedAtUtc": "2026-06-17T00:00:00Z",
+      "provenance": {
+        "connector": "crm",
+        "sourceRecordSha256": "a8dd5bd07aa08c726c6ca16519aea3e395fa7717e959373763ab83d04aa7ea3c",
+        "synthetic": true
+      },
+      "source": "crm",
+      "sourceRecordId": "evt_31ad246320e1"
+    },
+    {
+      "accountId": "[MASKED]",
+      "citationId": "SUPPORT_CHURN-CIT-02",
+      "exactLocalCitation": "[MASKED: read-only role cannot view exact local citation text]",
+      "observedAtUtc": "2026-06-16T23:00:00Z",
+      "provenance": {
+        "connector": "email_metadata",
+        "sourceRecordSha256": "795f22d56b9d0ca9b71085e217723840658d8ae9f20994c642f1f0aab7aff696",
+        "synthetic": true
+      },
+      "source": "email_metadata",
+      "sourceRecordId": "evt_e1915553ea78"
+    },
+    {
+      "accountId": "[MASKED]",
+      "citationId": "SUPPORT_CHURN-CIT-03",
+      "exactLocalCitation": "[MASKED: read-only role cannot view exact local citation text]",
+      "observedAtUtc": "2026-06-16T22:00:00Z",
+      "provenance": {
+        "connector": "web_events",
+        "sourceRecordSha256": "194f6c18e825b6c4c8bff97936d9c9e9795eb179e2bd384ec080cb7edaeeddf9",
+        "synthetic": true
+      },
+      "source": "web_events",
+      "sourceRecordId": "evt_c60cc482176b"
+    },
+    {
+      "accountId": "[MASKED]",
+      "citationId": "SUPPORT_CHURN-CIT-04",
+      "exactLocalCitation": "[MASKED: read-only role cannot view exact local citation text]",
+      "observedAtUtc": "2026-06-16T21:00:00Z",
+      "provenance": {
+        "connector": "support_metadata",
+        "sourceRecordSha256": "aca557bb8c41b9fe933104bbdf587b39563c53725eefbdc2deeae047ce34df27",
+        "synthetic": true
+      },
+      "source": "support_metadata",
+      "sourceRecordId": "evt_c1be49fd6985"
+    },
+    {
+      "accountId": "[MASKED]",
+      "citationId": "SUPPORT_CHURN-CIT-05",
+      "exactLocalCitation": "[MASKED: read-only role cannot view exact local citation text]",
+      "observedAtUtc": "2026-06-16T20:00:00Z",
+      "provenance": {
+        "connector": "product_usage",
+        "sourceRecordSha256": "461dadabc20477534086fa77056985a607bee94ef22556c7cf253e61d28f96fc",
+        "synthetic": true
+      },
+      "source": "product_usage",
+      "sourceRecordId": "evt_39c065a70a2b"
+    },
+    {
+      "accountId": "[MASKED]",
+      "citationId": "SUPPORT_CHURN-CIT-06",
+      "exactLocalCitation": "[MASKED: read-only role cannot view exact local citation text]",
+      "observedAtUtc": "2026-06-16T19:00:00Z",
+      "provenance": {
+        "connector": "billing_aggregates",
+        "sourceRecordSha256": "ad013b9b066b9c4a873b479cd0fc6cfc76e7d31293333e18cd313f4f746b39d2",
+        "synthetic": true
+      },
+      "source": "billing_aggregates",
+      "sourceRecordId": "evt_54d2b0624841"
+    },
+    {
+      "accountId": "[MASKED]",
+      "citationId": "SUPPORT_CHURN-CIT-07",
+      "exactLocalCitation": "[MASKED: read-only role cannot view exact local citation text]",
+      "observedAtUtc": "2026-06-16T18:00:00Z",
+      "provenance": {
+        "connector": "crm",
+        "sourceRecordSha256": "f913d5896589d5b15fa4658316c550d1bf15fac5bc271daa9a42702d02e784bf",
+        "synthetic": true
+      },
+      "source": "crm",
+      "sourceRecordId": "evt_b64f3cd674c6"
+    },
+    {
+      "accountId": "[MASKED]",
+      "citationId": "SUPPORT_CHURN-CIT-08",
+      "exactLocalCitation": "[MASKED: read-only role cannot view exact local citation text]",
+      "observedAtUtc": "2026-06-16T17:00:00Z",
+      "provenance": {
+        "connector": "email_metadata",
+        "sourceRecordSha256": "4d517a41accb9fb5df55a56c664795468ac7b2feee1980d0893b6c70db91d126",
+        "synthetic": true
+      },
+      "source": "email_metadata",
+      "sourceRecordId": "evt_ae206606f3b5"
+    }
+  ],
+  "domain": "support-churn",
+  "productBoundaries": {
+    "clarityRequired": false,
+    "enterpriseCanonicalRustWeightingCalled": false,
+    "importanceRequired": false,
+    "uclOwnsExactPrivateEvidencePacks": true
+  },
+  "relationshipIntelligence": {
+    "canonicalWeighting": "not-run",
+    "mode": "basic-public-fallback"
+  },
+  "schema": "ucl.evidence-pack.v1",
+  "subject": {
+    "accountId": "acct-000",
+    "synthetic": true
+  },
+  "summary": "Synthetic UCL evidence pack for support-churn; no Enterprise, Clarity, or Importance dependency."
+}
