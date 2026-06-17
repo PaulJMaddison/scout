@@ -1,0 +1,901 @@
+{
+  "fixtureSetVersion": "ucl.evidence-pack.fixtures.v1",
+  "contractVersion": "ucl.evidence-pack.v1",
+  "fixtures": [
+    {
+      "scenario": "b2b-saas",
+      "description": "Full local next-action pack for a B2B SaaS expansion workflow.",
+      "payload": {
+        "packageKind": "ucl.evidence-pack",
+        "packageVersion": "ucl.evidence-pack.v1",
+        "packageId": "EP-GOLDEN-B2B-SAAS-001",
+        "generatedAtUtc": "2026-06-16T12:00:00Z",
+        "tenantSlug": "golden-b2b-saas",
+        "dataPlane": "customer-owned-data-plane",
+        "subject": {
+          "subjectType": "account",
+          "subjectIdentifier": "acct-harbourdesk",
+          "externalAccountId": "acct-harbourdesk",
+          "primaryContactId": "contact-avery"
+        },
+        "objective": "sale",
+        "purpose": "customer_outreach",
+        "actorRole": "tenant_admin",
+        "exactLinkedRecords": {
+          "recordCounts": {
+            "CustomerAccount": 1,
+            "ProductUsageSummary": 1
+          },
+          "records": [
+            {
+              "citationId": "EVID-01",
+              "recordType": "CustomerAccount",
+              "recordId": "acct-harbourdesk-guid",
+              "externalId": "acct-harbourdesk",
+              "label": "HarbourDesk Ltd",
+              "summary": "HarbourDesk Ltd is an enterprise SaaS account in evaluation.",
+              "observedAtUtc": "2026-06-15T09:30:00Z",
+              "isMasked": false,
+              "fields": {
+                "name": "HarbourDesk Ltd",
+                "domain": "harbourdesk.example",
+                "segment": "enterprise",
+                "lifecycleStage": "evaluation"
+              }
+            },
+            {
+              "citationId": "EVID-02",
+              "recordType": "ProductUsageSummary",
+              "recordId": "usage-harbourdesk-20260615",
+              "externalId": "usage-harbourdesk",
+              "label": "Trial workspace usage",
+              "summary": "The trial workspace used automation on 24 of the last 30 days.",
+              "observedAtUtc": "2026-06-15T10:00:00Z",
+              "isMasked": false,
+              "fields": {
+                "activeDays30": "24",
+                "featureAdoptionScore": "88",
+                "pricingVisits30": "6"
+              }
+            }
+          ]
+        },
+        "relationships": [
+          {
+            "relationshipId": "REL-01",
+            "relationshipType": "AccountToProductUsage",
+            "linkKind": "deterministic",
+            "sourceType": "CustomerAccount",
+            "sourceId": "acct-harbourdesk-guid",
+            "targetType": "ProductUsageSummary",
+            "targetId": "usage-harbourdesk-20260615",
+            "confidence": 1.0,
+            "weight": 0.76,
+            "rationale": "Product usage summary carries the account foreign key.",
+            "citationIds": ["EVID-01", "EVID-02"]
+          }
+        ],
+        "similarWonLostPatterns": [
+          {
+            "matchId": "MATCH-B2B-SAAS-WON-001",
+            "matchedSubjectType": "CustomerAccount",
+            "matchedSubjectId": "acct-similar-won",
+            "matchedAccountId": "acct-similar-won",
+            "outcome": "won",
+            "similarityScore": 0.82,
+            "outcomeWeight": 0.82,
+            "relationshipTypes": ["SimilarProductUsagePattern", "SameSegment"],
+            "reasons": ["enterprise segment", "high feature adoption"],
+            "citationIds": ["PAT-01"]
+          }
+        ],
+        "weightedSignals": [
+          {
+            "signalKey": "active-usage",
+            "label": "Active usage",
+            "direction": "positive",
+            "weight": 0.76,
+            "score": 0.88,
+            "contribution": 0.19,
+            "explanation": "Usage and pricing visits indicate expansion readiness.",
+            "citationIds": ["EVID-02"]
+          }
+        ],
+        "relationshipWeighting": {
+          "scope": "basic-public-fallback-demo",
+          "scoutWeightsAreCanonical": false,
+          "canonicalOwner": "Enterprise",
+          "canonicalEngine": "Enterprise Rust relationship/weighting/traversal engine"
+        },
+        "recommendedAction": {
+          "action": "Send a pricing and implementation plan to the account champion.",
+          "timing": "next_business_day",
+          "rationale": "High usage and a similar won pattern support a commercial follow-up.",
+          "score": 0.78,
+          "citationIds": ["EVID-01", "EVID-02", "PAT-01"]
+        },
+        "draftResponse": {
+          "channel": "email",
+          "subject": "Implementation plan for HarbourDesk",
+          "body": "Share a short implementation plan grounded in the cited usage signals.",
+          "citationIds": ["EVID-02"],
+          "requiresHumanReview": true
+        },
+        "confidence": 0.81,
+        "caveats": ["Commercial owner should confirm current procurement timing."],
+        "provenance": [
+          {
+            "citationId": "EVID-01",
+            "sourceEntityType": "CustomerAccount",
+            "sourceEntityId": "acct-harbourdesk-guid",
+            "evidenceType": "exact-record",
+            "summary": "HarbourDesk Ltd is an enterprise SaaS account in evaluation.",
+            "isMasked": false
+          },
+          {
+            "citationId": "EVID-02",
+            "sourceEntityType": "ProductUsageSummary",
+            "sourceEntityId": "usage-harbourdesk-20260615",
+            "evidenceType": "exact-record",
+            "summary": "The trial workspace used automation on 24 of the last 30 days.",
+            "isMasked": false
+          },
+          {
+            "citationId": "PAT-01",
+            "sourceEntityType": "SimilarPatternMatch",
+            "sourceEntityId": "MATCH-B2B-SAAS-WON-001",
+            "evidenceType": "similarity",
+            "summary": "Similar won SaaS account matched on usage and segment.",
+            "isMasked": false
+          }
+        ],
+        "governance": {
+          "appliedRules": ["exact-data-query-runs-in-customer-owned-data-plane"],
+          "maskedFields": [],
+          "deniedFields": [],
+          "rawDataRetainedInCustomerDataPlane": true
+        }
+      }
+    },
+    {
+      "scenario": "ecommerce",
+      "description": "Full local next-action pack for abandoned basket conversion.",
+      "payload": {
+        "packageKind": "ucl.evidence-pack",
+        "packageVersion": "ucl.evidence-pack.v1",
+        "packageId": "EP-GOLDEN-ECOMMERCE-001",
+        "generatedAtUtc": "2026-06-16T12:05:00Z",
+        "tenantSlug": "golden-ecommerce",
+        "dataPlane": "customer-owned-data-plane",
+        "subject": {
+          "subjectType": "contact",
+          "subjectIdentifier": "shopper-1842",
+          "externalAccountId": "acct-river-basket",
+          "primaryContactId": "shopper-1842"
+        },
+        "objective": "conversion",
+        "purpose": "basket_recovery",
+        "actorRole": "analyst",
+        "exactLinkedRecords": {
+          "recordCounts": {
+            "ShopperProfile": 1,
+            "CartEvent": 1
+          },
+          "records": [
+            {
+              "citationId": "EVID-01",
+              "recordType": "ShopperProfile",
+              "recordId": "shopper-1842-guid",
+              "externalId": "shopper-1842",
+              "label": "Maya Reed",
+              "summary": "Maya Reed has a loyalty profile with repeat purchase history.",
+              "observedAtUtc": "2026-06-15T18:30:00Z",
+              "isMasked": false,
+              "fields": {
+                "fullName": "Maya Reed",
+                "email": "maya.reed@example.test",
+                "loyaltyTier": "gold"
+              }
+            },
+            {
+              "citationId": "EVID-02",
+              "recordType": "CartEvent",
+              "recordId": "cart-9931",
+              "externalId": "cart-9931",
+              "label": "Basket abandoned",
+              "summary": "Basket with running shoes and recovery socks was abandoned after delivery options were shown.",
+              "observedAtUtc": "2026-06-15T19:05:00Z",
+              "isMasked": false,
+              "fields": {
+                "cartValue": "146.00",
+                "deliveryStepReached": "true",
+                "items": "running shoes, recovery socks"
+              }
+            }
+          ]
+        },
+        "relationships": [
+          {
+            "relationshipId": "REL-01",
+            "relationshipType": "ContactToWebConversion",
+            "linkKind": "deterministic",
+            "sourceType": "ShopperProfile",
+            "sourceId": "shopper-1842-guid",
+            "targetType": "CartEvent",
+            "targetId": "cart-9931",
+            "confidence": 1.0,
+            "weight": 0.8,
+            "rationale": "Basket event carries the shopper identifier.",
+            "citationIds": ["EVID-01", "EVID-02"]
+          }
+        ],
+        "similarWonLostPatterns": [
+          {
+            "matchId": "MATCH-ECOMMERCE-CONVERTED-001",
+            "matchedSubjectType": "ShopperProfile",
+            "matchedSubjectId": "shopper-similar-converted",
+            "matchedAccountId": "acct-similar-shopper",
+            "outcome": "converted",
+            "similarityScore": 0.77,
+            "outcomeWeight": 0.77,
+            "relationshipTypes": ["SimilarWebJourney"],
+            "reasons": ["delivery-step basket abandonment"],
+            "citationIds": ["PAT-01"]
+          }
+        ],
+        "weightedSignals": [
+          {
+            "signalKey": "basket-intent",
+            "label": "Basket intent",
+            "direction": "positive",
+            "weight": 0.8,
+            "score": 0.84,
+            "contribution": 0.17,
+            "explanation": "Basket value and delivery-step drop-off support a targeted recovery message.",
+            "citationIds": ["EVID-02"]
+          }
+        ],
+        "relationshipWeighting": {
+          "scope": "basic-public-fallback-demo",
+          "scoutWeightsAreCanonical": false,
+          "canonicalOwner": "Enterprise",
+          "canonicalEngine": "Enterprise Rust relationship/weighting/traversal engine"
+        },
+        "recommendedAction": {
+          "action": "Send a delivery-focused basket recovery offer.",
+          "timing": "within_4_hours",
+          "rationale": "Recent basket activity and similar conversions favour a timely recovery message.",
+          "score": 0.74,
+          "citationIds": ["EVID-01", "EVID-02", "PAT-01"]
+        },
+        "draftResponse": null,
+        "confidence": 0.76,
+        "caveats": ["Offer eligibility should be checked against current promotion rules."],
+        "provenance": [
+          {
+            "citationId": "EVID-01",
+            "sourceEntityType": "ShopperProfile",
+            "sourceEntityId": "shopper-1842-guid",
+            "evidenceType": "exact-record",
+            "summary": "Maya Reed has a loyalty profile with repeat purchase history.",
+            "isMasked": false
+          },
+          {
+            "citationId": "EVID-02",
+            "sourceEntityType": "CartEvent",
+            "sourceEntityId": "cart-9931",
+            "evidenceType": "exact-record",
+            "summary": "Basket was abandoned after delivery options were shown.",
+            "isMasked": false
+          },
+          {
+            "citationId": "PAT-01",
+            "sourceEntityType": "SimilarPatternMatch",
+            "sourceEntityId": "MATCH-ECOMMERCE-CONVERTED-001",
+            "evidenceType": "similarity",
+            "summary": "Similar basket journey converted after delivery-focused recovery.",
+            "isMasked": false
+          }
+        ],
+        "governance": {
+          "appliedRules": ["exact-data-query-runs-in-customer-owned-data-plane"],
+          "maskedFields": [],
+          "deniedFields": [],
+          "rawDataRetainedInCustomerDataPlane": true
+        }
+      }
+    },
+    {
+      "scenario": "support-churn",
+      "description": "Full local next-action pack for support-driven churn risk.",
+      "payload": {
+        "packageKind": "ucl.evidence-pack",
+        "packageVersion": "ucl.evidence-pack.v1",
+        "packageId": "EP-GOLDEN-SUPPORT-CHURN-001",
+        "generatedAtUtc": "2026-06-16T12:10:00Z",
+        "tenantSlug": "golden-support-churn",
+        "dataPlane": "customer-owned-data-plane",
+        "subject": {
+          "subjectType": "account",
+          "subjectIdentifier": "acct-northstar-support",
+          "externalAccountId": "acct-northstar-support",
+          "primaryContactId": "contact-lee"
+        },
+        "objective": "churn",
+        "purpose": "renewal_risk_review",
+        "actorRole": "tenant_admin",
+        "exactLinkedRecords": {
+          "recordCounts": {
+            "CustomerAccount": 1,
+            "SupportTicket": 1
+          },
+          "records": [
+            {
+              "citationId": "EVID-01",
+              "recordType": "CustomerAccount",
+              "recordId": "acct-northstar-support-guid",
+              "externalId": "acct-northstar-support",
+              "label": "Northstar Analytics",
+              "summary": "Northstar Analytics renewal is due in the current quarter.",
+              "observedAtUtc": "2026-06-14T15:20:00Z",
+              "isMasked": false,
+              "fields": {
+                "name": "Northstar Analytics",
+                "segment": "mid-market",
+                "lifecycleStage": "renewal"
+              }
+            },
+            {
+              "citationId": "EVID-02",
+              "recordType": "SupportTicket",
+              "recordId": "ticket-7712",
+              "externalId": "ticket-7712",
+              "label": "Critical integration incident",
+              "summary": "Critical integration incident has remained open for five days.",
+              "observedAtUtc": "2026-06-13T08:10:00Z",
+              "isMasked": false,
+              "fields": {
+                "severity": "critical",
+                "status": "open",
+                "category": "integration"
+              }
+            }
+          ]
+        },
+        "relationships": [
+          {
+            "relationshipId": "REL-01",
+            "relationshipType": "AccountToSupportTicket",
+            "linkKind": "deterministic",
+            "sourceType": "CustomerAccount",
+            "sourceId": "acct-northstar-support-guid",
+            "targetType": "SupportTicket",
+            "targetId": "ticket-7712",
+            "confidence": 1.0,
+            "weight": 0.86,
+            "rationale": "Support ticket carries the account foreign key.",
+            "citationIds": ["EVID-01", "EVID-02"]
+          }
+        ],
+        "similarWonLostPatterns": [
+          {
+            "matchId": "MATCH-SUPPORT-CHURN-001",
+            "matchedSubjectType": "CustomerAccount",
+            "matchedSubjectId": "acct-similar-churned",
+            "matchedAccountId": "acct-similar-churned",
+            "outcome": "churned",
+            "similarityScore": 0.73,
+            "outcomeWeight": -0.73,
+            "relationshipTypes": ["SimilarSupportBlockers"],
+            "reasons": ["critical unresolved ticket before renewal"],
+            "citationIds": ["PAT-01"]
+          }
+        ],
+        "weightedSignals": [
+          {
+            "signalKey": "support-blockers",
+            "label": "Support blockers",
+            "direction": "negative",
+            "weight": 0.86,
+            "score": 0.92,
+            "contribution": -0.22,
+            "explanation": "Open critical support incident increases churn risk.",
+            "citationIds": ["EVID-02"]
+          }
+        ],
+        "relationshipWeighting": {
+          "scope": "basic-public-fallback-demo",
+          "scoutWeightsAreCanonical": false,
+          "canonicalOwner": "Enterprise",
+          "canonicalEngine": "Enterprise Rust relationship/weighting/traversal engine"
+        },
+        "recommendedAction": {
+          "action": "Escalate the incident and schedule an executive save call.",
+          "timing": "same_day",
+          "rationale": "Unresolved critical support evidence is tied to churn-like prior outcomes.",
+          "score": 0.69,
+          "citationIds": ["EVID-01", "EVID-02", "PAT-01"]
+        },
+        "draftResponse": null,
+        "confidence": 0.74,
+        "caveats": ["Account owner should confirm the customer's renewal decision timeline."],
+        "provenance": [
+          {
+            "citationId": "EVID-01",
+            "sourceEntityType": "CustomerAccount",
+            "sourceEntityId": "acct-northstar-support-guid",
+            "evidenceType": "exact-record",
+            "summary": "Northstar Analytics renewal is due in the current quarter.",
+            "isMasked": false
+          },
+          {
+            "citationId": "EVID-02",
+            "sourceEntityType": "SupportTicket",
+            "sourceEntityId": "ticket-7712",
+            "evidenceType": "exact-record",
+            "summary": "Critical integration incident has remained open for five days.",
+            "isMasked": false
+          },
+          {
+            "citationId": "PAT-01",
+            "sourceEntityType": "SimilarPatternMatch",
+            "sourceEntityId": "MATCH-SUPPORT-CHURN-001",
+            "evidenceType": "similarity",
+            "summary": "Similar unresolved support blocker preceded churn.",
+            "isMasked": false
+          }
+        ],
+        "governance": {
+          "appliedRules": ["exact-data-query-runs-in-customer-owned-data-plane"],
+          "maskedFields": [],
+          "deniedFields": [],
+          "rawDataRetainedInCustomerDataPlane": true
+        }
+      }
+    },
+    {
+      "scenario": "recruitment",
+      "description": "Full local next-action pack for candidate progression.",
+      "payload": {
+        "packageKind": "ucl.evidence-pack",
+        "packageVersion": "ucl.evidence-pack.v1",
+        "packageId": "EP-GOLDEN-RECRUITMENT-001",
+        "generatedAtUtc": "2026-06-16T12:15:00Z",
+        "tenantSlug": "golden-recruitment",
+        "dataPlane": "customer-owned-data-plane",
+        "subject": {
+          "subjectType": "contact",
+          "subjectIdentifier": "candidate-3021",
+          "externalAccountId": "req-platform-engineer",
+          "primaryContactId": "candidate-3021"
+        },
+        "objective": "recruitment",
+        "purpose": "candidate_next_step",
+        "actorRole": "analyst",
+        "exactLinkedRecords": {
+          "recordCounts": {
+            "CandidateProfile": 1,
+            "InterviewEvent": 1
+          },
+          "records": [
+            {
+              "citationId": "EVID-01",
+              "recordType": "CandidateProfile",
+              "recordId": "candidate-3021-guid",
+              "externalId": "candidate-3021",
+              "label": "Rina Patel",
+              "summary": "Rina Patel is an active platform engineering candidate.",
+              "observedAtUtc": "2026-06-14T11:45:00Z",
+              "isMasked": false,
+              "fields": {
+                "fullName": "Rina Patel",
+                "email": "rina.patel@example.test",
+                "stage": "technical_interview"
+              }
+            },
+            {
+              "citationId": "EVID-02",
+              "recordType": "InterviewEvent",
+              "recordId": "interview-5509",
+              "externalId": "interview-5509",
+              "label": "Technical interview",
+              "summary": "Technical interview feedback highlighted strong distributed systems experience.",
+              "observedAtUtc": "2026-06-15T16:00:00Z",
+              "isMasked": false,
+              "fields": {
+                "score": "4.5",
+                "panelRecommendation": "advance",
+                "skillArea": "distributed systems"
+              }
+            }
+          ]
+        },
+        "relationships": [
+          {
+            "relationshipId": "REL-01",
+            "relationshipType": "ContactToOutcome",
+            "linkKind": "deterministic",
+            "sourceType": "CandidateProfile",
+            "sourceId": "candidate-3021-guid",
+            "targetType": "InterviewEvent",
+            "targetId": "interview-5509",
+            "confidence": 1.0,
+            "weight": 0.72,
+            "rationale": "Interview event carries the candidate identifier.",
+            "citationIds": ["EVID-01", "EVID-02"]
+          }
+        ],
+        "similarWonLostPatterns": [
+          {
+            "matchId": "MATCH-RECRUITMENT-HIRED-001",
+            "matchedSubjectType": "CandidateProfile",
+            "matchedSubjectId": "candidate-similar-hired",
+            "matchedAccountId": "req-platform-engineer",
+            "outcome": "hired",
+            "similarityScore": 0.79,
+            "outcomeWeight": 0.79,
+            "relationshipTypes": ["SameRoleSeniority"],
+            "reasons": ["similar interview score", "same skill area"],
+            "citationIds": ["PAT-01"]
+          }
+        ],
+        "weightedSignals": [
+          {
+            "signalKey": "interview-strength",
+            "label": "Interview strength",
+            "direction": "positive",
+            "weight": 0.72,
+            "score": 0.9,
+            "contribution": 0.18,
+            "explanation": "Panel feedback and score support progression.",
+            "citationIds": ["EVID-02"]
+          }
+        ],
+        "relationshipWeighting": {
+          "scope": "basic-public-fallback-demo",
+          "scoutWeightsAreCanonical": false,
+          "canonicalOwner": "Enterprise",
+          "canonicalEngine": "Enterprise Rust relationship/weighting/traversal engine"
+        },
+        "recommendedAction": {
+          "action": "Move the candidate to final stakeholder interview.",
+          "timing": "within_2_business_days",
+          "rationale": "Exact interview evidence and similar hired patterns support progression.",
+          "score": 0.77,
+          "citationIds": ["EVID-01", "EVID-02", "PAT-01"]
+        },
+        "draftResponse": null,
+        "confidence": 0.79,
+        "caveats": ["Recruiter should confirm availability and compensation alignment."],
+        "provenance": [
+          {
+            "citationId": "EVID-01",
+            "sourceEntityType": "CandidateProfile",
+            "sourceEntityId": "candidate-3021-guid",
+            "evidenceType": "exact-record",
+            "summary": "Rina Patel is an active platform engineering candidate.",
+            "isMasked": false
+          },
+          {
+            "citationId": "EVID-02",
+            "sourceEntityType": "InterviewEvent",
+            "sourceEntityId": "interview-5509",
+            "evidenceType": "exact-record",
+            "summary": "Technical interview feedback highlighted strong distributed systems experience.",
+            "isMasked": false
+          },
+          {
+            "citationId": "PAT-01",
+            "sourceEntityType": "SimilarPatternMatch",
+            "sourceEntityId": "MATCH-RECRUITMENT-HIRED-001",
+            "evidenceType": "similarity",
+            "summary": "Similar candidate profile progressed to hire.",
+            "isMasked": false
+          }
+        ],
+        "governance": {
+          "appliedRules": ["exact-data-query-runs-in-customer-owned-data-plane"],
+          "maskedFields": [],
+          "deniedFields": [],
+          "rawDataRetainedInCustomerDataPlane": true
+        }
+      }
+    },
+    {
+      "scenario": "finance-retention",
+      "description": "Full local next-action pack for finance customer retention.",
+      "payload": {
+        "packageKind": "ucl.evidence-pack",
+        "packageVersion": "ucl.evidence-pack.v1",
+        "packageId": "EP-GOLDEN-FINANCE-RETENTION-001",
+        "generatedAtUtc": "2026-06-16T12:20:00Z",
+        "tenantSlug": "golden-finance-retention",
+        "dataPlane": "customer-owned-data-plane",
+        "subject": {
+          "subjectType": "account",
+          "subjectIdentifier": "household-771",
+          "externalAccountId": "household-771",
+          "primaryContactId": "client-771-primary"
+        },
+        "objective": "retention",
+        "purpose": "client_retention_review",
+        "actorRole": "tenant_admin",
+        "exactLinkedRecords": {
+          "recordCounts": {
+            "HouseholdAccount": 1,
+            "PortfolioReview": 1
+          },
+          "records": [
+            {
+              "citationId": "EVID-01",
+              "recordType": "HouseholdAccount",
+              "recordId": "household-771-guid",
+              "externalId": "household-771",
+              "label": "Morgan Household",
+              "summary": "Morgan Household is a private banking client with annual review due.",
+              "observedAtUtc": "2026-06-12T13:00:00Z",
+              "isMasked": false,
+              "fields": {
+                "householdName": "Morgan Household",
+                "clientTier": "private-banking",
+                "reviewStatus": "due"
+              }
+            },
+            {
+              "citationId": "EVID-02",
+              "recordType": "PortfolioReview",
+              "recordId": "review-771-2026",
+              "externalId": "review-771-2026",
+              "label": "Annual portfolio review",
+              "summary": "Annual review is overdue and fee discussion is pending.",
+              "observedAtUtc": "2026-06-15T09:00:00Z",
+              "isMasked": false,
+              "fields": {
+                "daysOverdue": "12",
+                "feeDiscussionPending": "true",
+                "retentionStatus": "watch"
+              }
+            }
+          ]
+        },
+        "relationships": [
+          {
+            "relationshipId": "REL-01",
+            "relationshipType": "AccountToBilling",
+            "linkKind": "deterministic",
+            "sourceType": "HouseholdAccount",
+            "sourceId": "household-771-guid",
+            "targetType": "PortfolioReview",
+            "targetId": "review-771-2026",
+            "confidence": 1.0,
+            "weight": 0.7,
+            "rationale": "Portfolio review carries the household account identifier.",
+            "citationIds": ["EVID-01", "EVID-02"]
+          }
+        ],
+        "similarWonLostPatterns": [
+          {
+            "matchId": "MATCH-FINANCE-RETAINED-001",
+            "matchedSubjectType": "HouseholdAccount",
+            "matchedSubjectId": "household-similar-retained",
+            "matchedAccountId": "household-similar-retained",
+            "outcome": "retained",
+            "similarityScore": 0.71,
+            "outcomeWeight": 0.71,
+            "relationshipTypes": ["SimilarProductUsagePattern"],
+            "reasons": ["review overdue", "fee discussion pending"],
+            "citationIds": ["PAT-01"]
+          }
+        ],
+        "weightedSignals": [
+          {
+            "signalKey": "review-overdue",
+            "label": "Review overdue",
+            "direction": "negative",
+            "weight": 0.7,
+            "score": 0.8,
+            "contribution": -0.16,
+            "explanation": "Overdue review and pending fee discussion increase retention risk.",
+            "citationIds": ["EVID-02"]
+          }
+        ],
+        "relationshipWeighting": {
+          "scope": "basic-public-fallback-demo",
+          "scoutWeightsAreCanonical": false,
+          "canonicalOwner": "Enterprise",
+          "canonicalEngine": "Enterprise Rust relationship/weighting/traversal engine"
+        },
+        "recommendedAction": {
+          "action": "Book a review call with the relationship manager and fee specialist.",
+          "timing": "within_1_week",
+          "rationale": "Exact review evidence indicates an avoidable retention risk.",
+          "score": 0.68,
+          "citationIds": ["EVID-01", "EVID-02", "PAT-01"]
+        },
+        "draftResponse": null,
+        "confidence": 0.72,
+        "caveats": ["Regulated advice must stay with authorised staff."],
+        "provenance": [
+          {
+            "citationId": "EVID-01",
+            "sourceEntityType": "HouseholdAccount",
+            "sourceEntityId": "household-771-guid",
+            "evidenceType": "exact-record",
+            "summary": "Morgan Household is a private banking client with annual review due.",
+            "isMasked": false
+          },
+          {
+            "citationId": "EVID-02",
+            "sourceEntityType": "PortfolioReview",
+            "sourceEntityId": "review-771-2026",
+            "evidenceType": "exact-record",
+            "summary": "Annual review is overdue and fee discussion is pending.",
+            "isMasked": false
+          },
+          {
+            "citationId": "PAT-01",
+            "sourceEntityType": "SimilarPatternMatch",
+            "sourceEntityId": "MATCH-FINANCE-RETAINED-001",
+            "evidenceType": "similarity",
+            "summary": "Similar retained client was recovered after a structured review.",
+            "isMasked": false
+          }
+        ],
+        "governance": {
+          "appliedRules": ["exact-data-query-runs-in-customer-owned-data-plane"],
+          "maskedFields": [],
+          "deniedFields": [],
+          "rawDataRetainedInCustomerDataPlane": true
+        }
+      }
+    },
+    {
+      "scenario": "healthcare-operations",
+      "description": "Full local next-action pack for healthcare operations scheduling.",
+      "payload": {
+        "packageKind": "ucl.evidence-pack",
+        "packageVersion": "ucl.evidence-pack.v1",
+        "packageId": "EP-GOLDEN-HEALTHCARE-OPS-001",
+        "generatedAtUtc": "2026-06-16T12:25:00Z",
+        "tenantSlug": "golden-healthcare-ops",
+        "dataPlane": "customer-owned-data-plane",
+        "subject": {
+          "subjectType": "account",
+          "subjectIdentifier": "clinic-unit-044",
+          "externalAccountId": "clinic-unit-044",
+          "primaryContactId": "ops-lead-044"
+        },
+        "objective": "operations",
+        "purpose": "clinic_capacity_review",
+        "actorRole": "tenant_admin",
+        "exactLinkedRecords": {
+          "recordCounts": {
+            "ClinicUnit": 1,
+            "AppointmentQueueMetric": 1
+          },
+          "records": [
+            {
+              "citationId": "EVID-01",
+              "recordType": "ClinicUnit",
+              "recordId": "clinic-unit-044-guid",
+              "externalId": "clinic-unit-044",
+              "label": "Clinic Unit 044",
+              "summary": "Clinic Unit 044 runs outpatient diagnostics with shared staffing.",
+              "observedAtUtc": "2026-06-15T07:45:00Z",
+              "isMasked": false,
+              "fields": {
+                "unitCode": "clinic-unit-044",
+                "serviceLine": "outpatient diagnostics",
+                "region": "north"
+              }
+            },
+            {
+              "citationId": "EVID-02",
+              "recordType": "AppointmentQueueMetric",
+              "recordId": "queue-044-20260615",
+              "externalId": "queue-044-20260615",
+              "label": "Queue pressure",
+              "summary": "Appointment queue wait time breached the operating threshold for three sessions.",
+              "observedAtUtc": "2026-06-15T08:00:00Z",
+              "isMasked": false,
+              "fields": {
+                "sessionsBreached": "3",
+                "averageWaitMinutes": "41",
+                "staffingStatus": "short"
+              }
+            }
+          ]
+        },
+        "relationships": [
+          {
+            "relationshipId": "REL-01",
+            "relationshipType": "AccountToProductUsage",
+            "linkKind": "deterministic",
+            "sourceType": "ClinicUnit",
+            "sourceId": "clinic-unit-044-guid",
+            "targetType": "AppointmentQueueMetric",
+            "targetId": "queue-044-20260615",
+            "confidence": 1.0,
+            "weight": 0.76,
+            "rationale": "Queue metric carries the clinic unit identifier.",
+            "citationIds": ["EVID-01", "EVID-02"]
+          }
+        ],
+        "similarWonLostPatterns": [
+          {
+            "matchId": "MATCH-HEALTHCARE-OPS-RESOLVED-001",
+            "matchedSubjectType": "ClinicUnit",
+            "matchedSubjectId": "clinic-unit-similar",
+            "matchedAccountId": "clinic-unit-similar",
+            "outcome": "resolved",
+            "similarityScore": 0.75,
+            "outcomeWeight": 0.75,
+            "relationshipTypes": ["SimilarProductUsagePattern"],
+            "reasons": ["queue pressure", "short staffing"],
+            "citationIds": ["PAT-01"]
+          }
+        ],
+        "weightedSignals": [
+          {
+            "signalKey": "capacity-pressure",
+            "label": "Capacity pressure",
+            "direction": "negative",
+            "weight": 0.76,
+            "score": 0.86,
+            "contribution": -0.18,
+            "explanation": "Queue breaches and short staffing indicate operational risk.",
+            "citationIds": ["EVID-02"]
+          }
+        ],
+        "relationshipWeighting": {
+          "scope": "basic-public-fallback-demo",
+          "scoutWeightsAreCanonical": false,
+          "canonicalOwner": "Enterprise",
+          "canonicalEngine": "Enterprise Rust relationship/weighting/traversal engine"
+        },
+        "recommendedAction": {
+          "action": "Rebalance the next two sessions and alert the operations lead.",
+          "timing": "same_day",
+          "rationale": "Exact queue evidence indicates near-term capacity pressure.",
+          "score": 0.71,
+          "citationIds": ["EVID-01", "EVID-02", "PAT-01"]
+        },
+        "draftResponse": null,
+        "confidence": 0.73,
+        "caveats": ["No patient-level data is included in this operational fixture."],
+        "provenance": [
+          {
+            "citationId": "EVID-01",
+            "sourceEntityType": "ClinicUnit",
+            "sourceEntityId": "clinic-unit-044-guid",
+            "evidenceType": "exact-record",
+            "summary": "Clinic Unit 044 runs outpatient diagnostics with shared staffing.",
+            "isMasked": false
+          },
+          {
+            "citationId": "EVID-02",
+            "sourceEntityType": "AppointmentQueueMetric",
+            "sourceEntityId": "queue-044-20260615",
+            "evidenceType": "exact-record",
+            "summary": "Appointment queue wait time breached the operating threshold for three sessions.",
+            "isMasked": false
+          },
+          {
+            "citationId": "PAT-01",
+            "sourceEntityType": "SimilarPatternMatch",
+            "sourceEntityId": "MATCH-HEALTHCARE-OPS-RESOLVED-001",
+            "evidenceType": "similarity",
+            "summary": "Similar operational pressure was resolved after session rebalancing.",
+            "isMasked": false
+          }
+        ],
+        "governance": {
+          "appliedRules": ["exact-data-query-runs-in-customer-owned-data-plane"],
+          "maskedFields": [],
+          "deniedFields": [],
+          "rawDataRetainedInCustomerDataPlane": true
+        }
+      }
+    }
+  ]
+}

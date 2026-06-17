@@ -1,0 +1,291 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kynticai.com/ucl/evidence-pack/v1/ucl-evidence-pack-v1.schema.json",
+  "title": "UclEvidencePackV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "packageKind",
+    "packageVersion",
+    "packageId",
+    "generatedAtUtc",
+    "tenantSlug",
+    "dataPlane",
+    "subject",
+    "objective",
+    "purpose",
+    "actorRole",
+    "exactLinkedRecords",
+    "relationships",
+    "similarWonLostPatterns",
+    "weightedSignals",
+    "relationshipWeighting",
+    "recommendedAction",
+    "draftResponse",
+    "confidence",
+    "caveats",
+    "provenance",
+    "governance"
+  ],
+  "properties": {
+    "packageKind": { "const": "ucl.evidence-pack" },
+    "packageVersion": { "const": "ucl.evidence-pack.v1" },
+    "packageId": { "type": "string", "minLength": 1 },
+    "generatedAtUtc": { "type": "string", "format": "date-time" },
+    "tenantSlug": { "type": "string", "minLength": 1 },
+    "dataPlane": { "const": "customer-owned-data-plane" },
+    "subject": { "$ref": "#/$defs/subject" },
+    "objective": { "type": "string", "minLength": 1 },
+    "purpose": { "type": "string", "minLength": 1 },
+    "actorRole": { "type": "string", "minLength": 1 },
+    "exactLinkedRecords": { "$ref": "#/$defs/exactLinkedRecords" },
+    "relationships": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/relationship" }
+    },
+    "similarWonLostPatterns": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/similarPattern" }
+    },
+    "weightedSignals": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/weightedSignal" }
+    },
+    "relationshipWeighting": { "$ref": "#/$defs/relationshipWeighting" },
+    "recommendedAction": { "$ref": "#/$defs/recommendedAction" },
+    "draftResponse": {
+      "anyOf": [
+        { "type": "null" },
+        { "$ref": "#/$defs/draftResponse" }
+      ]
+    },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "caveats": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "provenance": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/provenanceCitation" }
+    },
+    "governance": { "$ref": "#/$defs/governance" }
+  },
+  "$defs": {
+    "subject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["subjectType", "subjectIdentifier", "externalAccountId", "primaryContactId"],
+      "properties": {
+        "subjectType": { "type": "string", "minLength": 1 },
+        "subjectIdentifier": { "type": "string", "minLength": 1 },
+        "externalAccountId": { "type": "string", "minLength": 1 },
+        "primaryContactId": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "minLength": 1 }
+          ]
+        }
+      }
+    },
+    "exactLinkedRecords": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordCounts", "records"],
+      "properties": {
+        "recordCounts": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "records": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/exactLinkedRecord" }
+        }
+      }
+    },
+    "exactLinkedRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "citationId",
+        "recordType",
+        "recordId",
+        "externalId",
+        "label",
+        "summary",
+        "observedAtUtc",
+        "isMasked",
+        "fields"
+      ],
+      "properties": {
+        "citationId": { "type": "string", "minLength": 1 },
+        "recordType": { "type": "string", "minLength": 1 },
+        "recordId": { "type": "string", "minLength": 1 },
+        "externalId": { "type": "string" },
+        "label": { "type": "string" },
+        "summary": { "type": "string" },
+        "observedAtUtc": {
+          "anyOf": [
+            { "type": "null" },
+            { "type": "string", "format": "date-time" }
+          ]
+        },
+        "isMasked": { "type": "boolean" },
+        "fields": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "relationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "relationshipId",
+        "relationshipType",
+        "linkKind",
+        "sourceType",
+        "sourceId",
+        "targetType",
+        "targetId",
+        "confidence",
+        "weight",
+        "rationale",
+        "citationIds"
+      ],
+      "properties": {
+        "relationshipId": { "type": "string", "minLength": 1 },
+        "relationshipType": { "type": "string", "minLength": 1 },
+        "linkKind": { "type": "string", "minLength": 1 },
+        "sourceType": { "type": "string", "minLength": 1 },
+        "sourceId": { "type": "string", "minLength": 1 },
+        "targetType": { "type": "string", "minLength": 1 },
+        "targetId": { "type": "string", "minLength": 1 },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "weight": { "type": "number" },
+        "rationale": { "type": "string" },
+        "citationIds": { "$ref": "#/$defs/citationIds" }
+      }
+    },
+    "similarPattern": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "matchId",
+        "matchedSubjectType",
+        "matchedSubjectId",
+        "matchedAccountId",
+        "outcome",
+        "similarityScore",
+        "outcomeWeight",
+        "relationshipTypes",
+        "reasons",
+        "citationIds"
+      ],
+      "properties": {
+        "matchId": { "type": "string", "minLength": 1 },
+        "matchedSubjectType": { "type": "string", "minLength": 1 },
+        "matchedSubjectId": { "type": "string", "minLength": 1 },
+        "matchedAccountId": { "type": "string", "minLength": 1 },
+        "outcome": { "type": "string", "minLength": 1 },
+        "similarityScore": { "type": "number", "minimum": 0, "maximum": 1 },
+        "outcomeWeight": { "type": "number" },
+        "relationshipTypes": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "reasons": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "citationIds": { "$ref": "#/$defs/citationIds" }
+      }
+    },
+    "weightedSignal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["signalKey", "label", "direction", "weight", "score", "contribution", "explanation", "citationIds"],
+      "properties": {
+        "signalKey": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 },
+        "direction": { "type": "string", "minLength": 1 },
+        "weight": { "type": "number" },
+        "score": { "type": "number" },
+        "contribution": { "type": "number" },
+        "explanation": { "type": "string" },
+        "citationIds": { "$ref": "#/$defs/citationIds" }
+      }
+    },
+    "relationshipWeighting": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope", "scoutWeightsAreCanonical", "canonicalOwner", "canonicalEngine"],
+      "properties": {
+        "scope": { "type": "string", "minLength": 1 },
+        "scoutWeightsAreCanonical": { "type": "boolean" },
+        "canonicalOwner": { "type": "string", "minLength": 1 },
+        "canonicalEngine": { "type": "string", "minLength": 1 }
+      }
+    },
+    "recommendedAction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["action", "timing", "rationale", "score", "citationIds"],
+      "properties": {
+        "action": { "type": "string", "minLength": 1 },
+        "timing": { "type": "string", "minLength": 1 },
+        "rationale": { "type": "string", "minLength": 1 },
+        "score": { "type": "number", "minimum": 0, "maximum": 1 },
+        "citationIds": { "$ref": "#/$defs/citationIds" }
+      }
+    },
+    "draftResponse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["channel", "subject", "body", "citationIds", "requiresHumanReview"],
+      "properties": {
+        "channel": { "type": "string", "minLength": 1 },
+        "subject": { "type": "string" },
+        "body": { "type": "string" },
+        "citationIds": { "$ref": "#/$defs/citationIds" },
+        "requiresHumanReview": { "type": "boolean" }
+      }
+    },
+    "provenanceCitation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["citationId", "sourceEntityType", "sourceEntityId", "evidenceType", "summary", "isMasked"],
+      "properties": {
+        "citationId": { "type": "string", "minLength": 1 },
+        "sourceEntityType": { "type": "string", "minLength": 1 },
+        "sourceEntityId": { "type": "string", "minLength": 1 },
+        "evidenceType": { "type": "string", "minLength": 1 },
+        "summary": { "type": "string" },
+        "isMasked": { "type": "boolean" }
+      }
+    },
+    "governance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["appliedRules", "maskedFields", "deniedFields", "rawDataRetainedInCustomerDataPlane"],
+      "properties": {
+        "appliedRules": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "maskedFields": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "deniedFields": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "rawDataRetainedInCustomerDataPlane": { "const": true }
+      }
+    },
+    "citationIds": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    }
+  }
+}

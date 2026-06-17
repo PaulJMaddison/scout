@@ -1,0 +1,187 @@
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using KynticAI.Scout.Application.Contracts;
+using KynticAI.Scout.Application.Validation;
+
+namespace KynticAI.Scout.UnitTests;
+
+public sealed class UclEvidencePackContractTests
+{
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+
+    private static readonly string[] RequiredScenarios =
+    [
+        "b2b-saas",
+        "ecommerce",
+        "support-churn",
+        "recruitment",
+        "finance-retention",
+        "healthcare-operations"
+    ];
+
+    [Fact]
+    public void FullLocalEvidencePackFixtures_HaveExactCitationsAndProvenance()
+    {
+        var fixtures = LoadFixtureArray("samples/evidence-pack/v1/local-full-evidence-packs.json");
+
+        AssertScenarioCoverage(fixtures);
+        foreach (var fixture in fixtures)
+        {
+            var payload = PayloadText(fixture);
+            var package = JsonSerializer.Deserialize<UclEvidencePackV1>(payload, JsonOptions);
+
+            Assert.NotNull(package);
+            var validation = UclEvidencePackV1Validator.Validate(package);
+            Assert.True(validation.IsValid, string.Join(Environment.NewLine, validation.Errors));
+            Assert.NotEmpty(package.ExactLinkedRecords.Records);
+            Assert.NotEmpty(package.Relationships);
+            Assert.NotEmpty(package.WeightedSignals);
+            Assert.NotEmpty(package.Provenance);
+            Assert.False(package.RelationshipWeighting.ScoutWeightsAreCanonical);
+            Assert.Equal("Enterprise", package.RelationshipWeighting.CanonicalOwner);
+
+            var provenanceIds = package.Provenance.Select(x => x.CitationId).ToHashSet(StringComparer.Ordinal);
+            foreach (var record in package.ExactLinkedRecords.Records)
+            {
+                Assert.Contains(record.CitationId, provenanceIds);
+                Assert.Contains(package.Provenance, x =>
+                    x.CitationId == record.CitationId
+                    && x.SourceEntityType == record.RecordType
+                    && x.SourceEntityId == record.RecordId);
+            }
+        }
+    }
+
+    [Fact]
+    public void GovernedMaskedEvidencePackFixtures_ObeyGovernance()
+    {
+        var fixtures = LoadFixtureArray("samples/evidence-pack/v1/local-governed-masked-evidence-packs.json");
+
+        AssertScenarioCoverage(fixtures);
+        foreach (var fixture in fixtures)
+        {
+            var payload = PayloadText(fixture);
+            var package = JsonSerializer.Deserialize<UclEvidencePackV1>(payload, JsonOptions);
+
+            Assert.NotNull(package);
+            var validation = UclEvidencePackV1Validator.Validate(package);
+            Assert.True(validation.IsValid, string.Join(Environment.NewLine, validation.Errors));
+            Assert.NotEmpty(package.Governance.MaskedFields);
+            Assert.Contains(package.Governance.AppliedRules, x => x.StartsWith("mask-", StringComparison.Ordinal));
+            Assert.All(package.ExactLinkedRecords.Records, record => Assert.True(record.IsMasked));
+            Assert.All(package.Provenance, citation => Assert.True(citation.IsMasked));
+
+            foreach (var forbidden in fixture!["forbiddenFragments"]!.AsArray().Select(x => x!.GetValue<string>()))
+            {
+                Assert.DoesNotContain(forbidden, payload, StringComparison.OrdinalIgnoreCase);
+            }
+        }
+    }
+
+    [Fact]
+    public void CloudAggregateUsageFixtures_ExcludeForbiddenRawAndDerivedFields()
+    {
+        var fixtures = LoadFixtureArray("samples/evidence-pack/v1/cloud-aggregate-usage-payloads.json");
+
+        AssertScenarioCoverage(fixtures);
+        foreach (var fixture in fixtures)
+        {
+            var payload = PayloadText(fixture);
+            var validation = UclCloudAggregateUsageV1Validator.ValidateJson(payload);
+            Assert.True(validation.IsValid, string.Join(Environment.NewLine, validation.Errors));
+
+            var aggregate = JsonSerializer.Deserialize<UclCloudAggregateUsageV1>(payload, JsonOptions);
+            Assert.NotNull(aggregate);
+            AssertCleanCloudBoundary(aggregate.DataBoundary);
+            Assert.DoesNotContain("\"records\"", payload, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("\"facts\"", payload, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("\"snapshots\"", payload, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("\"evidencePacks\"", payload, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("\"prompts\"", payload, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("\"generatedContent\"", payload, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("\"recommendation\"", payload, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("\"citations\"", payload, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("\"relationshipTypes\"", payload, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("\"weightedSignals\"", payload, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("\"caveats\"", payload, StringComparison.OrdinalIgnoreCase);
+            Assert.DoesNotContain("\"derivedRelationshipIntelligence\"", payload, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    [Fact]
+    public void UnsafeCloudPayloadExamples_AreRejectedByLocalValidator()
+    {
+        var fixtures = LoadFixtureArray("samples/evidence-pack/v1/unsafe-cloud-payload-examples.json");
+
+        AssertScenarioCoverage(fixtures);
+        foreach (var fixture in fixtures)
+        {
+            var payload = PayloadText(fixture);
+            var validation = UclCloudAggregateUsageV1Validator.ValidateJson(payload);
+
+            Assert.False(validation.IsValid);
+            Assert.NotEmpty(validation.Errors);
+        }
+    }
+
+    private static void AssertCleanCloudBoundary(UclCloudDataBoundaryV1 boundary)
+    {
+        Assert.True(boundary.RawDataRetainedInCustomerDataPlane);
+        Assert.False(boundary.ContainsRawCustomerData);
+        Assert.False(boundary.ContainsRecords);
+        Assert.False(boundary.ContainsFacts);
+        Assert.False(boundary.ContainsContextFacts);
+        Assert.False(boundary.ContainsSnapshots);
+        Assert.False(boundary.ContainsContextSnapshots);
+        Assert.False(boundary.ContainsEvidencePacks);
+        Assert.False(boundary.ContainsPrompts);
+        Assert.False(boundary.ContainsGeneratedContent);
+        Assert.False(boundary.ContainsRecommendations);
+        Assert.False(boundary.ContainsCitations);
+        Assert.False(boundary.ContainsCitationIds);
+        Assert.False(boundary.ContainsRelationshipTypes);
+        Assert.False(boundary.ContainsWeightedSignals);
+        Assert.False(boundary.ContainsCaveats);
+        Assert.False(boundary.ContainsPerEntityRelationshipMetadata);
+        Assert.False(boundary.ContainsDerivedRelationshipIntelligence);
+        Assert.False(boundary.ContainsPerCustomerDerivedIntelligence);
+    }
+
+    private static JsonArray LoadFixtureArray(string relativePath)
+    {
+        var root = JsonNode.Parse(File.ReadAllText(Path.Combine(FindRepositoryRoot(), relativePath)))!.AsObject();
+        return root["fixtures"]!.AsArray();
+    }
+
+    private static string PayloadText(JsonNode? fixture)
+        => fixture!["payload"]!.ToJsonString();
+
+    private static void AssertScenarioCoverage(JsonArray fixtures)
+    {
+        var scenarios = fixtures
+            .Select(x => x!["scenario"]!.GetValue<string>())
+            .ToHashSet(StringComparer.Ordinal);
+
+        Assert.Equal(RequiredScenarios.Length, scenarios.Count);
+        foreach (var scenario in RequiredScenarios)
+        {
+            Assert.Contains(scenario, scenarios);
+        }
+    }
+
+    private static string FindRepositoryRoot()
+    {
+        var current = new DirectoryInfo(AppContext.BaseDirectory);
+        while (current is not null)
+        {
+            if (File.Exists(Path.Combine(current.FullName, "KynticAI.Scout.slnx")))
+            {
+                return current.FullName;
+            }
+
+            current = current.Parent;
+        }
+
+        throw new InvalidOperationException("Could not find repository root.");
+    }
+}

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using KynticAI.Scout.Application.Abstractions;
 using KynticAI.Scout.Application.Contracts;
@@ -12,6 +13,8 @@ namespace KynticAI.Scout.UnitTests;
 
 public sealed class NextActionIntelligenceServiceTests
 {
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+
     [Fact]
     public async Task SameEmail_LinksToContactAccountAndHistory()
     {
@@ -120,6 +123,41 @@ public sealed class NextActionIntelligenceServiceTests
     }
 
     [Fact]
+    public async Task GeneratedLocalEvidencePackV1_ContainsExactCitationsAndProvenance()
+    {
+        await using var harness = await NextActionHarness.CreateAsync();
+
+        var result = await harness.Service.GenerateNextActionAsync(SaleRequest("email", "avery@example.test"), CancellationToken.None);
+
+        Assert.NotNull(result);
+        var package = JsonSerializer.Deserialize<UclEvidencePackV1>(
+            result.EvidencePack.LocalDerivedEvidencePackageJson,
+            JsonOptions);
+        Assert.NotNull(package);
+        var validation = UclEvidencePackV1Validator.Validate(package);
+        Assert.True(validation.IsValid, string.Join(Environment.NewLine, validation.Errors));
+        Assert.Equal("ucl.evidence-pack", package.PackageKind);
+        Assert.Equal("ucl.evidence-pack.v1", package.PackageVersion);
+        Assert.Equal("customer-owned-data-plane", package.DataPlane);
+        Assert.False(package.RelationshipWeighting.ScoutWeightsAreCanonical);
+        Assert.Equal("Enterprise", package.RelationshipWeighting.CanonicalOwner);
+
+        foreach (var record in package.ExactLinkedRecords.Records)
+        {
+            Assert.Contains(package.Provenance, x =>
+                x.CitationId == record.CitationId
+                && x.SourceEntityType == record.RecordType
+                && x.SourceEntityId == record.RecordId);
+        }
+
+        var provenanceIds = package.Provenance.Select(x => x.CitationId).ToHashSet(StringComparer.Ordinal);
+        foreach (var citationId in package.RecommendedAction.CitationIds)
+        {
+            Assert.Contains(citationId, provenanceIds);
+        }
+    }
+
+    [Fact]
     public async Task CloudBoundOutputs_DoNotContainRawDataOrDerivedIntelligence()
     {
         await using var harness = await NextActionHarness.CreateAsync(openSupportTickets: 1, daysPastDue: 9);
@@ -132,6 +170,8 @@ public sealed class NextActionIntelligenceServiceTests
         var cloudPayload = result.EvidencePack.CloudAggregateUsagePayloadJson;
         var cloudJson = JsonNode.Parse(cloudPayload)!.AsObject();
         var dataBoundary = cloudJson["dataBoundary"]!.AsObject();
+        var cloudValidation = UclCloudAggregateUsageV1Validator.ValidateJson(cloudPayload);
+        Assert.True(cloudValidation.IsValid, string.Join(Environment.NewLine, cloudValidation.Errors));
         Assert.False(result.EvidencePack.CloudPayloadContainsRawCustomerData);
         Assert.Equal(result.EvidencePack.CloudAggregateUsagePayloadJson, result.Governance.CloudAggregateUsagePayloadJson);
         Assert.Equal("cloud-aggregate-usage", cloudJson["payloadKind"]!.GetValue<string>());
@@ -139,16 +179,23 @@ public sealed class NextActionIntelligenceServiceTests
         Assert.Equal("succeeded", cloudJson["status"]!.GetValue<string>());
         Assert.NotNull(cloudJson["featureUsageCounters"]);
         Assert.False(dataBoundary["containsRawCustomerData"]!.GetValue<bool>());
+        Assert.False(dataBoundary["containsRecords"]!.GetValue<bool>());
+        Assert.False(dataBoundary["containsFacts"]!.GetValue<bool>());
         Assert.False(dataBoundary["containsContextFacts"]!.GetValue<bool>());
+        Assert.False(dataBoundary["containsSnapshots"]!.GetValue<bool>());
         Assert.False(dataBoundary["containsContextSnapshots"]!.GetValue<bool>());
         Assert.False(dataBoundary["containsEvidencePacks"]!.GetValue<bool>());
         Assert.False(dataBoundary["containsPrompts"]!.GetValue<bool>());
         Assert.False(dataBoundary["containsGeneratedContent"]!.GetValue<bool>());
         Assert.False(dataBoundary["containsRecommendations"]!.GetValue<bool>());
+        Assert.False(dataBoundary["containsCitations"]!.GetValue<bool>());
         Assert.False(dataBoundary["containsCitationIds"]!.GetValue<bool>());
+        Assert.False(dataBoundary["containsRelationshipTypes"]!.GetValue<bool>());
         Assert.False(dataBoundary["containsWeightedSignals"]!.GetValue<bool>());
+        Assert.False(dataBoundary["containsCaveats"]!.GetValue<bool>());
         Assert.False(dataBoundary["containsPerEntityRelationshipMetadata"]!.GetValue<bool>());
         Assert.False(dataBoundary["containsDerivedRelationshipIntelligence"]!.GetValue<bool>());
+        Assert.False(dataBoundary["containsPerCustomerDerivedIntelligence"]!.GetValue<bool>());
         Assert.Null(cloudJson["subject"]);
         Assert.Null(cloudJson["objective"]);
         Assert.Null(cloudJson["purposeCategory"]);
@@ -187,6 +234,31 @@ public sealed class NextActionIntelligenceServiceTests
         Assert.Contains("\"weightedSignals\"", result.EvidencePack.LocalDerivedEvidencePackageJson, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("\"recommendedAction\"", result.EvidencePack.LocalDerivedEvidencePackageJson, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("\"citationId\"", result.EvidencePack.LocalDerivedEvidencePackageJson, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task LocalRelationshipWeights_AreDeclaredAsScoutFallbackNotCanonicalEnterpriseWeights()
+    {
+        await using var harness = await NextActionHarness.CreateAsync();
+
+        var result = await harness.Service.GenerateNextActionAsync(
+            SaleRequest("email", "avery@example.test"),
+            CancellationToken.None);
+
+        Assert.NotNull(result);
+        var localPackage = result.EvidencePack.LocalDerivedEvidencePackageJson;
+        var localJson = JsonNode.Parse(localPackage)!.AsObject();
+        var ownership = localJson["relationshipWeighting"]!.AsObject();
+
+        Assert.Equal("basic-public-fallback-demo", ownership["scope"]!.GetValue<string>());
+        Assert.False(ownership["scoutWeightsAreCanonical"]!.GetValue<bool>());
+        Assert.Equal("Enterprise", ownership["canonicalOwner"]!.GetValue<string>());
+        Assert.Equal(
+            "Enterprise Rust relationship/weighting/traversal engine",
+            ownership["canonicalEngine"]!.GetValue<string>());
+        Assert.DoesNotContain("UCL owns canonical relationship weighting", localPackage, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("Scout canonical weighting", localPackage, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("complex UCL engine", localPackage, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]

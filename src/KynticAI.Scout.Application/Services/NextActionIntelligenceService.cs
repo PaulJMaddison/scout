@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json;
 using KynticAI.Scout.Application.Abstractions;
 using KynticAI.Scout.Application.Contracts;
+using KynticAI.Scout.Application.Validation;
 using KynticAI.Scout.Domain.Entities;
 using KynticAI.Scout.Domain.Enums;
 using FluentValidation;
@@ -18,8 +19,10 @@ public sealed class NextActionIntelligenceService(
     IValidator<NextActionInput> validator)
     : INextActionIntelligenceService
 {
-    private const string PackageVersion = "2026-06-16.relationship-intelligence.v1";
-    private const string CloudAggregateUsagePayloadVersion = "2026-06-16.cloud-aggregate-usage.v1";
+    private const string PackageVersion = UclEvidencePackContractVersions.EvidencePackV1;
+    private const string RelationshipWeightingScope = "basic-public-fallback-demo";
+    private const string CanonicalRelationshipWeightingOwner = "Enterprise";
+    private const string CanonicalRelationshipWeightingEngine = "Enterprise Rust relationship/weighting/traversal engine";
 
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
@@ -97,45 +100,62 @@ public sealed class NextActionIntelligenceService(
                 .ToDictionary(x => x.Key, x => x.Count(), StringComparer.OrdinalIgnoreCase),
             records);
 
+        var generatedAtUtc = clock.UtcNow;
         var packageId = $"EP-{Guid.NewGuid():N}";
-        var localDerivedEvidencePackageJson = JsonSerializer.Serialize(new
-        {
-            packageVersion = PackageVersion,
+        var sortedMaskedFields = governance.MaskedFields.OrderBy(x => x, StringComparer.Ordinal).ToList();
+        var sortedDeniedFields = governance.DeniedFields.OrderBy(x => x, StringComparer.Ordinal).ToList();
+        var localEvidencePack = new UclEvidencePackV1(
+            UclEvidencePackContractVersions.EvidencePackKind,
+            PackageVersion,
             packageId,
+            generatedAtUtc,
             tenantSlug,
-            dataPlane = "customer-owned",
-            subject = new
-            {
-                input.SubjectType,
-                subjectIdentifier = governance.MaskSubjectIdentifier(input.SubjectType, input.SubjectIdentifier),
+            UclEvidencePackContractVersions.CustomerOwnedDataPlane,
+            new UclEvidenceSubjectV1(
+                NormalizeSubjectType(input.SubjectType),
+                governance.MaskSubjectIdentifier(input.SubjectType, input.SubjectIdentifier),
                 subject.Account.ExternalAccountId,
-                primaryContactId = subject.PrimaryContact?.ExternalContactId
-            },
-            objective = NormalizeObjective(input.Objective),
-            purpose = input.Purpose.Trim(),
-            actorRole = RoleToContractValue(effectiveRole),
-            exactLinkedRecords = exactSummary,
+                subject.PrimaryContact?.ExternalContactId),
+            NormalizeObjective(input.Objective),
+            input.Purpose.Trim(),
+            RoleToContractValue(effectiveRole),
+            exactSummary,
             relationships,
-            similarWonLostPatterns = patternContext.Patterns,
+            patternContext.Patterns,
             weightedSignals,
+            new UclRelationshipWeightingV1(
+                RelationshipWeightingScope,
+                false,
+                CanonicalRelationshipWeightingOwner,
+                CanonicalRelationshipWeightingEngine),
             recommendedAction,
-            draftResponse = draft,
+            draft,
             confidence,
             caveats,
             provenance,
-            governance = new
-            {
+            new UclEvidenceGovernanceV1(
                 governance.AppliedRules,
-                maskedFields = governance.MaskedFields.OrderBy(x => x, StringComparer.Ordinal).ToArray(),
-                deniedFields = governance.DeniedFields.OrderBy(x => x, StringComparer.Ordinal).ToArray(),
-                rawDataRetainedInCustomerDataPlane = true
-            }
-        }, JsonOptions);
+                sortedMaskedFields,
+                sortedDeniedFields,
+                RawDataRetainedInCustomerDataPlane: true));
+        var localEvidenceValidation = UclEvidencePackV1Validator.Validate(localEvidencePack);
+        if (!localEvidenceValidation.IsValid)
+        {
+            throw new InvalidOperationException($"UclEvidencePackV1 validation failed: {string.Join("; ", localEvidenceValidation.Errors)}");
+        }
 
-        var cloudAggregateUsagePayloadJson = BuildCloudAggregateUsagePayloadJson(
+        var localDerivedEvidencePackageJson = JsonSerializer.Serialize(localEvidencePack, JsonOptions);
+
+        var cloudAggregateUsagePayload = BuildCloudAggregateUsagePayload(
             tenantSlug,
-            clock.UtcNow,
+            generatedAtUtc,
             governance);
+        var cloudAggregateUsagePayloadJson = JsonSerializer.Serialize(cloudAggregateUsagePayload, JsonOptions);
+        var cloudPayloadValidation = UclCloudAggregateUsageV1Validator.ValidateJson(cloudAggregateUsagePayloadJson);
+        if (!cloudPayloadValidation.IsValid)
+        {
+            throw new InvalidOperationException($"UclCloudAggregateUsageV1 validation failed: {string.Join("; ", cloudPayloadValidation.Errors)}");
+        }
 
         var governanceResult = new GovernanceDecisionResult(
             IsAllowed: true,
@@ -143,14 +163,14 @@ public sealed class NextActionIntelligenceService(
             RawDataRetainedInCustomerDataPlane: true,
             CloudPayloadContainsRawCustomerData: false,
             AppliedRules: governance.AppliedRules,
-            MaskedFields: governance.MaskedFields.OrderBy(x => x, StringComparer.Ordinal).ToList(),
-            DeniedFields: governance.DeniedFields.OrderBy(x => x, StringComparer.Ordinal).ToList(),
+            MaskedFields: sortedMaskedFields,
+            DeniedFields: sortedDeniedFields,
             CloudAggregateUsagePayloadJson: cloudAggregateUsagePayloadJson);
 
         var evidencePack = new EvidencePackResult(
             packageId,
             PackageVersion,
-            clock.UtcNow,
+            generatedAtUtc,
             localDerivedEvidencePackageJson,
             cloudAggregateUsagePayloadJson,
             CloudPayloadContainsRawCustomerData: false);
@@ -1532,47 +1552,46 @@ public sealed class NextActionIntelligenceService(
         return new RelationshipWeight(type, normalizedObjective, weight, "evidence", $"Weight for {type} under {normalizedObjective} objective.");
     }
 
-    private static string BuildCloudAggregateUsagePayloadJson(
+    private static UclCloudAggregateUsageV1 BuildCloudAggregateUsagePayload(
         string tenantSlug,
         DateTime generatedAtUtc,
         GovernanceContext governance)
-        => JsonSerializer.Serialize(new
-        {
-            payloadKind = "cloud-aggregate-usage",
-            payloadVersion = CloudAggregateUsagePayloadVersion,
-            packageVersion = PackageVersion,
+        => new(
+            UclEvidencePackContractVersions.CloudAggregateUsageKind,
+            UclEvidencePackContractVersions.CloudAggregateUsageV1,
+            PackageVersion,
             tenantSlug,
-            feature = "next-action",
-            eventName = "intelligence.next-action.generated",
-            status = "succeeded",
+            "next-action",
+            "intelligence.next-action.generated",
+            "succeeded",
             generatedAtUtc,
-            featureUsageCounters = new
-            {
-                nextActionGenerateRequests = 1,
-                dataPlanePackageBuilds = 1
-            },
-            controlPlaneCounters = new
-            {
-                appliedRuleCount = governance.AppliedRules.Count,
-                maskedFieldCount = governance.MaskedFields.Count,
-                deniedFieldCount = governance.DeniedFields.Count
-            },
-            dataBoundary = new
-            {
-                rawDataRetainedInCustomerDataPlane = true,
-                containsRawCustomerData = false,
-                containsContextFacts = false,
-                containsContextSnapshots = false,
-                containsEvidencePacks = false,
-                containsPrompts = false,
-                containsGeneratedContent = false,
-                containsRecommendations = false,
-                containsCitationIds = false,
-                containsWeightedSignals = false,
-                containsPerEntityRelationshipMetadata = false,
-                containsDerivedRelationshipIntelligence = false
-            }
-        }, JsonOptions);
+            new UclCloudFeatureUsageCountersV1(
+                NextActionGenerateRequests: 1,
+                DataPlanePackageBuilds: 1),
+            new UclCloudControlPlaneCountersV1(
+                governance.AppliedRules.Count,
+                governance.MaskedFields.Count,
+                governance.DeniedFields.Count),
+            new UclCloudDataBoundaryV1(
+                RawDataRetainedInCustomerDataPlane: true,
+                ContainsRawCustomerData: false,
+                ContainsRecords: false,
+                ContainsFacts: false,
+                ContainsContextFacts: false,
+                ContainsSnapshots: false,
+                ContainsContextSnapshots: false,
+                ContainsEvidencePacks: false,
+                ContainsPrompts: false,
+                ContainsGeneratedContent: false,
+                ContainsRecommendations: false,
+                ContainsCitations: false,
+                ContainsCitationIds: false,
+                ContainsRelationshipTypes: false,
+                ContainsWeightedSignals: false,
+                ContainsCaveats: false,
+                ContainsPerEntityRelationshipMetadata: false,
+                ContainsDerivedRelationshipIntelligence: false,
+                ContainsPerCustomerDerivedIntelligence: false));
 
     private static decimal SimilarityFromDistance(params int[] values)
     {

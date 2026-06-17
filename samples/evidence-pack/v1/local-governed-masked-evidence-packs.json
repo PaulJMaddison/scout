@@ -1,0 +1,534 @@
+{
+  "fixtureSetVersion": "ucl.evidence-pack.fixtures.v1",
+  "contractVersion": "ucl.evidence-pack.v1",
+  "fixtures": [
+    {
+      "scenario": "b2b-saas",
+      "description": "Masked local evidence pack for a read-only B2B SaaS actor.",
+      "forbiddenFragments": ["avery@example.test", "HarbourDesk Ltd", "harbourdesk.example"],
+      "payload": {
+        "packageKind": "ucl.evidence-pack",
+        "packageVersion": "ucl.evidence-pack.v1",
+        "packageId": "EP-GOLDEN-B2B-SAAS-MASKED-001",
+        "generatedAtUtc": "2026-06-16T13:00:00Z",
+        "tenantSlug": "golden-b2b-saas",
+        "dataPlane": "customer-owned-data-plane",
+        "subject": {
+          "subjectType": "email",
+          "subjectIdentifier": "a***@example.test",
+          "externalAccountId": "acct-harbourdesk",
+          "primaryContactId": "contact-avery"
+        },
+        "objective": "sale",
+        "purpose": "customer_outreach",
+        "actorRole": "read_only",
+        "exactLinkedRecords": {
+          "recordCounts": { "CustomerAccount": 1 },
+          "records": [
+            {
+              "citationId": "EVID-01",
+              "recordType": "CustomerAccount",
+              "recordId": "acct-harbourdesk-guid",
+              "externalId": "acct-harbourdesk",
+              "label": "Account acct-harbourdesk",
+              "summary": "Enterprise SaaS account in evaluation.",
+              "observedAtUtc": "2026-06-15T09:30:00Z",
+              "isMasked": true,
+              "fields": {
+                "name": "Account acct-harbourdesk",
+                "domain": "sha256:bb3f9c7a1001",
+                "segment": "enterprise"
+              }
+            }
+          ]
+        },
+        "relationships": [],
+        "similarWonLostPatterns": [],
+        "weightedSignals": [
+          {
+            "signalKey": "active-usage",
+            "label": "Active usage",
+            "direction": "positive",
+            "weight": 0.76,
+            "score": 0.88,
+            "contribution": 0.19,
+            "explanation": "Usage remains visible while direct identifiers are masked.",
+            "citationIds": ["EVID-01"]
+          }
+        ],
+        "relationshipWeighting": {
+          "scope": "basic-public-fallback-demo",
+          "scoutWeightsAreCanonical": false,
+          "canonicalOwner": "Enterprise",
+          "canonicalEngine": "Enterprise Rust relationship/weighting/traversal engine"
+        },
+        "recommendedAction": {
+          "action": "Ask an authorised account owner to review expansion readiness.",
+          "timing": "next_business_day",
+          "rationale": "Masked evidence still shows readiness without exposing account identifiers.",
+          "score": 0.64,
+          "citationIds": ["EVID-01"]
+        },
+        "draftResponse": null,
+        "confidence": 0.66,
+        "caveats": ["Direct identifiers are masked for this actor role."],
+        "provenance": [
+          {
+            "citationId": "EVID-01",
+            "sourceEntityType": "CustomerAccount",
+            "sourceEntityId": "acct-harbourdesk-guid",
+            "evidenceType": "exact-record",
+            "summary": "Enterprise SaaS account in evaluation.",
+            "isMasked": true
+          }
+        ],
+        "governance": {
+          "appliedRules": ["exact-data-query-runs-in-customer-owned-data-plane", "mask-direct-identifiers", "mask-business-identifiers"],
+          "maskedFields": ["account.domain", "account.name", "contact.email"],
+          "deniedFields": [],
+          "rawDataRetainedInCustomerDataPlane": true
+        }
+      }
+    },
+    {
+      "scenario": "ecommerce",
+      "description": "Masked local evidence pack for ecommerce basket recovery.",
+      "forbiddenFragments": ["maya.reed@example.test", "Maya Reed", "running shoes"],
+      "payload": {
+        "packageKind": "ucl.evidence-pack",
+        "packageVersion": "ucl.evidence-pack.v1",
+        "packageId": "EP-GOLDEN-ECOMMERCE-MASKED-001",
+        "generatedAtUtc": "2026-06-16T13:05:00Z",
+        "tenantSlug": "golden-ecommerce",
+        "dataPlane": "customer-owned-data-plane",
+        "subject": {
+          "subjectType": "contact",
+          "subjectIdentifier": "shopper-1842",
+          "externalAccountId": "acct-river-basket",
+          "primaryContactId": "shopper-1842"
+        },
+        "objective": "conversion",
+        "purpose": "basket_recovery",
+        "actorRole": "read_only",
+        "exactLinkedRecords": {
+          "recordCounts": { "CartEvent": 1 },
+          "records": [
+            {
+              "citationId": "EVID-01",
+              "recordType": "CartEvent",
+              "recordId": "cart-9931",
+              "externalId": "cart-9931",
+              "label": "Basket event",
+              "summary": "Basket was abandoned after delivery options were shown.",
+              "observedAtUtc": "2026-06-15T19:05:00Z",
+              "isMasked": true,
+              "fields": {
+                "cartValueBand": "100-150",
+                "deliveryStepReached": "true",
+                "items": "[masked]"
+              }
+            }
+          ]
+        },
+        "relationships": [],
+        "similarWonLostPatterns": [],
+        "weightedSignals": [
+          {
+            "signalKey": "basket-intent",
+            "label": "Basket intent",
+            "direction": "positive",
+            "weight": 0.8,
+            "score": 0.84,
+            "contribution": 0.17,
+            "explanation": "Basket context remains available with item details masked.",
+            "citationIds": ["EVID-01"]
+          }
+        ],
+        "relationshipWeighting": {
+          "scope": "basic-public-fallback-demo",
+          "scoutWeightsAreCanonical": false,
+          "canonicalOwner": "Enterprise",
+          "canonicalEngine": "Enterprise Rust relationship/weighting/traversal engine"
+        },
+        "recommendedAction": {
+          "action": "Use an approved basket recovery workflow without exposing item details.",
+          "timing": "within_4_hours",
+          "rationale": "Masked basket evidence supports recovery timing.",
+          "score": 0.63,
+          "citationIds": ["EVID-01"]
+        },
+        "draftResponse": null,
+        "confidence": 0.65,
+        "caveats": ["Item-level detail is masked."],
+        "provenance": [
+          {
+            "citationId": "EVID-01",
+            "sourceEntityType": "CartEvent",
+            "sourceEntityId": "cart-9931",
+            "evidenceType": "exact-record",
+            "summary": "Basket was abandoned after delivery options were shown.",
+            "isMasked": true
+          }
+        ],
+        "governance": {
+          "appliedRules": ["exact-data-query-runs-in-customer-owned-data-plane", "mask-direct-identifiers", "mask-sensitive-product-detail"],
+          "maskedFields": ["contact.email", "contact.fullName", "cart.items"],
+          "deniedFields": [],
+          "rawDataRetainedInCustomerDataPlane": true
+        }
+      }
+    },
+    {
+      "scenario": "support-churn",
+      "description": "Masked local evidence pack for support churn review.",
+      "forbiddenFragments": ["Northstar Analytics", "Critical integration incident"],
+      "payload": {
+        "packageKind": "ucl.evidence-pack",
+        "packageVersion": "ucl.evidence-pack.v1",
+        "packageId": "EP-GOLDEN-SUPPORT-CHURN-MASKED-001",
+        "generatedAtUtc": "2026-06-16T13:10:00Z",
+        "tenantSlug": "golden-support-churn",
+        "dataPlane": "customer-owned-data-plane",
+        "subject": {
+          "subjectType": "account",
+          "subjectIdentifier": "sha256:2f61e1ed8801",
+          "externalAccountId": "acct-northstar-support",
+          "primaryContactId": "contact-lee"
+        },
+        "objective": "churn",
+        "purpose": "renewal_risk_review",
+        "actorRole": "read_only",
+        "exactLinkedRecords": {
+          "recordCounts": { "SupportTicket": 1 },
+          "records": [
+            {
+              "citationId": "EVID-01",
+              "recordType": "SupportTicket",
+              "recordId": "ticket-7712",
+              "externalId": "ticket-7712",
+              "label": "Support ticket",
+              "summary": "Critical open support ticket in integration.",
+              "observedAtUtc": "2026-06-13T08:10:00Z",
+              "isMasked": true,
+              "fields": {
+                "severity": "critical",
+                "status": "open",
+                "subject": "[masked]"
+              }
+            }
+          ]
+        },
+        "relationships": [],
+        "similarWonLostPatterns": [],
+        "weightedSignals": [
+          {
+            "signalKey": "support-blockers",
+            "label": "Support blockers",
+            "direction": "negative",
+            "weight": 0.86,
+            "score": 0.92,
+            "contribution": -0.22,
+            "explanation": "Support severity is retained while sensitive ticket text is masked.",
+            "citationIds": ["EVID-01"]
+          }
+        ],
+        "relationshipWeighting": {
+          "scope": "basic-public-fallback-demo",
+          "scoutWeightsAreCanonical": false,
+          "canonicalOwner": "Enterprise",
+          "canonicalEngine": "Enterprise Rust relationship/weighting/traversal engine"
+        },
+        "recommendedAction": {
+          "action": "Route the account to an authorised support escalation owner.",
+          "timing": "same_day",
+          "rationale": "Masked ticket severity still supports escalation.",
+          "score": 0.61,
+          "citationIds": ["EVID-01"]
+        },
+        "draftResponse": null,
+        "confidence": 0.67,
+        "caveats": ["Support subject and business identifiers are masked."],
+        "provenance": [
+          {
+            "citationId": "EVID-01",
+            "sourceEntityType": "SupportTicket",
+            "sourceEntityId": "ticket-7712",
+            "evidenceType": "exact-record",
+            "summary": "Critical open support ticket in integration.",
+            "isMasked": true
+          }
+        ],
+        "governance": {
+          "appliedRules": ["exact-data-query-runs-in-customer-owned-data-plane", "mask-support-and-activity-detail", "mask-business-identifiers"],
+          "maskedFields": ["account.name", "supportTicket.subject"],
+          "deniedFields": [],
+          "rawDataRetainedInCustomerDataPlane": true
+        }
+      }
+    },
+    {
+      "scenario": "recruitment",
+      "description": "Masked local evidence pack for recruitment next step.",
+      "forbiddenFragments": ["rina.patel@example.test", "Rina Patel", "distributed systems"],
+      "payload": {
+        "packageKind": "ucl.evidence-pack",
+        "packageVersion": "ucl.evidence-pack.v1",
+        "packageId": "EP-GOLDEN-RECRUITMENT-MASKED-001",
+        "generatedAtUtc": "2026-06-16T13:15:00Z",
+        "tenantSlug": "golden-recruitment",
+        "dataPlane": "customer-owned-data-plane",
+        "subject": {
+          "subjectType": "contact",
+          "subjectIdentifier": "candidate-3021",
+          "externalAccountId": "req-platform-engineer",
+          "primaryContactId": "candidate-3021"
+        },
+        "objective": "recruitment",
+        "purpose": "candidate_next_step",
+        "actorRole": "read_only",
+        "exactLinkedRecords": {
+          "recordCounts": { "InterviewEvent": 1 },
+          "records": [
+            {
+              "citationId": "EVID-01",
+              "recordType": "InterviewEvent",
+              "recordId": "interview-5509",
+              "externalId": "interview-5509",
+              "label": "Interview event",
+              "summary": "Technical interview feedback supports progression.",
+              "observedAtUtc": "2026-06-15T16:00:00Z",
+              "isMasked": true,
+              "fields": {
+                "score": "4.5",
+                "panelRecommendation": "advance",
+                "skillArea": "[masked]"
+              }
+            }
+          ]
+        },
+        "relationships": [],
+        "similarWonLostPatterns": [],
+        "weightedSignals": [
+          {
+            "signalKey": "interview-strength",
+            "label": "Interview strength",
+            "direction": "positive",
+            "weight": 0.72,
+            "score": 0.9,
+            "contribution": 0.18,
+            "explanation": "Interview score is retained with candidate identifiers masked.",
+            "citationIds": ["EVID-01"]
+          }
+        ],
+        "relationshipWeighting": {
+          "scope": "basic-public-fallback-demo",
+          "scoutWeightsAreCanonical": false,
+          "canonicalOwner": "Enterprise",
+          "canonicalEngine": "Enterprise Rust relationship/weighting/traversal engine"
+        },
+        "recommendedAction": {
+          "action": "Ask the recruiter to review progression with authorised candidate detail.",
+          "timing": "within_2_business_days",
+          "rationale": "Masked interview evidence supports a next-step review.",
+          "score": 0.62,
+          "citationIds": ["EVID-01"]
+        },
+        "draftResponse": null,
+        "confidence": 0.66,
+        "caveats": ["Candidate identity and detailed skills are masked."],
+        "provenance": [
+          {
+            "citationId": "EVID-01",
+            "sourceEntityType": "InterviewEvent",
+            "sourceEntityId": "interview-5509",
+            "evidenceType": "exact-record",
+            "summary": "Technical interview feedback supports progression.",
+            "isMasked": true
+          }
+        ],
+        "governance": {
+          "appliedRules": ["exact-data-query-runs-in-customer-owned-data-plane", "mask-direct-identifiers", "mask-sensitive-details"],
+          "maskedFields": ["candidate.email", "candidate.fullName", "interview.skillArea"],
+          "deniedFields": [],
+          "rawDataRetainedInCustomerDataPlane": true
+        }
+      }
+    },
+    {
+      "scenario": "finance-retention",
+      "description": "Masked local evidence pack for finance retention review.",
+      "forbiddenFragments": ["Morgan Household", "private banking", "fee discussion"],
+      "payload": {
+        "packageKind": "ucl.evidence-pack",
+        "packageVersion": "ucl.evidence-pack.v1",
+        "packageId": "EP-GOLDEN-FINANCE-RETENTION-MASKED-001",
+        "generatedAtUtc": "2026-06-16T13:20:00Z",
+        "tenantSlug": "golden-finance-retention",
+        "dataPlane": "customer-owned-data-plane",
+        "subject": {
+          "subjectType": "account",
+          "subjectIdentifier": "sha256:08f1a2e6bb44",
+          "externalAccountId": "household-771",
+          "primaryContactId": "client-771-primary"
+        },
+        "objective": "retention",
+        "purpose": "client_retention_review",
+        "actorRole": "read_only",
+        "exactLinkedRecords": {
+          "recordCounts": { "PortfolioReview": 1 },
+          "records": [
+            {
+              "citationId": "EVID-01",
+              "recordType": "PortfolioReview",
+              "recordId": "review-771-2026",
+              "externalId": "review-771-2026",
+              "label": "Portfolio review",
+              "summary": "Annual review is overdue.",
+              "observedAtUtc": "2026-06-15T09:00:00Z",
+              "isMasked": true,
+              "fields": {
+                "daysOverdue": "12",
+                "feeDiscussionPending": "[masked]",
+                "retentionStatus": "watch"
+              }
+            }
+          ]
+        },
+        "relationships": [],
+        "similarWonLostPatterns": [],
+        "weightedSignals": [
+          {
+            "signalKey": "review-overdue",
+            "label": "Review overdue",
+            "direction": "negative",
+            "weight": 0.7,
+            "score": 0.8,
+            "contribution": -0.16,
+            "explanation": "Retention signal is available without exposing financial detail.",
+            "citationIds": ["EVID-01"]
+          }
+        ],
+        "relationshipWeighting": {
+          "scope": "basic-public-fallback-demo",
+          "scoutWeightsAreCanonical": false,
+          "canonicalOwner": "Enterprise",
+          "canonicalEngine": "Enterprise Rust relationship/weighting/traversal engine"
+        },
+        "recommendedAction": {
+          "action": "Ask an authorised relationship manager to review retention risk.",
+          "timing": "within_1_week",
+          "rationale": "Masked review status still indicates retention risk.",
+          "score": 0.6,
+          "citationIds": ["EVID-01"]
+        },
+        "draftResponse": null,
+        "confidence": 0.64,
+        "caveats": ["Regulated financial detail is masked for this actor role."],
+        "provenance": [
+          {
+            "citationId": "EVID-01",
+            "sourceEntityType": "PortfolioReview",
+            "sourceEntityId": "review-771-2026",
+            "evidenceType": "exact-record",
+            "summary": "Annual review is overdue.",
+            "isMasked": true
+          }
+        ],
+        "governance": {
+          "appliedRules": ["exact-data-query-runs-in-customer-owned-data-plane", "mask-direct-identifiers", "mask-sensitive-details"],
+          "maskedFields": ["household.name", "portfolioReview.feeDiscussionPending", "client.tier"],
+          "deniedFields": [],
+          "rawDataRetainedInCustomerDataPlane": true
+        }
+      }
+    },
+    {
+      "scenario": "healthcare-operations",
+      "description": "Masked local evidence pack for healthcare operations.",
+      "forbiddenFragments": ["Clinic Unit 044", "outpatient diagnostics", "\"short\""],
+      "payload": {
+        "packageKind": "ucl.evidence-pack",
+        "packageVersion": "ucl.evidence-pack.v1",
+        "packageId": "EP-GOLDEN-HEALTHCARE-OPS-MASKED-001",
+        "generatedAtUtc": "2026-06-16T13:25:00Z",
+        "tenantSlug": "golden-healthcare-ops",
+        "dataPlane": "customer-owned-data-plane",
+        "subject": {
+          "subjectType": "account",
+          "subjectIdentifier": "clinic-unit-044",
+          "externalAccountId": "clinic-unit-044",
+          "primaryContactId": "ops-lead-044"
+        },
+        "objective": "operations",
+        "purpose": "clinic_capacity_review",
+        "actorRole": "read_only",
+        "exactLinkedRecords": {
+          "recordCounts": { "AppointmentQueueMetric": 1 },
+          "records": [
+            {
+              "citationId": "EVID-01",
+              "recordType": "AppointmentQueueMetric",
+              "recordId": "queue-044-20260615",
+              "externalId": "queue-044-20260615",
+              "label": "Queue metric",
+              "summary": "Appointment queue wait time breached an operating threshold.",
+              "observedAtUtc": "2026-06-15T08:00:00Z",
+              "isMasked": true,
+              "fields": {
+                "sessionsBreached": "3",
+                "averageWaitMinutes": "41",
+                "staffingStatus": "[masked]"
+              }
+            }
+          ]
+        },
+        "relationships": [],
+        "similarWonLostPatterns": [],
+        "weightedSignals": [
+          {
+            "signalKey": "capacity-pressure",
+            "label": "Capacity pressure",
+            "direction": "negative",
+            "weight": 0.76,
+            "score": 0.86,
+            "contribution": -0.18,
+            "explanation": "Operational queue signal is retained without patient-level data.",
+            "citationIds": ["EVID-01"]
+          }
+        ],
+        "relationshipWeighting": {
+          "scope": "basic-public-fallback-demo",
+          "scoutWeightsAreCanonical": false,
+          "canonicalOwner": "Enterprise",
+          "canonicalEngine": "Enterprise Rust relationship/weighting/traversal engine"
+        },
+        "recommendedAction": {
+          "action": "Ask an authorised operations lead to review session rebalancing.",
+          "timing": "same_day",
+          "rationale": "Masked queue evidence still indicates capacity pressure.",
+          "score": 0.61,
+          "citationIds": ["EVID-01"]
+        },
+        "draftResponse": null,
+        "confidence": 0.65,
+        "caveats": ["No patient-level data is included; staffing detail is masked."],
+        "provenance": [
+          {
+            "citationId": "EVID-01",
+            "sourceEntityType": "AppointmentQueueMetric",
+            "sourceEntityId": "queue-044-20260615",
+            "evidenceType": "exact-record",
+            "summary": "Appointment queue wait time breached an operating threshold.",
+            "isMasked": true
+          }
+        ],
+        "governance": {
+          "appliedRules": ["exact-data-query-runs-in-customer-owned-data-plane", "mask-sensitive-details"],
+          "maskedFields": ["clinic.serviceLine", "clinic.unitName", "queue.staffingStatus"],
+          "deniedFields": [],
+          "rawDataRetainedInCustomerDataPlane": true
+        }
+      }
+    }
+  ]
+}

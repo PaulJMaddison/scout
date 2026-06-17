@@ -1,0 +1,95 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kynticai.com/ucl/evidence-pack/v1/ucl-cloud-aggregate-usage-v1.schema.json",
+  "title": "UclCloudAggregateUsageV1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "payloadKind",
+    "payloadVersion",
+    "packageVersion",
+    "tenantSlug",
+    "feature",
+    "eventName",
+    "status",
+    "generatedAtUtc",
+    "featureUsageCounters",
+    "controlPlaneCounters",
+    "dataBoundary"
+  ],
+  "properties": {
+    "payloadKind": { "const": "cloud-aggregate-usage" },
+    "payloadVersion": { "const": "ucl.cloud-aggregate-usage.v1" },
+    "packageVersion": { "const": "ucl.evidence-pack.v1" },
+    "tenantSlug": { "type": "string", "minLength": 1 },
+    "feature": { "type": "string", "minLength": 1 },
+    "eventName": { "type": "string", "minLength": 1 },
+    "status": { "type": "string", "minLength": 1 },
+    "generatedAtUtc": { "type": "string", "format": "date-time" },
+    "featureUsageCounters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["nextActionGenerateRequests", "dataPlanePackageBuilds"],
+      "properties": {
+        "nextActionGenerateRequests": { "type": "integer", "minimum": 0 },
+        "dataPlanePackageBuilds": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "controlPlaneCounters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["appliedRuleCount", "maskedFieldCount", "deniedFieldCount"],
+      "properties": {
+        "appliedRuleCount": { "type": "integer", "minimum": 0 },
+        "maskedFieldCount": { "type": "integer", "minimum": 0 },
+        "deniedFieldCount": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "dataBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rawDataRetainedInCustomerDataPlane",
+        "containsRawCustomerData",
+        "containsRecords",
+        "containsFacts",
+        "containsContextFacts",
+        "containsSnapshots",
+        "containsContextSnapshots",
+        "containsEvidencePacks",
+        "containsPrompts",
+        "containsGeneratedContent",
+        "containsRecommendations",
+        "containsCitations",
+        "containsCitationIds",
+        "containsRelationshipTypes",
+        "containsWeightedSignals",
+        "containsCaveats",
+        "containsPerEntityRelationshipMetadata",
+        "containsDerivedRelationshipIntelligence",
+        "containsPerCustomerDerivedIntelligence"
+      ],
+      "properties": {
+        "rawDataRetainedInCustomerDataPlane": { "const": true },
+        "containsRawCustomerData": { "const": false },
+        "containsRecords": { "const": false },
+        "containsFacts": { "const": false },
+        "containsContextFacts": { "const": false },
+        "containsSnapshots": { "const": false },
+        "containsContextSnapshots": { "const": false },
+        "containsEvidencePacks": { "const": false },
+        "containsPrompts": { "const": false },
+        "containsGeneratedContent": { "const": false },
+        "containsRecommendations": { "const": false },
+        "containsCitations": { "const": false },
+        "containsCitationIds": { "const": false },
+        "containsRelationshipTypes": { "const": false },
+        "containsWeightedSignals": { "const": false },
+        "containsCaveats": { "const": false },
+        "containsPerEntityRelationshipMetadata": { "const": false },
+        "containsDerivedRelationshipIntelligence": { "const": false },
+        "containsPerCustomerDerivedIntelligence": { "const": false }
+      }
+    }
+  }
+}
