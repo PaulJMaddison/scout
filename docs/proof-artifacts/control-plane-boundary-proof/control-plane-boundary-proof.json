@@ -1,0 +1,285 @@
+{
+  "verdict": "PASS",
+  "generatedAtUtc": "2026-06-17T20:03:41.579193Z",
+  "counts": {
+    "accounts": 100,
+    "dataPlaneInstallations": 250,
+    "aggregateUsageHeartbeatAuditEvents": 1000,
+    "supportMetadataCases": 100,
+    "acceptedRecords": 1450,
+    "forbiddenPayloadAttempts": 14,
+    "forbiddenPayloadsRejected": 14,
+    "rejectionEchoLeaks": 0,
+    "acceptedFieldViolations": 0,
+    "acceptedForbiddenFieldLeaks": 0,
+    "acceptedSensitiveMarkerLeaks": 0
+  },
+  "allowedRecordFields": [
+    "accountId",
+    "aggregateBytes",
+    "aggregateCounts",
+    "aggregateDurationMs",
+    "caseId",
+    "casePriority",
+    "caseStatus",
+    "caseTopic",
+    "dataPlaneVersion",
+    "eventCategory",
+    "heartbeatAgeSeconds",
+    "installationId",
+    "licenceState",
+    "metadataOnly",
+    "plan",
+    "recordId",
+    "recordType",
+    "region",
+    "schemaVersion",
+    "severity",
+    "status",
+    "timestampUtc"
+  ],
+  "forbiddenPayloadResults": [
+    {
+      "payloadType": "raw CRM",
+      "submittedForbiddenFields": [
+        "crmRecord"
+      ],
+      "submittedPayloadSha256": "05a33994800cc9ba2d7646c2d64ee84ac2f3f56d131d93d42fdcc2d099723664",
+      "sensitiveMarkerSha256": "264be6a2cc49e561bfa83e534f254fe04fa11f6d96a9132b86b90c6828eeed6c",
+      "status": 400,
+      "errorCode": "CONTROL_PLANE_METADATA_ONLY",
+      "responseBody": {
+        "error": "Payload rejected by control-plane boundary policy.",
+        "code": "CONTROL_PLANE_METADATA_ONLY",
+        "detail": "Only aggregate/control-plane metadata is accepted."
+      },
+      "echoedSensitiveContent": false
+    },
+    {
+      "payloadType": "email body",
+      "submittedForbiddenFields": [
+        "emailBody"
+      ],
+      "submittedPayloadSha256": "fe0d94a01ba3889fdd9d4ce14896559dcf2dc08ca6487c91fd59166b6e0dee87",
+      "sensitiveMarkerSha256": "746513106ad2d645b5698c17aa1ac18f847ad934f53fbfc458b6eda8a510817e",
+      "status": 400,
+      "errorCode": "CONTROL_PLANE_METADATA_ONLY",
+      "responseBody": {
+        "error": "Payload rejected by control-plane boundary policy.",
+        "code": "CONTROL_PLANE_METADATA_ONLY",
+        "detail": "Only aggregate/control-plane metadata is accepted."
+      },
+      "echoedSensitiveContent": false
+    },
+    {
+      "payloadType": "web event payload",
+      "submittedForbiddenFields": [
+        "webEventPayload"
+      ],
+      "submittedPayloadSha256": "1f343bb1c7563a553ad039e654df0ad0237f6a41f07e28dd9706f4b5ce30044b",
+      "sensitiveMarkerSha256": "81eec5d867eb4758359a6c0438d6e251359ea7380f0dc5047b92e6fa1a935433",
+      "status": 400,
+      "errorCode": "CONTROL_PLANE_METADATA_ONLY",
+      "responseBody": {
+        "error": "Payload rejected by control-plane boundary policy.",
+        "code": "CONTROL_PLANE_METADATA_ONLY",
+        "detail": "Only aggregate/control-plane metadata is accepted."
+      },
+      "echoedSensitiveContent": false
+    },
+    {
+      "payloadType": "support ticket body",
+      "submittedForbiddenFields": [
+        "supportTicketBody"
+      ],
+      "submittedPayloadSha256": "3e6b99050c430d98fae777b4105d54f05dc34b01ccbb4c0ecdae3786c395ea40",
+      "sensitiveMarkerSha256": "be8d2494763c19813a8b090455633b013301a15472a56a23627b5bad6cbf0dea",
+      "status": 400,
+      "errorCode": "CONTROL_PLANE_METADATA_ONLY",
+      "responseBody": {
+        "error": "Payload rejected by control-plane boundary policy.",
+        "code": "CONTROL_PLANE_METADATA_ONLY",
+        "detail": "Only aggregate/control-plane metadata is accepted."
+      },
+      "echoedSensitiveContent": false
+    },
+    {
+      "payloadType": "product usage row",
+      "submittedForbiddenFields": [
+        "productUsageRow"
+      ],
+      "submittedPayloadSha256": "b46837546e4084be7750628bb27d4c6cf71fad7868399481c3b2b8323ca1353e",
+      "sensitiveMarkerSha256": "931e0c125fe70582f2722370ca48d97ba21e508483cffd7c7e3e7515c2bd0198",
+      "status": 400,
+      "errorCode": "CONTROL_PLANE_METADATA_ONLY",
+      "responseBody": {
+        "error": "Payload rejected by control-plane boundary policy.",
+        "code": "CONTROL_PLANE_METADATA_ONLY",
+        "detail": "Only aggregate/control-plane metadata is accepted."
+      },
+      "echoedSensitiveContent": false
+    },
+    {
+      "payloadType": "billing row",
+      "submittedForbiddenFields": [
+        "billingRow"
+      ],
+      "submittedPayloadSha256": "fbd4dad2ba6c5b01fedf73549afa3abc18948eb1169972693177a3dbf13b6932",
+      "sensitiveMarkerSha256": "a2f1b1a7c270e859f15a7d8dff0d7ce5da9e8ac36a49f2242e67d6ceb8a94e21",
+      "status": 400,
+      "errorCode": "CONTROL_PLANE_METADATA_ONLY",
+      "responseBody": {
+        "error": "Payload rejected by control-plane boundary policy.",
+        "code": "CONTROL_PLANE_METADATA_ONLY",
+        "detail": "Only aggregate/control-plane metadata is accepted."
+      },
+      "echoedSensitiveContent": false
+    },
+    {
+      "payloadType": "context facts/snapshots",
+      "submittedForbiddenFields": [
+        "contextFacts",
+        "contextSnapshot"
+      ],
+      "submittedPayloadSha256": "8c57182330dec4f73ebceb8e391621d0d9858e5f1689c9da59eb081a8b0050bd",
+      "sensitiveMarkerSha256": "5362cbeefd2224b307257ed36520b0e5bd1ba3f4fb9864c0039c34d79c8c05e8",
+      "status": 400,
+      "errorCode": "CONTROL_PLANE_METADATA_ONLY",
+      "responseBody": {
+        "error": "Payload rejected by control-plane boundary policy.",
+        "code": "CONTROL_PLANE_METADATA_ONLY",
+        "detail": "Only aggregate/control-plane metadata is accepted."
+      },
+      "echoedSensitiveContent": false
+    },
+    {
+      "payloadType": "evidence pack",
+      "submittedForbiddenFields": [
+        "evidencePack"
+      ],
+      "submittedPayloadSha256": "98812a9b54a575cdd12b110cec934135c162cd8c36b56353d478d3f86d871067",
+      "sensitiveMarkerSha256": "68795bb6723dc78cbd8714bb28bdef890b3074ccd7208b295dc9f755e28c0371",
+      "status": 400,
+      "errorCode": "CONTROL_PLANE_METADATA_ONLY",
+      "responseBody": {
+        "error": "Payload rejected by control-plane boundary policy.",
+        "code": "CONTROL_PLANE_METADATA_ONLY",
+        "detail": "Only aggregate/control-plane metadata is accepted."
+      },
+      "echoedSensitiveContent": false
+    },
+    {
+      "payloadType": "prompt",
+      "submittedForbiddenFields": [
+        "prompt"
+      ],
+      "submittedPayloadSha256": "f3e90b5137f5134702305e158776910ef5e8a50379aac031c55fd2a83af6da7f",
+      "sensitiveMarkerSha256": "d3c7cfb3f4f58f6d1649a70377ffbad0315da60fd1ac0e5cabd2b9223cf2fb80",
+      "status": 400,
+      "errorCode": "CONTROL_PLANE_METADATA_ONLY",
+      "responseBody": {
+        "error": "Payload rejected by control-plane boundary policy.",
+        "code": "CONTROL_PLANE_METADATA_ONLY",
+        "detail": "Only aggregate/control-plane metadata is accepted."
+      },
+      "echoedSensitiveContent": false
+    },
+    {
+      "payloadType": "generated content",
+      "submittedForbiddenFields": [
+        "generatedContent"
+      ],
+      "submittedPayloadSha256": "04d92cd969b0524db00e51ef570a3a0717b04fe20e4eb7b75460e2b0581ea1ab",
+      "sensitiveMarkerSha256": "909234f1f40059a47676208fb83e8621c783c02f94a78a8bcd77ee495621e643",
+      "status": 400,
+      "errorCode": "CONTROL_PLANE_METADATA_ONLY",
+      "responseBody": {
+        "error": "Payload rejected by control-plane boundary policy.",
+        "code": "CONTROL_PLANE_METADATA_ONLY",
+        "detail": "Only aggregate/control-plane metadata is accepted."
+      },
+      "echoedSensitiveContent": false
+    },
+    {
+      "payloadType": "recommendation",
+      "submittedForbiddenFields": [
+        "recommendation"
+      ],
+      "submittedPayloadSha256": "327c715f103b18f486f17fc7d31fe3490d993f7e35eb5259493123abfde02c6d",
+      "sensitiveMarkerSha256": "ae3b23020a0b53668ec8be844883f451f7e3d9df02db89f82847b4d2e8f25d30",
+      "status": 400,
+      "errorCode": "CONTROL_PLANE_METADATA_ONLY",
+      "responseBody": {
+        "error": "Payload rejected by control-plane boundary policy.",
+        "code": "CONTROL_PLANE_METADATA_ONLY",
+        "detail": "Only aggregate/control-plane metadata is accepted."
+      },
+      "echoedSensitiveContent": false
+    },
+    {
+      "payloadType": "citation IDs",
+      "submittedForbiddenFields": [
+        "citationIds"
+      ],
+      "submittedPayloadSha256": "4d990fbc7645e5f99d2dac71cc5e143817c56f733b56898846a25c7c7b2dc742",
+      "sensitiveMarkerSha256": "e6aac4ff939e15c0c8d0f0d5194badc4aa9229f9105d5b260246e3b5c50503ad",
+      "status": 400,
+      "errorCode": "CONTROL_PLANE_METADATA_ONLY",
+      "responseBody": {
+        "error": "Payload rejected by control-plane boundary policy.",
+        "code": "CONTROL_PLANE_METADATA_ONLY",
+        "detail": "Only aggregate/control-plane metadata is accepted."
+      },
+      "echoedSensitiveContent": false
+    },
+    {
+      "payloadType": "weighted signals",
+      "submittedForbiddenFields": [
+        "weightedSignals"
+      ],
+      "submittedPayloadSha256": "74bca1b73d0e681109068e4315794565d2271b73e3a65a0605eb90f1d3ae37fb",
+      "sensitiveMarkerSha256": "83c646054524be77aa1c7b0bfa2d8a906efbbf04032c5fad4ef8963c5d227fd7",
+      "status": 400,
+      "errorCode": "CONTROL_PLANE_METADATA_ONLY",
+      "responseBody": {
+        "error": "Payload rejected by control-plane boundary policy.",
+        "code": "CONTROL_PLANE_METADATA_ONLY",
+        "detail": "Only aggregate/control-plane metadata is accepted."
+      },
+      "echoedSensitiveContent": false
+    },
+    {
+      "payloadType": "relationship types",
+      "submittedForbiddenFields": [
+        "relationshipTypes"
+      ],
+      "submittedPayloadSha256": "141335137d8c65b3656668714b929e29a190621d0829b97cb36fe9abf62471de",
+      "sensitiveMarkerSha256": "e70cddf2d79ebb44382578db3100079b3476b94449fc03e3443ca3a590fac7ee",
+      "status": 400,
+      "errorCode": "CONTROL_PLANE_METADATA_ONLY",
+      "responseBody": {
+        "error": "Payload rejected by control-plane boundary policy.",
+        "code": "CONTROL_PLANE_METADATA_ONLY",
+        "detail": "Only aggregate/control-plane metadata is accepted."
+      },
+      "echoedSensitiveContent": false
+    }
+  ],
+  "acceptedRecordArtifacts": {
+    "jsonl": "docs\\proof-artifacts\\control-plane-boundary-proof\\accepted-control-plane-records.jsonl",
+    "csv": "docs\\proof-artifacts\\control-plane-boundary-proof\\accepted-control-plane-records.csv",
+    "recordCount": 1450
+  },
+  "violations": {
+    "acceptedFieldViolations": [],
+    "acceptedForbiddenFieldLeaks": [],
+    "acceptedSensitiveMarkerLeaks": []
+  },
+  "artifacts": [
+    "docs\\proof-artifacts\\control-plane-boundary-proof\\control-plane-boundary-proof.json",
+    "docs\\proof-artifacts\\control-plane-boundary-proof\\control-plane-boundary-proof.md",
+    "docs\\proof-artifacts\\control-plane-boundary-proof\\accepted-control-plane-records.jsonl",
+    "docs\\proof-artifacts\\control-plane-boundary-proof\\accepted-control-plane-records.csv",
+    "docs\\proof-artifacts\\control-plane-boundary-proof\\forbidden-payload-results.json"
+  ]
+}

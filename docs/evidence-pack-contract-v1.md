@@ -16,6 +16,8 @@ Product framing note: `UclEvidencePackV1` is an existing implementation contract
 | Local evidence-pack schema | `schema/ucl-evidence-pack-v1.schema.json` |
 | Cloud aggregate usage schema | `schema/ucl-cloud-aggregate-usage-v1.schema.json` |
 | Enterprise relationship handoff schema | `schema/ucl-enterprise-relationship-engine-handoff-v1.schema.json` |
+| Control-plane boundary proof report | `docs/proof-artifacts/control-plane-boundary-proof/control-plane-boundary-proof.md` |
+| Control-plane boundary proof script | `scripts/control-plane-boundary-proof.py` |
 | Full local golden fixtures | `samples/evidence-pack/v1/local-full-evidence-packs.json` |
 | Governed/masked golden fixtures | `samples/evidence-pack/v1/local-governed-masked-evidence-packs.json` |
 | Cloud aggregate usage fixtures | `samples/evidence-pack/v1/cloud-aggregate-usage-payloads.json` |
