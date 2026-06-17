@@ -1,0 +1,222 @@
+{
+  "fixtureSetVersion": "ucl.data-item-attribution.fixtures.v1",
+  "contractVersion": "ucl.data-item.v1",
+  "scenario": "canonical-email-page-product-attribution",
+  "description": "Synthetic source data items for an email enquiry from testname@test.com, Page A search, Product B interest, later possible actions, and historical converted/not-converted examples.",
+  "dataItems": [
+    {
+      "itemKind": "ucl.data-item",
+      "itemVersion": "ucl.data-item.v1",
+      "dataItemId": "item-customer-testname",
+      "dataItemType": "customer",
+      "sourceMode": "connector",
+      "sourceSystem": "demo-crm",
+      "sourceRecordId": "cust-testname",
+      "observedAtUtc": "2026-06-14T08:55:00Z",
+      "ingestedAtUtc": "2026-06-14T08:56:00Z",
+      "dataPlane": "customer-owned-data-plane",
+      "identities": [
+        { "identityType": "customer", "identityValue": "cust-testname", "normalizedValue": "cust-testname", "isPrimary": true, "linkScope": "customer-data-plane" },
+        { "identityType": "email", "identityValue": "testname@test.com", "normalizedValue": "testname@test.com", "isPrimary": false, "linkScope": "customer-data-plane" },
+        { "identityType": "account", "identityValue": "acct-canonical-demo", "normalizedValue": "acct-canonical-demo", "isPrimary": false, "linkScope": "customer-data-plane" }
+      ],
+      "exactPayload": {
+        "customerId": "cust-testname",
+        "displayName": "Test Name",
+        "email": "testname@test.com",
+        "accountId": "acct-canonical-demo"
+      }
+    },
+    {
+      "itemKind": "ucl.data-item",
+      "itemVersion": "ucl.data-item.v1",
+      "dataItemId": "item-email-address-testname",
+      "dataItemType": "email_address",
+      "sourceMode": "connector",
+      "sourceSystem": "demo-identity",
+      "sourceRecordId": "email-testname",
+      "observedAtUtc": "2026-06-14T08:58:00Z",
+      "ingestedAtUtc": "2026-06-14T08:59:00Z",
+      "dataPlane": "customer-owned-data-plane",
+      "identities": [
+        { "identityType": "email", "identityValue": "testname@test.com", "normalizedValue": "testname@test.com", "isPrimary": true, "linkScope": "customer-data-plane" }
+      ],
+      "exactPayload": {
+        "emailAddress": "testname@test.com",
+        "verified": true
+      }
+    },
+    {
+      "itemKind": "ucl.data-item",
+      "itemVersion": "ucl.data-item.v1",
+      "dataItemId": "item-browser-cookie-testname",
+      "dataItemType": "browser_cookie",
+      "sourceMode": "connector",
+      "sourceSystem": "demo-web",
+      "sourceRecordId": "cookie-page-a-testname",
+      "observedAtUtc": "2026-06-14T09:01:00Z",
+      "ingestedAtUtc": "2026-06-14T09:01:30Z",
+      "dataPlane": "customer-owned-data-plane",
+      "identities": [
+        { "identityType": "cookie", "identityValue": "cookie-page-a-testname", "normalizedValue": "cookie-page-a-testname", "isPrimary": true, "linkScope": "customer-data-plane" }
+      ],
+      "exactPayload": {
+        "cookieId": "cookie-page-a-testname",
+        "domain": "example.test"
+      }
+    },
+    {
+      "itemKind": "ucl.data-item",
+      "itemVersion": "ucl.data-item.v1",
+      "dataItemId": "item-email-enquiry-001",
+      "dataItemType": "email_enquiry",
+      "sourceMode": "assisted_import",
+      "sourceSystem": "demo-inbox",
+      "sourceRecordId": "msg-testname-product-b",
+      "observedAtUtc": "2026-06-14T09:03:00Z",
+      "ingestedAtUtc": "2026-06-14T09:04:00Z",
+      "dataPlane": "customer-owned-data-plane",
+      "identities": [
+        { "identityType": "email", "identityValue": "testname@test.com", "normalizedValue": "testname@test.com", "isPrimary": true, "linkScope": "customer-data-plane" }
+      ],
+      "exactPayload": {
+        "fromEmail": "testname@test.com",
+        "subject": "Question about Product B",
+        "body": "Synthetic enquiry about Product B after Page A search.",
+        "channel": "inbound_email"
+      }
+    },
+    {
+      "itemKind": "ucl.data-item",
+      "itemVersion": "ucl.data-item.v1",
+      "dataItemId": "item-web-event-page-a-search-001",
+      "dataItemType": "web_event",
+      "sourceMode": "connector",
+      "sourceSystem": "demo-web",
+      "sourceRecordId": "web-page-a-search-001",
+      "observedAtUtc": "2026-06-14T09:07:00Z",
+      "ingestedAtUtc": "2026-06-14T09:07:10Z",
+      "dataPlane": "customer-owned-data-plane",
+      "identities": [
+        { "identityType": "cookie", "identityValue": "cookie-page-a-testname", "normalizedValue": "cookie-page-a-testname", "isPrimary": true, "linkScope": "customer-data-plane" }
+      ],
+      "exactPayload": {
+        "cookieId": "cookie-page-a-testname",
+        "page": "Page A",
+        "eventName": "search",
+        "query": "product b",
+        "url": "/page-a?q=product+b"
+      }
+    },
+    {
+      "itemKind": "ucl.data-item",
+      "itemVersion": "ucl.data-item.v1",
+      "dataItemId": "item-product-b-interest-001",
+      "dataItemType": "product_browse_search",
+      "sourceMode": "connector",
+      "sourceSystem": "demo-product-analytics",
+      "sourceRecordId": "product-b-interest-001",
+      "observedAtUtc": "2026-06-14T09:09:00Z",
+      "ingestedAtUtc": "2026-06-14T09:09:20Z",
+      "dataPlane": "customer-owned-data-plane",
+      "identities": [
+        { "identityType": "cookie", "identityValue": "cookie-page-a-testname", "normalizedValue": "cookie-page-a-testname", "isPrimary": true, "linkScope": "customer-data-plane" },
+        { "identityType": "product", "identityValue": "product-b", "normalizedValue": "product-b", "isPrimary": false, "linkScope": "customer-data-plane" }
+      ],
+      "exactPayload": {
+        "cookieId": "cookie-page-a-testname",
+        "productId": "product-b",
+        "productName": "Product B",
+        "action": "viewed_product_detail",
+        "searchTerm": "product b"
+      }
+    },
+    {
+      "itemKind": "ucl.data-item",
+      "itemVersion": "ucl.data-item.v1",
+      "dataItemId": "item-account-registration-converted",
+      "dataItemType": "account_registration",
+      "sourceMode": "connector",
+      "sourceSystem": "demo-app",
+      "sourceRecordId": "registration-historical-converted",
+      "observedAtUtc": "2026-05-20T10:00:00Z",
+      "ingestedAtUtc": "2026-05-20T10:01:00Z",
+      "dataPlane": "customer-owned-data-plane",
+      "identities": [
+        { "identityType": "email", "identityValue": "case.converted@test.com", "normalizedValue": "case.converted@test.com", "isPrimary": true, "linkScope": "customer-data-plane" },
+        { "identityType": "account", "identityValue": "acct-historical-converted", "normalizedValue": "acct-historical-converted", "isPrimary": false, "linkScope": "customer-data-plane" }
+      ],
+      "exactPayload": {
+        "email": "case.converted@test.com",
+        "accountId": "acct-historical-converted",
+        "registrationSource": "registration_invite",
+        "status": "completed"
+      }
+    },
+    {
+      "itemKind": "ucl.data-item",
+      "itemVersion": "ucl.data-item.v1",
+      "dataItemId": "item-billing-aggregate-converted",
+      "dataItemType": "purchase_subscription_billing_aggregate",
+      "sourceMode": "connector",
+      "sourceSystem": "demo-billing",
+      "sourceRecordId": "billing-historical-converted",
+      "observedAtUtc": "2026-05-20T10:30:00Z",
+      "ingestedAtUtc": "2026-05-20T10:31:00Z",
+      "dataPlane": "customer-owned-data-plane",
+      "identities": [
+        { "identityType": "account", "identityValue": "acct-historical-converted", "normalizedValue": "acct-historical-converted", "isPrimary": true, "linkScope": "customer-data-plane" }
+      ],
+      "exactPayload": {
+        "accountId": "acct-historical-converted",
+        "subscriptionStatus": "active",
+        "purchaseCount": "1",
+        "converted": "true",
+        "amount": "1200.00"
+      }
+    },
+    {
+      "itemKind": "ucl.data-item",
+      "itemVersion": "ucl.data-item.v1",
+      "dataItemId": "item-sales-opportunity-not-converted",
+      "dataItemType": "sales_opportunity",
+      "sourceMode": "connector",
+      "sourceSystem": "demo-crm",
+      "sourceRecordId": "opp-historical-not-converted",
+      "observedAtUtc": "2026-05-21T11:00:00Z",
+      "ingestedAtUtc": "2026-05-21T11:02:00Z",
+      "dataPlane": "customer-owned-data-plane",
+      "identities": [
+        { "identityType": "account", "identityValue": "acct-historical-not-converted", "normalizedValue": "acct-historical-not-converted", "isPrimary": true, "linkScope": "customer-data-plane" }
+      ],
+      "exactPayload": {
+        "accountId": "acct-historical-not-converted",
+        "opportunityId": "opp-historical-not-converted",
+        "stage": "closed_lost",
+        "amount": "0.00"
+      }
+    },
+    {
+      "itemKind": "ucl.data-item",
+      "itemVersion": "ucl.data-item.v1",
+      "dataItemId": "item-support-event-not-converted",
+      "dataItemType": "support_event",
+      "sourceMode": "connector",
+      "sourceSystem": "demo-support",
+      "sourceRecordId": "ticket-historical-not-converted",
+      "observedAtUtc": "2026-05-21T10:00:00Z",
+      "ingestedAtUtc": "2026-05-21T10:01:00Z",
+      "dataPlane": "customer-owned-data-plane",
+      "identities": [
+        { "identityType": "account", "identityValue": "acct-historical-not-converted", "normalizedValue": "acct-historical-not-converted", "isPrimary": true, "linkScope": "customer-data-plane" }
+      ],
+      "exactPayload": {
+        "accountId": "acct-historical-not-converted",
+        "ticketId": "ticket-historical-not-converted",
+        "severity": "medium",
+        "status": "resolved_no_purchase",
+        "summary": "Asked for integration support but did not convert."
+      }
+    }
+  ]
+}

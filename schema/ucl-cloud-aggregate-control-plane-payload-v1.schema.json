@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kynticai.com/ucl/control-plane/v1/ucl-cloud-aggregate-control-plane-payload-v1.schema.json",
+  "title": "CloudAggregateControlPlanePayload",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "payloadKind",
+    "payloadVersion",
+    "tenantSlug",
+    "feature",
+    "eventName",
+    "status",
+    "generatedAtUtc",
+    "counters",
+    "dataBoundary"
+  ],
+  "properties": {
+    "payloadKind": { "const": "ucl.cloud-aggregate-control-plane-payload" },
+    "payloadVersion": { "const": "ucl.cloud-aggregate-control-plane-payload.v1" },
+    "tenantSlug": { "type": "string", "minLength": 1 },
+    "feature": { "type": "string", "minLength": 1 },
+    "eventName": { "type": "string", "minLength": 1 },
+    "status": { "type": "string", "minLength": 1 },
+    "generatedAtUtc": { "type": "string", "format": "date-time" },
+    "counters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dataItemCount",
+        "relationshipSetCount",
+        "attributionPathCount",
+        "historicalOutcomeCount",
+        "possibleActionCount"
+      ],
+      "properties": {
+        "dataItemCount": { "type": "integer", "minimum": 0 },
+        "relationshipSetCount": { "type": "integer", "minimum": 0 },
+        "attributionPathCount": { "type": "integer", "minimum": 0 },
+        "historicalOutcomeCount": { "type": "integer", "minimum": 0 },
+        "possibleActionCount": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "dataBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rawDataRetainedInCustomerDataPlane",
+        "containsRawCustomerData",
+        "containsDataItems",
+        "containsExactPayloads",
+        "containsIdentities",
+        "containsRelationshipEdges",
+        "containsAttributionPaths",
+        "containsOutcomeEvents",
+        "containsEnterpriseAnalysisInput"
+      ],
+      "properties": {
+        "rawDataRetainedInCustomerDataPlane": { "const": true },
+        "containsRawCustomerData": { "const": false },
+        "containsDataItems": { "const": false },
+        "containsExactPayloads": { "const": false },
+        "containsIdentities": { "const": false },
+        "containsRelationshipEdges": { "const": false },
+        "containsAttributionPaths": { "const": false },
+        "containsOutcomeEvents": { "const": false },
+        "containsEnterpriseAnalysisInput": { "const": false }
+      }
+    }
+  }
+}

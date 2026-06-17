@@ -11,7 +11,7 @@
   "producer": "KynticAI Scout",
   "fallbackEngine": "BasicRelationshipEngine",
   "relationshipWeighting": {
-    "scope": "basic-public-fallback-demo",
+    "scope": "basic-public-fallback-only",
     "scoutWeightsAreCanonical": false,
     "canonicalOwner": "Enterprise",
     "canonicalEngine": "Enterprise Rust relationship/weighting/traversal engine"
@@ -47,7 +47,7 @@
       "targetId": "contact-b2b-saas",
       "confidence": 1.0,
       "scoutFallbackWeight": 1.0,
-      "fallbackWeightScope": "basic-public-fallback-demo",
+      "fallbackWeightScope": "basic-public-fallback-only",
       "rationale": "Normalised email address resolved to this contact.",
       "citationIds": [
         "EVID-02"
@@ -63,7 +63,7 @@
       "targetId": "acct-b2b-saas",
       "confidence": 1.0,
       "scoutFallbackWeight": 1.0,
-      "fallbackWeightScope": "basic-public-fallback-demo",
+      "fallbackWeightScope": "basic-public-fallback-only",
       "rationale": "Contact carries a customer account foreign key.",
       "citationIds": [
         "EVID-02",

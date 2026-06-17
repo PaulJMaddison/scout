@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kynticai.com/ucl/relationship-set/v1/ucl-relationship-set-v1.schema.json",
+  "title": "RelationshipSet",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "setKind",
+    "setVersion",
+    "relationshipSetId",
+    "subjectDataItemId",
+    "objective",
+    "analysisScope",
+    "edges",
+    "attributionPaths",
+    "historicalOutcomes"
+  ],
+  "properties": {
+    "setKind": { "const": "ucl.relationship-set" },
+    "setVersion": { "const": "ucl.relationship-set.v1" },
+    "relationshipSetId": { "type": "string", "minLength": 1 },
+    "subjectDataItemId": { "type": "string", "minLength": 1 },
+    "objective": { "type": "string", "minLength": 1 },
+    "analysisScope": { "const": "basic-public-fallback-only" },
+    "edges": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/relationshipEdge" }
+    },
+    "attributionPaths": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/attributionPath" }
+    },
+    "historicalOutcomes": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/outcomeEvent" }
+    }
+  },
+  "$defs": {
+    "relationshipEdge": {
+      "title": "RelationshipEdge",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "edgeId",
+        "relationshipType",
+        "linkKind",
+        "sourceDataItemId",
+        "targetDataItemId",
+        "identityType",
+        "identityValue",
+        "confidence",
+        "citationDataItemIds"
+      ],
+      "properties": {
+        "edgeId": { "type": "string", "minLength": 1 },
+        "relationshipType": { "type": "string", "minLength": 1 },
+        "linkKind": { "type": "string", "minLength": 1 },
+        "sourceDataItemId": { "type": "string", "minLength": 1 },
+        "targetDataItemId": { "type": "string", "minLength": 1 },
+        "identityType": { "type": "string", "minLength": 1 },
+        "identityValue": { "type": "string", "minLength": 1 },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "citationDataItemIds": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "attributionEvent": {
+      "title": "AttributionEvent",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["eventId", "dataItemId", "sequence", "eventType", "occurredAtUtc", "label"],
+      "properties": {
+        "eventId": { "type": "string", "minLength": 1 },
+        "dataItemId": { "type": "string", "minLength": 1 },
+        "sequence": { "type": "integer", "minimum": 1 },
+        "eventType": { "type": "string", "minLength": 1 },
+        "occurredAtUtc": { "type": "string", "format": "date-time" },
+        "label": { "type": "string", "minLength": 1 }
+      }
+    },
+    "attributionPath": {
+      "title": "AttributionPath",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pathId",
+        "subjectIdentityType",
+        "subjectIdentityValue",
+        "objective",
+        "events",
+        "possibleNextActions",
+        "outcome"
+      ],
+      "properties": {
+        "pathId": { "type": "string", "minLength": 1 },
+        "subjectIdentityType": { "type": "string", "minLength": 1 },
+        "subjectIdentityValue": { "type": "string", "minLength": 1 },
+        "objective": { "type": "string", "minLength": 1 },
+        "events": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/attributionEvent" }
+        },
+        "possibleNextActions": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "outcome": {
+          "anyOf": [
+            { "type": "null" },
+            { "$ref": "#/$defs/outcomeEvent" }
+          ]
+        }
+      }
+    },
+    "outcomeEvent": {
+      "title": "OutcomeEvent",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outcomeEventId",
+        "dataItemId",
+        "outcomeType",
+        "converted",
+        "outcomeValue",
+        "occurredAtUtc",
+        "citationDataItemIds"
+      ],
+      "properties": {
+        "outcomeEventId": { "type": "string", "minLength": 1 },
+        "dataItemId": { "type": "string", "minLength": 1 },
+        "outcomeType": { "type": "string", "minLength": 1 },
+        "converted": { "type": "boolean" },
+        "outcomeValue": { "type": "number" },
+        "occurredAtUtc": { "type": "string", "format": "date-time" },
+        "citationDataItemIds": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

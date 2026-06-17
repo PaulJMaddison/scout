@@ -71,7 +71,7 @@
       "additionalProperties": false,
       "required": ["scope", "scoutWeightsAreCanonical", "canonicalOwner", "canonicalEngine"],
       "properties": {
-        "scope": { "const": "basic-public-fallback-demo" },
+        "scope": { "const": "basic-public-fallback-only" },
         "scoutWeightsAreCanonical": { "const": false },
         "canonicalOwner": { "const": "Enterprise" },
         "canonicalEngine": { "type": "string", "minLength": 1 }
@@ -134,7 +134,7 @@
         "targetId": { "type": "string", "minLength": 1 },
         "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
         "scoutFallbackWeight": { "type": "number" },
-        "fallbackWeightScope": { "const": "basic-public-fallback-demo" },
+        "fallbackWeightScope": { "const": "basic-public-fallback-only" },
         "rationale": { "type": "string", "minLength": 1 },
         "citationIds": {
           "type": "array",

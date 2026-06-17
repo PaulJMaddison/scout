@@ -57,7 +57,7 @@
           }
         ],
         "relationshipWeighting": {
-          "scope": "basic-public-fallback-demo",
+          "scope": "basic-public-fallback-only",
           "scoutWeightsAreCanonical": false,
           "canonicalOwner": "Enterprise",
           "canonicalEngine": "Enterprise Rust relationship/weighting/traversal engine"
@@ -145,7 +145,7 @@
           }
         ],
         "relationshipWeighting": {
-          "scope": "basic-public-fallback-demo",
+          "scope": "basic-public-fallback-only",
           "scoutWeightsAreCanonical": false,
           "canonicalOwner": "Enterprise",
           "canonicalEngine": "Enterprise Rust relationship/weighting/traversal engine"
@@ -233,7 +233,7 @@
           }
         ],
         "relationshipWeighting": {
-          "scope": "basic-public-fallback-demo",
+          "scope": "basic-public-fallback-only",
           "scoutWeightsAreCanonical": false,
           "canonicalOwner": "Enterprise",
           "canonicalEngine": "Enterprise Rust relationship/weighting/traversal engine"
@@ -321,7 +321,7 @@
           }
         ],
         "relationshipWeighting": {
-          "scope": "basic-public-fallback-demo",
+          "scope": "basic-public-fallback-only",
           "scoutWeightsAreCanonical": false,
           "canonicalOwner": "Enterprise",
           "canonicalEngine": "Enterprise Rust relationship/weighting/traversal engine"
@@ -409,7 +409,7 @@
           }
         ],
         "relationshipWeighting": {
-          "scope": "basic-public-fallback-demo",
+          "scope": "basic-public-fallback-only",
           "scoutWeightsAreCanonical": false,
           "canonicalOwner": "Enterprise",
           "canonicalEngine": "Enterprise Rust relationship/weighting/traversal engine"
@@ -497,7 +497,7 @@
           }
         ],
         "relationshipWeighting": {
-          "scope": "basic-public-fallback-demo",
+          "scope": "basic-public-fallback-only",
           "scoutWeightsAreCanonical": false,
           "canonicalOwner": "Enterprise",
           "canonicalEngine": "Enterprise Rust relationship/weighting/traversal engine"

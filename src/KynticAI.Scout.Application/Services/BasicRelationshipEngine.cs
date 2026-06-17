@@ -7,7 +7,7 @@ namespace KynticAI.Scout.Application.Services;
 public sealed class BasicRelationshipEngine
 {
     public const string EngineName = "BasicRelationshipEngine";
-    public const string RelationshipWeightingScope = "basic-public-fallback-demo";
+    public const string RelationshipWeightingScope = UclDataItemAttributionContractVersions.BasicFallbackOnlyScope;
     public const string CanonicalRelationshipWeightingOwner = "Enterprise";
     public const string CanonicalRelationshipWeightingEngine = "Enterprise Rust relationship/weighting/traversal engine";
 
@@ -72,7 +72,7 @@ public sealed class BasicRelationshipEngine
             _ => 0.50m
         };
 
-        return new RelationshipWeight(type, normalizedObjective, weight, "fallback", $"Public fallback weight for {type} under {normalizedObjective} objective.");
+        return new RelationshipWeight(type, normalizedObjective, weight, "fallback", $"Basic fallback-only public weight for {type} under {normalizedObjective} objective.");
     }
 
     private static string NormalizeObjective(string value)

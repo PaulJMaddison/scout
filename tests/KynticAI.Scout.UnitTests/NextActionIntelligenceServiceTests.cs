@@ -129,7 +129,7 @@ public sealed class NextActionIntelligenceServiceTests
         Assert.Equal("AccountToOpportunity", relationship.RelationshipType);
         Assert.Equal("deterministic", relationship.LinkKind);
         Assert.Equal(0.88m, relationship.Weight);
-        Assert.Equal("basic-public-fallback-demo", weighting.Scope);
+        Assert.Equal("basic-public-fallback-only", weighting.Scope);
         Assert.False(weighting.ScoutWeightsAreCanonical);
         Assert.Equal("Enterprise", weighting.CanonicalOwner);
         Assert.Contains("Enterprise Rust", weighting.CanonicalEngine, StringComparison.Ordinal);
@@ -278,7 +278,7 @@ public sealed class NextActionIntelligenceServiceTests
         var localJson = JsonNode.Parse(localPackage)!.AsObject();
         var ownership = localJson["relationshipWeighting"]!.AsObject();
 
-        Assert.Equal("basic-public-fallback-demo", ownership["scope"]!.GetValue<string>());
+        Assert.Equal("basic-public-fallback-only", ownership["scope"]!.GetValue<string>());
         Assert.False(ownership["scoutWeightsAreCanonical"]!.GetValue<bool>());
         Assert.Equal("Enterprise", ownership["canonicalOwner"]!.GetValue<string>());
         Assert.Equal(
@@ -323,7 +323,7 @@ public sealed class NextActionIntelligenceServiceTests
         var provenanceIds = handoff.Provenance.Select(x => x.CitationId).ToHashSet(StringComparer.Ordinal);
         Assert.All(handoff.CandidateRelationships, relationship =>
         {
-            Assert.Equal("basic-public-fallback-demo", relationship.FallbackWeightScope);
+            Assert.Equal("basic-public-fallback-only", relationship.FallbackWeightScope);
             Assert.NotEmpty(relationship.CitationIds);
             Assert.All(relationship.CitationIds, citationId => Assert.Contains(citationId, provenanceIds));
         });

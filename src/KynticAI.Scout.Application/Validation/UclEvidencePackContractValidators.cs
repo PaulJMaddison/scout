@@ -528,7 +528,7 @@ public static class UclEnterpriseRelationshipEngineHandoffV1Validator
             return;
         }
 
-        RequireString(obj, "scope", "basic-public-fallback-demo", errors);
+        RequireString(obj, "scope", UclDataItemAttributionContractVersions.BasicFallbackOnlyScope, errors);
         RequireBoolean(obj, "scoutWeightsAreCanonical", expected: false, errors);
         RequireString(obj, "canonicalOwner", "Enterprise", errors);
         RequireNonEmptyString(obj, "canonicalEngine", errors);
@@ -630,7 +630,7 @@ public static class UclEnterpriseRelationshipEngineHandoffV1Validator
             RequireNonEmptyString(obj, "targetId", errors);
             RequireDecimalRange(obj, "confidence", 0m, 1m, errors);
             RequireDecimal(obj, "scoutFallbackWeight", errors);
-            RequireString(obj, "fallbackWeightScope", "basic-public-fallback-demo", errors);
+            RequireString(obj, "fallbackWeightScope", UclDataItemAttributionContractVersions.BasicFallbackOnlyScope, errors);
             RequireNonEmptyString(obj, "rationale", errors);
             ValidateCitationIds(obj["citationIds"], provenanceIds, errors);
         }
