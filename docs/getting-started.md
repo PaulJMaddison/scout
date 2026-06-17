@@ -36,7 +36,7 @@ Then open [http://127.0.0.1:5173](http://127.0.0.1:5173) and log in:
 
 > **Windows?** Use `./scripts/setup-demo.ps1` and `./scripts/start-demo.ps1` instead.
 
-The seeded walkthrough is a customer data-plane proof. It links exact authorised demo records such as CRM contact/account, account registration/profile, sales activity, opportunity, email reply, meeting-booked, web conversion, pricing-page, support-ticket, product-usage, billing-health, and won/lost outcome signals into governed evidence packs with citations and masking decisions. Optional Cloud/control-plane concerns are limited to commercial metadata and are not required for the local demo.
+The seeded walkthrough is a customer data-plane proof. It links exact authorised demo records such as CRM contact/account, account registration/profile, sales activity, opportunity, email reply, meeting-booked, web conversion, pricing-page, support-ticket, product-usage, billing-health, and won/lost outcome signals into relationships, attribution paths, and governed JSON with citations and masking decisions. Optional Cloud/control-plane concerns are limited to commercial metadata and are not required for the local demo.
 
 ---
 

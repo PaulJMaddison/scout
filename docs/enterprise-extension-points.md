@@ -6,13 +6,13 @@ This document describes those extension points and the boundary around them.
 
 For the full public/private product boundary, see [open-core-boundary.md](open-core-boundary.md).
 
-Commercial enterprise implementations include the canonical Rust relationship/weighting/traversal engine; real Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, NetSuite, Microsoft 365 / Outlook, Gmail / Google Workspace, Slack, Microsoft Teams, Outlook Calendar, Google Calendar, Segment, Amplitude, Mixpanel, PostHog, Jira, Linear, Confluence, Notion, SharePoint, and Google Drive connectors; SSO/SAML; SCIM; credential vault integrations; advanced governance; compliance exports; private deployment packs; and SLA tooling. Those implementations are paid/private and are not included in this public repo.
+Commercial enterprise implementations include the proprietary Enterprise Rust engine/vector DB for relationship sets, attribution paths, comparable examples, outcome matching, and governed JSON handoff; real Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, NetSuite, Microsoft 365 / Outlook, Gmail / Google Workspace, Slack, Microsoft Teams, Outlook Calendar, Google Calendar, Segment, Amplitude, Mixpanel, PostHog, Jira, Linear, Confluence, Notion, SharePoint, and Google Drive connectors; SSO/SAML; SCIM; credential vault integrations; advanced governance; compliance exports; private deployment packs; and SLA tooling. Those implementations are paid/private and are not included in this public repo.
 
 ## Principles
 
 - The public repo defines contracts, DTOs, DI hooks, and safe defaults.
 - Enterprise packages can implement those contracts in a separate private repo, expected to be called `scout-enterprise`.
-- The public repo must not contain paid implementations for canonical Rust relationship weighting/traversal, commercial connectors, enterprise auth, billing, credential vaults, enterprise policy engines, compliance exporters, or commercial deployment packs.
+- The public repo must not contain paid implementations for the Enterprise Rust engine/vector DB, relationship-set analysis, attribution-path analysis, commercial connectors, enterprise auth, billing, credential vaults, enterprise policy engines, compliance exporters, or commercial deployment packs.
 - Public code can describe the contract. Private code should own the enterprise implementation.
 
 ## Current extension points
@@ -48,7 +48,7 @@ The open source core provides:
 - mock or no-op implementations suitable for local development and testing
 - provider-neutral metadata models where needed to keep the public core coherent
 
-The public repo should keep the semantic engine, exact linked records, context facts and snapshots, governed evidence packs, GraphQL and REST APIs, SQLite demo, PostgreSQL support, mock connectors, safe generic SQL/file examples, extension interfaces, in-repo demo/admin copy, and documentation.
+The public repo should keep the semantic engine, exact linked records, local relationships, context facts and snapshots, governed relationship/context JSON package contracts, GraphQL and REST APIs, SQLite demo, PostgreSQL support, mock connectors, safe generic SQL/file examples, extension interfaces, in-repo demo/admin copy, and documentation.
 
 ## What a private enterprise repo should provide later
 

@@ -15,8 +15,8 @@ open-source repository includes:
 | Area | What You Get |
 |---|---|
 | **Semantic Engine** | Selector execution, fact materialisation, confidence scoring |
-| **Exact Linked Records** | Subject-scoped records, citations, masking decisions, and provenance |
-| **Evidence Packs** | Governed context packages for approved consumers, basic/public relationship intelligence, fallback/demo weights, and next-best-action workflows |
+| **Exact Data Items** | Subject-scoped records, data items, citations, masking decisions, and provenance |
+| **Relationship JSON** | Governed relationships, attribution-path evidence, basic fallback-only signals, and next-best-action workflows for approved consumers |
 | **Context Snapshots** | Point-in-time business profiles with provenance |
 | **GraphQL + REST APIs** | Full query surface for all context data |
 | **TypeScript SDK** | Typed client for Node.js and browser environments |
@@ -39,7 +39,7 @@ repository and are not open source.
 
 Enterprise capabilities include:
 
-- canonical Enterprise Rust relationship weighting/traversal and outcome-pattern scoring
+- proprietary Enterprise Rust engine/vector DB for relationship sets, attribution paths, comparable examples, and outcome-pattern scoring
 - Vendor-certified connectors (e.g. Salesforce, HubSpot, Dynamics,
   Snowflake, SAP, and others)
 - Enterprise SSO / SAML / SCIM identity integration
@@ -64,10 +64,10 @@ plug into the Scout core via dependency injection — no forking required.
 ┌─────────────────────────────────────────────┐
 │  KynticAI Scout (open source, MIT)          │
 │  Customer data plane, APIs, SDKs, admin UI, │
-│  exact records, generic connectors, seams   │
+│  exact items, generic connectors, seams     │
 ├─────────────────────────────────────────────┤
 │  Private enterprise modules                 │
-│  Enterprise Rust weighting, connectors, SSO │
+│  Fortress Rust/vector engine, connectors    │
 │  governance, compliance, managed deployment │
 └─────────────────────────────────────────────┘
 ```

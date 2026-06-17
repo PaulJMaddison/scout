@@ -1,8 +1,8 @@
 # KynticAI Scout First Paid Pilot
 
-KynticAI Scout turns authorised customer data into governed evidence packs that customer-owned AI tools, workflows, apps, reports, local LLMs, and agents can use.
+KynticAI Scout turns authorised customer data into exact data items, relationships, attribution paths, and governed JSON that customer-owned AI tools, workflows, apps, reports, local LLMs, and agents can use.
 
-We do not build the brain. We build the nervous system: the customer-controlled layer that carries trusted context from existing systems to the tools the customer already owns or wants to build.
+We do not build the customer's brain. We build the customer-controlled data plane and governed handoff that carries trusted context from existing systems to the tools the customer already owns or wants to build.
 
 ## Who The Pilot Is For
 
@@ -12,7 +12,7 @@ Good first buyers are CTOs, product leaders, RevOps, customer success, support, 
 
 ## Customer Data Plane
 
-The pilot is based on a customer-owned data plane. Scout runs beside the customer's systems, inside an agreed customer-controlled environment or private pilot environment. Source records, connector credentials, selectors, context facts, context snapshots, provenance, and local audit logs stay in that data plane by default.
+The pilot is based on a customer-owned data plane. Scout runs beside the customer's systems, inside an agreed customer-controlled environment or private pilot environment. Source records, connector credentials, selectors, exact data items, relationships, attribution paths, context facts, context snapshots, provenance, and local audit logs stay in that data plane by default.
 
 A future hosted/private control plane may manage commercial metadata such as accounts, licences, downloads, support cases, and update channels. It does not need raw operational customer data by default.
 
@@ -73,7 +73,7 @@ The buyer should finish the pilot with:
 - support prioritisation based on commercial and product signals
 - product-led growth scoring from usage, billing, and CRM summaries
 - operational readiness context for internal workflows
-- governed evidence packages for customer-owned AI agents
+- governed relationship/context JSON for customer-owned AI agents
 
 ## Commercial Proof
 

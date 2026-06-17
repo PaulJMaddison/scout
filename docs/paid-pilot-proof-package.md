@@ -8,10 +8,10 @@ Connector marketplace and n8n status should be taken from [Connector Marketplace
 
 1. Show the source data: a PostgreSQL or SQL table with customer, commercial, support, pricing, or operational fields.
 2. Show the selector: source fields mapped into semantic attributes with confidence, freshness, and provenance.
-3. Show context facts: the system stores evidence-rich facts rather than forcing the downstream workflow to inspect raw source records.
-4. Show the context snapshot: one customer/account/workflow evidence package created from those facts.
+3. Show context facts and relationships: the system stores evidence-rich facts and links rather than forcing the downstream workflow to inspect raw source records.
+4. Show the context snapshot: one customer/account/workflow relationship/context JSON package created from those facts.
 5. Show the API response: GraphQL or REST returns the snapshot and provenance trail.
-6. Close with the customer-owned data-plane boundary: raw operational data, connector credentials, and evidence packs stay in the customer environment by default; the hosted control plane manages commercial metadata only.
+6. Close with the customer-owned data-plane boundary: raw operational data, connector credentials, relationship/context packages, and derived intelligence stay in the customer environment by default; the hosted control plane manages commercial metadata only.
 
 Keep the recording practical. Do not show secrets, production credentials, raw customer data, or internal commercial notes.
 
@@ -55,7 +55,7 @@ Book a pilot scope call with a named workflow, source systems, and buyer outcome
 
 ```mermaid
 flowchart LR
-    A["Customer source systems<br/>CRM, ERP, SQL, warehouse, support, billing, spreadsheets"] --> B["Customer-owned Scout data plane<br/>connectors, selectors, facts, snapshots, audit"]
+    A["Customer source systems<br/>CRM, ERP, SQL, warehouse, support, billing, spreadsheets"] --> B["Customer-owned Scout data plane<br/>connectors, selectors, exact items, relationships, paths, audit"]
     B --> C["Customer consumers<br/>apps, reports, workflows, copilots, agents"]
     D["Cloud/control plane<br/>accounts, licences, downloads, support, lead CRM"] -. "commercial metadata only" .-> B
     B -. "no raw operational data by default" .-> D

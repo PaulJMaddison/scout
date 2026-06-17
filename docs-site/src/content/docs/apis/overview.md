@@ -11,10 +11,11 @@ event ingestion, and OpenAPI-based tooling.
 The versioned REST surface also exposes `POST /api/v1/intelligence/next-action`
 for the customer data-plane demo flow. It links exact authorised records such
 as CRM contact/account, email engagement, web conversion, opportunities,
-support, usage, billing, and won/lost outcome signals into an evidence pack
-with relationships, Scout fallback/demo weighted signals, provenance,
-governance decisions, and a recommended next action. Canonical relationship
-weighting/traversal belongs to the Enterprise Rust engine. Raw records stay in
+support, usage, billing, and won/lost outcome signals into relationship JSON
+with relationships, attribution-path evidence, Scout basic fallback-only signals,
+provenance, governance decisions, and a recommended next action. Canonical
+relationship-set analysis belongs to the Enterprise Rust engine/vector
+DB. Raw records stay in
 the data plane; optional
 Cloud/control-plane payloads are aggregate usage metadata only and exclude
 relationship types, weighted signals, recommendations, confidence, caveats,

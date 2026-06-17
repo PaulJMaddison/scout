@@ -11,7 +11,7 @@ The intended long-term structure is:
 - `scout`
   The public customer data-plane core, demo/admin console, SDKs, extension contracts, GraphQL and REST APIs, and local/backend-only runtime.
 - `scout-enterprise`
-  A future private repository for paid enterprise extensions such as canonical Rust relationship weighting/traversal, enterprise connectors, SSO, advanced governance, and managed deployment assets
+  A future private repository for paid enterprise extensions such as the proprietary Enterprise Rust engine/vector DB, relationship-set analysis, attribution-path analysis, enterprise connectors, SSO, advanced governance, and managed deployment assets
 - `scout-cloud`
   An optional future repository for commercial/control-plane concerns such as hosted account management, billing, licences, downloads, support access, update channels, aggregate usage, and cloud operations
 
@@ -53,7 +53,7 @@ The public repo is the right home for:
 
 - the semantic engine and selector execution logic
 - exact linked records, context facts, and context snapshots
-- governed evidence-pack and next-best-action API patterns
+- governed relationship/context JSON and next-best-action API patterns
 - provenance, freshness, confidence, and audit primitives
 - GraphQL and REST APIs
 - SDKs and developer tooling
@@ -62,11 +62,11 @@ The public repo is the right home for:
 - SQL connector examples when they are generic, safe, and free of customer-specific schema assumptions
 - file connector examples or file-upload fixtures when they use fictional data and do not imply managed enterprise ingestion
 - generic REST connector examples that demonstrate the contract without becoming a vendor-specific integration
-- extension interfaces for connectors, auth, secrets, policy evaluation, relationship weighting, audit export, context package export, approval workflows, promotion, and usage metering
+- extension interfaces for connectors, auth, secrets, policy evaluation, relationship analysis, audit export, context package export, approval workflows, promotion, and usage metering
 - safe mock or no-op default implementations for those interfaces
 - SaaS/control-plane foundation metadata models for tenants, workspaces, subscriptions, API clients, onboarding, context package manifests, and usage metering, provided they stay provider-neutral
 - local licence and control-plane configuration seams, provided they do not phone home or unlock private code inside the public repo
-- context package generation patterns, next-best-action evidence packs, and delivery-channel metadata
+- context package generation patterns, next-best-action relationship/evidence JSON, and delivery-channel metadata
 - demo UI, samples, and fictional seed data
 - documentation and in-repo demo copy that explain architecture, extension patterns, product positioning, and the public/private boundary
 
@@ -90,7 +90,7 @@ The key rule is that public code may define a stable contract and a safe generic
 
 These should normally live in a future private enterprise repository, optional commercial Cloud/control-plane codebase, or professional services delivery materials:
 
-- Rust relationship-weighting implementation modules and private relationship-engine internals
+- Enterprise Rust engine/vector DB implementation modules and private relationship-engine internals
 - real enterprise connectors such as Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, NetSuite, Microsoft 365 / Outlook, Gmail / Google Workspace, Slack, Microsoft Teams, Outlook Calendar, Google Calendar, Segment, Amplitude, Mixpanel, PostHog, Jira, Linear, Confluence, Notion, SharePoint, Google Drive, SAP, ServiceNow, customer data warehouses, or other paid packaged integrations
 - SSO or SAML implementations
 - hosted SaaS control-plane implementation
@@ -111,7 +111,7 @@ These should normally live in a future private enterprise repository, optional c
 Do not implement these publicly:
 
 1. Real enterprise connectors.
-2. Private Rust relationship-weighting modules.
+2. Private Rust relationship/vector analysis modules.
 3. SSO/SAML.
 4. Stripe/Paddle billing.
 5. Customer specific deployment templates.
@@ -163,7 +163,7 @@ If a connector knows the business semantics of a named vendor or a named custome
 
 Public code can include simple local authentication, API client metadata, provider-neutral usage records, no-op policy evaluators, mock audit exporters, and interfaces that describe how enterprise modules plug in.
 
-Private code should implement canonical Rust relationship weighting/traversal, enterprise SSO/SAML, billing provider integration, entitlement enforcement, policy engines, compliance exporters, vault integrations, private cloud automation, and customer-specific deployment packs.
+Private code should implement Enterprise Rust engine/vector DB analysis, enterprise SSO/SAML, billing provider integration, entitlement enforcement, policy engines, compliance exporters, vault integrations, private cloud automation, and customer-specific deployment packs.
 
 ## Decision rule
 

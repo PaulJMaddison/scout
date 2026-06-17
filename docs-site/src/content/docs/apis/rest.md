@@ -49,7 +49,7 @@ The versioned API is implemented in
 | `GET` | `/api/v1/context/accounts/{externalAccountId}/facts` | `context:read` | Fetch account semantic facts. |
 | `GET` | `/api/v1/context/snapshots/{snapshotId}` | `context:read` | Fetch a context snapshot. |
 | `POST` | `/api/v1/context/users/{externalUserId}/ai-safe-context-package` | `context:read` | Fetch a scoped context package. |
-| `POST` | `/api/v1/intelligence/next-action` | `context:read` | Generate exact linked records, relationships, Scout fallback/demo weighted signals, and a recommended next action. |
+| `POST` | `/api/v1/intelligence/next-action` | `context:read` | Generate exact linked records, relationships, attribution-path evidence, Scout basic fallback-only signals, and a recommended next action. |
 | `POST` | `/api/v1/context/recompute` | `context:write` | Queue recomputation. |
 | `POST` | `/api/v1/selectors/preview` | `selectors:write` | Preview a selector. |
 | `POST` | `/api/v1/selectors/validate` | `selectors:write` | Validate a selector. |

@@ -1,6 +1,6 @@
 # Paid Pilot
 
-KynticAI Scout can be sold today as a supported paid pilot for teams that want to turn authorised customer data into governed evidence packs without replacing their current systems.
+KynticAI Scout can be sold today as a supported paid pilot for teams that want to turn authorised customer data into exact data items, relationships, attribution paths, and governed JSON without replacing their current systems.
 
 The strongest first commercial motion is not a hands-off SaaS signup. It is an implementation-led pilot where the customer runs the Scout data plane in their own environment, keeps operational data local, and receives hands-on support to prove one valuable workflow.
 
@@ -25,7 +25,7 @@ The recommended pilot delivers:
 - one to three connected source systems or safe exported source datasets
 - a first semantic schema for the chosen workflow
 - selector definitions that map raw source data into canonical context facts
-- context snapshots with confidence, freshness, provenance, masking, and auditability
+- context snapshots and local relationship state with confidence, freshness, provenance, masking, and auditability
 - REST, GraphQL, or SDK access for one downstream consumer
 - an executive walkthrough showing the before and after business value
 - technical handover documentation for the customer's team
@@ -136,7 +136,7 @@ The sharpest first vertical wedge is energy buying and pricing: contract records
 
 6. Downstream integration
 
-   Expose context to one consumer through REST, GraphQL, the TypeScript SDK, the .NET SDK, or an evidence package export.
+   Expose context to one consumer through REST, GraphQL, the TypeScript SDK, the .NET SDK, or a governed relationship/context JSON export.
 
 7. Business review
 
@@ -165,7 +165,7 @@ A pilot is successful when:
 - at least one business entity resolves into a useful semantic profile
 - every context fact has provenance, confidence, freshness, and audit history
 - a downstream system can consume the context without joining raw source tables itself
-- the customer can identify at least one workflow that becomes more valuable with governed context
+- the customer can identify at least one workflow that becomes more valuable with governed context, relationships, and attribution-path evidence
 
 ## Example Pilot Packages
 

@@ -5,9 +5,9 @@ description: Public architecture of KynticAI Scout and its open-source data-plan
 
 KynticAI Scout is the public, MIT-licensed data-plane foundation for the
 Universal Context Layer. It runs beside existing operational systems,
-turns approved source records into governed semantic context and evidence,
-and exposes that context through GraphQL, REST, SDKs, evidence packs, and
-context packages.
+turns approved source records into exact data items, relationships, attribution
+paths, outcomes, governed semantic context, and local JSON packages, and exposes
+that context through GraphQL, REST, SDKs, and context packages.
 
 Scout's core context pipeline does not call an AI model. Its job is to give
 customer-owned applications, reports, workflows, local LLMs, agents, and
@@ -22,13 +22,13 @@ grounded in approved source data.
 | Source access | Generic SQL, REST, CSV, file, and mock-safe connector paths. |
 | Selector engine | Rules that map approved source fields into semantic attributes. |
 | Semantic schema | Canonical attributes, data types, confidence, freshness, and provenance. |
-| Context records | User, account, exact linked record, relationship, fact, snapshot, package, audit, and recomputation records. |
+| Context records | User, account, exact linked record, relationship, attribution path, outcome, fact, snapshot, package, audit, and recomputation records. |
 | API surfaces | Authenticated GraphQL, REST v1, legacy REST, TypeScript SDK, and .NET SDK. |
 | Admin console | Local React admin/demo console for schemas, selectors, sources, and context. |
 
 Private enterprise connector implementations, customer-specific mappings,
-managed deployment code, the canonical Enterprise Rust relationship-weighting
-and traversal modules, private engine internals, and proprietary roadmap
+managed deployment code, the proprietary Enterprise Rust engine/vector
+DB, relationship-set analysis, attribution-path analysis, private engine internals, and proprietary roadmap
 material are intentionally outside the Scout repository.
 
 ## Runtime Shape
@@ -38,10 +38,10 @@ Approved source systems
   -> connector plugin
   -> raw payload and provenance
   -> selector execution
-  -> semantic facts
-  -> exact linked records and governed evidence package
-  -> optional Scout fallback/demo weights or Enterprise canonical traversal
-  -> recommended next action for an approved consumer
+  -> semantic facts and exact data items
+  -> relationships, attribution paths, and outcomes
+  -> optional Scout basic fallback-only signals or Enterprise canonical analysis
+  -> governed JSON and ranked next-action options for an approved consumer
   -> context snapshots and packages
   -> GraphQL / REST / SDK consumers
 ```
@@ -53,8 +53,8 @@ evaluation and PostgreSQL for production-style self-hosting.
 ## Data Planes And Control Planes
 
 Scout is designed as a customer data plane. Customer operational data,
-connector credentials, exact linked records, context facts, local evidence
-packages, snapshots, and audit data stay inside the self-hosted Scout
+connector credentials, exact linked records, relationships, attribution paths,
+context facts, local JSON/evidence packages, snapshots, and audit data stay inside the self-hosted Scout
 environment.
 
 The public repo also contains metadata types used for SaaS-style account,
@@ -67,7 +67,7 @@ default: tenant/control-plane identifiers, package version, feature counters,
 health/status, timestamps, and audit/control-plane event metadata. They should
 not require raw source records, connector credentials, local evidence-pack
 JSON, context facts or snapshots, recommendations, citation IDs, weighted
-signals, relationship types, confidence, caveats, or per-entity relationship
+signals, attribution paths, relationship types, confidence, caveats, or per-entity relationship
 metadata to leave the customer data plane.
 
 ## Core Projects
@@ -95,16 +95,18 @@ Important controls include:
 - confidence and freshness on facts
 - audit records for context and administration activity
 - provenance on facts and context packages
-- support for next-best-action evidence packs without sending raw data to Cloud
+- support for next-best-action relationship JSON without sending raw data to Cloud
 - production readiness checks for unsafe development settings
 
 ## Open Source And Enterprise
 
 Scout defines the public extension contracts. Private commercial enterprise
 modules live outside this repository. The public docs describe only the
-category boundary: canonical Enterprise Rust relationship weighting/traversal,
-vendor-specific connectors, enterprise identity, managed deployment support,
-and advanced governance belong outside Scout.
+category boundary: proprietary Enterprise Rust engine/vector DB,
+canonical relationship-set analysis, vendor-specific connectors, enterprise
+identity, managed deployment support, and advanced governance belong outside
+Scout. Clarity and Importance are separate products and are not required for
+this UCL path.
 
 See [Open Source vs Enterprise](/concepts/open-source-vs-enterprise/) for
 the support boundary and [Connector Authoring](/connectors/authoring/) for

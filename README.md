@@ -15,11 +15,11 @@
 </p>
 
 <p align="center">
-  <strong>KynticAI Scout turns authorised customer data into governed evidence for AI.</strong>
+  <strong>KynticAI Scout turns authorised company data into exact data items, relationships, attribution paths, and governed JSON for AI.</strong>
 </p>
 
 <p align="center">
-  We don't build the brain. We build the nervous system: the governed customer data plane that carries exact authorised context from existing systems to the customer's own AI tools, workflows, reports, apps, local LLMs, and agents.
+  Scout is the open-core UCL data plane: it ingests company data through connectors or assisted imports, keeps exact items in the customer's environment, and prepares the relationship-set foundation used by Enterprise and customer-owned LLMs.
 </p>
 
 ---
@@ -63,13 +63,14 @@ See the **[Getting Started Guide](docs/getting-started.md)** for Docker Compose 
 
 ## What Is Scout?
 
-Scout is **customer-owned data-plane infrastructure for AI-enabled products**. It does not replace your CRM, ERP, support desk, or billing system. It sits beside those systems and creates a governed semantic/evidence layer above them so that downstream consumers -- AI copilots, workflow engines, reporting tools, internal apps, local LLMs -- get trusted business meaning instead of disconnected records.
+Scout is **customer-owned data-plane infrastructure for AI-enabled products**. It does not replace your CRM, ERP, support desk, or billing system. It sits beside those systems and creates governed exact data items, relationships, attribution paths, outcomes, provenance, and local APIs so that downstream consumers -- AI copilots, workflow engines, reporting tools, internal apps, local LLMs -- get trusted business meaning instead of disconnected records.
 
-The flagship UCL workflow is: source systems -> exact customer data plane -> governed evidence pack -> Enterprise Rust relationship/weighting/traversal engine when canonical weighting is required -> customer-owned/local AI or workflow engine -> next-best action. This public repo demonstrates the open-core data-plane mechanics: source access, selectors, semantic facts, exact linked records, provenance, masking, audit, APIs, SDKs, basic/public relationship intelligence, `BasicRelationshipEngine` fallback weights, Enterprise canonical-weighting handoff artefacts, and a local demo/admin console. Private enterprise modules add the canonical Rust relationship/weighting/traversal engine, paid/private connectors, enterprise identity/governance, and customer-specific hardening where required.
+The flagship UCL workflow is: source systems -> UCL/Scout customer-owned data plane -> exact data items, relationships, attribution paths, comparable relationship sets, and outcomes -> Enterprise Rust engine/vector DB canonical analysis -> governed JSON with evidence, matches, ranked options, confidence, and caveats -> customer-owned LLM or KynticAI open-source/private LLM runtime -> text explanation of what to do next. This public repo demonstrates the open-core data-plane mechanics: source access, selectors, semantic facts, exact linked records, provenance, masking, audit, APIs, SDKs, basic fallback intelligence, Enterprise handoff artefacts, and a local demo/admin console. Private enterprise modules add the proprietary Enterprise Rust engine/vector DB, paid/private connectors, enterprise identity/governance, and customer-specific hardening where required.
 
-For the seeded sales walkthrough, "authorised data" means subject-scoped records approved for the customer data plane: normalised email address, CRM contact/account, account registration/profile, sales activity, email replies or meetings booked, web conversion and pricing-page events, open opportunities, support tickets, product usage summaries, billing health, and prior won/lost outcome signals. Those records, citations, local evidence-pack JSON, connector credentials, selectors, facts, snapshots, and audit logs stay in the customer-controlled environment by default.
+For the seeded sales walkthrough, "authorised data" means subject-scoped data items approved for the customer data plane: normalised email address, CRM contact/account, account registration/profile, sales activity, email replies or meetings booked, web conversion and pricing-page events, open opportunities, support tickets, product usage summaries, billing health, and prior won/lost outcome signals. Those exact items, relationships, attribution paths, outcomes, citations, local JSON artefacts, connector credentials, selectors, facts, snapshots, and audit logs stay in the customer-controlled environment by default.
 
 Scout Cloud is optional commercial/control-plane support only. It can manage accounts, licences, downloads, support access, update channels, and optional aggregate usage metadata; it is not required to run the data plane and must not receive raw customer operational data or derived relationship intelligence by default.
+Clarity and Importance are separate KynticAI products. They are not required for UCL/Scout, Enterprise, or Cloud.
 
 ### Key Capabilities
 
@@ -80,7 +81,7 @@ Scout Cloud is optional commercial/control-plane support only. It can manage acc
 | **Context Snapshots** | Reusable business profiles with confidence, freshness, and provenance |
 | **GraphQL + REST APIs** | Every context surface available through both query styles |
 | **TypeScript & .NET SDKs** | Typed client libraries for integration teams |
-| **Governed Evidence Packages** | Local/customer-data-plane exact linked records, relationships, fallback/demo weighted signals, citations, masking decisions, and next-best-action context for approved consumers -- Scout does not need to call an AI model and does not claim canonical Enterprise weighting |
+| **Relationship-Set Foundation** | Local/customer-data-plane exact linked records, relationships, attribution-path evidence, outcomes, basic fallback-only signals, citations, masking decisions, and governed JSON artefacts for approved consumers -- Scout does not need to call an AI model and does not claim canonical Enterprise analysis |
 | **Connector Framework** | Generic SQL, REST, CSV, mock connectors + extension points for enterprise |
 | **Audit & Provenance** | Every read, recompute, and context access is traceable |
 | **Blueprint Import** | AI-generated configuration (from Codex, Claude, ChatGPT) validated and imported |
@@ -127,7 +128,7 @@ flowchart TB
     APIs --> Consumers
 ```
 
-**Customer data stays in the customer's environment.** The data plane owns source access, connector credentials, selectors, exact linked records, facts, snapshots, evidence packs, provenance, audit, and APIs. An optional Cloud/control-plane relationship manages only commercial metadata such as accounts, licences, downloads, support access, update channels, and optional aggregate usage. Cloud aggregate usage payloads are limited to control-plane metadata such as tenant identifiers, package version, feature counters, status, timestamps, and event metadata; they must not carry raw records, context facts or snapshots, evidence packs, prompts, generated content, recommendations, citation IDs, weighted signals, or per-entity relationship metadata.
+**Customer data stays in the customer's environment.** The data plane owns source access, connector credentials, selectors, exact linked records, relationships, attribution paths, outcomes, facts, snapshots, local JSON artefacts, provenance, audit, and APIs. An optional Cloud/control-plane relationship manages only commercial metadata such as accounts, licences, downloads, support access, update channels, and optional aggregate usage. Cloud aggregate usage payloads are limited to control-plane metadata such as tenant identifiers, package version, feature counters, status, timestamps, and event metadata; they must not carry raw records, context facts or snapshots, evidence packs, prompts, generated content, recommendations, citation IDs, weighted signals, or per-entity relationship metadata.
 
 ```mermaid
 flowchart LR
@@ -188,7 +189,7 @@ flowchart LR
 | **Frontend** | React 19, Vite, TypeScript, TanStack Router, TanStack Query, Tailwind CSS |
 | **Backend** | ASP.NET Core (.NET 10), Hot Chocolate GraphQL, EF Core, FluentValidation, OpenTelemetry |
 | **Data** | Dual-database: operational source DB + semantic context DB (SQLite local / PostgreSQL production) |
-| **APIs** | GraphQL, REST v1, TypeScript SDK, .NET SDK, governed context/evidence packages |
+| **APIs** | GraphQL, REST v1, TypeScript SDK, .NET SDK, governed context and relationship JSON packages |
 
 ---
 
@@ -196,7 +197,7 @@ flowchart LR
 
 The seeded demo includes synthetic realistic B2B SaaS data: 2 tenants, 30 accounts, 80+ contacts, 200 sales activities, 560 product usage rows, 100 support tickets, email/web engagement, billing status, account registration/profile fields, open opportunities, and prior won/lost outcome signals.
 
-The demo evidence pack is intentionally exact and inspectable. It links the authorised records in the customer data plane, carries citation IDs and masking decisions, shows deterministic relationships such as email-to-contact and contact-to-account, includes similar won/lost patterns where present, and produces fallback/demo weighted signals plus a grounded recommended next action for a customer-owned consumer. The optional Cloud aggregate usage payload for the same flow contains only control-plane usage metadata, not the derived evidence package.
+The demo relationship JSON is intentionally exact and inspectable. It links the authorised records in the customer data plane, carries citation IDs and masking decisions, shows deterministic relationships such as email-to-contact and contact-to-account, includes attribution-path evidence and similar won/lost patterns where present, and produces basic fallback-only signals plus a grounded recommended next action for a customer-owned consumer. The optional Cloud aggregate usage payload for the same flow contains only control-plane usage metadata, not the derived relationship intelligence.
 
 The primary walkthrough remains B2B SaaS revenue/customer success. A separate deterministic proof fixture at `samples/relationship-intelligence/exact-data-proof.synthetic.json` also covers ecommerce conversion, support churn, recruitment, finance retention, and healthcare operations using synthetic records only. Those cross-domain fixtures are proof artefacts for local tests and docs; they are not customer production deployments, live customer data, vendor certification, or traction claims.
 
@@ -209,7 +210,7 @@ The primary walkthrough remains B2B SaaS revenue/customer success. A separate de
 3. **Customer Context** for User 123 -- summary, facts, confidence, snapshots, interpretation timeline
 4. **Bootstrap Studio** -- show how AI tools generate import blueprints (validated without calling AI APIs)
 5. **Selector Builder** -- preview how admin logic turns raw fields into canonical attributes
-6. **Intelligent Sales Support** -- evidence pack, cited facts, recommended next action, and generated outreach direction
+6. **Intelligent Sales Support** -- relationship JSON, cited facts, attribution-path evidence, recommended next action, and generated outreach direction
 7. **Audit Log** -- governance: reads, recomputes, and access are traceable
 
 ### Demo Credentials
@@ -298,8 +299,8 @@ Systems that do not want GraphQL can use the deployment-oriented REST surface un
 | `GET` | `/api/v1/context/accounts/{id}` | Account context lookup |
 | `GET` | `/api/v1/context/users/{id}/facts` | Semantic fact lookup with filters |
 | `GET` | `/api/v1/context/snapshots/{id}` | Context snapshot retrieval |
-| `POST` | `/api/v1/context/users/{id}/ai-safe-context-package` | Governed context/evidence package |
-| `POST` | `/api/v1/intelligence/next-action` | Exact linked records, governed evidence pack, `BasicRelationshipEngine` fallback weighted signals, Enterprise handoff JSON, and recommended next action |
+| `POST` | `/api/v1/context/users/{id}/ai-safe-context-package` | Governed context package |
+| `POST` | `/api/v1/intelligence/next-action` | Exact linked records, relationships, attribution-path evidence, Scout fallback signals, Enterprise handoff JSON, and recommended next action |
 | `POST` | `/api/v1/context/recompute` | Queue recomputation |
 | `POST` | `/api/v1/selectors/preview` | Selector preview |
 | `POST` | `/api/v1/selectors/validate` | Selector validation |
@@ -428,7 +429,7 @@ This repository is the **public open-source core** of KynticAI Scout. It is desi
 
 # Commercial & Enterprise Solutions
 
-For organisations that need private connectors, managed deployment support, stronger governance controls, canonical Rust relationship/weighting/traversal, or production support, KynticAI scopes commercial Scout packages around this open-source core. Formal SLA or customer-production commitments require a signed support process, named owners, and deployment evidence.
+For organisations that need private connectors, managed deployment support, stronger governance controls, Enterprise Rust engine/vector DB analysis, or production support, KynticAI scopes commercial Scout packages around this open-source core. Formal SLA or customer-production commitments require a signed support process, named owners, and deployment evidence.
 
 ## The Enterprise Advantage
 
@@ -445,7 +446,7 @@ Scoped paid/private connector modules and adapter work for enterprise systems su
 Private modules and extension points for SSO/SCIM integration, granular RBAC (Role-Based Access Control), and compliance/audit workflows where a customer deployment requires them.
 
 ### Contextual Intelligence
-Optional private modules for canonical Rust relationship/weighting/traversal, outcome-pattern matching, and cross-domain reasoning that build on the governed evidence packages created by Scout.
+Optional private modules for the proprietary Enterprise Rust engine/vector DB, relationship-set analysis, attribution-path analysis, outcome-pattern matching, and governed JSON handoff that build on the exact data items managed by Scout.
 
 ### Mission-Critical Support
 Implementation-led paid pilots with delivery support. Formal commercial SLAs for production-grade environments are a contracted support/process commitment, not an automatic README claim.
@@ -455,7 +456,7 @@ Implementation-led paid pilots with delivery support. Formal commercial SLAs for
 # Access & Licensing
 
 ## Scout Cloud & Managed Hosting
-Optional commercial/control-plane package for account workflows, licence operations, downloads, support access, update-channel support, and aggregate usage metadata. Cloud is not required for the customer-owned data plane and must not receive next-action evidence packs, recommendations, citations, weighted signals, or per-entity relationship metadata by default.
+Optional commercial/control-plane package for account workflows, licence operations, downloads, support access, update-channel support, and aggregate usage metadata. Cloud is not required for the customer-owned data plane and must not receive next-action relationship/evidence packages, recommendations, citations, weighted signals, attribution paths, relationship sets, or per-entity relationship metadata by default.
 
 ## Scout Enterprise Features
 Commercial package for proprietary connectors, identity integrations, deployment packs, governance modules, and scoped production support. Connector and support claims must be validated per customer/vendor environment.

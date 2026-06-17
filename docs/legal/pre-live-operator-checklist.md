@@ -27,7 +27,7 @@ Confirm before collecting lead or customer data:
 - whether subprocessors include hosting, email, analytics, CAPTCHA, CRM, or observability providers
 - whether international transfer terms are needed
 
-The hosted Cloud/control-plane mini CRM should store commercial metadata only by default. Raw customer operational data, source records, connector credentials, context facts, snapshots, evidence packs, and prompt packages belong in the customer-owned data plane unless the customer signs a specific secure transfer route.
+The hosted Cloud/control-plane mini CRM should store commercial metadata only by default. Raw customer operational data, source records, connector credentials, exact data items, relationships, attribution paths, context facts, snapshots, evidence packs, and prompt packages belong in the customer-owned data plane unless the customer signs a specific secure transfer route.
 
 ## Lead Capture
 
@@ -58,7 +58,7 @@ The templates in this repository are useful preparation material, not final lega
 ## Mandatory Legal Review Notes
 
 - This draft is not legal advice.
-- Customer data-plane operation keeps raw operational data, connector credentials, selectors, exact linked records, facts, snapshots, evidence packs, and provenance local by default.
+- Customer data-plane operation keeps raw operational data, connector credentials, selectors, exact linked records, relationships, attribution paths, facts, snapshots, evidence packs, and provenance local by default.
 - Cloud control-plane processing is limited to account, licence, download, update, support, entitlement, lead, audit, and aggregate usage metadata unless separately reviewed.
 - Support data must be redacted; raw operational data must not be sent to Cloud support by default.
 - First-party event tracking needs notice, consent/lawful-basis assessment, minimisation, retention, and opt-out/withdrawal handling.
