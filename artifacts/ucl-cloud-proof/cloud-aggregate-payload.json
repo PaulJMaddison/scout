@@ -1,0 +1,32 @@
+{
+  "connectorCounts": {
+    "billing": 250,
+    "crm": 250,
+    "product": 250,
+    "support": 250
+  },
+  "counts": {
+    "accounts": 300,
+    "attributionPathCount": 400,
+    "eventCount": 6000,
+    "exactDataItemCount": 1000,
+    "failureCaseCount": 5,
+    "relationshipCount": 400,
+    "relationshipSetCount": 300
+  },
+  "failureCaseCounts": {
+    "conflicting identity": 1,
+    "insufficient history": 1,
+    "masked user": 1,
+    "stale path": 1,
+    "unsafe Cloud export attempt": 1
+  },
+  "generatedAtUtc": "2026-06-17T18:44:31.158841Z",
+  "metadataOnly": true,
+  "schema": "KynticAI.Scout.CloudAggregatePayload.v1",
+  "verdictInputs": {
+    "enterpriseCalled": false,
+    "rawItemsIncluded": 0,
+    "relationshipIntelligenceIncluded": 0
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "checks": {
+    "allFailureCasesCovered": true,
+    "cloudForbiddenFieldHits": [],
+    "cloudPayloadMetadataOnly": true,
+    "enterpriseNotCalled": true,
+    "eventLimitRespected": true
+  },
+  "failureCases": [
+    {
+      "case": "stale path",
+      "pathId": "path_1786991dcb9f0545",
+      "reason": "path freshness is older than policy window",
+      "status": "rejected"
+    },
+    {
+      "case": "conflicting identity",
+      "reason": "two source identities claim the same immutable external key",
+      "status": "quarantined"
+    },
+    {
+      "case": "insufficient history",
+      "reason": "relationship has fewer than two supporting events",
+      "status": "not analysed"
+    },
+    {
+      "case": "masked user",
+      "reason": "masked identity is withheld from Cloud export",
+      "status": "included as aggregate only"
+    },
+    {
+      "case": "unsafe Cloud export attempt",
+      "reason": "payload contained forbidden raw or relationship intelligence fields",
+      "status": "blocked"
+    }
+  ],
+  "hashes": {
+    "attribution-paths.json": "0822554c0152dde1cb578e09b1392ded6ba477f38f5cf56803c8ef6fd4220a43",
+    "cloud-aggregate-payload.json": "4546b4bf4f348ba240c9ca376285bb7fd6ba24c2c7de2e52ecf87eaa100da8d1",
+    "dataset-summary.json": "8cf9ff422dd55dc86189ccb3616c55f08880a9307ee7d32bd5d2fd0671db2385",
+    "enterprise-analysis-input.json": "100391eeb464395516fa11ba8c9defccb83bd4058a1aca0dc3bdd2d1159f94a4",
+    "exact-data-items.json": "445e4aa279861501a755512360fdb83132a80c0fb50c61e525c891678bcc096c",
+    "relationship-sets.json": "96a4949f4853f2d316b75649a2d8092abed905c64517fed7451a326984796aa9",
+    "validation-report.json": "e23fd08809528addefdc8ad6e7f92172b4f5dfcb9258acbb2f6aa2fe892182d1"
+  },
+  "schema": "KynticAI.Scout.UclCloudProofValidation.v1",
+  "verdict": "PASS"
+}
