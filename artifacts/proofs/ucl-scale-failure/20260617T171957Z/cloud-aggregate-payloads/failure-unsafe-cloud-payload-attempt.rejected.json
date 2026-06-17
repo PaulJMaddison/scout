@@ -1,0 +1,13 @@
+{
+  "attemptedForbiddenKeys": [
+    "caveats",
+    "citations",
+    "evidencePacks",
+    "provenance",
+    "rawRecords",
+    "weightedSignals"
+  ],
+  "echoedSensitiveContent": false,
+  "errorCode": "CONTROL_PLANE_AGGREGATES_ONLY",
+  "status": "rejected"
+}

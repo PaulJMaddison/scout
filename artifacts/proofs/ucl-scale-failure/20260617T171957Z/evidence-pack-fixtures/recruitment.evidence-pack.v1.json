@@ -1,0 +1,126 @@
+{
+  "caveats": [],
+  "citations": [
+    {
+      "accountId": "acct-000",
+      "citationId": "RECRUITMENT-CIT-01",
+      "exactLocalCitation": "Synthetic crm signal 0 for recruitment.",
+      "observedAtUtc": "2026-06-17T00:00:00Z",
+      "provenance": {
+        "connector": "crm",
+        "sourceRecordSha256": "d44152c4aefa794ca1f01d47733553f2a500cba2e627da9f2603978044e16dd0",
+        "synthetic": true
+      },
+      "source": "crm",
+      "sourceRecordId": "evt_0a45cc350d58"
+    },
+    {
+      "accountId": "acct-001",
+      "citationId": "RECRUITMENT-CIT-02",
+      "exactLocalCitation": "Synthetic email metadata signal 1 for recruitment.",
+      "observedAtUtc": "2026-06-16T23:00:00Z",
+      "provenance": {
+        "connector": "email_metadata",
+        "sourceRecordSha256": "22eaa85b4939767b3ecfdc2cedd0f76478588432516f38af3f4010f108de8124",
+        "synthetic": true
+      },
+      "source": "email_metadata",
+      "sourceRecordId": "evt_3d9f18b05308"
+    },
+    {
+      "accountId": "acct-002",
+      "citationId": "RECRUITMENT-CIT-03",
+      "exactLocalCitation": "Synthetic web events signal 2 for recruitment.",
+      "observedAtUtc": "2026-06-16T22:00:00Z",
+      "provenance": {
+        "connector": "web_events",
+        "sourceRecordSha256": "107eddd71c275f0c7cc29753dd19dbdce5758413e35218e93ec6f5b9b8342427",
+        "synthetic": true
+      },
+      "source": "web_events",
+      "sourceRecordId": "evt_f14498b0d8ae"
+    },
+    {
+      "accountId": "acct-003",
+      "citationId": "RECRUITMENT-CIT-04",
+      "exactLocalCitation": "Synthetic support metadata signal 3 for recruitment.",
+      "observedAtUtc": "2026-06-16T21:00:00Z",
+      "provenance": {
+        "connector": "support_metadata",
+        "sourceRecordSha256": "d05b61b15b6f555980c585f58f5349eca409518a53b8f9ae730c8f6ebe89d53a",
+        "synthetic": true
+      },
+      "source": "support_metadata",
+      "sourceRecordId": "evt_e2262518b8d2"
+    },
+    {
+      "accountId": "acct-004",
+      "citationId": "RECRUITMENT-CIT-05",
+      "exactLocalCitation": "Synthetic product usage signal 4 for recruitment.",
+      "observedAtUtc": "2026-06-16T20:00:00Z",
+      "provenance": {
+        "connector": "product_usage",
+        "sourceRecordSha256": "b0b7f6a816f269f3542b747bb50de81e162d594de3fcf9e393e378f8f8108070",
+        "synthetic": true
+      },
+      "source": "product_usage",
+      "sourceRecordId": "evt_14d9debb34c9"
+    },
+    {
+      "accountId": "acct-005",
+      "citationId": "RECRUITMENT-CIT-06",
+      "exactLocalCitation": "Synthetic billing aggregates signal 5 for recruitment.",
+      "observedAtUtc": "2026-06-16T19:00:00Z",
+      "provenance": {
+        "connector": "billing_aggregates",
+        "sourceRecordSha256": "61fa8c55bf57fe508906dcb692dd799e24d5f125cd93265b3d3c9b5dee6b1b07",
+        "synthetic": true
+      },
+      "source": "billing_aggregates",
+      "sourceRecordId": "evt_b6ece08d2d22"
+    },
+    {
+      "accountId": "acct-006",
+      "citationId": "RECRUITMENT-CIT-07",
+      "exactLocalCitation": "Synthetic crm signal 6 for recruitment.",
+      "observedAtUtc": "2026-06-16T18:00:00Z",
+      "provenance": {
+        "connector": "crm",
+        "sourceRecordSha256": "2b372336742763ea1d557603cc009ce127c8cb0f7368160dd18beda073e2abad",
+        "synthetic": true
+      },
+      "source": "crm",
+      "sourceRecordId": "evt_ee12aff9871e"
+    },
+    {
+      "accountId": "acct-007",
+      "citationId": "RECRUITMENT-CIT-08",
+      "exactLocalCitation": "Synthetic email metadata signal 7 for recruitment.",
+      "observedAtUtc": "2026-06-16T17:00:00Z",
+      "provenance": {
+        "connector": "email_metadata",
+        "sourceRecordSha256": "c3878802faf6c21cff7687cc2bf98f3e9ad437090741556f756127c091865e24",
+        "synthetic": true
+      },
+      "source": "email_metadata",
+      "sourceRecordId": "evt_320061cc210d"
+    }
+  ],
+  "domain": "recruitment",
+  "productBoundaries": {
+    "clarityRequired": false,
+    "enterpriseCanonicalRustWeightingCalled": false,
+    "importanceRequired": false,
+    "uclOwnsExactPrivateEvidencePacks": true
+  },
+  "relationshipIntelligence": {
+    "canonicalWeighting": "not-run",
+    "mode": "basic-public-fallback"
+  },
+  "schema": "ucl.evidence-pack.v1",
+  "subject": {
+    "accountId": "acct-000",
+    "synthetic": true
+  },
+  "summary": "Synthetic UCL evidence pack for recruitment; no Enterprise, Clarity, or Importance dependency."
+}

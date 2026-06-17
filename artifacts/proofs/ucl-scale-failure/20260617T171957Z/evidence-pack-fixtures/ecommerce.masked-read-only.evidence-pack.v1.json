@@ -1,0 +1,129 @@
+{
+  "access": "masked-read-only",
+  "caveats": [
+    "Masked/read-only view: exact local citation text and account identifiers are redacted."
+  ],
+  "citations": [
+    {
+      "accountId": "[MASKED]",
+      "citationId": "ECOMMERCE-CIT-01",
+      "exactLocalCitation": "[MASKED: read-only role cannot view exact local citation text]",
+      "observedAtUtc": "2026-06-17T00:00:00Z",
+      "provenance": {
+        "connector": "crm",
+        "sourceRecordSha256": "4e7ac3a56bc6a90e4139494c1b01557497baf3b137befe8dc5eccc2700d1c767",
+        "synthetic": true
+      },
+      "source": "crm",
+      "sourceRecordId": "evt_7c48070f3ab6"
+    },
+    {
+      "accountId": "[MASKED]",
+      "citationId": "ECOMMERCE-CIT-02",
+      "exactLocalCitation": "[MASKED: read-only role cannot view exact local citation text]",
+      "observedAtUtc": "2026-06-16T23:00:00Z",
+      "provenance": {
+        "connector": "email_metadata",
+        "sourceRecordSha256": "e84302b273d1adcf9ac6219f2bfb7d3b53822407b710fa602f1203ed7091ee8f",
+        "synthetic": true
+      },
+      "source": "email_metadata",
+      "sourceRecordId": "evt_3ea454152ffe"
+    },
+    {
+      "accountId": "[MASKED]",
+      "citationId": "ECOMMERCE-CIT-03",
+      "exactLocalCitation": "[MASKED: read-only role cannot view exact local citation text]",
+      "observedAtUtc": "2026-06-16T22:00:00Z",
+      "provenance": {
+        "connector": "web_events",
+        "sourceRecordSha256": "8c8e0e9734fac19ba03f9a7e8139167f6369abaa041f3c07673b2cf93194a4e5",
+        "synthetic": true
+      },
+      "source": "web_events",
+      "sourceRecordId": "evt_f62d7f11191e"
+    },
+    {
+      "accountId": "[MASKED]",
+      "citationId": "ECOMMERCE-CIT-04",
+      "exactLocalCitation": "[MASKED: read-only role cannot view exact local citation text]",
+      "observedAtUtc": "2026-06-16T21:00:00Z",
+      "provenance": {
+        "connector": "support_metadata",
+        "sourceRecordSha256": "135ce1f355faf86c89eb04acf7e1442ecde7b933fb7ef01c884abdeea4807874",
+        "synthetic": true
+      },
+      "source": "support_metadata",
+      "sourceRecordId": "evt_69c8f1c63224"
+    },
+    {
+      "accountId": "[MASKED]",
+      "citationId": "ECOMMERCE-CIT-05",
+      "exactLocalCitation": "[MASKED: read-only role cannot view exact local citation text]",
+      "observedAtUtc": "2026-06-16T20:00:00Z",
+      "provenance": {
+        "connector": "product_usage",
+        "sourceRecordSha256": "44eccf73698a06fb9de1b67f6c7dc4d89c4781309fb54e9efeadd414b28165f0",
+        "synthetic": true
+      },
+      "source": "product_usage",
+      "sourceRecordId": "evt_044332df2dc3"
+    },
+    {
+      "accountId": "[MASKED]",
+      "citationId": "ECOMMERCE-CIT-06",
+      "exactLocalCitation": "[MASKED: read-only role cannot view exact local citation text]",
+      "observedAtUtc": "2026-06-16T19:00:00Z",
+      "provenance": {
+        "connector": "billing_aggregates",
+        "sourceRecordSha256": "f03ffe7e2ae9067d437f71cc85ca3ade94104526375913b8ab7906a27613872a",
+        "synthetic": true
+      },
+      "source": "billing_aggregates",
+      "sourceRecordId": "evt_8953f235b6b3"
+    },
+    {
+      "accountId": "[MASKED]",
+      "citationId": "ECOMMERCE-CIT-07",
+      "exactLocalCitation": "[MASKED: read-only role cannot view exact local citation text]",
+      "observedAtUtc": "2026-06-16T18:00:00Z",
+      "provenance": {
+        "connector": "crm",
+        "sourceRecordSha256": "bbd5bd19999ae862eeb303aa97f15270f5dceca51b2c02db7b499073bfaf69d6",
+        "synthetic": true
+      },
+      "source": "crm",
+      "sourceRecordId": "evt_e8b8c346594c"
+    },
+    {
+      "accountId": "[MASKED]",
+      "citationId": "ECOMMERCE-CIT-08",
+      "exactLocalCitation": "[MASKED: read-only role cannot view exact local citation text]",
+      "observedAtUtc": "2026-06-16T17:00:00Z",
+      "provenance": {
+        "connector": "email_metadata",
+        "sourceRecordSha256": "5fd2d8a9f5c67165e3001279d5a3d14bd8fb30b0c322ecb42f994219c9b30d99",
+        "synthetic": true
+      },
+      "source": "email_metadata",
+      "sourceRecordId": "evt_19a6995c4a33"
+    }
+  ],
+  "domain": "ecommerce",
+  "productBoundaries": {
+    "clarityRequired": false,
+    "enterpriseCanonicalRustWeightingCalled": false,
+    "importanceRequired": false,
+    "uclOwnsExactPrivateEvidencePacks": true
+  },
+  "relationshipIntelligence": {
+    "canonicalWeighting": "not-run",
+    "mode": "basic-public-fallback"
+  },
+  "schema": "ucl.evidence-pack.v1",
+  "subject": {
+    "accountId": "acct-000",
+    "synthetic": true
+  },
+  "summary": "Synthetic UCL evidence pack for ecommerce; no Enterprise, Clarity, or Importance dependency."
+}

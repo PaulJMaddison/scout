@@ -1,0 +1,126 @@
+{
+  "caveats": [],
+  "citations": [
+    {
+      "accountId": "acct-000",
+      "citationId": "B2B_SAAS-CIT-01",
+      "exactLocalCitation": "Synthetic crm signal 0 for b2b-saas.",
+      "observedAtUtc": "2026-06-17T00:00:00Z",
+      "provenance": {
+        "connector": "crm",
+        "sourceRecordSha256": "7b16be3e4c5198a39fec3db7379311fdf933b3216eb34d5d0d389817a4ea3aa6",
+        "synthetic": true
+      },
+      "source": "crm",
+      "sourceRecordId": "evt_237974d78791"
+    },
+    {
+      "accountId": "acct-001",
+      "citationId": "B2B_SAAS-CIT-02",
+      "exactLocalCitation": "Synthetic email metadata signal 1 for b2b-saas.",
+      "observedAtUtc": "2026-06-16T23:00:00Z",
+      "provenance": {
+        "connector": "email_metadata",
+        "sourceRecordSha256": "af8ab4569eea9f1f2611a5290e2b547dfdbc675a031519db70fe9f1a5cc0f989",
+        "synthetic": true
+      },
+      "source": "email_metadata",
+      "sourceRecordId": "evt_15f67fe2bd7f"
+    },
+    {
+      "accountId": "acct-002",
+      "citationId": "B2B_SAAS-CIT-03",
+      "exactLocalCitation": "Synthetic web events signal 2 for b2b-saas.",
+      "observedAtUtc": "2026-06-16T22:00:00Z",
+      "provenance": {
+        "connector": "web_events",
+        "sourceRecordSha256": "e1461b088c1a8192453e81291f1c790c0f7df16f62b6e298db47ed3119ae7a8f",
+        "synthetic": true
+      },
+      "source": "web_events",
+      "sourceRecordId": "evt_fe95857f76a5"
+    },
+    {
+      "accountId": "acct-003",
+      "citationId": "B2B_SAAS-CIT-04",
+      "exactLocalCitation": "Synthetic support metadata signal 3 for b2b-saas.",
+      "observedAtUtc": "2026-06-16T21:00:00Z",
+      "provenance": {
+        "connector": "support_metadata",
+        "sourceRecordSha256": "621373aacd30cbb37b5329f63e067cdb628ad78edb78db9359836c9bee9a5c26",
+        "synthetic": true
+      },
+      "source": "support_metadata",
+      "sourceRecordId": "evt_9955626f7235"
+    },
+    {
+      "accountId": "acct-004",
+      "citationId": "B2B_SAAS-CIT-05",
+      "exactLocalCitation": "Synthetic product usage signal 4 for b2b-saas.",
+      "observedAtUtc": "2026-06-16T20:00:00Z",
+      "provenance": {
+        "connector": "product_usage",
+        "sourceRecordSha256": "05e90edd39a68460190362318b7cdb56edf4c930cea392f81e686aee99dd5fa4",
+        "synthetic": true
+      },
+      "source": "product_usage",
+      "sourceRecordId": "evt_9a7f1ae66d9c"
+    },
+    {
+      "accountId": "acct-005",
+      "citationId": "B2B_SAAS-CIT-06",
+      "exactLocalCitation": "Synthetic billing aggregates signal 5 for b2b-saas.",
+      "observedAtUtc": "2026-06-16T19:00:00Z",
+      "provenance": {
+        "connector": "billing_aggregates",
+        "sourceRecordSha256": "4aff52f30e447967ea088b61f1e8a5440656f5558f959157eaee33d5bbb786aa",
+        "synthetic": true
+      },
+      "source": "billing_aggregates",
+      "sourceRecordId": "evt_95cfcd875b39"
+    },
+    {
+      "accountId": "acct-006",
+      "citationId": "B2B_SAAS-CIT-07",
+      "exactLocalCitation": "Synthetic crm signal 6 for b2b-saas.",
+      "observedAtUtc": "2026-06-16T18:00:00Z",
+      "provenance": {
+        "connector": "crm",
+        "sourceRecordSha256": "68a1367aa538676e1848674b9769df50ddc0f0104e9a9f8cd49c5871b690fe63",
+        "synthetic": true
+      },
+      "source": "crm",
+      "sourceRecordId": "evt_d91d2c805ead"
+    },
+    {
+      "accountId": "acct-007",
+      "citationId": "B2B_SAAS-CIT-08",
+      "exactLocalCitation": "Synthetic email metadata signal 7 for b2b-saas.",
+      "observedAtUtc": "2026-06-16T17:00:00Z",
+      "provenance": {
+        "connector": "email_metadata",
+        "sourceRecordSha256": "66c1b299d96ccb0150e03fddd9de075a37aeb1b874e8e140bb35ab292e8f6bb7",
+        "synthetic": true
+      },
+      "source": "email_metadata",
+      "sourceRecordId": "evt_776504d91b56"
+    }
+  ],
+  "domain": "b2b-saas",
+  "productBoundaries": {
+    "clarityRequired": false,
+    "enterpriseCanonicalRustWeightingCalled": false,
+    "importanceRequired": false,
+    "uclOwnsExactPrivateEvidencePacks": true
+  },
+  "relationshipIntelligence": {
+    "canonicalWeighting": "not-run",
+    "mode": "basic-public-fallback"
+  },
+  "schema": "ucl.evidence-pack.v1",
+  "subject": {
+    "accountId": "acct-000",
+    "synthetic": true
+  },
+  "summary": "Synthetic UCL evidence pack for b2b-saas; no Enterprise, Clarity, or Importance dependency."
+}

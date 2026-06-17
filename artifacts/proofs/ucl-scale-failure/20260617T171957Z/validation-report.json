@@ -1,0 +1,48 @@
+{
+  "artifactRoot": "artifacts/proofs/ucl-scale-failure/20260617T171957Z",
+  "checks": [
+    {
+      "name": "exact local citations exist",
+      "passed": true
+    },
+    {
+      "name": "provenance exists",
+      "passed": true
+    },
+    {
+      "name": "failure caveats exist",
+      "passed": true
+    },
+    {
+      "name": "cloud excludes forbidden detail",
+      "passed": true
+    }
+  ],
+  "dataset": {
+    "accounts": 300,
+    "contactsUsers": 1000,
+    "domains": [
+      "b2b-saas",
+      "ecommerce",
+      "support-churn",
+      "recruitment",
+      "finance-retention",
+      "healthcare-operations"
+    ],
+    "maximumOperationalEventsRequested": 6000,
+    "operationalEvents": 6000,
+    "sources": [
+      "crm",
+      "email_metadata",
+      "web_events",
+      "support_metadata",
+      "product_usage",
+      "billing_aggregates"
+    ],
+    "synthetic": true
+  },
+  "failCount": 0,
+  "generatedAtUtc": "2026-06-17T17:28:24.114196Z",
+  "passCount": 4,
+  "verdict": "PASS"
+}

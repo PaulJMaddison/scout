@@ -1,0 +1,38 @@
+[
+  {
+    "citations": 8,
+    "domain": "b2b-saas",
+    "provenanceEntries": 8,
+    "verdict": "PASS"
+  },
+  {
+    "citations": 8,
+    "domain": "ecommerce",
+    "provenanceEntries": 8,
+    "verdict": "PASS"
+  },
+  {
+    "citations": 8,
+    "domain": "support-churn",
+    "provenanceEntries": 8,
+    "verdict": "PASS"
+  },
+  {
+    "citations": 8,
+    "domain": "recruitment",
+    "provenanceEntries": 8,
+    "verdict": "PASS"
+  },
+  {
+    "citations": 8,
+    "domain": "finance-retention",
+    "provenanceEntries": 8,
+    "verdict": "PASS"
+  },
+  {
+    "citations": 8,
+    "domain": "healthcare-operations",
+    "provenanceEntries": 8,
+    "verdict": "PASS"
+  }
+]

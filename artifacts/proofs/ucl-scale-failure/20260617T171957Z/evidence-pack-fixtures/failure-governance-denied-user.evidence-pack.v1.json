@@ -1,0 +1,10 @@
+{
+  "access": "denied",
+  "caveats": [
+    "Governance denied this user access to evidence-pack contents."
+  ],
+  "citations": [],
+  "domain": "recruitment",
+  "provenanceAvailableToAuthorisedUsers": true,
+  "schema": "ucl.evidence-pack.v1"
+}

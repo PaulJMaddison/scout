@@ -1,0 +1,126 @@
+{
+  "caveats": [],
+  "citations": [
+    {
+      "accountId": "acct-000",
+      "citationId": "HEALTHCARE_OPERATIONS-CIT-01",
+      "exactLocalCitation": "Synthetic crm signal 0 for healthcare-operations.",
+      "observedAtUtc": "2026-06-17T00:00:00Z",
+      "provenance": {
+        "connector": "crm",
+        "sourceRecordSha256": "f78ec2c0653bd03eafdaf6ee061ae631388550e7d6c5bcf9a5ccf730fdba0fd5",
+        "synthetic": true
+      },
+      "source": "crm",
+      "sourceRecordId": "evt_43a1c4dbd0ef"
+    },
+    {
+      "accountId": "acct-001",
+      "citationId": "HEALTHCARE_OPERATIONS-CIT-02",
+      "exactLocalCitation": "Synthetic email metadata signal 1 for healthcare-operations.",
+      "observedAtUtc": "2026-06-16T23:00:00Z",
+      "provenance": {
+        "connector": "email_metadata",
+        "sourceRecordSha256": "a36cf87f36a289ba377e0fd057c226d17e98fc096d22105015837d81ea3e5a9e",
+        "synthetic": true
+      },
+      "source": "email_metadata",
+      "sourceRecordId": "evt_4685987e7515"
+    },
+    {
+      "accountId": "acct-002",
+      "citationId": "HEALTHCARE_OPERATIONS-CIT-03",
+      "exactLocalCitation": "Synthetic web events signal 2 for healthcare-operations.",
+      "observedAtUtc": "2026-06-16T22:00:00Z",
+      "provenance": {
+        "connector": "web_events",
+        "sourceRecordSha256": "580968ce3b716e744b5a7e0e14fa2c0d54c4dfc11beebf80eebbeaae39311ae7",
+        "synthetic": true
+      },
+      "source": "web_events",
+      "sourceRecordId": "evt_4ebbd056ae5e"
+    },
+    {
+      "accountId": "acct-003",
+      "citationId": "HEALTHCARE_OPERATIONS-CIT-04",
+      "exactLocalCitation": "Synthetic support metadata signal 3 for healthcare-operations.",
+      "observedAtUtc": "2026-06-16T21:00:00Z",
+      "provenance": {
+        "connector": "support_metadata",
+        "sourceRecordSha256": "e4e4c2faa5fab987f5ecaeaed1d92fe122ab23d184b32752156e803d1dbbfd17",
+        "synthetic": true
+      },
+      "source": "support_metadata",
+      "sourceRecordId": "evt_fd303280db08"
+    },
+    {
+      "accountId": "acct-004",
+      "citationId": "HEALTHCARE_OPERATIONS-CIT-05",
+      "exactLocalCitation": "Synthetic product usage signal 4 for healthcare-operations.",
+      "observedAtUtc": "2026-06-16T20:00:00Z",
+      "provenance": {
+        "connector": "product_usage",
+        "sourceRecordSha256": "457de08f488919a50141ba114e3d56af10920d56704108bac284a3b1ded61382",
+        "synthetic": true
+      },
+      "source": "product_usage",
+      "sourceRecordId": "evt_4bd629e8e85d"
+    },
+    {
+      "accountId": "acct-005",
+      "citationId": "HEALTHCARE_OPERATIONS-CIT-06",
+      "exactLocalCitation": "Synthetic billing aggregates signal 5 for healthcare-operations.",
+      "observedAtUtc": "2026-06-16T19:00:00Z",
+      "provenance": {
+        "connector": "billing_aggregates",
+        "sourceRecordSha256": "f5f051176395d3205092b3cfecad1f92846204a71310a5688dd11ab54b18c3b7",
+        "synthetic": true
+      },
+      "source": "billing_aggregates",
+      "sourceRecordId": "evt_55b4586a0b88"
+    },
+    {
+      "accountId": "acct-006",
+      "citationId": "HEALTHCARE_OPERATIONS-CIT-07",
+      "exactLocalCitation": "Synthetic crm signal 6 for healthcare-operations.",
+      "observedAtUtc": "2026-06-16T18:00:00Z",
+      "provenance": {
+        "connector": "crm",
+        "sourceRecordSha256": "a6f4deb32ca8322f434ffa87d72045e49873d5686e27df3fda98a9773b5b6a68",
+        "synthetic": true
+      },
+      "source": "crm",
+      "sourceRecordId": "evt_c636f8de4648"
+    },
+    {
+      "accountId": "acct-007",
+      "citationId": "HEALTHCARE_OPERATIONS-CIT-08",
+      "exactLocalCitation": "Synthetic email metadata signal 7 for healthcare-operations.",
+      "observedAtUtc": "2026-06-16T17:00:00Z",
+      "provenance": {
+        "connector": "email_metadata",
+        "sourceRecordSha256": "a63313ed154255530fa390677a413ceebf339081314fe09337e19bff85cc0c11",
+        "synthetic": true
+      },
+      "source": "email_metadata",
+      "sourceRecordId": "evt_29db75d54165"
+    }
+  ],
+  "domain": "healthcare-operations",
+  "productBoundaries": {
+    "clarityRequired": false,
+    "enterpriseCanonicalRustWeightingCalled": false,
+    "importanceRequired": false,
+    "uclOwnsExactPrivateEvidencePacks": true
+  },
+  "relationshipIntelligence": {
+    "canonicalWeighting": "not-run",
+    "mode": "basic-public-fallback"
+  },
+  "schema": "ucl.evidence-pack.v1",
+  "subject": {
+    "accountId": "acct-000",
+    "synthetic": true
+  },
+  "summary": "Synthetic UCL evidence pack for healthcare-operations; no Enterprise, Clarity, or Importance dependency."
+}

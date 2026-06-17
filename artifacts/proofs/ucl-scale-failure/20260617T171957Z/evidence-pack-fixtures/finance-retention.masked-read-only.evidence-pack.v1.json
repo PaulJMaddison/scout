@@ -1,0 +1,129 @@
+{
+  "access": "masked-read-only",
+  "caveats": [
+    "Masked/read-only view: exact local citation text and account identifiers are redacted."
+  ],
+  "citations": [
+    {
+      "accountId": "[MASKED]",
+      "citationId": "FINANCE_RETENTION-CIT-01",
+      "exactLocalCitation": "[MASKED: read-only role cannot view exact local citation text]",
+      "observedAtUtc": "2026-06-17T00:00:00Z",
+      "provenance": {
+        "connector": "crm",
+        "sourceRecordSha256": "2fe93e930127f01836837cf9776dad05bd385481aab35b477f931c10ba1a88f6",
+        "synthetic": true
+      },
+      "source": "crm",
+      "sourceRecordId": "evt_606655fe335f"
+    },
+    {
+      "accountId": "[MASKED]",
+      "citationId": "FINANCE_RETENTION-CIT-02",
+      "exactLocalCitation": "[MASKED: read-only role cannot view exact local citation text]",
+      "observedAtUtc": "2026-06-16T23:00:00Z",
+      "provenance": {
+        "connector": "email_metadata",
+        "sourceRecordSha256": "641212514b9a60d7b6c70e7186dd16388a5cc5b53140dad676cdef8d99202b3f",
+        "synthetic": true
+      },
+      "source": "email_metadata",
+      "sourceRecordId": "evt_909c16a70764"
+    },
+    {
+      "accountId": "[MASKED]",
+      "citationId": "FINANCE_RETENTION-CIT-03",
+      "exactLocalCitation": "[MASKED: read-only role cannot view exact local citation text]",
+      "observedAtUtc": "2026-06-16T22:00:00Z",
+      "provenance": {
+        "connector": "web_events",
+        "sourceRecordSha256": "475a8b895710c75ed28b0b6d2f31d8d249a920f98af50474e4752d5d3e4e5bcf",
+        "synthetic": true
+      },
+      "source": "web_events",
+      "sourceRecordId": "evt_033a49412630"
+    },
+    {
+      "accountId": "[MASKED]",
+      "citationId": "FINANCE_RETENTION-CIT-04",
+      "exactLocalCitation": "[MASKED: read-only role cannot view exact local citation text]",
+      "observedAtUtc": "2026-06-16T21:00:00Z",
+      "provenance": {
+        "connector": "support_metadata",
+        "sourceRecordSha256": "35feec0572c689c3cae4074d061b59c2c51e7a0e78d5077b12ce28b81bf77b41",
+        "synthetic": true
+      },
+      "source": "support_metadata",
+      "sourceRecordId": "evt_adac7b94ea7a"
+    },
+    {
+      "accountId": "[MASKED]",
+      "citationId": "FINANCE_RETENTION-CIT-05",
+      "exactLocalCitation": "[MASKED: read-only role cannot view exact local citation text]",
+      "observedAtUtc": "2026-06-16T20:00:00Z",
+      "provenance": {
+        "connector": "product_usage",
+        "sourceRecordSha256": "4711bdc1c4f8f147ce4327894b4309277e879c72e3eff721758b9f930b2297f5",
+        "synthetic": true
+      },
+      "source": "product_usage",
+      "sourceRecordId": "evt_7222d2beb1e9"
+    },
+    {
+      "accountId": "[MASKED]",
+      "citationId": "FINANCE_RETENTION-CIT-06",
+      "exactLocalCitation": "[MASKED: read-only role cannot view exact local citation text]",
+      "observedAtUtc": "2026-06-16T19:00:00Z",
+      "provenance": {
+        "connector": "billing_aggregates",
+        "sourceRecordSha256": "ca5e60c8c06081509c7af5d72db90ae62ad140b6d9f0d9745207e465de919f56",
+        "synthetic": true
+      },
+      "source": "billing_aggregates",
+      "sourceRecordId": "evt_70483eccafa6"
+    },
+    {
+      "accountId": "[MASKED]",
+      "citationId": "FINANCE_RETENTION-CIT-07",
+      "exactLocalCitation": "[MASKED: read-only role cannot view exact local citation text]",
+      "observedAtUtc": "2026-06-16T18:00:00Z",
+      "provenance": {
+        "connector": "crm",
+        "sourceRecordSha256": "db03f73653bbcc346ab02d9a16bb27c9af5ef68f80f45e3c3a6e09ee1353db33",
+        "synthetic": true
+      },
+      "source": "crm",
+      "sourceRecordId": "evt_aa3890484201"
+    },
+    {
+      "accountId": "[MASKED]",
+      "citationId": "FINANCE_RETENTION-CIT-08",
+      "exactLocalCitation": "[MASKED: read-only role cannot view exact local citation text]",
+      "observedAtUtc": "2026-06-16T17:00:00Z",
+      "provenance": {
+        "connector": "email_metadata",
+        "sourceRecordSha256": "f7fee109c43833e0e7e7d15fa52082055adf46bc40bc5c93610694d45fe0c3a9",
+        "synthetic": true
+      },
+      "source": "email_metadata",
+      "sourceRecordId": "evt_56b985e0a6c3"
+    }
+  ],
+  "domain": "finance-retention",
+  "productBoundaries": {
+    "clarityRequired": false,
+    "enterpriseCanonicalRustWeightingCalled": false,
+    "importanceRequired": false,
+    "uclOwnsExactPrivateEvidencePacks": true
+  },
+  "relationshipIntelligence": {
+    "canonicalWeighting": "not-run",
+    "mode": "basic-public-fallback"
+  },
+  "schema": "ucl.evidence-pack.v1",
+  "subject": {
+    "accountId": "acct-000",
+    "synthetic": true
+  },
+  "summary": "Synthetic UCL evidence pack for finance-retention; no Enterprise, Clarity, or Importance dependency."
+}

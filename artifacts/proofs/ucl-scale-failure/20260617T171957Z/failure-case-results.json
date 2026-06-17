@@ -1,0 +1,32 @@
+[
+  {
+    "artifact": "artifacts/proofs/ucl-scale-failure/20260617T171957Z/evidence-pack-fixtures/failure-stale-data.evidence-pack.v1.json",
+    "failureCase": "stale-data",
+    "verdict": "PASS"
+  },
+  {
+    "artifact": "artifacts/proofs/ucl-scale-failure/20260617T171957Z/evidence-pack-fixtures/failure-conflicting-evidence.evidence-pack.v1.json",
+    "failureCase": "conflicting-evidence",
+    "verdict": "PASS"
+  },
+  {
+    "artifact": "artifacts/proofs/ucl-scale-failure/20260617T171957Z/evidence-pack-fixtures/failure-insufficient-evidence.evidence-pack.v1.json",
+    "failureCase": "insufficient-evidence",
+    "verdict": "PASS"
+  },
+  {
+    "artifact": "artifacts/proofs/ucl-scale-failure/20260617T171957Z/evidence-pack-fixtures/failure-governance-denied-user.evidence-pack.v1.json",
+    "failureCase": "governance-denied-user",
+    "verdict": "PASS"
+  },
+  {
+    "artifact": "artifacts/proofs/ucl-scale-failure/20260617T171957Z/evidence-pack-fixtures/failure-masked-read-only-user.evidence-pack.v1.json",
+    "failureCase": "masked-read-only-user",
+    "verdict": "PASS"
+  },
+  {
+    "artifact": "artifacts/proofs/ucl-scale-failure/20260617T171957Z/cloud-aggregate-payloads/failure-unsafe-cloud-payload-attempt.rejected.json",
+    "failureCase": "unsafe-cloud-payload-attempt",
+    "verdict": "PASS"
+  }
+]
