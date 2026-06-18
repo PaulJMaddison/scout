@@ -2,46 +2,40 @@
 
 ## Summary For The Next Prompt
 
-This read-only discovery audit mapped the current Scout to Elite/Fortress upgrade path across Scout/open-core, Enterprise/Fortress, Cloud, and the naming source of truth. Scout currently persists source events, user signals, selector executions, context facts, provenance, audit metadata, admin/SaaS metadata, and demo CustomerOps records. Enterprise/Fortress expects local data items, relationship sets, attribution paths, outcome events, governed JSON handoff, and LanceDB/pgvector-capable vector storage. Cloud already provides licence, entitlement, download/update, data-plane registration, heartbeat, and Fortress instance metadata checks, but must not receive raw data, vectors, or relationship intelligence.
+This architecture step created `02-upgrade-architecture.md` for the canonical KynticAI Scout to Elite/Fortress upgrade path. The design keeps Scout as the local customer-owned Docker data plane, routes connector writes through the local Scout API where practical, hides vector/storage choices behind local API and storage abstraction contracts, and keeps Cloud limited to licence, entitlement, private artefact, download, update, registration, heartbeat, support, and safe aggregate metadata.
 
-The next prompt should design the migration contract and adapter plan before any implementation.
+No code, schema, API, package, deployment, or runtime changes were made.
 
-## Key Findings
+## Key Decisions
 
-- Scout storage is PostgreSQL-capable EF Core with SQLite demo fallback. It does not currently contain native vector tables, pgvector columns, LanceDB storage, or a persisted canonical relationship-set model.
-- The public event ingestion route is `POST /api/v1/events/source-system`. It writes `SourceSystemEvent`, `UserSignal`, maybe `SelectorExecution`, `RecomputeJob`, `ContextFact`, `ProvenanceMetadata`, and audit records through local Scout services.
-- SDK event ingestion routes through the local API. Selector connector plugins are in-process fetchers and do not write source records through the REST API.
-- One older n8n package appears to use a stale `/api/tenants/{tenantSlug}/events/source` route.
-- Scout relationship intelligence is currently public fallback/proof-mode. It declares Enterprise/Fortress as canonical owner for relationship weighting/traversal and produces handoff/evidence artefacts rather than persisted canonical Enterprise outputs.
-- Enterprise/Fortress expects vector-ready `UclEntity` records with stable `postgres_pk`, `entity_type`, `layer`, metadata, and 384-dimension embeddings.
-- LanceDB is the primary local vector-store expectation. pgvector is present as a companion/fallback migration path but live write/search wiring is partial in the audited seams.
-- Enterprise/Fortress relationship analysis expects tenant-scoped data items, relationship edges, attribution paths, relationship sets, outcome events, and citation/provenance IDs. Cloud aggregate-only payloads are explicitly insufficient.
-- Cloud can gate upgrade access through signed licences, account entitlements, downloads/update checks, data-plane registration, heartbeat, and Fortress instance metadata.
-- Cloud must not be used as the migration staging area for Scout source records, context facts, vectors, evidence packs, relationship sets, attribution paths, or derived intelligence.
+- KynticAI Scout remains the public/open-core local data plane for ingestion, APIs, connector abstractions, provenance, audit, governance, and public fallback intelligence.
+- Enterprise/Fortress installs locally as the paid private extension path for the Enterprise/Fortress Rust engine/vector DB, relationship sets, attribution paths, outcome matching, comparable-example analysis, and governed JSON handoff.
+- Elite sits above Fortress for operator-assisted strategic work, while raw and derived customer intelligence still stays in the customer-owned environment.
+- Connectors should write through the local Scout API or a local adapter boundary where practical. Connector packages should not need rewrites when storage switches from Scout-compatible storage to Enterprise/Fortress LanceDB/vector DB.
+- The local API contract is the upgrade seam. It needs versioned ingestion/backfill shapes, idempotency, tenant/workspace/source/provenance identifiers, typed errors, and a quiet local migration mode.
+- The storage abstraction must support Scout-compatible storage, Enterprise/Fortress LanceDB/vector DB, pgvector companion storage, and local dual-write migration without using Cloud as a staging target.
+- Cloud entitlement success means the customer may download and run paid local capability. It is not proof that local LanceDB, pgvector, embeddings, data mapping, or relationship analysis are ready.
+- Rollback is local-first: Scout backups and local provider config recover the data plane; Cloud downgrade or licence revocation must not delete customer data.
 
-## Decisions Already Made
+## Data-Boundary Commitments
 
-- This step was read-only discovery only.
-- No code, schema, API, package, runtime, deployment, or test changes were made.
-- The canonical boundaries from `C:\Kyntic\docs\source-of-truth-naming-map.md` remain the source of truth.
-- KynticAI Scout remains the public/open-core customer-owned data plane.
-- Enterprise/Fortress remains the private paid local runtime/vector/relationship-analysis owner.
-- Elite remains the operator-assisted strategic product on top of Fortress.
-- Cloud remains optional commercial/control-plane metadata and must stay aggregate/licence/support/update only by default.
-- The next useful work is a migration contract and adapter design, not direct implementation.
+- Cloud must not receive raw operational data, connector payloads, credentials, exact data items, context facts, selector outputs, provenance details, vectors, embeddings, relationship sets, attribution paths, outcome events, prompts, generated customer content, recommendations, citation IDs, weighted signals, evidence packs, or customer-specific derived intelligence.
+- Cloud may receive only commercial/control-plane metadata and explicitly allowlisted aggregate usage counters.
+- Local migration logs, checkpoints, dead letters, failed payloads, and support bundles are customer data and remain local unless explicitly exported after review/redaction.
+- Cross-tenant leakage in mapping, vector search, relationship traversal, or governed JSON handoff is a security defect and must fail closed.
 
-## Open Questions
+## Open Implementation Tasks
 
-- What is the canonical local persisted data-item schema that bridges Scout events/facts/demo records into Enterprise/Fortress inputs?
-- Should connector writes be routed through the Scout local API, a new local ingestion API, or a private Enterprise/Fortress adapter boundary?
-- Which Scout identifiers should become Enterprise/Fortress `postgres_pk`, `entity_type`, `layer`, citation IDs, and provenance IDs during backfill?
-- Should relationship sets, attribution paths, and outcome events live in new Scout public tables, private Enterprise/Fortress tables, or private extension tables attached to Scout?
-- How should migration replay avoid normal billing/source-event limits, duplicate suppression side effects, recompute noise, and misleading audit telemetry?
-- What is the compatibility plan for the older n8n route package?
-- What is the first live proof target: LanceDB-only backfill, pgvector companion table, or dual-write with both?
-- How should Cloud entitlement success be represented locally without sending migration state or raw customer data back to Cloud?
-- What rollback contract separates public Scout data, private Fortress data, LanceDB/vector storage, and Cloud metadata?
+- Define canonical local data-item, outcome-event, relationship-set, attribution-path, citation, and provenance persistence contracts.
+- Design versioned local API shapes for canonical writes and migration backfill.
+- Implement provider selection for Scout-compatible storage, Enterprise/Fortress LanceDB/vector DB, pgvector companion storage, and local dual-write migration.
+- Build deterministic Scout-to-Fortress ID and layer mapping.
+- Add resumable local backfill, checkpoints, local dead letters, rollback hooks, and operator-visible status.
+- Realign or retire the stale `packages/typescript/scout-n8n-node` ingestion route.
+- Add local preflight and post-upgrade verification for Docker state, database migrations, backups, LanceDB/native dependencies, pgvector, embedding assets, tenant isolation, and governed JSON handoff.
+- Wire Cloud entitlement to local onboarding using only licence, artefact, version, channel, and safe config metadata.
+- Add focused tests and xhigh review gates before implementation is marked complete.
 
 ## Recommended Next Action
 
-Run a design prompt that creates `02-migration-contract-and-adapter-plan.md` for this work package. It should define canonical local data items, relationship sets, attribution paths, outcome events, vector ID/layer mapping, connector write routing, backfill/replay rules, entitlement gates, rollback boundaries, and proof criteria. Do not start code changes until that contract is reviewed.
+Run a design prompt that creates `03-migration-contract-and-adapter-plan.md` for this work package. It should turn `02-upgrade-architecture.md` into concrete local API contracts, storage provider interfaces, data-item and relationship-set schemas, deterministic ID mapping rules, backfill/replay semantics, entitlement gates, rollback proof criteria, and test coverage. Do not start code changes until that contract is reviewed.

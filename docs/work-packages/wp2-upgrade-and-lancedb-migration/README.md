@@ -1,6 +1,6 @@
 # WP2 Upgrade And LanceDB Migration
 
-This work package records the read-only discovery audit for the upgrade path from KynticAI Scout to Elite/Fortress, with a focus on storage, connector routing, local ingestion, LanceDB/vector expectations, Cloud entitlement touchpoints, and likely breakage during migration.
+This work package records the discovery and architecture design for the upgrade path from KynticAI Scout to Elite/Fortress, with a focus on storage, connector routing, local ingestion, LanceDB/vector expectations, Cloud entitlement touchpoints, data-boundary guarantees, and likely breakage during migration.
 
 ## Scope
 
@@ -8,7 +8,8 @@ This work package records the read-only discovery audit for the upgrade path fro
 - Discover how connectors currently fetch or write data, and whether connector traffic already routes through the local API.
 - Discover what Enterprise/Fortress expects for local vector storage, LanceDB, pgvector, relationship sets, attribution paths, outcomes, and governed JSON handoff.
 - Discover what Cloud already provides for licence, entitlement, download/update, data-plane registration, heartbeat, and Fortress instance metadata checks.
-- Record upgrade and migration risks only. This step makes no code, schema, API, package, deployment, or runtime changes.
+- Design the canonical local upgrade architecture that keeps Scout as the customer-owned Docker data plane, routes connector writes through local APIs where practical, and lets storage switch to Enterprise/Fortress LanceDB/vector DB without connector rewrites.
+- Record upgrade and migration risks. This work package has made no code, schema, API, package, deployment, or runtime changes.
 
 ## Repos Involved
 
@@ -34,5 +35,6 @@ This work package records the read-only discovery audit for the upgrade path fro
 | --- | --- |
 | `README.md` | Work-package scope, repos, canonical boundaries, and artefact index. |
 | `01-discovery-audit.md` | Read-only discovery audit of Scout storage, connector routing, API ingestion, Enterprise/Fortress vector expectations, Cloud entitlements, and upgrade/migration risks. |
+| `02-upgrade-architecture.md` | Canonical Scout to Elite/Fortress upgrade architecture, connector routing principle, local API/storage abstraction requirements, Cloud entitlement role, rollback plan, data-boundary guarantees, and implementation tasks. |
 | `handoff.md` | Summary, findings, decisions, open questions, and recommended next prompt. |
 | `status.json` | Machine-readable current step, related repos, completed steps, open risks, and next prompt. |
