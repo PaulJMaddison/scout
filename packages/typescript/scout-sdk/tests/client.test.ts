@@ -308,6 +308,56 @@ describe('Scout TypeScript SDK', () => {
     expect(result.status).toBe('Processed')
   })
 
+  it('events.ingestConnectorSourceSystemEvent calls the registered connector ingest endpoint', async () => {
+    const dataSourceId = 'aaaaaaaa-1111-2222-3333-bbbbbbbbbbbb'
+    const fetchMock = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+      const url = typeof input === 'string' ? input : input.toString()
+      expect(url).toBe(
+        `http://127.0.0.1:5198/api/v1/connectors/${dataSourceId}/events/source-system?tenantSlug=demo`,
+      )
+      expect(init?.method).toBe('POST')
+      expect(JSON.parse(init?.body as string)).toMatchObject({
+        eventId: 'evt-sdk-connector-001',
+        sourceSystem: 'crm',
+        eventType: 'source.crm.deal_updated',
+        externalUserId: '123',
+      })
+
+      return new Response(
+        JSON.stringify({
+          eventId: 'evt-sdk-connector-001',
+          tenantId: 'tenant-1',
+          tenantSlug: 'demo',
+          workspaceId: null,
+          userProfileId: 'user-1',
+          storedSignalCount: 1,
+          matchedSelectorCount: 1,
+          status: 'Processed',
+          isDuplicate: false,
+          acceptedAtUtc: '2026-05-11T10:00:00Z',
+        }),
+        { status: 202, headers: { 'Content-Type': 'application/json' } },
+      )
+    })
+
+    const client = createScoutClient({
+      baseUrl: 'http://127.0.0.1:5198',
+      fetch: fetchMock as typeof fetch,
+    })
+
+    const result = await client.events.ingestConnectorSourceSystemEvent('demo', dataSourceId, {
+      eventId: 'evt-sdk-connector-001',
+      sourceSystem: 'crm',
+      eventType: 'source.crm.deal_updated',
+      externalUserId: '123',
+      payload: {
+        stage: 'proposal',
+      },
+    })
+
+    expect(result.status).toBe('Processed')
+  })
+
   it('retries transient failures before returning a successful payload', async () => {
     let attempts = 0
     const fetchMock = vi.fn(async () => {

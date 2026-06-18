@@ -409,6 +409,60 @@ public sealed class ScoutClientTests
     }
 
     [Fact]
+    public async Task EventsIngestConnectorSourceSystemEventAsync_UsesRegisteredConnectorRoute()
+    {
+        var dataSourceId = Guid.Parse("aaaaaaaa-1111-2222-3333-bbbbbbbbbbbb");
+        var handler = new StubHttpMessageHandler(async request =>
+        {
+            Assert.Equal(HttpMethod.Post, request.Method);
+            Assert.Equal(
+                $"http://127.0.0.1:5198/api/v1/connectors/{dataSourceId}/events/source-system?tenantSlug=demo",
+                request.RequestUri!.ToString());
+            var body = await request.Content!.ReadAsStringAsync();
+            Assert.Contains("evt-sdk-connector-001", body, StringComparison.Ordinal);
+            Assert.Contains("source.crm.deal_updated", body, StringComparison.Ordinal);
+
+            const string json = """
+            {
+              "eventId": "evt-sdk-connector-001",
+              "tenantId": "5e9cdd48-b71c-4eb7-92fd-d29bfbe99731",
+              "tenantSlug": "demo",
+              "workspaceId": null,
+              "userProfileId": "0f864ac6-dcbf-4850-bd98-1d13975d7813",
+              "storedSignalCount": 1,
+              "matchedSelectorCount": 1,
+              "status": "Processed",
+              "isDuplicate": false,
+              "acceptedAtUtc": "2026-05-11T10:00:00Z"
+            }
+            """;
+            return CreateJsonResponse(HttpStatusCode.Accepted, json);
+        });
+
+        using var httpClient = new HttpClient(handler);
+        using var client = new ScoutClient(httpClient, new ScoutClientOptions
+        {
+            BaseUrl = "http://127.0.0.1:5198"
+        });
+
+        var result = await client.Events.IngestConnectorSourceSystemEventAsync(
+            "demo",
+            dataSourceId,
+            new SourceSystemEventRequest(
+                "evt-sdk-connector-001",
+                "primary",
+                "crm",
+                "source.crm.deal_updated",
+                new { stage = "proposal" },
+                null,
+                "123",
+                "acct-123",
+                DateTime.Parse("2026-05-11T10:00:00Z")));
+
+        Assert.Equal("Processed", result.Status);
+    }
+
+    [Fact]
     public async Task UsersGetContextAsync_RetriesTransientFailure_BeforeSucceeding()
     {
         var attempts = 0;

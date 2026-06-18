@@ -119,6 +119,12 @@ export interface ScoutClient {
       tenantSlug: string,
       input: SourceSystemEventRequest,
     ): Promise<SourceSystemEventAcceptedResult>
+    /** Ingest a provider-neutral source-system event for a registered connector data source. */
+    ingestConnectorSourceSystemEvent(
+      tenantSlug: string,
+      dataSourceId: string,
+      input: SourceSystemEventRequest,
+    ): Promise<SourceSystemEventAcceptedResult>
   }
   /** Return a tenant-scoped client that omits the `tenantSlug` parameter from every call. */
   forTenant(tenantSlug: string): TenantScopedScoutClient
@@ -156,6 +162,10 @@ export interface TenantScopedScoutClient {
   }
   events: {
     ingestSourceSystemEvent(input: SourceSystemEventRequest): Promise<SourceSystemEventAcceptedResult>
+    ingestConnectorSourceSystemEvent(
+      dataSourceId: string,
+      input: SourceSystemEventRequest,
+    ): Promise<SourceSystemEventAcceptedResult>
   }
 }
 
@@ -653,6 +663,22 @@ export function createScoutClient(options: ScoutClientOptions): ScoutClient {
         },
       )
     },
+    ingestConnectorSourceSystemEvent(
+      tenantSlug: string,
+      dataSourceId: string,
+      input: SourceSystemEventRequest,
+    ): Promise<SourceSystemEventAcceptedResult> {
+      return pipeline.request<SourceSystemEventAcceptedResult>(
+        `/api/v1/connectors/${encodeURIComponent(dataSourceId)}/events/source-system?tenantSlug=${encodeURIComponent(tenantSlug)}`,
+        {
+          method: 'POST',
+          body: JSON.stringify(input),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+    },
   }
 
   const auth = {
@@ -742,6 +768,9 @@ export function createScoutClient(options: ScoutClientOptions): ScoutClient {
         events: {
           ingestSourceSystemEvent(input: SourceSystemEventRequest) {
             return events.ingestSourceSystemEvent(tenantSlug, input)
+          },
+          ingestConnectorSourceSystemEvent(dataSourceId: string, input: SourceSystemEventRequest) {
+            return events.ingestConnectorSourceSystemEvent(tenantSlug, dataSourceId, input)
           },
         },
       }

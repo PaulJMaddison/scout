@@ -536,43 +536,33 @@ public static class VersionedRestEndpointRouteBuilderExtensions
                 ICurrentActorService actorService,
                 WebhookSigningSecretService webhookSigningSecretService,
                 CancellationToken cancellationToken) =>
-            await ExecuteAsync(async _ =>
-            {
-                var resolvedTenantSlug = ResolveTenantSlug(actorService, tenantSlug);
-                var body = await ReadBodyAsync(httpRequest, cancellationToken);
-                var request = JsonSerializer.Deserialize<V1SourceSystemEventRequest>(body, JsonOptions)
-                    ?? throw new InvalidOperationException("A source-system event body is required.");
-                var eventId = request.EventId ?? httpRequest.Headers["X-Scout-Event-Id"].FirstOrDefault() ?? Guid.NewGuid().ToString("N");
-                var signatureResult = await ValidateWebhookSignatureAsync(
-                    httpRequest.HttpContext,
-                    webhookSigningSecretService,
-                    resolvedTenantSlug,
-                    request.WorkspaceSlug,
-                    eventId,
-                    body,
-                    cancellationToken);
-                if (!signatureResult.Accepted)
-                {
-                    return Error(httpRequest.HttpContext, StatusCodes.Status401Unauthorized, "webhook.signature_invalid", $"Webhook signature validation failed: {signatureResult.Reason}.");
-                }
-
-                var payloadJson = request.PayloadJson
-                    ?? JsonSerializer.Serialize(request.Payload ?? new { }, JsonOptions);
-                var result = await service.IngestSourceSystemEventAsync(
-                    new SourceSystemEventInput(
-                        resolvedTenantSlug,
-                        request.WorkspaceSlug,
-                        eventId,
-                        request.SourceSystem,
-                        request.EventType,
-                        payloadJson,
-                        request.ExternalUserId,
-                        request.ExternalAccountId,
-                        request.ObservedAtUtc),
-                    cancellationToken);
-                return Results.Accepted(value: result);
-            }))
+            await ExecuteAsync(_ => IngestSourceSystemEventRequestAsync(
+                httpRequest,
+                tenantSlug,
+                dataSourceId: null,
+                service,
+                actorService,
+                webhookSigningSecretService,
+                cancellationToken)))
             .WithName("V1IngestSourceSystemEvent");
+
+        eventIngestor.MapPost("/connectors/{dataSourceId:guid}/events/source-system", async (
+                Guid dataSourceId,
+                HttpRequest httpRequest,
+                string? tenantSlug,
+                IScoutService service,
+                ICurrentActorService actorService,
+                WebhookSigningSecretService webhookSigningSecretService,
+                CancellationToken cancellationToken) =>
+            await ExecuteAsync(_ => IngestSourceSystemEventRequestAsync(
+                httpRequest,
+                tenantSlug,
+                dataSourceId,
+                service,
+                actorService,
+                webhookSigningSecretService,
+                cancellationToken)))
+            .WithName("V1IngestConnectorSourceSystemEvent");
 
         admin.MapPost("/api-clients", async (
                 V1CreateApiClientRequest request,
@@ -806,6 +796,55 @@ public static class VersionedRestEndpointRouteBuilderExtensions
             resolvedPageSize,
             items.Count,
             skipped + pageItems.Count < items.Count);
+    }
+
+    private static async Task<IResult> IngestSourceSystemEventRequestAsync(
+        HttpRequest httpRequest,
+        string? tenantSlug,
+        Guid? dataSourceId,
+        IScoutService service,
+        ICurrentActorService actorService,
+        WebhookSigningSecretService webhookSigningSecretService,
+        CancellationToken cancellationToken)
+    {
+        var resolvedTenantSlug = ResolveTenantSlug(actorService, tenantSlug);
+        var body = await ReadBodyAsync(httpRequest, cancellationToken);
+        var request = JsonSerializer.Deserialize<V1SourceSystemEventRequest>(body, JsonOptions)
+            ?? throw new InvalidOperationException("A source-system event body is required.");
+        var eventId = request.EventId ?? httpRequest.Headers["X-Scout-Event-Id"].FirstOrDefault() ?? Guid.NewGuid().ToString("N");
+        var signatureResult = await ValidateWebhookSignatureAsync(
+            httpRequest.HttpContext,
+            webhookSigningSecretService,
+            resolvedTenantSlug,
+            request.WorkspaceSlug,
+            eventId,
+            body,
+            cancellationToken);
+        if (!signatureResult.Accepted)
+        {
+            return Error(
+                httpRequest.HttpContext,
+                StatusCodes.Status401Unauthorized,
+                "webhook.signature_invalid",
+                $"Webhook signature validation failed: {signatureResult.Reason}.");
+        }
+
+        var payloadJson = request.PayloadJson
+            ?? JsonSerializer.Serialize(request.Payload ?? new { }, JsonOptions);
+        var result = await service.IngestSourceSystemEventAsync(
+            new SourceSystemEventInput(
+                resolvedTenantSlug,
+                request.WorkspaceSlug,
+                eventId,
+                request.SourceSystem,
+                request.EventType,
+                payloadJson,
+                request.ExternalUserId,
+                request.ExternalAccountId,
+                request.ObservedAtUtc,
+                dataSourceId),
+            cancellationToken);
+        return Results.Accepted(value: result);
     }
 
     private static async Task<IResult> ExecuteAsync(Func<HttpContext, Task<IResult>> action)

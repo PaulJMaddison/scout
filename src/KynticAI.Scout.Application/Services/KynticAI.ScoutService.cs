@@ -1263,7 +1263,10 @@ public sealed class ScoutService(
 
         await billingEnforcementService.EnsureWithinLimitAsync(tenant.Id, BillingLimitMetric.SourceEvents, 1, cancellationToken, workspace?.Id);
         var user = await ResolveUserForEventAsync(tenant, input.ExternalUserId, input.ExternalAccountId, cancellationToken);
-        var dataSource = await ResolveDataSourceForEventAsync(tenant.Id, normalizedSourceSystem, cancellationToken);
+        var dataSource = input.DataSourceId.HasValue
+            ? await ResolveDataSourceForEventAsync(tenant.Id, input.DataSourceId.Value, cancellationToken)
+                ?? throw new InvalidOperationException($"Data source '{input.DataSourceId.Value}' was not found.")
+            : await ResolveDataSourceForEventAsync(tenant.Id, normalizedSourceSystem, cancellationToken);
         var correlationId = Guid.NewGuid().ToString("N");
         var sourceEvent = SourceSystemEvent.Create(
             tenant.Id,
@@ -1809,6 +1812,16 @@ public sealed class ScoutService(
             x.Name.Contains(normalizedSource, StringComparison.OrdinalIgnoreCase)
             || x.ConnectionConfigJson.Contains(normalizedSource, StringComparison.OrdinalIgnoreCase));
     }
+
+    private async Task<DataSource?> ResolveDataSourceForEventAsync(
+        Guid tenantId,
+        Guid dataSourceId,
+        CancellationToken cancellationToken)
+        => await dbContext.DataSources
+            .AsNoTracking()
+            .FirstOrDefaultAsync(
+                x => x.TenantId == tenantId && x.Id == dataSourceId,
+                cancellationToken);
 
     private async Task<IReadOnlyList<SelectorDefinition>> MatchSelectorsForEventAsync(
         Guid tenantId,

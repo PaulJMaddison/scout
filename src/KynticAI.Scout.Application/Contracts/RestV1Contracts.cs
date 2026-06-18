@@ -56,7 +56,8 @@ public sealed record SourceSystemEventInput(
     string PayloadJson,
     string? ExternalUserId,
     string? ExternalAccountId,
-    DateTime? ObservedAtUtc);
+    DateTime? ObservedAtUtc,
+    Guid? DataSourceId = null);
 
 public sealed record SourceSystemEventAcceptedResult(
     string EventId,

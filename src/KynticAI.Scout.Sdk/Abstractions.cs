@@ -82,6 +82,7 @@ public interface IScoutAuditClient
 public interface IScoutEventsClient
 {
     Task<SourceSystemEventAcceptedResult> IngestSourceSystemEventAsync(string tenantSlug, SourceSystemEventRequest request, CancellationToken cancellationToken = default);
+    Task<SourceSystemEventAcceptedResult> IngestConnectorSourceSystemEventAsync(string tenantSlug, Guid dataSourceId, SourceSystemEventRequest request, CancellationToken cancellationToken = default);
 }
 
 public interface IScopedUsersClient
@@ -125,4 +126,5 @@ public interface IScopedAuditClient
 public interface IScopedEventsClient
 {
     Task<SourceSystemEventAcceptedResult> IngestSourceSystemEventAsync(SourceSystemEventRequest request, CancellationToken cancellationToken = default);
+    Task<SourceSystemEventAcceptedResult> IngestConnectorSourceSystemEventAsync(Guid dataSourceId, SourceSystemEventRequest request, CancellationToken cancellationToken = default);
 }

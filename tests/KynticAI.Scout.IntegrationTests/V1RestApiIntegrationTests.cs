@@ -363,6 +363,67 @@ public sealed class V1RestApiIntegrationTests
     }
 
     [Fact]
+    public async Task ConnectorSourceSystemEvents_RouteThroughLocalApiIngestPath_AndBindRegisteredDataSource()
+    {
+        await using var factory = new V1RestWebApplicationFactory();
+        await SeedAsync(factory.Services);
+        using var client = factory.CreateClient();
+
+        AuthenticateAsTenantAdmin(client);
+        var createdClientResponse = await client.PostAsJsonAsync("/api/v1/api-clients", new V1CreateApiClientRequest(
+            "Registered connector ingest client",
+            "primary",
+            ["events:ingest"]));
+        var createdClient = JsonNode.Parse(await createdClientResponse.Content.ReadAsStringAsync())!.AsObject();
+        var clientId = createdClient["clientId"]!.GetValue<string>();
+        var apiKey = createdClient["apiKey"]!.GetValue<string>();
+
+        client.DefaultRequestHeaders.Authorization = null;
+        client.DefaultRequestHeaders.Add("X-API-Client-Id", clientId);
+        client.DefaultRequestHeaders.Add("X-API-Key", apiKey);
+
+        var response = await SignedPostAsJsonAsync(
+            client,
+            $"/api/v1/connectors/{SeedIds.DataSourceId}/events/source-system",
+            apiKey,
+            new V1SourceSystemEventRequest(
+                "evt-connector-route-001",
+                "primary",
+                "connector-local-api-route",
+                "source_record.upserted",
+                new
+                {
+                    warehouse = new
+                    {
+                        health = "green"
+                    }
+                },
+                null,
+                "user-123",
+                "acct-123",
+                DateTime.UtcNow));
+
+        Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+        var payload = JsonNode.Parse(await response.Content.ReadAsStringAsync())!.AsObject();
+        Assert.Equal("Processed", payload["status"]!.GetValue<string>());
+        Assert.Equal(1, payload["storedSignalCount"]!.GetValue<int>());
+        Assert.True(payload["matchedSelectorCount"]!.GetValue<int>() >= 1);
+
+        await using var scope = factory.Services.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ScoutDbContext>();
+        var storedEvent = await dbContext.SourceSystemEvents.SingleAsync(x => x.EventId == "evt-connector-route-001");
+        Assert.Equal(SeedIds.DataSourceId, storedEvent.DataSourceId);
+        Assert.Equal(SeedIds.UserProfileId, storedEvent.UserProfileId);
+        Assert.Equal(SourceSystemEventStatus.Processed, storedEvent.Status);
+        var connectorSignals = await dbContext.UserSignals
+            .Where(x =>
+                x.DataSourceId == SeedIds.DataSourceId
+                && x.Key == "connector-local-api-route.source_record.upserted")
+            .ToListAsync();
+        Assert.Contains(connectorSignals, x => x.ValueJson.Contains("\"health\":\"green\"", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public async Task WebhookSigningSecrets_ValidateRotateRevokeReplayAndAudit()
     {
         await using var factory = new V1RestWebApplicationFactory();

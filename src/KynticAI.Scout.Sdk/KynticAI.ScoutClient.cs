@@ -349,6 +349,17 @@ internal sealed class ScoutEventsClient(ScoutHttpPipeline pipeline) : IScoutEven
             $"/api/v1/events/source-system?tenantSlug={Uri.EscapeDataString(tenantSlug)}",
             request,
             cancellationToken);
+
+    public Task<SourceSystemEventAcceptedResult> IngestConnectorSourceSystemEventAsync(
+        string tenantSlug,
+        Guid dataSourceId,
+        SourceSystemEventRequest request,
+        CancellationToken cancellationToken = default)
+        => pipeline.SendAsync<SourceSystemEventAcceptedResult>(
+            HttpMethod.Post,
+            $"/api/v1/connectors/{Uri.EscapeDataString(dataSourceId.ToString())}/events/source-system?tenantSlug={Uri.EscapeDataString(tenantSlug)}",
+            request,
+            cancellationToken);
 }
 
 internal sealed class ScoutTenantClient : IScoutTenantClient
@@ -449,4 +460,7 @@ internal sealed class ScopedEventsClient(string tenantSlug, IScoutEventsClient i
 {
     public Task<SourceSystemEventAcceptedResult> IngestSourceSystemEventAsync(SourceSystemEventRequest request, CancellationToken cancellationToken = default)
         => inner.IngestSourceSystemEventAsync(tenantSlug, request, cancellationToken);
+
+    public Task<SourceSystemEventAcceptedResult> IngestConnectorSourceSystemEventAsync(Guid dataSourceId, SourceSystemEventRequest request, CancellationToken cancellationToken = default)
+        => inner.IngestConnectorSourceSystemEventAsync(tenantSlug, dataSourceId, request, cancellationToken);
 }
