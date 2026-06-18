@@ -364,6 +364,7 @@ All endpoints support JWT bearer tokens, persisted API clients, `X-Request-Id` c
 | [Customer Data Plane](docs/customer-data-plane.md) | Where data lives and what the customer owns |
 | [Integration Layer](docs/integration-layer.md) | How source systems and consumers integrate |
 | [Control Plane / Data Plane](docs/control-plane-data-plane.md) | Architecture split between hosted and customer-owned |
+| [Cloud Commercial Control Contract](docs/cloud-commercial-control.md) | Scout boundary for optional Cloud licences, entitlements, downloads, support, and aggregate usage |
 | [Webhook Events](docs/webhook-events.md) | Provider-neutral event ingestion contract |
 | [Product Positioning](docs/product-positioning.md) | Marketing messaging and buyer narrative |
 | [Buyer FAQ](docs/buyer-faq.md) | Answers for CEOs, CTOs, product leaders, and architects |

@@ -12,8 +12,8 @@ The intended long-term structure is:
   The public customer data-plane core, demo/admin console, SDKs, extension contracts, GraphQL and REST APIs, and local/backend-only runtime.
 - `scout-enterprise`
   A future private repository for paid enterprise extensions such as the proprietary Enterprise Rust engine/vector DB, relationship-set analysis, attribution-path analysis, enterprise connectors, SSO, advanced governance, and managed deployment assets
-- `scout-cloud`
-  An optional future repository for commercial/control-plane concerns such as hosted account management, billing, licences, downloads, support access, update channels, aggregate usage, and cloud operations
+- `universalcontextlayer-cloud`
+  The private Cloud/control-plane repository for commercial concerns such as account management, billing seams, licences, entitlements, downloads, support access, update channels, aggregate usage metadata, data-plane registration, audit, and cloud operations.
 
 The public repo should define the stable contracts and composition points that let those future codebases depend on the open core without copying it.
 
@@ -163,7 +163,9 @@ If a connector knows the business semantics of a named vendor or a named custome
 
 Public code can include simple local authentication, API client metadata, provider-neutral usage records, no-op policy evaluators, mock audit exporters, and interfaces that describe how enterprise modules plug in.
 
-Private code should implement Enterprise Rust engine/vector DB analysis, enterprise SSO/SAML, billing provider integration, entitlement enforcement, policy engines, compliance exporters, vault integrations, private cloud automation, and customer-specific deployment packs.
+Private code should implement Enterprise Rust engine/vector DB analysis, enterprise SSO/SAML, billing provider integration, commercial licence/entitlement enforcement, policy engines, compliance exporters, vault integrations, private cloud automation, Cloud commercial-control workflows, and customer-specific deployment packs.
+
+Cloud commercial-control code must still respect the customer data-plane boundary: it may receive account, licence, entitlement, download/update, support, deployment registration, health, audit, and aggregate usage metadata, but not raw customer records or derived relationship intelligence by default. See [Cloud Commercial Control Contract](cloud-commercial-control.md).
 
 ## Decision rule
 

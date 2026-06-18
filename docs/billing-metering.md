@@ -2,9 +2,19 @@
 
 KynticAI Scout now includes billing foundations without bundling a payment provider.
 
-## Plans
+## Plans And Canonical Commercial Tiers
 
-The seeded plan catalogue contains `Free`, `Pro`, `Business`, and `Enterprise`.
+The public Scout repo keeps local billing and metering foundations provider-neutral. Seeded local plan values such as `Free`, `Pro`, `Business`, and `Enterprise` are legacy compatibility values in this open-core repo, not the canonical Cloud commercial product model.
+
+Use these canonical tiers when aligning Scout documentation with Cloud commercial control:
+
+| Canonical tier | Legacy/local compatibility values | Meaning |
+| --- | --- | --- |
+| Scout | `Free`; deprecated `Pro` | Public/open-core customer-owned data-plane tier. |
+| Fortress | `Business`; `Enterprise` | Paid private runtime and Enterprise/Fortress extension tier. |
+| Elite | `PrivateCloud` in Cloud as a highest-rank compatibility alias pending contract review | Operator-assisted strategic tier above Fortress. |
+
+The Cloud control plane owns commercial subscription/licence/entitlement metadata for paid paths. Scout local billing records remain safe, provider-neutral usage and limit foundations so the open-source demo keeps working without Stripe, Paddle, or Cloud.
 
 Each plan can define limits for:
 

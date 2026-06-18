@@ -20,13 +20,23 @@ Typical data-plane components:
 
 The public repository includes safe generic connectors, mock connectors, and paid/private connector placeholders only. Paid enterprise connector code, customer-specific mappings, the proprietary Enterprise Rust engine/vector DB, and private deployment packs should live outside this repo.
 
-## Hosted Control Plane
+## Cloud Commercial Control Plane
 
-The hosted control plane is an optional commercial seam, not a requirement for the open-core product. It may manage accounts, plans, licences, downloads, documentation, support access, update channels, and optional aggregate usage reporting.
+The Cloud commercial control plane is an optional commercial seam, not a requirement for the open-core product. It may manage accounts, subscriptions, licences, entitlements, private download metadata, update channels, support access, data-plane registration, deployment heartbeat metadata, and optional aggregate usage reporting.
 
-Paid/private Cloud/control-plane modules may also manage hosted account management, billing, commercial licence portals, download portals, support portals, and cloud operations. They are commercial implementations outside this public repo.
+The canonical Cloud implementation lives outside this public repo at `C:\Kyntic\universalcontextlayer-cloud`. Its WP1 contract defines Cloud as commercial/control-plane metadata only. Scout open-core use must remain runnable without Cloud.
+
+Canonical tier alignment:
+
+| Tier | Scout-side meaning | Cloud-side role |
+| --- | --- | --- |
+| Scout | Public/open-core customer-owned data plane. | Optional registration, support/update metadata, and aggregate-only usage where configured. |
+| Fortress | Paid private runtime around Scout/UCL. | Subscription/licence entitlement, private download/update metadata, support, data-plane registration, and aggregate-only health/usage. |
+| Elite | Operator-assisted strategic tier on top of Fortress. | Elite entitlement and operator/support metadata while raw outcomes remain in the customer data plane by default. |
 
 Control-plane metadata should be limited to operational account information, licence state, package/update metadata, support access, entitlement metadata, and optional aggregate usage. It must not require raw CRM records, ERP records, support tickets, product usage, billing events, customer emails, chat messages, calendar descriptions, issue descriptions, documents, attachments, warehouse rows, analytics event payloads, local evidence-pack JSON, exact linked records, context facts, citations, weighted signals, recommendations, confidence, caveats, or per-entity relationship metadata to leave the customer environment.
+
+See [Cloud Commercial Control Contract](cloud-commercial-control.md) for the Scout-side contract notes that mirror the Cloud WP1 artefacts.
 
 ## Relationship JSON Boundary
 
@@ -62,7 +72,7 @@ flowchart LR
         DataPlane --> Consumers
     end
 
-    subgraph Hosted["Optional hosted control plane"]
+    subgraph Hosted["Optional Cloud commercial control plane"]
         Account["accounts and licences"]
         Downloads["downloads and update channels"]
         Support["docs and support access"]
