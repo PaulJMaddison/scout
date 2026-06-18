@@ -1,0 +1,38 @@
+# WP2 Upgrade And LanceDB Migration
+
+This work package records the read-only discovery audit for the upgrade path from KynticAI Scout to Elite/Fortress, with a focus on storage, connector routing, local ingestion, LanceDB/vector expectations, Cloud entitlement touchpoints, and likely breakage during migration.
+
+## Scope
+
+- Discover how KynticAI Scout currently stores source events, selector executions, context facts, provenance, relationships, signals, and demo/customer operational records.
+- Discover how connectors currently fetch or write data, and whether connector traffic already routes through the local API.
+- Discover what Enterprise/Fortress expects for local vector storage, LanceDB, pgvector, relationship sets, attribution paths, outcomes, and governed JSON handoff.
+- Discover what Cloud already provides for licence, entitlement, download/update, data-plane registration, heartbeat, and Fortress instance metadata checks.
+- Record upgrade and migration risks only. This step makes no code, schema, API, package, deployment, or runtime changes.
+
+## Repos Involved
+
+| Area | Repo | Local folder |
+| --- | --- | --- |
+| Scout/open-core | `UCL` | `C:\Kyntic\UCL` |
+| Enterprise/Fortress | `universalcontextlayer-enterprise` | `C:\Kyntic\universalcontextlayer-enterprise` |
+| Cloud/control plane | `universalcontextlayer-cloud` | `C:\Kyntic\universalcontextlayer-cloud` |
+| Naming source of truth | KynticAI docs | `C:\Kyntic\docs\source-of-truth-naming-map.md` |
+
+## Canonical Product Boundaries
+
+- KynticAI Scout is the public/open-core, customer-owned data-plane product. It owns public ingestion, selector execution, local context facts, provenance, audit, safe connector abstractions, and public fallback intelligence.
+- Enterprise/Fortress is the private paid extension path. It owns proprietary relationship-set analysis, attribution paths, comparable examples, governed JSON handoff, private connector/runtime packages, and the Rust engine/vector DB boundary.
+- Elite is the operator-assisted strategic product on top of Fortress. It can add reviewed outcome loops and private/local model/operator packs, while raw customer data remains in the customer-owned data plane.
+- Cloud is the optional commercial/control-plane layer. It owns accounts, subscriptions, licences, entitlements, private artefact metadata, downloads/update checks, data-plane registration, heartbeat, support metadata, and aggregate-only usage metadata.
+- Cloud must not receive raw customer data, connector output, vectors, context facts, prompt packages, derived relationship intelligence, relationship sets, attribution paths, or private ranking details by default.
+- Clarity and Importance are separate KynticAI products and are not required dependencies for Scout, Enterprise/Fortress, Cloud, or Elite.
+
+## File Index
+
+| File | Purpose |
+| --- | --- |
+| `README.md` | Work-package scope, repos, canonical boundaries, and artefact index. |
+| `01-discovery-audit.md` | Read-only discovery audit of Scout storage, connector routing, API ingestion, Enterprise/Fortress vector expectations, Cloud entitlements, and upgrade/migration risks. |
+| `handoff.md` | Summary, findings, decisions, open questions, and recommended next prompt. |
+| `status.json` | Machine-readable current step, related repos, completed steps, open risks, and next prompt. |

@@ -1,0 +1,43 @@
+{
+  "workPackage": "wp2-upgrade-and-lancedb-migration",
+  "currentStep": "01-discovery-audit",
+  "primaryRepo": "UCL",
+  "localPath": "C:\\Kyntic\\UCL",
+  "relatedRepos": [
+    {
+      "repo": "UCL",
+      "role": "Scout/open-core public data plane",
+      "localPath": "C:\\Kyntic\\UCL"
+    },
+    {
+      "repo": "universalcontextlayer-enterprise",
+      "role": "Enterprise/Fortress private runtime and vector DB path",
+      "localPath": "C:\\Kyntic\\universalcontextlayer-enterprise"
+    },
+    {
+      "repo": "universalcontextlayer-cloud",
+      "role": "Cloud/control-plane licence, entitlement, download, registration, and heartbeat path",
+      "localPath": "C:\\Kyntic\\universalcontextlayer-cloud"
+    }
+  ],
+  "completedSteps": [
+    "read naming source of truth",
+    "checked git status across Scout/open-core, Enterprise/Fortress, and Cloud before editing",
+    "read laptop-local test command guidance",
+    "completed read-only Scout storage, connector routing, and API ingestion discovery",
+    "completed read-only Enterprise/Fortress LanceDB, pgvector, pipeline, and relationship-analysis discovery",
+    "completed read-only Cloud licence, entitlement, download/update, data-plane registration, heartbeat, and Fortress instance discovery",
+    "created README.md, 01-discovery-audit.md, handoff.md, and status.json for this work package"
+  ],
+  "openRisks": [
+    "Scout does not currently persist canonical exact data items, relationship sets, attribution paths, outcome events, or vectors as first-class local storage.",
+    "Selector connectors are in-process fetchers and do not currently write canonical source records through the local REST API.",
+    "The older scout-n8n-node package appears to target a stale ingestion route.",
+    "Enterprise/Fortress live LanceDB and pgvector provider paths require explicit native-store proof and are not routine local checks.",
+    "pgvector write integration is documented as a placeholder in the audited private vector write seam.",
+    "A deterministic mapping from Scout tenant/workspace/user/source/fact IDs to Fortress postgres_pk/entity_type/layer/citation/provenance IDs is not defined yet.",
+    "Replay or backfill through current Scout ingestion could trigger billing limits, duplicate suppression, recompute jobs, and normal audit telemetry.",
+    "Cloud can gate entitlement and package access but must not receive raw data, vectors, evidence packs, relationship sets, attribution paths, or derived relationship intelligence."
+  ],
+  "nextPrompt": "Create docs/work-packages/wp2-upgrade-and-lancedb-migration/02-migration-contract-and-adapter-plan.md. Use 01-discovery-audit.md as the source of truth. Define the Scout-to-Enterprise/Fortress migration contract, canonical local data item model, relationship set and attribution path model, outcome event model, vector ID/layer mapping, connector write-routing decision, backfill/replay rules, Cloud entitlement gates, rollback boundaries, and proof criteria for LanceDB/pgvector. Do not make code changes until the contract is reviewed."
+}
