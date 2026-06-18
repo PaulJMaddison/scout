@@ -6,8 +6,6 @@ const dataSourceKindSchema = z.enum([
   'SQL_METRIC',
   'PRODUCT_USAGE',
   'EVENT_STREAM',
-  'API_PAYLOAD',
-  'MOCK',
 ] satisfies DataSourceKind[])
 
 const semanticDataTypeSchema = z.enum([
@@ -161,7 +159,7 @@ Return JSON only with this top-level shape:
     {
       "name": "string",
       "description": "string",
-      "kind": "CRM | SQL_METRIC | PRODUCT_USAGE | EVENT_STREAM | API_PAYLOAD | MOCK",
+      "kind": "CRM | SQL_METRIC | PRODUCT_USAGE | EVENT_STREAM",
       "connectionConfig": { "connectorType": "string", "...": "any evidenced config fields" }
     }
   ],

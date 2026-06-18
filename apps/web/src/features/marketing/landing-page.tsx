@@ -1,66 +1,215 @@
 import { Link } from '@tanstack/react-router'
-import { ArrowRight, Building2, DatabaseZap, GitBranch, ShieldCheck, Sparkles, Workflow } from 'lucide-react'
+import {
+  ArrowRight,
+  BookOpen,
+  Building2,
+  Cable,
+  DatabaseZap,
+  FileSearch,
+  GitBranch,
+  PlugZap,
+  RadioTower,
+  ShieldCheck,
+  Sparkles,
+  Workflow,
+} from 'lucide-react'
 import { Badge, Button, Card, MetricCard, PageHeader, Panel } from '@/components/ui/primitives'
 import { BeforeAfter, Timeline } from '@/features/marketing/marketing-components'
+
+const plainEnglishPillars = [
+  {
+    icon: Cable,
+    title: 'Connect data you already own',
+    body: 'Scout connects to existing operational sources: PostgreSQL tables, generic SQL views, REST APIs, webhooks, CSV-style imports, and safe demo connectors. Source systems remain the operational truth.',
+  },
+  {
+    icon: FileSearch,
+    title: 'Turn records into business meaning',
+    body: 'Selectors map raw fields and events into governed facts such as adoption health, commercial fit, support risk, buying intent, confidence, freshness, and provenance.',
+  },
+  {
+    icon: Sparkles,
+    title: 'Use the outcomes elsewhere',
+    body: 'Profiles, evidence packs, GraphQL, REST, SDKs, and webhook/event history let apps, dashboards, agents, local LLMs, and workflows consume trusted context.',
+  },
+] as const
+
+const firstUseSteps = [
+  ['1', 'Install and self-test', 'Run the Docker quick start. The start script builds the web/API images, starts Postgres, tests connectors and webhooks, then opens the local install report.'],
+  ['2', 'Open the console', 'Sign in to the demo tenant, then start on the guided demo page before moving into data sources and admin tools.'],
+  ['3', 'Connect a dataset', 'Use Data Sources to pick an executable connector, validate the sample configuration, register it, run health, and send a source event.'],
+  ['4', 'Read the outcomes', 'Open the customer profile, relationship intelligence, example sales support, GraphQL, REST, or the Postgres-backed records to see what Scout computed.'],
+] as const
+
+const includedScoutParts = [
+  ['Docker stack', 'Self-contained web app, API, PostgreSQL, migrations, seeded demo tenant, observability services, and health checks.'],
+  ['Connector layer', 'Executable generic connectors for SQL/PostgreSQL, REST, CSV/demo-style payloads, mock CRM/billing/support, inventory, plus a connector template for private builds.'],
+  ['Semantic layer', 'Selectors, schema registry, recomputation, exact linked records, context facts, evidence snapshots, provenance, freshness, confidence, masking, and audit logs.'],
+  ['Outcome surfaces', '360 customer profile, relationship intelligence, example sales support, event history, connector lab, GraphQL, REST, SDK-shaped examples, and admin governance pages.'],
+] as const
+
+const postgresOutcomeSteps = [
+  ['Point Scout at a table or view', 'Use the SQL Database/PostgreSQL connector with the built-in customer operations database or an approved external PostgreSQL connection.'],
+  ['Map columns to semantic facts', 'Selectors decide which columns become trusted attributes, how confidence is scored, how freshness is calculated, and which source created the evidence.'],
+  ['Trigger recompute', 'A connector health check, source event, webhook, or selector run updates the customer context stored in Scout.'],
+  ['Consume the result', 'Read the outcome through the customer profile, relationship intelligence, example agent evidence pack, GraphQL, REST, or downstream product workflow.'],
+] as const
 
 export function LandingPage() {
   return (
     <div className="grid gap-8">
-      <section className="grid gap-6 rounded-[28px] border border-ink-900/8 bg-ivory-50/82 p-6 shadow-[0_18px_45px_rgba(24,18,15,0.08)] sm:p-8 xl:grid-cols-[0.9fr_1.1fr] xl:items-center">
-        <div className="min-w-0">
+      <section className="grid gap-6 rounded-[28px] border border-ink-900/8 bg-ivory-50/88 p-6 shadow-[0_18px_45px_rgba(24,18,15,0.08)] sm:p-8 xl:grid-cols-[1.04fr_0.96fr] xl:items-start">
+        <div className="min-w-0 space-y-6">
           <img
             src="/brand/kynticai-logo-lockup.png"
             alt="KynticAI"
             className="h-16 w-auto max-w-full"
           />
-          <div className="mt-8 h-0.5 w-24 bg-copper-500" />
-          <p className="mt-6 font-display text-[clamp(2rem,3.3vw,3.25rem)] italic leading-tight text-ink-700">
-            Most systems were designed to manage work, not empower.
-          </p>
-          <p className="mt-4 max-w-xl text-sm leading-7 text-ink-600">
-            Scout is the governed customer data plane from KynticAI: exact linked records, semantic context, provenance, selectors, connectors, evidence packs, and SDKs for AI-enabled products.
-          </p>
-        </div>
-        <div className="grid gap-4 rounded-[24px] border border-copper-500/18 bg-ivory-25 p-5 md:grid-cols-[14rem_1fr] md:items-center">
-          <img
-            src="/brand/kynticai-logo-mark.png"
-            alt="KynticAI Sovereign Rust K mark"
-            className="aspect-square w-full max-w-[14rem] rounded-[18px] object-contain"
-          />
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-copper-700">Sovereign Rust identity</p>
-            <h2 className="mt-3 font-display text-4xl leading-tight text-ink-950">Aged book discipline, industrial data infrastructure.</h2>
-            <p className="mt-3 text-sm leading-7 text-ink-700">
-              The KynticAI mark now anchors the demo in the same visual language as the company site: parchment surfaces, amethyst text, copper action states, and sober enterprise proof.
-            </p>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-sage-700">Start here</p>
+            <h1 className="mt-3 max-w-4xl font-display text-[clamp(2.7rem,5.4vw,5.8rem)] leading-[0.96] tracking-normal text-ink-950">
+              Scout turns existing data into governed evidence your products can use.
+            </h1>
           </div>
-        </div>
-      </section>
-
-      <PageHeader
-        eyebrow="KynticAI Scout"
-        title="The customer-owned data plane for governed AI evidence packs."
-        description="Your SAP. Your Postgres. Your CRM. Scout keeps authorised operational data inside the customer data plane, maps source signals into evidence with provenance, and serves governed context to apps, workflows, reports, local LLMs, and agents."
-        actions={
-          <>
-            <Link to="/pilot">
+          <p className="max-w-3xl text-base leading-8 text-ink-700">
+            For a new user, think of Scout as a self-hosted data plane. It does not replace CRM, ERP, support, billing, product telemetry, spreadsheets, or Postgres. It connects to those sources, translates selected fields and events into trusted business facts, stores the evidence with provenance, and exposes useful outcomes through the console, APIs, SDK-style contracts, and downstream workflows.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Badge tone="accent">Docker-first install</Badge>
+            <Badge tone="neutral">Customer-owned Postgres data plane</Badge>
+            <Badge tone="success">GraphQL, REST, webhooks, connector lab</Badge>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <Link to="/login">
               <Button>
-                Request paid pilot scope
+                Open the console
                 <ArrowRight className="size-4" />
               </Button>
             </Link>
             <Link to="/demo">
               <Button variant="secondary">
-                Open the data-plane demo
+                Start guided walkthrough
+                <BookOpen className="size-4" />
+              </Button>
+            </Link>
+            <Link to="/connectors">
+              <Button variant="secondary">
+                See connectors
+                <PlugZap className="size-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+
+        <div className="rounded-[24px] border border-copper-500/18 bg-ivory-25 p-5">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-copper-700">First 20 minutes</p>
+          <h2 className="mt-3 font-display text-3xl leading-tight text-ink-950">Use the demo in this order</h2>
+          <div className="mt-5 grid gap-3">
+            {firstUseSteps.map(([number, title, body]) => (
+              <div key={title} className="grid grid-cols-[2.2rem_1fr] gap-3 rounded-[18px] border border-ink-900/8 bg-white/70 p-3">
+                <span className="flex size-9 items-center justify-center rounded-full bg-copper-500 text-sm font-bold text-ivory-50">
+                  {number}
+                </span>
+                <div>
+                  <p className="font-semibold text-ink-950">{title}</p>
+                  <p className="mt-1 text-sm leading-6 text-ink-700">{body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <PageHeader
+        eyebrow="Plain-English model"
+        title="Connect sources, define meaning, then consume governed outcomes."
+        description="The pages below explain the practical workflow before the commercial story: what Scout includes, how existing datasets are connected, and how outcomes come out of the Postgres-backed data plane."
+        actions={
+          <>
+            <Link to="/platform">
+              <Button>
+                Explore the data plane
                 <ArrowRight className="size-4" />
               </Button>
             </Link>
-            <Link to="/platform">
-              <Button variant="secondary">Explore the data plane</Button>
+            <Link to="/login">
+              <Button variant="secondary">
+                Open admin console
+                <ArrowRight className="size-4" />
+              </Button>
             </Link>
           </>
         }
       />
+
+      <section className="grid gap-4 xl:grid-cols-[0.98fr_1.02fr]">
+        <Panel eyebrow="What Scout does" title="A beginner view of the system">
+          <div className="grid gap-3">
+            {plainEnglishPillars.map(({ icon: Icon, title, body }) => (
+              <div key={title} className="rounded-[20px] border border-ink-900/8 bg-ivory-25 px-4 py-4">
+                <div className="flex items-start gap-3">
+                  <Icon className="mt-1 size-5 shrink-0 text-copper-700" />
+                  <div>
+                    <p className="font-semibold text-ink-950">{title}</p>
+                    <p className="mt-2 text-sm leading-7 text-ink-700">{body}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Panel>
+
+        <Panel eyebrow="What is included" title="The repo gives you a working data-plane console">
+          <div className="grid gap-3 md:grid-cols-2">
+            {includedScoutParts.map(([title, body]) => (
+              <div key={title} className="rounded-[20px] border border-ink-900/8 bg-ivory-25 px-4 py-4">
+                <p className="font-semibold text-ink-950">{title}</p>
+                <p className="mt-2 text-sm leading-7 text-ink-700">{body}</p>
+              </div>
+            ))}
+          </div>
+        </Panel>
+      </section>
+
+      <Panel eyebrow="Connecting existing datasets" title="How Postgres, SQL, REST, CSV-style payloads, and webhooks become outcomes">
+        <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+          <div className="rounded-[20px] border border-ink-900/8 bg-ivory-25 px-5 py-5">
+            <DatabaseZap className="size-6 text-copper-700" />
+            <h3 className="mt-4 font-display text-2xl leading-tight text-ink-950">Getting outcomes from a Postgres-backed dataset</h3>
+            <p className="mt-3 text-sm leading-7 text-ink-700">
+              The Docker install runs Scout with PostgreSQL. A SQL/PostgreSQL connector can read an approved table or view, selectors convert columns into business facts, and the resulting context appears in profiles, relationship intelligence, evidence packages, APIs, and admin history. The demo uses seeded customer operations tables so people can see the path before wiring in their own estate.
+            </p>
+          </div>
+          <div className="grid gap-3 md:grid-cols-2">
+            {postgresOutcomeSteps.map(([title, body], index) => (
+              <div key={title} className="rounded-[20px] border border-ink-900/8 bg-white/70 px-4 py-4">
+                <div className="flex items-start gap-3">
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-sage-700 text-xs font-bold text-ivory-50">
+                    {index + 1}
+                  </span>
+                  <div>
+                    <p className="font-semibold text-ink-950">{title}</p>
+                    <p className="mt-2 text-sm leading-7 text-ink-700">{body}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          {[
+            [PlugZap, 'Connector Lab', 'Validate and register executable connector plugins from the console.'],
+            [RadioTower, 'Source events and webhooks', 'Send events by loopback, LAN IP, REST, or source-system webhook URLs.'],
+            [Workflow, 'Outcome consumers', 'Use GraphQL, REST, profiles, relationship intelligence, and evidence packs once context has been computed.'],
+          ].map(([Icon, title, body]) => (
+            <div key={title as string} className="rounded-[20px] border border-ink-900/8 bg-ivory-25 px-4 py-4">
+              <Icon className="size-5 text-copper-700" />
+              <p className="mt-3 font-semibold text-ink-950">{title as string}</p>
+              <p className="mt-2 text-sm leading-7 text-ink-700">{body as string}</p>
+            </div>
+          ))}
+        </div>
+      </Panel>
 
       <section className="grid gap-5 xl:grid-cols-[1.12fr_0.88fr]">
         <Card className="overflow-hidden border-none bg-[linear-gradient(135deg,#1A1818_0%,#2f2433_52%,#4A2E19_100%)] px-7 py-8 text-ivory-50 shadow-[0_28px_80px_rgba(24,18,15,0.28)] sm:px-9">

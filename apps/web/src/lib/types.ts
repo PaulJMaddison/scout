@@ -3,8 +3,6 @@ export type DataSourceKind =
   | 'SQL_METRIC'
   | 'PRODUCT_USAGE'
   | 'EVENT_STREAM'
-  | 'API_PAYLOAD'
-  | 'MOCK'
 
 export type DataSourceStatus = 'ACTIVE' | 'INACTIVE' | 'ERROR'
 
@@ -105,6 +103,96 @@ export interface ConnectorCatalogueEntry {
   configurationSchemaJson: string
   credentialSchemaJson: string
   healthCheckMode: string
+}
+
+export interface ConnectorPluginDefinition {
+  connectorType: string
+  displayName: string
+  description: string
+  aliases: string[]
+  supportedDataSourceKinds: string[]
+  supportedCapabilities: string[]
+  configurationSchemaJson: string
+  credentialSchemaJson: string
+  sampleConfigurationJson: string
+}
+
+export interface ValidateConnectorConfigurationInput {
+  connectorType: string
+  kind: DataSourceKind
+  configurationJson: string
+  credentialsJson?: string | null
+}
+
+export interface ConnectorConfigurationValidationResult {
+  connectorType: string
+  isValid: boolean
+  errors: string[]
+  sanitizedConfigurationJson: string
+  configurationSchemaJson: string
+}
+
+export interface RegisterConnectorInput {
+  id?: string | null
+  tenantSlug: string
+  name: string
+  description: string
+  kind: DataSourceKind
+  connectorType: string
+  configurationJson: string
+  credentialsJson?: string | null
+}
+
+export interface ConnectorRegistrationResult {
+  dataSourceId: string
+  name: string
+  description: string
+  connectorType: string
+  sanitizedConfigurationJson: string
+  status: string
+}
+
+export interface CheckConnectorHealthInput {
+  tenantSlug: string
+  dataSourceId: string
+  externalUserId?: string | null
+  mode?: string | null
+}
+
+export interface ConnectorHealthResult {
+  dataSourceId: string
+  connectorType: string
+  isHealthy: boolean
+  status: string
+  messages: string[]
+  detailsJson: string
+  checkedAtUtc: string
+}
+
+export interface IngestSourceSystemEventInput {
+  tenantSlug: string
+  workspaceSlug?: string | null
+  eventId?: string | null
+  sourceSystem: string
+  eventType: string
+  payload?: unknown
+  payloadJson?: string | null
+  externalUserId?: string | null
+  externalAccountId?: string | null
+  observedAtUtc?: string | null
+}
+
+export interface SourceSystemEventAcceptedResult {
+  eventId: string
+  tenantId: string
+  tenantSlug: string
+  workspaceId?: string | null
+  userProfileId?: string | null
+  storedSignalCount: number
+  matchedSelectorCount: number
+  status: string
+  isDuplicate: boolean
+  acceptedAtUtc: string
 }
 
 export interface BillingPlanLimit {

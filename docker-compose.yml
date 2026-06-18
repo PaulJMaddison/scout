@@ -19,7 +19,8 @@ services:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d postgres"]
       interval: 5s
       timeout: 5s
-      retries: 20
+      start_period: 20s
+      retries: 30
 
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.126.0
@@ -87,13 +88,13 @@ services:
     restart: unless-stopped
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
-      Platform__Mode: ${Platform__Mode:-BackendOnly}
+      Platform__Mode: ${Platform__Mode:-LocalDemo}
       Platform__EnableGraphQl: ${Platform__EnableGraphQl:-true}
       Platform__EnableRest: ${Platform__EnableRest:-true}
       Platform__EnableOpenApi: ${Platform__EnableOpenApi:-true}
       Database__Provider: ${Database__Provider:-Postgres}
       Bootstrap__ApplyMigrationsOnStartup: ${Bootstrap__ApplyMigrationsOnStartup:-true}
-      Bootstrap__SeedDemoData: ${Bootstrap__SeedDemoData:-false}
+      Bootstrap__SeedDemoData: ${Bootstrap__SeedDemoData:-true}
       DataProtection__ApplicationName: ${DataProtection__ApplicationName:-KynticAIScout}
       DataProtection__KeyRingPath: ${DataProtection__KeyRingPath:-/var/lib/scout/data-protection-keys}
       DataProtection__RequirePersistentKeys: ${DataProtection__RequirePersistentKeys:-true}
@@ -122,6 +123,12 @@ services:
         condition: service_healthy
       otel-collector:
         condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://127.0.0.1:8080/health/ready"]
+      interval: 10s
+      timeout: 5s
+      start_period: 10m
+      retries: 30
 
   web:
     build:
@@ -136,7 +143,8 @@ services:
     ports:
       - "5173:8080"
     depends_on:
-      - api
+      api:
+        condition: service_started
 
 volumes:
   scout-postgres:

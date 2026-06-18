@@ -1,5 +1,16 @@
 import { Link } from '@tanstack/react-router'
-import { ArrowRight, DatabaseZap, ShieldCheck, Sparkles, Waypoints } from 'lucide-react'
+import {
+  ArrowRight,
+  BookOpen,
+  DatabaseZap,
+  FileSearch,
+  PlugZap,
+  RadioTower,
+  ShieldCheck,
+  Sparkles,
+  Waypoints,
+  Workflow,
+} from 'lucide-react'
 import { Badge, Button, Card, MetricCard, PageHeader, Panel } from '@/components/ui/primitives'
 import {
   executiveStorySteps,
@@ -7,6 +18,29 @@ import {
   useExecutiveDemoData,
 } from '@/features/demo/executive-demo-data'
 import { ExecutiveStoryFooter } from '@/features/demo/executive-story-footer'
+
+const consoleStarterSteps = [
+  {
+    icon: BookOpen,
+    title: 'Understand the installed system',
+    body: 'The Docker install gives you a web console, API, PostgreSQL-backed Scout data plane, seeded demo tenant, connector lab, event history, selectors, governance, and evidence consumers.',
+  },
+  {
+    icon: PlugZap,
+    title: 'Connect or simulate a dataset',
+    body: 'Use Data Sources to validate and register a connector. Start with Mock CRM, REST, CSV/demo payloads, or SQL/PostgreSQL before moving to private customer connectors.',
+  },
+  {
+    icon: FileSearch,
+    title: 'Convert rows and events into facts',
+    body: 'Selectors and schema definitions translate raw fields into semantic attributes with confidence, freshness, provenance, masking, and recomputation history.',
+  },
+  {
+    icon: Workflow,
+    title: 'Use the resulting outcomes',
+    body: 'Read context through the 360 profile, relationship intelligence, example sales support, GraphQL, REST, or downstream products that need cited business evidence.',
+  },
+] as const
 
 export function DemoModePage() {
   const {
@@ -19,18 +53,106 @@ export function DemoModePage() {
   return (
     <div className="grid gap-8">
       <PageHeader
-        eyebrow="Step 1 of 5"
-        title="This synthetic demo shows how exact authorised customer data becomes an evidence-backed next action."
-        description="KynticAI Scout links CRM contact/account, registration, opportunity, email, web, support, product usage, billing, and won/lost outcome signals inside the customer data plane, then serves governed evidence to your own systems and local AI consumers."
+        eyebrow="Start here in the console"
+        title="Learn what Scout does, connect data, then follow the evidence to an outcome."
+        description="This first page is the simple route through the system: understand the installed data plane, connect or simulate a source dataset, let selectors create governed facts, then inspect the outcomes through profiles, APIs, events, and example consumers."
         actions={
-          <Link to={executiveStorySteps[1].to}>
-            <Button>
-              Start the walkthrough
-              <ArrowRight className="size-4" />
-            </Button>
-          </Link>
+          <>
+            <Link to={executiveStorySteps[1].to}>
+              <Button>
+                Start evidence walkthrough
+                <ArrowRight className="size-4" />
+              </Button>
+            </Link>
+            <Link to="/login">
+              <Button variant="secondary">
+                Sign in for connector lab
+                <PlugZap className="size-4" />
+              </Button>
+            </Link>
+          </>
         }
       />
+
+      <section className="grid gap-4 2xl:grid-cols-[1.05fr_0.95fr]">
+        <Panel eyebrow="How to use Scout" title="A normal first-user workflow">
+          <div className="grid gap-3 md:grid-cols-2">
+            {consoleStarterSteps.map(({ icon: Icon, title, body }) => (
+              <div key={title} className="rounded-[20px] border border-ink-900/8 bg-ivory-25 px-4 py-4">
+                <div className="flex items-start gap-3">
+                  <Icon className="mt-1 size-5 shrink-0 text-copper-700" />
+                  <div>
+                    <p className="font-semibold text-ink-950">{title}</p>
+                    <p className="mt-2 text-sm leading-7 text-ink-700">{body}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Panel>
+
+        <Panel eyebrow="Where to click next" title="Use these pages to prove the full path">
+          <div className="grid gap-3">
+            <Link
+              to="/data-sources"
+              className="rounded-[20px] border border-ink-900/8 bg-ivory-25 px-4 py-4 transition hover:border-copper-400/55 hover:bg-copper-50/50"
+            >
+              <div className="flex items-start gap-3">
+                <RadioTower className="mt-1 size-5 shrink-0 text-sage-700" />
+                <div>
+                  <p className="font-semibold text-ink-950">Data Sources</p>
+                  <p className="mt-2 text-sm leading-7 text-ink-700">
+                    Validate connectors, register a source, run health, and send a demo source event.
+                  </p>
+                </div>
+              </div>
+            </Link>
+            <Link
+              to="/admin/events"
+              className="rounded-[20px] border border-ink-900/8 bg-ivory-25 px-4 py-4 transition hover:border-copper-400/55 hover:bg-copper-50/50"
+            >
+              <div className="flex items-start gap-3">
+                <RadioTower className="mt-1 size-5 shrink-0 text-sage-700" />
+                <div>
+                  <p className="font-semibold text-ink-950">Webhook Events</p>
+                  <p className="mt-2 text-sm leading-7 text-ink-700">
+                    Confirm LAN/local webhook events were processed and matched selectors.
+                  </p>
+                </div>
+              </div>
+            </Link>
+            <Link
+              to="/customers/$externalUserId"
+              params={{ externalUserId: '123' }}
+              className="rounded-[20px] border border-ink-900/8 bg-ivory-25 px-4 py-4 transition hover:border-copper-400/55 hover:bg-copper-50/50"
+            >
+              <div className="flex items-start gap-3">
+                <RadioTower className="mt-1 size-5 shrink-0 text-sage-700" />
+                <div>
+                  <p className="font-semibold text-ink-950">360 Customer Profile</p>
+                  <p className="mt-2 text-sm leading-7 text-ink-700">
+                    Inspect the Postgres-backed context snapshot for Avery Stone and Larkspur Logistics.
+                  </p>
+                </div>
+              </div>
+            </Link>
+            <Link
+              to="/relationship-intelligence"
+              className="rounded-[20px] border border-ink-900/8 bg-ivory-25 px-4 py-4 transition hover:border-copper-400/55 hover:bg-copper-50/50"
+            >
+              <div className="flex items-start gap-3">
+                <RadioTower className="mt-1 size-5 shrink-0 text-sage-700" />
+                <div>
+                  <p className="font-semibold text-ink-950">Relationship Intelligence</p>
+                  <p className="mt-2 text-sm leading-7 text-ink-700">
+                    See how exact records and similar patterns become a recommendation package.
+                  </p>
+                </div>
+              </div>
+            </Link>
+          </div>
+        </Panel>
+      </section>
 
       <section className="grid gap-5 xl:grid-cols-[1.08fr_0.92fr]">
         <Card className="overflow-hidden border-none bg-[linear-gradient(135deg,#1A1818_0%,#2f2433_45%,#4A2E19_100%)] px-8 py-8 text-ivory-50 shadow-[0_28px_80px_rgba(24,18,15,0.28)]">

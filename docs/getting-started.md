@@ -1,32 +1,49 @@
 # Getting Started with KynticAI Scout
 
-This guide covers three ways to get a running Scout instance: local development with the .NET SDK, Docker with SQLite (quickest), and Docker with PostgreSQL (production-like).
+This guide covers the recommended Scout evaluation install: a Docker-contained stack with PostgreSQL, API, web console, and observability. Local .NET/Node scripts still exist for contributors, but the customer/investor install path should stay Docker-first so the data plane is self-contained.
 
 ---
 
 ## Prerequisites
 
-You need **one** of the following:
+You need:
 
 | Approach | Requirements |
 |---|---|
-| **Local (.NET SDK)** | .NET 10.0 SDK, Node.js 22+ (or let the setup scripts install repo-local copies) |
-| **Docker** | Docker Engine 24+ and Docker Compose v2 |
+| **Docker evaluation** | Git, Docker Desktop or Docker Engine 24+ with Docker Compose |
+| **Contributor-only local runtime** | .NET 10.0 SDK and Node.js 22+, or the repo-local runtime helper scripts |
 
 ---
 
-## Option 1 — Local Quick Start (SQLite)
+## Option 1 - Docker Quick Start
 
-Three commands to a running demo:
+Clone and start the full stack:
 
 ```bash
 git clone https://github.com/PaulJMaddison/scout.git
 cd scout
-sh ./scripts/setup-demo.sh   # downloads repo-local runtimes, seeds demo data (~2 min)
-sh ./scripts/start-demo.sh   # starts API on :5198 + web app on :5173
+sh ./scripts/start-scout-docker.sh --reset
 ```
 
-Then open [http://127.0.0.1:5173](http://127.0.0.1:5173) and log in:
+Windows PowerShell:
+
+```powershell
+git clone https://github.com/PaulJMaddison/scout.git
+cd scout
+.\scripts\start-scout-docker.ps1 -Reset
+```
+
+The script builds images, starts Docker Compose, waits for API and web readiness, logs in, verifies that the guided demo customer context is available, validates/registers a standard connector, runs connector health, and sends local/LAN source-event webhooks.
+
+When the self-test finishes it opens a local installation report in your browser and saves it at:
+
+```text
+.local/scout-install-report.html
+```
+
+The report includes the verified checks, running URLs, detected LAN webhook URL, login details, first walkthrough, webhook guidance, and upgrade/stop commands. Use `--no-open-report` on Unix shells or `-NoOpenReport` on PowerShell if you want to generate the report without opening it.
+
+Open [http://127.0.0.1:5173](http://127.0.0.1:5173) and log in:
 
 | Field | Value |
 |---|---|
@@ -34,70 +51,152 @@ Then open [http://127.0.0.1:5173](http://127.0.0.1:5173) and log in:
 | Email | `admin@scout.local` |
 | Password | `DemoAdmin123!` |
 
-> **Windows?** Use `./scripts/setup-demo.ps1` and `./scripts/start-demo.ps1` instead.
-
 The seeded walkthrough is a customer data-plane proof. It links exact authorised demo records such as CRM contact/account, account registration/profile, sales activity, opportunity, email reply, meeting-booked, web conversion, pricing-page, support-ticket, product-usage, billing-health, and won/lost outcome signals into relationships, attribution paths, and governed JSON with citations and masking decisions. Optional Cloud/control-plane concerns are limited to commercial metadata and are not required for the local demo.
 
+Recommended web walkthrough:
+
+1. Open `/demo` for the executive walkthrough.
+2. Open `/customers/123` for Avery Stone at Larkspur Logistics Group.
+3. Open `/relationship-intelligence` to inspect exact linked records, relationships, citations, masking, and the recommended next action.
+4. Open `/data-sources` to use the connector lab: choose an executable connector, validate the sample configuration, register it, run health, and send a safe source event as a new data item.
+5. Open `/admin/events` to confirm the source event was accepted and stored.
+6. Open `/admin/connectors` to compare executable open-core connectors with enterprise/SaaS catalogue placeholders.
+
+The standard executable connectors in the public Docker build are generic SQL/PostgreSQL, generic REST API with static-response preview support, CSV upload rows, mock CRM, mock billing, mock support, mock payload/signal, in-memory inventory, and the connector authoring template. Vendor-specific CRM, warehouse, support, ERP, email, chat, calendar, analytics, issue, project, and knowledge connectors are catalogue placeholders unless a private/customer package implements them.
+
+Docker services:
+
+| Service | URL |
+|---|---|
+| Web console | [http://127.0.0.1:5173](http://127.0.0.1:5173) |
+| API | [http://127.0.0.1:5198](http://127.0.0.1:5198) |
+| OpenAPI / Scalar | [http://127.0.0.1:5198/api-docs](http://127.0.0.1:5198/api-docs) |
+| Grafana | [http://127.0.0.1:3000](http://127.0.0.1:3000) |
+| Prometheus | [http://127.0.0.1:9090](http://127.0.0.1:9090) |
+| Tempo | [http://127.0.0.1:3200](http://127.0.0.1:3200) |
+
+### Local / LAN Webhooks Without DNS
+
+The Docker compose file publishes the API on `0.0.0.0:5198`. If another system is on the same trusted LAN/VPN, DNS is optional; use the host IP address:
+
+```text
+http://<host-ip>:5198/api/v1/events/source-system?tenantSlug=demo
+```
+
+The start scripts print this URL when they detect a LAN IP. For example:
+
+```text
+http://192.168.1.145:5198/api/v1/events/source-system?tenantSlug=demo
+```
+
+IP-only HTTP is suitable for local evaluation, workshops, private networks, VPNs, or static private IP customer installs. For public internet webhooks, use HTTPS with stable DNS or a reverse proxy. If testing from another Windows machine, allow inbound TCP `5198` through the host firewall.
+
+Quick JWT-auth smoke test:
+
+```bash
+HOST_API=http://<host-ip>:5198
+TOKEN=$(curl -s -X POST "$HOST_API/api/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{"tenantSlug":"demo","email":"admin@scout.local","password":"DemoAdmin123!"}' \
+  | sed -n 's/.*"accessToken":"\([^"]*\)".*/\1/p')
+
+curl -X POST "$HOST_API/api/v1/events/source-system?tenantSlug=demo" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "eventId": "lan-smoke-001",
+    "sourceSystem": "customer_context_rollups",
+    "eventType": "source.product_usage.rollup_ready",
+    "externalUserId": "123",
+    "externalAccountId": "acct-larkspur-logistics",
+    "payload": {
+      "active_days_30": 26,
+      "pricing_page_visits_30": 4,
+      "source": "lan-webhook-smoke"
+    }
+  }'
+```
+
+For production-style machine senders, create an API client with `events:ingest` and use the HMAC signing flow in [Webhook Events](webhook-events.md).
+
+Useful commands:
+
+```bash
+docker compose ps
+docker compose logs -f api web
+docker compose down
+docker compose down -v
+```
+
+Upgrade a local evaluation install:
+
+```bash
+git pull
+sh ./scripts/start-scout-docker.sh
+```
+
+This rebuilds changed images and keeps the Docker volumes. Use `--reset` only when you want to delete local Scout demo data and reseed from scratch.
+
 ---
 
-## Option 2 — Docker Quick Start (SQLite)
+## Option 2 - Production-Style Docker Settings
 
-Run the API in a single container with no external dependencies:
-
-```bash
-git clone https://github.com/PaulJMaddison/scout.git
-cd scout
-docker compose -f deploy/docker-compose.yml up scout-api --build
-```
-
-The API starts on [http://localhost:8080](http://localhost:8080) with seeded demo data.
-
-To customise settings, copy the example environment file first:
+The default compose file is a local demo. For production-style customer data-plane rehearsals, create an environment file and disable demo seeding:
 
 ```bash
-cp deploy/.env.example deploy/.env
-# edit deploy/.env as needed
-docker compose -f deploy/docker-compose.yml --env-file deploy/.env up scout-api --build
+cp .env.example .env.production.local
 ```
 
----
-
-## Option 3 — Production Setup with PostgreSQL
-
-Use the `postgres` profile to start PostgreSQL 16 (with pgvector) alongside the API:
-
-```bash
-cp deploy/.env.example deploy/.env
-```
-
-Edit `deploy/.env` for production values:
+Set at minimum:
 
 ```env
-PLATFORM_MODE=BackendOnly
-SEED_DEMO_DATA=false
-AUTH_SIGNING_KEY=<replace-with-48+-byte-random-secret>
-POSTGRES_PASSWORD=<strong-password>
-ENABLE_OPENAPI=false
+ASPNETCORE_ENVIRONMENT=Production
+Platform__Mode=BackendOnly
+Database__Provider=Postgres
+Bootstrap__ApplyMigrationsOnStartup=false
+Bootstrap__SeedDemoData=false
+FeatureFlags__DemoExperience=false
+VITE_DEMO_FALLBACK=false
+Auth__SigningKey=<48+-byte-random-secret>
+DataProtection__RequirePersistentKeys=true
 ```
 
-Then start all services:
+Before any customer-facing deployment, run:
+
+```powershell
+.\scripts\check-production-env.ps1 -EnvFile .env.production.local
+```
+
+See [Production Install Checklist](production-install-checklist.md), [Customer Data-Plane Install Runbook](customer-data-plane-install-runbook.md), and [Hosted Deployment](hosted-deployment.md).
+
+---
+
+## Option 3 - Contributor-Only Local Runtime
+
+Use this only for source development where running the API and Vite outside Docker is useful:
 
 ```bash
-docker compose -f deploy/docker-compose.yml --env-file deploy/.env --profile postgres up --build
+sh ./scripts/setup-demo.sh
+sh ./scripts/start-demo.sh
 ```
 
-The API starts on [http://localhost:8080](http://localhost:8080) backed by PostgreSQL.
+Windows:
+
+```powershell
+.\scripts\setup-demo.ps1
+.\scripts\start-demo.ps1
+```
 
 ---
 
 ## First API Calls
 
-Once the API is running, try these requests to verify everything works.
+Once the Docker stack is running, try these requests to verify everything works.
 
 ### Health Check
 
 ```bash
-curl http://localhost:8080/health/ready
+curl http://127.0.0.1:5198/health/ready
 ```
 
 Expected response:
@@ -109,7 +208,7 @@ Expected response:
 ### Platform Configuration
 
 ```bash
-curl http://localhost:8080/api/platform/config
+curl http://127.0.0.1:5198/api/platform/config
 ```
 
 Returns the effective runtime mode, enabled features, and endpoint configuration.
@@ -120,23 +219,23 @@ Most API and GraphQL endpoints require a JWT token. Log in first:
 
 ```bash
 # 1. Log in with demo credentials
-TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/login \
+TOKEN=$(curl -s -X POST http://127.0.0.1:5198/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"tenantSlug":"demo","email":"admin@scout.local","password":"DemoAdmin123!"}' \
-  | jq -r '.accessToken')
+  | sed -n 's/.*"accessToken":"\([^"]*\)".*/\1/p')
 
 # 2. Fetch user context (REST)
-curl http://localhost:8080/api/rest/tenants/demo/users/123/context \
+curl "http://127.0.0.1:5198/api/v1/context/users/123?tenantSlug=demo" \
   -H "Authorization: Bearer $TOKEN"
 
 # 3. GraphQL introspection
-curl -X POST http://localhost:8080/graphql \
+curl -X POST http://127.0.0.1:5198/graphql \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN" \
   -d '{"query":"{ __schema { queryType { name } } }"}'
 ```
 
-Or open [http://localhost:8080/graphql](http://localhost:8080/graphql) in a browser for the Banana Cake Pop GraphQL IDE (you will need to set the `Authorization: Bearer <token>` header).
+Or open [http://127.0.0.1:5198/graphql](http://127.0.0.1:5198/graphql) in a browser for the Banana Cake Pop GraphQL IDE (you will need to set the `Authorization: Bearer <token>` header).
 
 ### OpenAPI / Swagger
 
@@ -144,8 +243,8 @@ When `Platform__EnableOpenApi=true` (the default for development), browse the fu
 
 | UI | URL |
 |---|---|
-| **Scalar** (recommended) | [http://localhost:8080/api-docs](http://localhost:8080/api-docs) |
-| **Swagger UI** | [http://localhost:8080/swagger](http://localhost:8080/swagger) |
+| **Scalar** (recommended) | [http://127.0.0.1:5198/api-docs](http://127.0.0.1:5198/api-docs) |
+| **Swagger UI** | [http://127.0.0.1:5198/swagger](http://127.0.0.1:5198/swagger) |
 
 See [API Documentation](api/README.md) for details on exporting the spec and authentication.
 
@@ -163,7 +262,7 @@ npm install @kynticai/scout-sdk
 import { createScoutClient } from '@kynticai/scout-sdk'
 
 const scout = createScoutClient({
-  baseUrl: 'http://localhost:8080',
+  baseUrl: 'http://127.0.0.1:5198',
   accessToken: process.env.SCOUT_TOKEN,
 })
 
@@ -185,7 +284,7 @@ using KynticAI.Scout.Sdk;
 
 var client = new ScoutClient(new ScoutOptions
 {
-    BaseUrl = "http://localhost:8080",
+    BaseUrl = "http://127.0.0.1:5198",
     AccessToken = Environment.GetEnvironmentVariable("SCOUT_TOKEN"),
 });
 

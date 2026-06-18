@@ -14,12 +14,19 @@ import type {
   BlueprintImportHistory,
   BlueprintImportInput,
   BlueprintImportResult,
+  CheckConnectorHealthInput,
+  ConnectorConfigurationValidationResult,
   ConnectorCatalogueEntry,
+  ConnectorHealthResult,
+  ConnectorPluginDefinition,
+  ConnectorRegistrationResult,
   ContextProfileResult,
   CreateApiClientInput,
   CreateAgentRunInput,
   DataSource,
+  DataSourceKind,
   GovernancePolicy,
+  IngestSourceSystemEventInput,
   LoginRequest,
   LicenceStatus,
   NextActionInput,
@@ -33,6 +40,7 @@ import type {
   PublishSelectorDefinitionInput,
   QueueContextRecomputeInput,
   QueueRecomputeResult,
+  RegisterConnectorInput,
   RunScheduledRecomputeInput,
   SalesContextPackageInput,
   SalesContextPackageResult,
@@ -54,6 +62,8 @@ import type {
   ValidateSelectorInput,
   PreviewSelectorInput,
   SourceSystemEventHistory,
+  SourceSystemEventAcceptedResult,
+  ValidateConnectorConfigurationInput,
   WorkspaceSummary,
 } from '@/lib/types'
 
@@ -79,6 +89,13 @@ class ApiModeStore {
 }
 
 export const apiModeStore = new ApiModeStore()
+
+const restDataSourceKinds: Record<DataSourceKind, number> = {
+  CRM: 1,
+  SQL_METRIC: 2,
+  EVENT_STREAM: 3,
+  PRODUCT_USAGE: 4,
+}
 
 interface GraphQlEnvelope<T> {
   data?: T
@@ -297,6 +314,75 @@ export const api = {
       },
     )
     return data.items
+  },
+
+  async getConnectorPlugins() {
+    return restRequest<ConnectorPluginDefinition[]>('/api/rest/connectors/plugins', {
+      method: 'GET',
+    })
+  },
+
+  async validateConnectorConfiguration(input: ValidateConnectorConfigurationInput) {
+    return restRequest<ConnectorConfigurationValidationResult>('/api/rest/connectors/validate', {
+      method: 'POST',
+      body: JSON.stringify({
+        connectorType: input.connectorType,
+        kind: restDataSourceKinds[input.kind],
+        configurationJson: input.configurationJson,
+        credentialsJson: input.credentialsJson?.trim() ? input.credentialsJson : null,
+      }),
+    })
+  },
+
+  async registerConnector(input: RegisterConnectorInput) {
+    return restRequest<ConnectorRegistrationResult>('/api/rest/connectors/register', {
+      method: 'POST',
+      body: JSON.stringify({
+        id: input.id ?? null,
+        tenantSlug: input.tenantSlug,
+        name: input.name,
+        description: input.description,
+        kind: restDataSourceKinds[input.kind],
+        connectorType: input.connectorType,
+        configurationJson: input.configurationJson,
+        credentialsJson: input.credentialsJson?.trim() ? input.credentialsJson : null,
+      }),
+    })
+  },
+
+  async checkConnectorHealth(input: CheckConnectorHealthInput) {
+    return restRequest<ConnectorHealthResult>('/api/rest/connectors/health', {
+      method: 'POST',
+      body: JSON.stringify({
+        tenantSlug: input.tenantSlug,
+        dataSourceId: input.dataSourceId,
+        externalUserId: input.externalUserId?.trim() ? input.externalUserId : null,
+        mode: input.mode?.trim() ? input.mode : null,
+      }),
+    })
+  },
+
+  async ingestSourceSystemEvent(input: IngestSourceSystemEventInput) {
+    const payload = input.payloadJson?.trim()
+      ? undefined
+      : input.payload ?? {}
+    return restRequest<SourceSystemEventAcceptedResult>(
+      `/api/v1/events/source-system?tenantSlug=${encodeURIComponent(input.tenantSlug)}`,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          eventId: input.eventId?.trim() || null,
+          workspaceSlug: input.workspaceSlug?.trim() || null,
+          sourceSystem: input.sourceSystem,
+          eventType: input.eventType,
+          payload,
+          payloadJson: input.payloadJson?.trim() || null,
+          externalUserId: input.externalUserId?.trim() || null,
+          externalAccountId: input.externalAccountId?.trim() || null,
+          observedAtUtc: input.observedAtUtc?.trim() || null,
+        }),
+      },
+    )
   },
 
   async getBillingUsage(tenantSlug: string) {

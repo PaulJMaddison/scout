@@ -26,19 +26,20 @@
 
 > **Naming and maturity note:** Workspace naming is defined in [source-of-truth-naming-map.md](../docs/source-of-truth-naming-map.md). This README describes the open-core Scout/UCL data plane and local demo; it does not claim complete self-serve SaaS maturity, vendor-certified connectors, live customer deployments, customer traction, or canonical Enterprise relationship-set/vector analysis.
 
-## Quick Start
+## Docker Quick Start
 
-Get a working local demo in three commands:
+Scout's recommended local evaluation path is fully Docker-contained: PostgreSQL, API, web console, telemetry, Prometheus, Grafana, and Tempo all start through Docker Compose. Customer/demo data, derived context, audit, and Data Protection keys live in local Docker volumes by default.
+
+Prerequisites:
+
+- Git
+- Docker Desktop or Docker Engine with Docker Compose
 
 ```bash
 git clone https://github.com/PaulJMaddison/scout.git
 cd scout
-
-sh ./scripts/setup-demo.sh    # downloads runtimes, seeds demo data (~2 min)
-sh ./scripts/start-demo.sh    # starts API + web app
+sh ./scripts/start-scout-docker.sh --reset
 ```
-
-Then open [http://127.0.0.1:5173](http://127.0.0.1:5173) and log in with `demo` / `admin@scout.local` / `DemoAdmin123!`.
 
 <details>
 <summary><strong>Windows (PowerShell)</strong></summary>
@@ -47,17 +48,45 @@ Then open [http://127.0.0.1:5173](http://127.0.0.1:5173) and log in with `demo` 
 git clone https://github.com/PaulJMaddison/scout.git
 cd scout
 
-./scripts/setup-demo.ps1
-./scripts/start-demo.ps1
+.\scripts\start-scout-docker.ps1 -Reset
 ```
 
 </details>
 
-No Docker, PostgreSQL, global .NET SDK, or global Node.js install required. The scripts download repo-local runtimes automatically.
+Then open [http://127.0.0.1:5173](http://127.0.0.1:5173) and log in:
 
-**Prefer Docker?** Run `docker compose -f deploy/docker-compose.yml up scout-api --build` for a single-container demo with SQLite and seeded data on [http://localhost:8080](http://localhost:8080).
+| Field | Value |
+|---|---|
+| Tenant | `demo` |
+| Email | `admin@scout.local` |
+| Password | `DemoAdmin123!` |
 
-See the **[Getting Started Guide](docs/getting-started.md)** for Docker Compose with PostgreSQL, first API calls, SDK examples, and production setup.
+The script builds and starts the stack, waits for readiness, logs in, checks that User `123` (`Avery Stone` at `Larkspur Logistics Group`) returns live context, validates/registers a standard connector, runs connector health, and sends local/LAN source-event webhooks.
+
+When the self-test finishes it opens a local installation report in your browser and saves it at `.local/scout-install-report.html`. The report includes the verified checks, running URLs, detected LAN webhook URL, login details, first walkthrough, webhook guidance, and upgrade/stop commands. Use `-NoOpenReport` on PowerShell or `--no-open-report` on Unix shells if you want to generate the report without opening it.
+
+What is running:
+
+| Service | URL | Purpose |
+|---|---|---|
+| Scout web console | [http://127.0.0.1:5173](http://127.0.0.1:5173) | Admin console and investor walkthrough |
+| Scout API | [http://127.0.0.1:5198](http://127.0.0.1:5198) | REST, GraphQL, auth, OpenAPI |
+| OpenAPI / Scalar | [http://127.0.0.1:5198/api-docs](http://127.0.0.1:5198/api-docs) | Interactive API documentation |
+| Grafana | [http://127.0.0.1:3000](http://127.0.0.1:3000) | Local observability (`admin` / `admin`) |
+| Prometheus | [http://127.0.0.1:9090](http://127.0.0.1:9090) | Metrics |
+| Tempo | [http://127.0.0.1:3200](http://127.0.0.1:3200) | Traces |
+
+The API also listens on the host network interface. On a trusted LAN/VPN you can point another machine, workflow runner, CRM simulator, or n8n flow at:
+
+```text
+http://<host-ip>:5198/api/v1/events/source-system?tenantSlug=demo
+```
+
+The start scripts print the detected LAN web/API/webhook URLs. IP-only webhooks are fine for local workshops, private customer networks, VPNs, and static private IP installs. For public internet webhooks, put HTTPS with a stable DNS name or reverse proxy in front of the Docker API. From the web console, use **Data Sources** -> **Send source event** to test this path without setting up an external sender.
+
+Use `docker compose ps` to inspect services and `docker compose logs -f api web` to follow application logs.
+
+For contributor-only local runtime scripts (`.NET` + Node outside Docker), see the **[Getting Started Guide](docs/getting-started.md)**. Do not use the non-Docker path as the investor/customer sovereign install path.
 
 ---
 
@@ -197,6 +226,8 @@ flowchart LR
 
 The seeded demo includes synthetic realistic B2B SaaS data: 2 tenants, 30 accounts, 80+ contacts, 200 sales activities, 560 product usage rows, 100 support tickets, email/web engagement, billing status, account registration/profile fields, open opportunities, and prior won/lost outcome signals.
 
+For first-run speed, the Docker demo precomputes governed context snapshots for the guided walkthrough records listed below. The broader synthetic operational dataset remains available for connector, selector, relationship, and API exploration.
+
 The demo relationship JSON is intentionally exact and inspectable. It links the authorised records in the customer data plane, carries citation IDs and masking decisions, shows deterministic relationships such as email-to-contact and contact-to-account, includes attribution-path evidence and similar won/lost patterns where present, and produces basic fallback-only signals plus a grounded recommended next action for a customer-owned consumer. The optional Cloud aggregate usage payload for the same flow contains only control-plane usage metadata, not the derived relationship intelligence.
 
 The primary walkthrough remains B2B SaaS revenue/customer success. A separate deterministic proof fixture at `samples/relationship-intelligence/exact-data-proof.synthetic.json` also covers ecommerce conversion, support churn, recruitment, finance retention, and healthcare operations using synthetic records only. Those cross-domain fixtures are proof artefacts for local tests and docs; they are not customer production deployments, live customer data, vendor certification, or traction claims.
@@ -208,10 +239,14 @@ The primary walkthrough remains B2B SaaS revenue/customer success. A separate de
 1. **Executive Demo** (`/demo`) -- the product story: existing systems stay, Scout creates semantic meaning
 2. **Legacy Signals / Semantic Timeline / Example Consumer Timeline / ROI** -- narrative for decision-makers
 3. **Customer Context** for User 123 -- summary, facts, confidence, snapshots, interpretation timeline
-4. **Bootstrap Studio** -- show how AI tools generate import blueprints (validated without calling AI APIs)
-5. **Selector Builder** -- preview how admin logic turns raw fields into canonical attributes
-6. **Intelligent Sales Support** -- relationship JSON, cited facts, attribution-path evidence, recommended next action, and generated outreach direction
-7. **Audit Log** -- governance: reads, recomputes, and access are traceable
+4. **Data Sources / Connector Lab** (`/data-sources`) -- choose an executable standard connector, validate/register it, run health, and send a safe source event as a new data item
+5. **Connector Catalogue** (`/admin/connectors`) -- separate executable open-core connectors from enterprise/SaaS placeholder listings
+6. **Bootstrap Studio** -- show how AI tools generate import blueprints (validated without calling AI APIs)
+7. **Selector Builder** -- preview how admin logic turns raw fields into canonical attributes
+8. **Intelligent Sales Support** -- relationship JSON, cited facts, attribution-path evidence, recommended next action, and generated outreach direction
+9. **Audit Log / Webhook Events** -- governance: reads, recomputes, source events, and access are traceable
+
+The Docker demo's executable standard connectors are generic SQL/PostgreSQL, generic REST API with static-response preview support, CSV upload rows, mock CRM, mock billing, mock support, mock payload/signal, in-memory inventory, and the connector authoring template. Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, NetSuite, email, chat, calendar, analytics, work-management, and knowledge-system entries remain catalogue placeholders unless implemented in a private/customer package.
 
 ### Demo Credentials
 
@@ -305,6 +340,10 @@ Systems that do not want GraphQL can use the deployment-oriented REST surface un
 | `POST` | `/api/v1/selectors/preview` | Selector preview |
 | `POST` | `/api/v1/selectors/validate` | Selector validation |
 | `GET` | `/api/v1/connectors/catalogue` | Connector catalogue |
+| `GET` | `/api/rest/connectors/plugins` | Executable connector plugin metadata |
+| `POST` | `/api/rest/connectors/validate` | Validate connector configuration |
+| `POST` | `/api/rest/connectors/register` | Register or update a connector-backed data source |
+| `POST` | `/api/rest/connectors/health` | Run connector health check |
 | `GET` | `/api/v1/semantic-attributes` | Semantic attribute registry |
 | `GET` | `/api/v1/audit-events` | Audit event log |
 | `POST` | `/api/v1/events/source-system` | Source-system event ingestion |
@@ -350,9 +389,9 @@ Use `/api/platform/config` to inspect the effective mode and enabled feature fla
 
 ---
 
-## Backend-Only Quick Start
+## Backend-Only Developer Quick Start
 
-Run the API without the React frontend:
+Run the API without the React frontend when contributing to the source tree. This path uses repo-local or machine-local runtimes and is not the recommended investor/customer self-contained install.
 
 ```bash
 sh ./scripts/setup-backend.sh
@@ -416,10 +455,35 @@ Safe validation should produce successful .NET restore/build output, passing bac
 ## Reset & Restart
 
 ```bash
-sh ./scripts/start-demo.sh                     # restart
-sh ./scripts/reset-demo.sh                     # full reset and reseed
-sh ./scripts/reset-demo.sh --skip-recreate     # stop without reseeding
+sh ./scripts/start-scout-docker.sh             # rebuild if needed and start all Docker services
+sh ./scripts/start-scout-docker.sh --no-build  # start existing images
+sh ./scripts/start-scout-docker.sh --reset     # delete Scout Docker volumes, reseed, and start clean
+docker compose down                            # stop services, keep data volumes
+docker compose down -v                         # stop services and delete Scout local data volumes
 ```
+
+PowerShell equivalents:
+
+```powershell
+.\scripts\start-scout-docker.ps1
+.\scripts\start-scout-docker.ps1 -NoBuild
+.\scripts\start-scout-docker.ps1 -Reset
+docker compose down
+docker compose down -v
+```
+
+## Upgrade
+
+For a local demo/evaluation upgrade:
+
+```bash
+git pull
+sh ./scripts/start-scout-docker.sh
+```
+
+That rebuilds changed images and keeps existing Docker volumes. Use `--reset` only when you intentionally want a clean demo database.
+
+For a production-style customer data plane, keep `Bootstrap__SeedDemoData=false`, back up both PostgreSQL databases and the Data Protection key ring, run migrations as a controlled job, then roll the API/web images forward. See [Production Install Checklist](docs/production-install-checklist.md) and [Hosted PostgreSQL Deployment](docs/hosted-deployment.md).
 
 ---
 

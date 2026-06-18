@@ -8,6 +8,14 @@ POST /api/v1/events/source-system
 
 The endpoint is designed for customer data-plane integrations where CRM, support, billing, warehouse, product, marketing, or legacy systems notify Scout that source data changed. Scout stores each event, validates signatures, deduplicates by event ID, matches selectors, and queues recomputation jobs when a user can be resolved.
 
+In the local Docker install the API is published on `0.0.0.0:5198`, so a sender on the same trusted LAN/VPN can use an IP address instead of DNS:
+
+```text
+http://<host-ip>:5198/api/v1/events/source-system?tenantSlug=demo
+```
+
+IP-only HTTP is intended for local evaluation, workshops, private customer networks, VPNs, or static private IP installs. Public internet webhook endpoints should use HTTPS with stable DNS or a reverse proxy.
+
 ## Authentication And Signature
 
 Use an API client created through `/api/v1/api-clients` with the `events:ingest` scope. For production-style pilots, create a separate webhook signing secret through `/api/v1/webhook-signing-secrets` and send:

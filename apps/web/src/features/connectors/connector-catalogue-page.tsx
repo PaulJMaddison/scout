@@ -3,7 +3,13 @@ import { useQuery } from '@tanstack/react-query'
 import { AlertTriangle, CheckCircle2, LockKeyhole, PlugZap, ShieldCheck, Sparkles } from 'lucide-react'
 import { Badge, Button, Card, PageHeader, Panel } from '@/components/ui/primitives'
 import { api } from '@/lib/api'
-import type { ConnectorCatalogueAvailability, ConnectorCatalogueEntry, ConnectorPublicStatus } from '@/lib/types'
+import { useAuthSession } from '@/lib/auth'
+import type {
+  ConnectorCatalogueAvailability,
+  ConnectorCatalogueEntry,
+  ConnectorPluginDefinition,
+  ConnectorPublicStatus,
+} from '@/lib/types'
 import { cn, prettyJson, safeJsonParse } from '@/lib/utils'
 
 const availabilityLabels: Record<ConnectorCatalogueAvailability, string> = {
@@ -43,13 +49,30 @@ const filters: Array<ConnectorCatalogueAvailability | 'All'> = [
 ]
 
 export function ConnectorCataloguePage() {
+  const { session } = useAuthSession()
   const [activeFilter, setActiveFilter] = useState<ConnectorCatalogueAvailability | 'All'>('All')
   const catalogueQuery = useQuery({
     queryKey: ['connectorCatalogue'],
     queryFn: () => api.getConnectorCatalogue(),
   })
+  const pluginsQuery = useQuery({
+    queryKey: ['connectorPlugins'],
+    queryFn: () => api.getConnectorPlugins(),
+    enabled: Boolean(session),
+  })
 
   const entries = useMemo(() => catalogueQuery.data ?? [], [catalogueQuery.data])
+  const executablePlugins = useMemo(() => pluginsQuery.data ?? [], [pluginsQuery.data])
+  const executableConnectorTypes = useMemo(
+    () =>
+      new Set(
+        executablePlugins.flatMap((plugin) => [
+          plugin.connectorType,
+          ...plugin.aliases,
+        ]),
+      ),
+    [executablePlugins],
+  )
   const filteredEntries = useMemo(
     () =>
       entries.filter((entry) => activeFilter === 'All' || entry.availability === activeFilter),
@@ -79,6 +102,23 @@ export function ConnectorCataloguePage() {
           </Badge>
         }
       />
+
+      {session ? (
+        <Panel
+          eyebrow="Executable in this stack"
+          title="Use these standard connectors in the Docker demo"
+          action={<Badge tone="success">{executablePlugins.length} live plugins</Badge>}
+        >
+          {pluginsQuery.isError ? (
+            <p className="text-sm font-semibold text-rosewood-700">{pluginsQuery.error.message}</p>
+          ) : null}
+          <div className="grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
+            {executablePlugins.map((plugin) => (
+              <ExecutableConnectorCard key={plugin.connectorType} plugin={plugin} />
+            ))}
+          </div>
+        </Panel>
+      ) : null}
 
       <section className="grid gap-4 xl:grid-cols-4">
         <Card className="relative overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(126,159,128,0.2),transparent_42%),rgba(255,251,246,0.92)]">
@@ -154,7 +194,11 @@ export function ConnectorCataloguePage() {
       ) : (
         <section className="grid gap-4 xl:grid-cols-2">
           {filteredEntries.map((entry) => (
-            <ConnectorCard key={entry.connectorType} entry={entry} />
+            <ConnectorCard
+              key={entry.connectorType}
+              entry={entry}
+              isExecutable={executableConnectorTypes.has(entry.connectorType)}
+            />
           ))}
         </section>
       )}
@@ -162,7 +206,41 @@ export function ConnectorCataloguePage() {
   )
 }
 
-function ConnectorCard({ entry }: { entry: ConnectorCatalogueEntry }) {
+function ExecutableConnectorCard({ plugin }: { plugin: ConnectorPluginDefinition }) {
+  return (
+    <div className="rounded-[24px] border border-sage-700/16 bg-sage-50/70 p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="font-semibold text-ink-950">{plugin.displayName}</p>
+          <p className="mt-2 text-sm leading-6 text-ink-700">{plugin.description}</p>
+        </div>
+        <CheckCircle2 className="mt-1 size-5 shrink-0 text-sage-700" />
+      </div>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Badge tone="success">Validate</Badge>
+        <Badge tone="success">Register</Badge>
+        <Badge tone="success">Health</Badge>
+        {plugin.supportedCapabilities.includes('EventTriggeredRecompute') ? (
+          <Badge tone="accent">Events</Badge>
+        ) : null}
+      </div>
+      <div className="mt-4 flex flex-wrap gap-2">
+        <Button
+          type="button"
+          size="sm"
+          onClick={() => {
+            window.location.assign(`/data-sources?connectorType=${encodeURIComponent(plugin.connectorType)}`)
+          }}
+        >
+          <PlugZap className="size-4" />
+          Try in data sources
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+function ConnectorCard({ entry, isExecutable }: { entry: ConnectorCatalogueEntry; isExecutable: boolean }) {
   const schema = safeJsonParse<Record<string, unknown>>(entry.configurationSchemaJson, {})
   const credentialSchema = safeJsonParse<Record<string, unknown>>(entry.credentialSchemaJson, {})
 
@@ -183,6 +261,7 @@ function ConnectorCard({ entry }: { entry: ConnectorCatalogueEntry }) {
             <h2 className="mt-2 font-display text-2xl text-ink-950">{entry.displayName}</h2>
           </div>
           <div className="flex flex-wrap justify-end gap-2">
+            {isExecutable ? <Badge tone="success">Executable here</Badge> : null}
             <Badge tone={publicStatusTones[entry.publicStatus]}>{publicStatusLabels[entry.publicStatus]}</Badge>
             <Badge tone={availabilityTones[entry.availability]}>{availabilityLabels[entry.availability]}</Badge>
           </div>
