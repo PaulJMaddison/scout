@@ -1,6 +1,8 @@
 {
   "workPackage": "wp2-upgrade-and-lancedb-migration",
-  "currentStep": "05-migration-export-import",
+  "currentStep": "08-end-to-end-upgrade-simulation",
+  "latestEnterpriseImportStep": "06-enterprise-lancedb-import-contract",
+  "latestSimulationStep": "08-end-to-end-upgrade-simulation",
   "primaryRepo": "UCL",
   "localPath": "C:\\Kyntic\\UCL",
   "relatedRepos": [
@@ -31,7 +33,28 @@
     "implemented Scout-side dry-run validation report generation",
     "kept Enterprise/Fortress import, LanceDB, pgvector, relationship-set, attribution-path, outcome-event, and vector paths explicitly private/local and unsupported in Scout open-core",
     "created 05-migration-export-import.md",
-    "updated README.md, handoff.md, and status.json for this work package"
+    "updated README.md, handoff.md, and status.json for this work package",
+    "implemented Enterprise/Fortress Scout LanceDB import contract validation and mapping in ucl-vector",
+    "added focused Enterprise Rust tests for import contract validation and data-boundary rejection",
+    "documented the Enterprise/Fortress contract in docs/scout-lancedb-import-contract.md and ucl-vector README.md",
+    "updated Enterprise AGENTS.md sprint state",
+    "created 06-enterprise-lancedb-import-contract.md",
+    "updated README.md, handoff.md, and status.json for this work package after the Enterprise LanceDB import contract step",
+    "read all current Cloud WP1 artefacts before the Cloud upgrade entitlement/onboarding step",
+    "read Cloud README, licensing, package entitlement, data-plane registration, usage reporting, domain, service, and nearby test surfaces",
+    "documented the Cloud-side Scout to Fortress/Elite signup and onboarding flow",
+    "created 07-cloud-upgrade-entitlement-flow.md",
+    "updated Cloud docs and a Cloud docs guard test for the metadata-only upgrade boundary",
+    "updated README.md, handoff.md, and status.json for this work package after the Cloud entitlement/onboarding step",
+    "read newly present 06-enterprise-lancedb-import-contract.md before the simulation documentation update",
+    "ran a fresh temporary Scout SQLite bootstrap under C:\\Users\\pm\\AppData\\Local\\Temp\\kyntic-wp2-upgrade-simulation-20260619-000856",
+    "attempted a live localhost Scout API ingest smoke and recorded the long-running demo recompute timeout blocker",
+    "validated Scout source-system event ingestion through deterministic V1 REST integration tests",
+    "validated Scout storage export and dry-run behaviour through StorageAdapterBoundaryTests",
+    "validated the Enterprise/Fortress Scout LanceDB import contract with focused ucl-vector tests",
+    "validated the Cloud metadata-only Scout to Fortress/Elite onboarding guard test",
+    "created 08-end-to-end-upgrade-simulation.md",
+    "updated README.md, handoff.md, and status.json for this work package after the local/dev simulation step"
   ],
   "implementationChanges": [
     "Updated src/KynticAI.Scout.Application/Abstractions/StorageAdapterContracts.cs with StorageAdapterDataScope.AuditEvents, migration validation report contracts, StorageExportRequest.DryRun, StorageExportBatch.ValidationReport, and StorageImportRequest.DryRun.",
@@ -39,7 +62,16 @@
     "Added validation for tenant ID/slug matching, empty scopes, invalid MaxRecords, unsupported scopes, invalid checkpoints, JSON object fields, and JSON array provenance fields.",
     "Added deterministic local Enterprise/Fortress anchor metadata with entity_type, postgres_pk, and layer while keeping usesCloudDataPlane=false.",
     "Updated tests/KynticAI.Scout.UnitTests/StorageAdapterBoundaryTests.cs with export, dry-run, and unsupported vector-scope coverage.",
-    "Added docs/work-packages/wp2-upgrade-and-lancedb-migration/05-migration-export-import.md."
+    "Added docs/work-packages/wp2-upgrade-and-lancedb-migration/05-migration-export-import.md.",
+    "Added C:\\Kyntic\\universalcontextlayer-enterprise\\engine\\crates\\ucl-vector\\src\\scout_import.rs with the 2026-06-18.scout-lancedb-import.v1 contract, local data-boundary checks, validation, and WriteRequest mapping.",
+    "Added C:\\Kyntic\\universalcontextlayer-enterprise\\engine\\crates\\ucl-vector\\tests\\scout_import_contract_tests.rs.",
+    "Updated C:\\Kyntic\\universalcontextlayer-enterprise\\engine\\crates\\ucl-vector\\src\\lib.rs, Cargo.toml, README.md, docs\\scout-lancedb-import-contract.md, and AGENTS.md.",
+    "Added docs/work-packages/wp2-upgrade-and-lancedb-migration/06-enterprise-lancedb-import-contract.md.",
+    "Added docs/work-packages/wp2-upgrade-and-lancedb-migration/07-cloud-upgrade-entitlement-flow.md.",
+    "Added docs/work-packages/wp2-upgrade-and-lancedb-migration/08-end-to-end-upgrade-simulation.md.",
+    "Created C:\\Kyntic\\universalcontextlayer-cloud\\docs\\scout-to-fortress-elite-upgrade-onboarding.md.",
+    "Created C:\\Kyntic\\universalcontextlayer-cloud\\docs\\work-packages\\wp2-cloud-upgrade-onboarding\\README.md, 01-cloud-upgrade-entitlement-flow.md, handoff.md, and status.json.",
+    "Updated C:\\Kyntic\\universalcontextlayer-cloud\\README.md, docs\\licensing-flow.md, docs\\package-entitlement-flow.md, and tests\\Ucl.Cloud.Tests\\CommercialReadinessDeliverablesTests.cs."
   ],
   "architectureDecisions": [
     "Scout exports only current relational records it actually stores today; it does not claim canonical relationship-set, attribution-path, outcome-event, vector, LanceDB, or pgvector persistence.",
@@ -47,7 +79,13 @@
     "The tenant slug is the initial layer mapping for exported anchors; tenant ID/slug mismatches fail closed.",
     "Dry run validates and reports without returning records, writing Scout data, calling Enterprise/Fortress, or calling Cloud.",
     "The Enterprise/Fortress importer must be supplied by the private runtime or a reviewed local private tool; Scout/open-core must not fake it.",
-    "Cloud must not receive raw customer data, exact data items, vectors, embeddings, relationship sets, attribution paths, outcome events, prompts, generated content, evidence packs, migration logs, checkpoints, failed payloads, or customer-specific derived intelligence."
+    "Enterprise/Fortress owns the 2026-06-18.scout-lancedb-import.v1 contract in ucl-vector.",
+    "Scout does not need to export embeddings; Enterprise/Fortress generates embeddings locally before LanceDB import records are valid.",
+    "LanceDB import records require dense finite local embeddings, tenant/layer consistency, citation/provenance coverage, safe metadata, and idempotency keys.",
+    "Cloud must not receive raw customer data, exact data items, vectors, embeddings, relationship sets, attribution paths, outcome events, prompts, generated content, evidence packs, migration logs, checkpoints, failed payloads, or customer-specific derived intelligence.",
+    "Cloud upgrade/onboarding state is currently derived from existing commercial/control-plane metadata until a dedicated persisted onboarding entity or read model is implemented.",
+    "Cloud entitlement success authorises access to paid local capability only; local Scout/Fortress preflight, backup, storage migration, LanceDB/pgvector proof, vector backfill, relationship indexing, and governed JSON verification remain customer data-plane work.",
+    "End-to-end upgrade proof remains partial until the Scout operator export CLI, private Enterprise/Fortress importer, and quick deterministic local API smoke exist."
   ],
   "implementedExportScopes": [
     "SourceEvents",
@@ -65,6 +103,106 @@
     "Vectors"
   ],
   "verification": [
+    {
+      "command": "dotnet run --project src\\KynticAI.Scout.Api -- bootstrap-demo",
+      "cwd": "C:\\Kyntic\\UCL",
+      "result": "partial pass; fresh temp SQLite Scout/CustomerOps DBs were created under C:\\Users\\pm\\AppData\\Local\\Temp\\kyntic-wp2-upgrade-simulation-20260619-000856"
+    },
+    {
+      "command": "dotnet run --no-build --project src\\KynticAI.Scout.Api plus localhost health/login/event/graphql smoke",
+      "cwd": "C:\\Kyntic\\UCL",
+      "result": "partial/failed; demo startup processed long-running recompute work and the HTTP event post did not complete before timeout; temp DB source_system_events remained 0"
+    },
+    {
+      "command": "python SQLite evidence query against temp Scout DB",
+      "cwd": "C:\\Kyntic\\UCL",
+      "result": "passed; counted 2 tenants, 2 workspaces, 80 user profiles, 6 data sources, 28 selector definitions, 366 context snapshots, 4758 context facts, 9882 provenance rows, 727 audit events, and no Cloud indicator hits in temp logs"
+    },
+    {
+      "command": "dotnet test .\\tests\\KynticAI.Scout.UnitTests\\KynticAI.Scout.UnitTests.csproj --filter FullyQualifiedName~StorageAdapterBoundaryTests",
+      "cwd": "C:\\Kyntic\\UCL",
+      "result": "passed; 7 tests"
+    },
+    {
+      "command": "dotnet test .\\tests\\KynticAI.Scout.IntegrationTests\\KynticAI.Scout.IntegrationTests.csproj --filter FullyQualifiedName~V1RestApiIntegrationTests",
+      "cwd": "C:\\Kyntic\\UCL",
+      "result": "passed; 5 tests"
+    },
+    {
+      "command": "dotnet build .\\KynticAI.Scout.slnx",
+      "cwd": "C:\\Kyntic\\UCL",
+      "result": "passed; 0 warnings; 0 errors"
+    },
+    {
+      "command": "cargo test -p ucl-vector --test scout_import_contract_tests",
+      "cwd": "C:\\Kyntic\\universalcontextlayer-enterprise\\engine",
+      "result": "passed; 8 tests"
+    },
+    {
+      "command": "dotnet test .\\tests\\Ucl.Cloud.Tests\\Ucl.Cloud.Tests.csproj --filter FullyQualifiedName~Scout_upgrade_onboarding_contract_keeps_cloud_metadata_only",
+      "cwd": "C:\\Kyntic\\universalcontextlayer-cloud",
+      "result": "passed; 1 test"
+    },
+    {
+      "command": "cargo fmt -p ucl-vector",
+      "cwd": "C:\\Kyntic\\universalcontextlayer-enterprise\\engine",
+      "result": "passed"
+    },
+    {
+      "command": "cargo test -p ucl-vector",
+      "cwd": "C:\\Kyntic\\universalcontextlayer-enterprise\\engine",
+      "result": "passed; includes 8 scout_import_contract_tests plus existing ucl-vector tests"
+    },
+    {
+      "command": "cargo fetch --locked",
+      "cwd": "C:\\Kyntic\\universalcontextlayer-enterprise\\engine",
+      "result": "passed"
+    },
+    {
+      "command": "cargo build --workspace",
+      "cwd": "C:\\Kyntic\\universalcontextlayer-enterprise\\engine",
+      "result": "passed; existing ucl-engine dead-code warnings remained"
+    },
+    {
+      "command": "cargo test --workspace",
+      "cwd": "C:\\Kyntic\\universalcontextlayer-enterprise\\engine",
+      "result": "passed; existing ucl-pipeline test warnings remained and explicit model/native-style tests were ignored by default"
+    },
+    {
+      "command": "git diff --check",
+      "cwd": "C:\\Kyntic\\universalcontextlayer-enterprise",
+      "result": "passed; only LF-to-CRLF working-copy warnings"
+    },
+    {
+      "command": "dotnet restore .\\UclCloudControlPlane.slnx",
+      "cwd": "C:\\Kyntic\\universalcontextlayer-cloud",
+      "result": "passed; all projects up to date"
+    },
+    {
+      "command": "dotnet build .\\UclCloudControlPlane.slnx --no-restore",
+      "cwd": "C:\\Kyntic\\universalcontextlayer-cloud",
+      "result": "passed; 0 warnings; 0 errors"
+    },
+    {
+      "command": "dotnet test .\\UclCloudControlPlane.slnx --no-build",
+      "cwd": "C:\\Kyntic\\universalcontextlayer-cloud",
+      "result": "failed; 545 passed and 1 failed in AnalyticsPixelTests.Marketing_helper_uses_send_beacon_session_storage_and_no_third_party_scripts because existing marketing code contains googletagmanager"
+    },
+    {
+      "command": "dotnet test .\\tests\\Ucl.Cloud.Tests\\Ucl.Cloud.Tests.csproj --no-build --filter FullyQualifiedName~CommercialReadinessDeliverablesTests",
+      "cwd": "C:\\Kyntic\\universalcontextlayer-cloud",
+      "result": "passed; 13 tests"
+    },
+    {
+      "command": "git diff --check",
+      "cwd": "C:\\Kyntic\\universalcontextlayer-cloud",
+      "result": "passed; only LF-to-CRLF working-copy warnings"
+    },
+    {
+      "command": "Get-Content -Raw docs\\work-packages\\wp2-cloud-upgrade-onboarding\\status.json | ConvertFrom-Json | Out-Null",
+      "cwd": "C:\\Kyntic\\universalcontextlayer-cloud",
+      "result": "passed"
+    },
     {
       "command": "dotnet test .\\tests\\KynticAI.Scout.UnitTests\\KynticAI.Scout.UnitTests.csproj --no-restore",
       "cwd": "C:\\Kyntic\\UCL",
@@ -94,30 +232,54 @@
       "command": "Get-Content -Raw docs\\work-packages\\wp2-upgrade-and-lancedb-migration\\status.json | ConvertFrom-Json | Out-Null",
       "cwd": "C:\\Kyntic\\UCL",
       "result": "passed"
+    },
+    {
+      "command": "git diff --check",
+      "cwd": "C:\\Kyntic\\UCL",
+      "result": "passed; only LF-to-CRLF working-copy warnings"
+    },
+    {
+      "command": "git diff --check",
+      "cwd": "C:\\Kyntic\\UCL-local-aidocs",
+      "result": "passed; only LF-to-CRLF working-copy warnings"
     }
   ],
   "pendingVerification": [],
   "skippedProof": [
+    "Full live Scout API end-to-end ingest/export/import proof was not completed because the temporary demo host processed long-running seeded recompute work and timed out before the HTTP event post.",
     "Docker/PostgreSQL proof was not run because KYNTIC_RUN_EXTERNAL_DOTNET_TESTS was not set.",
     "Browser/Playwright proof was not run because KYNTIC_RUN_BROWSER_TESTS was not set.",
-    "Native vector, LanceDB, pgvector, and model-runtime proof were not run because the relevant opt-in env vars were not set and no native vector adapter was added.",
-    "Enterprise/Fortress live adapter/importer proof was not run because this step only implemented Scout-side export and validation."
+    "Native vector, LanceDB, pgvector, and model-runtime proof were not run because the relevant opt-in env vars were not set.",
+    "Enterprise/Fortress live adapter/importer proof was not run because this step only implemented local contract validation and mapping.",
+    "xhigh review was not run in this session because no explicit review-agent delegation was requested; it remains required before pilot, release, or investor-visible proof.",
+    "Cloud portal build was not run because no portal files changed in the Cloud entitlement/onboarding step.",
+    "Scout .NET tests were not rerun for the Cloud entitlement/onboarding step because the Scout changes in that step are docs-only."
   ],
   "openRisks": [
     "A polished operator CLI wrapper is specified but not implemented.",
+    "Fresh Scout bootstrap plus live localhost API ingest is not yet a reliable quick smoke because seeded demo recompute work can run longer than the command window.",
     "The private Enterprise/Fortress importer for kynticai.scout.storage-portable-export.v1 is not implemented in Scout/open-core and must not be faked.",
+    "Production Enterprise/Fortress importer CLI/API is not implemented yet.",
+    "Local embedding generation is not wired into a resumable importer yet.",
     "Scout does not currently persist canonical exact data items, relationship sets, attribution paths, outcome events, or vectors as first-class local storage.",
     "Enterprise/Fortress LanceDB and pgvector paths still require explicit native-store proof.",
     "Relationship-set and attribution-path import cannot be marked complete until private citation/provenance coverage checks exist.",
-    "xhigh review gates are still required before this public API, data-model, storage-boundary, and security-sensitive migration work is marked complete."
+    "xhigh review gates are still required before this public API, data-model, storage-boundary, and security-sensitive migration work is marked complete.",
+    "Cloud has no dedicated persisted upgrade onboarding entity or state-machine endpoint yet.",
+    "Cloud has no atomic Scout/Fortress/Elite commercial-tier move endpoint yet.",
+    "Cloud dedicated licence suspend/reactivate endpoints remain target additions.",
+    "Cloud production signed binary delivery remains blocked on private object-storage proof."
   ],
   "openImplementationTasks": [
     "implement a local operator CLI wrapper that calls Scout export dry run and real export with checkpoint resume",
+    "add a deterministic local upgrade simulation harness or quieter demo startup path so fresh Scout install plus API event ingestion can complete without long-running seeded recompute work",
     "implement the private Enterprise/Fortress importer for kynticai.scout.storage-portable-export.v1",
+    "wire local embedding generation into the importer and build 2026-06-18.scout-lancedb-import.v1 batches",
     "implement local retry, dead-letter, and checkpoint persistence for private import/backfill",
     "implement private LanceDB/vector DB, pgvector fallback, embedding, relationship-set, attribution-path, and outcome-event proof paths",
     "add import validation for citation/provenance coverage and governed JSON handoff readiness",
-    "run xhigh review gates before marking the migration tooling complete"
+    "run xhigh review gates before marking the migration tooling complete",
+    "implement a Cloud metadata-only upgrade onboarding read model or workflow endpoint derived from account, subscription, licence, artefact, data-plane, Fortress instance, support, and reconciliation state"
   ],
-  "nextPrompt": "Implement the local operator migration CLI wrapper in Scout or a reviewed private tooling repo. It should call ILocalDataPlaneStorageAdapter.ExportAsync() in dry-run and real modes, persist local batch JSON and validation reports, support checkpoint resume, and stop before import unless the private Enterprise/Fortress kynticai.scout.storage-portable-export.v1 importer is present and has passed local dry-run validation. Do not add LanceDB, pgvector, native-store proof, or private importer code to Scout/open-core."
+  "nextPrompt": "Implement the Scout operator migration CLI wrapper that runs ILocalDataPlaneStorageAdapter.ExportAsync dry runs and real exports with checkpoint resume, writes local validation reports and batch files, and exposes enough deterministic output for the next end-to-end upgrade simulation. Keep Cloud out of the data plane and keep Enterprise/Fortress import behind the private local contract."
 }
