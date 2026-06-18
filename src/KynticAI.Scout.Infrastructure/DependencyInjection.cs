@@ -64,6 +64,7 @@ public static class DependencyInjection
         services.Configure<TelemetryOptions>(configuration.GetSection(TelemetryOptions.SectionName));
         services.Configure<RateLimitOptions>(configuration.GetSection(RateLimitOptions.SectionName));
         services.Configure<ConnectorBootstrapOptions>(configuration.GetSection(ConnectorBootstrapOptions.SectionName));
+        services.Configure<StorageAdapterOptions>(configuration.GetSection(StorageAdapterOptions.SectionName));
         services.Configure<LlmOptions>(configuration.GetSection(LlmOptions.SectionName));
         services.AddSingleton(TimeProvider.System);
         services.AddSingleton<PasswordHashingService>();

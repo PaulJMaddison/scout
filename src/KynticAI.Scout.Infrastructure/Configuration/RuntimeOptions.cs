@@ -1,3 +1,4 @@
+using KynticAI.Scout.Application.Abstractions;
 using KynticAI.Scout.Domain.Enums;
 
 namespace KynticAI.Scout.Infrastructure.Configuration;
@@ -223,4 +224,27 @@ public sealed class ConnectorBootstrapDefinition
     public string ConfigurationJson { get; set; } = "{}";
 
     public string? CredentialsJson { get; set; }
+}
+
+public sealed class StorageAdapterOptions
+{
+    public const string SectionName = "StorageAdapter";
+
+    public string Provider { get; set; } = StorageAdapterProviderKeys.ScoutPostgres;
+
+    public string VectorProvider { get; set; } = StorageAdapterProviderKeys.Disabled;
+
+    public bool EnableEnterpriseRuntime { get; set; } = false;
+
+    public bool EnableVectorWrites { get; set; } = false;
+
+    public bool EnableDualWrite { get; set; } = false;
+
+    public bool AllowCloudDataMovement { get; set; } = false;
+
+    public string EnterpriseRuntimeBaseUrl { get; set; } = string.Empty;
+
+    public int ExpectedEmbeddingDimensions { get; set; } = 384;
+
+    public string ExportCheckpointPath { get; set; } = ".demo-data/storage-adapter-checkpoints";
 }

@@ -1,6 +1,6 @@
 # WP2 Upgrade And LanceDB Migration
 
-This work package records the discovery, architecture design, and first scoped connector-routing implementation for the upgrade path from KynticAI Scout to Elite/Fortress, with a focus on storage, connector routing, local ingestion, LanceDB/vector expectations, Cloud entitlement touchpoints, data-boundary guarantees, and likely breakage during migration.
+This work package records the discovery, architecture design, connector-routing implementation, storage-adapter boundary, and Scout-side migration export/validation contract for the upgrade path from KynticAI Scout to Elite/Fortress, with a focus on storage, connector routing, local ingestion, LanceDB/vector expectations, Cloud entitlement touchpoints, data-boundary guarantees, and likely breakage during migration.
 
 ## Scope
 
@@ -10,7 +10,7 @@ This work package records the discovery, architecture design, and first scoped c
 - Discover what Cloud already provides for licence, entitlement, download/update, data-plane registration, heartbeat, and Fortress instance metadata checks.
 - Design the canonical local upgrade architecture that keeps Scout as the customer-owned Docker data plane, routes connector writes through local APIs where practical, and lets storage switch to Enterprise/Fortress LanceDB/vector DB without connector rewrites.
 - Realign practical connector ingestion paths to the current local Scout API where a stale route is found.
-- Record upgrade and migration risks. The first two artefacts made no code, schema, API, package, deployment, or runtime changes. The third artefact made a scoped TypeScript n8n package route update only.
+- Record upgrade and migration risks. The first two artefacts made no code, schema, API, package, deployment, or runtime changes. The third artefact made a scoped TypeScript n8n package route update only. The fourth artefact added a public storage adapter contract and safe Scout default without adding LanceDB, pgvector schema, private runtime code, or Cloud data movement. The fifth artefact implements Scout-side relational export/dry-run validation and specifies the private Enterprise/Fortress import contract without faking the importer.
 
 ## Repos Involved
 
@@ -38,5 +38,7 @@ This work package records the discovery, architecture design, and first scoped c
 | `01-discovery-audit.md` | Read-only discovery audit of Scout storage, connector routing, API ingestion, Enterprise/Fortress vector expectations, Cloud entitlements, and upgrade/migration risks. |
 | `02-upgrade-architecture.md` | Canonical Scout to Elite/Fortress upgrade architecture, connector routing principle, local API/storage abstraction requirements, Cloud entitlement role, rollback plan, data-boundary guarantees, and implementation tasks. |
 | `03-local-api-connector-routing.md` | Connector ingestion audit and scoped implementation realigning the older `scout-n8n-node` package to `POST /api/v1/events/source-system?tenantSlug=<tenant>`. |
+| `04-storage-adapter-boundary.md` | Public local storage adapter contracts, safe Scout `scout-postgres` default, Enterprise/Fortress LanceDB/vector expectations, migration/export/import requirements, config flags, tests, commands, and results. |
+| `05-migration-export-import.md` | Scout-side relational export format, Enterprise/Fortress import contract, API/CLI entrypoints, dry-run behaviour, validation checks, failure modes, rollback guidance, tests, commands, results, and remaining private importer blockers. |
 | `handoff.md` | Summary, findings, decisions, open questions, and recommended next prompt. |
 | `status.json` | Machine-readable current step, related repos, completed steps, open risks, and next prompt. |

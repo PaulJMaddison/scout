@@ -2,64 +2,64 @@
 
 ## Summary For The Next Prompt
 
-This connector-routing step created `03-local-api-connector-routing.md` and made a scoped implementation change in the older `packages/typescript/scout-n8n-node` package. The stale `/api/tenants/{tenantSlug}/events/source` POST target now routes to the current local Scout source-system event endpoint:
+This step created `05-migration-export-import.md` and implemented the safe Scout-side part of the migration tooling: local relational export and dry-run validation behind `ILocalDataPlaneStorageAdapter`. Scout now exports source events, user signals, selector executions, context facts, provenance metadata, and audit events as `kynticai.scout.storage-portable-export.v1` portable records with tenant/layer metadata and deterministic Enterprise/Fortress anchor fields.
 
-```text
-POST /api/v1/events/source-system?tenantSlug=<tenant>
-```
-
-The previous architecture decision still stands: Scout remains the local customer-owned Docker data plane, connector writes should use local Scout APIs or local adapter boundaries where practical, vector/storage choices stay hidden behind local contracts, and Cloud remains limited to licence, entitlement, private artefact, download, update, registration, heartbeat, support, and safe aggregate metadata.
-
-No server API, schema, Docker, SDK contract, Cloud, Enterprise/Fortress, vector, LanceDB, pgvector, or selector-storage changes were made.
+No Enterprise/Fortress code was imported into Scout. No LanceDB dependency, pgvector schema, vector table, relationship-set persistence, private importer, Docker change, package publication, Cloud data movement, or customer-data upload path was added.
 
 ## Latest Implementation
 
-- Added `buildSourceSystemEventUrl()` to `packages/typescript/scout-n8n-node/src/nodes/sourceEventMapper.ts`.
-- Updated `packages/typescript/scout-n8n-node/src/nodes/KynticAiScout.node.ts` to post to `/api/v1/events/source-system?tenantSlug=<tenant>`.
-- Exported the helper from `packages/typescript/scout-n8n-node/src/index.ts`.
-- Added route coverage in `packages/typescript/scout-n8n-node/tests/url.test.ts`.
-- Updated `packages/typescript/scout-n8n-node/README.md`.
-- Created `03-local-api-connector-routing.md` and updated WP2 README/status/handoff.
+- Added `AuditEvents` to `StorageAdapterDataScope`.
+- Added migration validation contracts: `StorageMigrationValidationSeverity`, `StorageMigrationValidationFinding`, and `StorageMigrationValidationReport`.
+- Added `DryRun` to `StorageExportRequest` and `StorageImportRequest`.
+- Added `ValidationReport` to `StorageExportBatch`.
+- Updated `ScoutPostgresStorageAdapter` to report `SupportsExport=true` for current Scout relational scopes.
+- Implemented `ScoutPostgresStorageAdapter.ExportAsync()` for source events, user signals, selector executions, context facts, provenance metadata, and audit events.
+- Implemented tenant ID/slug validation, unsupported-scope validation, checkpoint validation, JSON shape validation, counts by record kind, and dry-run validation without returned records.
+- Kept `ImportAsync()` explicitly unsupported in Scout/open-core until the private Enterprise/Fortress importer contract is ready.
+- Kept `WriteVectorAsync()` explicitly skipped in Scout/open-core unless a private/local adapter replaces it.
+- Added unit coverage in `tests/KynticAI.Scout.UnitTests/StorageAdapterBoundaryTests.cs`.
+- Created `05-migration-export-import.md` and updated WP2 README/status/handoff.
 
 ## Verification
 
-- `npm test` in `packages/typescript/scout-n8n-node`: passed after `npm install`, 5 test files, 115 tests.
-- `npm run build` in `packages/typescript/scout-n8n-node`: passed after `npm install`.
-- `dotnet test .\tests\KynticAI.Scout.Sdk.Tests\KynticAI.Scout.Sdk.Tests.csproj`: passed, 12 tests.
-- Initial `npm test` and `npm run build` failed before `npm install` because `vitest` and `tsc` were not present locally.
-- `npm install` reported 2 critical npm audit findings in the existing dependency tree.
-- Docker, browser, native-store, LanceDB, pgvector, live connector, and external dependency proof paths were not run because the local laptop policy requires opt-in environment variables and they were not set.
+- `dotnet test .\tests\KynticAI.Scout.UnitTests\KynticAI.Scout.UnitTests.csproj --no-restore`: passed; 86 tests.
+- `dotnet restore .\KynticAI.Scout.slnx`: passed; all projects up to date.
+- `dotnet build .\KynticAI.Scout.slnx`: passed; 0 warnings; 0 errors.
+- `dotnet test .\tests\KynticAI.Scout.Sdk.Tests\KynticAI.Scout.Sdk.Tests.csproj`: passed; 12 tests.
+- `git diff --check`: passed; printed only LF-to-CRLF working-copy warnings.
+- `Get-Content -Raw docs\work-packages\wp2-upgrade-and-lancedb-migration\status.json | ConvertFrom-Json | Out-Null`: passed.
+
+Docker/PostgreSQL, browser, LanceDB/native-store, pgvector, model-runtime, live connector, and Enterprise/Fortress proof should remain skipped unless the relevant opt-in environment variables are set and Paul explicitly asks.
 
 ## Key Decisions
 
-- KynticAI Scout remains the public/open-core local data plane for ingestion, APIs, connector abstractions, provenance, audit, governance, and public fallback intelligence.
-- Enterprise/Fortress installs locally as the paid private extension path for the Enterprise/Fortress Rust engine/vector DB, relationship sets, attribution paths, outcome matching, comparable-example analysis, and governed JSON handoff.
-- Elite sits above Fortress for operator-assisted strategic work, while raw and derived customer intelligence still stays in the customer-owned environment.
-- Connectors should write through the local Scout API or a local adapter boundary where practical. Connector packages should not need rewrites when storage switches from Scout-compatible storage to Enterprise/Fortress LanceDB/vector DB.
-- The local API contract is the upgrade seam. It needs versioned ingestion/backfill shapes, idempotency, tenant/workspace/source/provenance identifiers, typed errors, and a quiet local migration mode.
-- The storage abstraction must support Scout-compatible storage, Enterprise/Fortress LanceDB/vector DB, pgvector companion storage, and local dual-write migration without using Cloud as a staging target.
-- Cloud entitlement success means the customer may download and run paid local capability. It is not proof that local LanceDB, pgvector, embeddings, data mapping, or relationship analysis are ready.
-- Rollback is local-first: Scout backups and local provider config recover the data plane; Cloud downgrade or licence revocation must not delete customer data.
-- The stale `packages/typescript/scout-n8n-node` source-event route has now been realigned to the current local API route.
+- Scout remains the public/open-core local data plane and exports only the relational records it actually stores today.
+- `scout-postgres` is the implemented export provider. Local SQLite development uses the same EF model behind the adapter.
+- The export contract version is `kynticai.scout.storage-portable-export.v1`.
+- Exported Enterprise/Fortress anchors use `fortressAnchor.entity_type`, `fortressAnchor.postgres_pk`, and `fortressAnchor.layer`.
+- The tenant slug is used as the initial local `layer`; tenant ID/slug mismatches fail closed.
+- Dry run validates and reports without returning records or writing data.
+- Scout does not claim vector persistence or private import capability.
+- Enterprise/Fortress must provide the private/local importer for LanceDB/vector DB, pgvector fallback, relationship sets, attribution paths, outcome events, retry/dead-letter stores, and governed JSON handoff.
+- Cloud remains licence, entitlement, artefact, update, registration, heartbeat, support, and safe aggregate metadata only. It is not a migration, import, vector, dead-letter, or backup layer.
 
 ## Data-Boundary Commitments
 
-- Cloud must not receive raw operational data, connector payloads, credentials, exact data items, context facts, selector outputs, provenance details, vectors, embeddings, relationship sets, attribution paths, outcome events, prompts, generated customer content, recommendations, citation IDs, weighted signals, evidence packs, or customer-specific derived intelligence.
-- Cloud may receive only commercial/control-plane metadata and explicitly allowlisted aggregate usage counters.
-- Local migration logs, checkpoints, dead letters, failed payloads, and support bundles are customer data and remain local unless explicitly exported after review/redaction.
-- Cross-tenant leakage in mapping, vector search, relationship traversal, or governed JSON handoff is a security defect and must fail closed.
+- Raw customer operational data, source payloads, credentials, exact data items, context facts, selector outputs, provenance details, relationship sets, attribution paths, outcome events, prompts, generated content, vectors, embeddings, migration logs, checkpoints, failed payloads, and customer-specific derived intelligence stay local.
+- `StorageAdapterOptions.AllowCloudDataMovement` defaults to `false` and must remain false for customer data and derived intelligence.
+- Cross-tenant leakage in export, import, layer mapping, vector search, relationship traversal, or governed JSON handoff is a security defect and must fail closed.
+- Support bundles or failed migration payloads are customer data and remain local unless explicitly reviewed, redacted, and exported by the customer.
 
 ## Open Implementation Tasks
 
-- Define canonical local data-item, outcome-event, relationship-set, attribution-path, citation, and provenance persistence contracts.
-- Design versioned local API shapes for canonical writes and migration backfill.
-- Implement provider selection for Scout-compatible storage, Enterprise/Fortress LanceDB/vector DB, pgvector companion storage, and local dual-write migration.
-- Build deterministic Scout-to-Fortress ID and layer mapping.
-- Add resumable local backfill, checkpoints, local dead letters, rollback hooks, and operator-visible status.
-- Add local preflight and post-upgrade verification for Docker state, database migrations, backups, LanceDB/native dependencies, pgvector, embedding assets, tenant isolation, and governed JSON handoff.
-- Wire Cloud entitlement to local onboarding using only licence, artefact, version, channel, and safe config metadata.
-- Add focused tests and xhigh review gates before implementation is marked complete.
+- Implement the operator CLI wrapper that repeatedly calls `ExportAsync()`, writes local export batches/reports, and can hand off to the private local importer once available.
+- Implement the private Enterprise/Fortress importer for `kynticai.scout.storage-portable-export.v1`.
+- Implement local embeddings/vector writes and LanceDB/native-store proof in Enterprise/Fortress, not Scout/open-core.
+- Define and persist canonical relationship-set, attribution-path, outcome-event, and exact data-item records where required.
+- Add local checkpoint, retry, and dead-letter persistence for end-to-end import/backfill.
+- Add private import validation for citation/provenance coverage and governed JSON handoff readiness.
+- Run xhigh review gates before this storage/data-model/security-sensitive work is marked complete.
 
 ## Recommended Next Action
 
-Run a design prompt that creates `04-migration-contract-and-adapter-plan.md` for this work package. It should turn `02-upgrade-architecture.md` and `03-local-api-connector-routing.md` into concrete local API contracts, storage provider interfaces, data-item and relationship-set schemas, deterministic ID mapping rules, backfill/replay semantics, entitlement gates, rollback proof criteria, and test coverage. Do not start vector, LanceDB, pgvector, or relationship-set persistence changes until that contract is reviewed.
+Implement the local operator migration CLI wrapper in Scout or a reviewed private tooling repo. It should call `ILocalDataPlaneStorageAdapter.ExportAsync()` in dry-run and real modes, persist local batch JSON and validation reports, support checkpoint resume, and stop before import unless the private Enterprise/Fortress `kynticai.scout.storage-portable-export.v1` importer is present and has passed local dry-run validation. Do not add LanceDB, pgvector, native-store proof, or private importer code to Scout/open-core.

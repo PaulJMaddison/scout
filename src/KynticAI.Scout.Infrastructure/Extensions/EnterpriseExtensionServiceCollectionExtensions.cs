@@ -110,6 +110,14 @@ public static class EnterpriseExtensionServiceCollectionExtensions
         return services;
     }
 
+    public static IServiceCollection AddLocalDataPlaneStorageAdapter<T>(
+        this IServiceCollection services)
+        where T : class, ILocalDataPlaneStorageAdapter
+    {
+        services.AddScoped<ILocalDataPlaneStorageAdapter, T>();
+        return services;
+    }
+
     public static IServiceCollection AddEnterpriseExtensionDefaults(this IServiceCollection services)
     {
         services.TryAddEnumerable(ServiceDescriptor.Scoped<IContextSourceConnector, MockContextSourceConnector>());
@@ -125,6 +133,7 @@ public static class EnterpriseExtensionServiceCollectionExtensions
         services.TryAddEnumerable(ServiceDescriptor.Scoped<ISelectorApprovalWorkflow, ImmediateSelectorApprovalWorkflow>());
         services.TryAddEnumerable(ServiceDescriptor.Scoped<IEnvironmentPromotionService, DisabledEnvironmentPromotionService>());
         services.TryAddEnumerable(ServiceDescriptor.Scoped<IUsageMeteringSink, InMemoryUsageMeteringSink>());
+        services.TryAddEnumerable(ServiceDescriptor.Scoped<ILocalDataPlaneStorageAdapter, ScoutPostgresStorageAdapter>());
         return services;
     }
 }
