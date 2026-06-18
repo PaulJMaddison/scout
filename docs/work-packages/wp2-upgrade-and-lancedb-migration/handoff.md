@@ -1,5 +1,18 @@
 # WP2 Handoff
 
+## Final Evidence Pack
+
+WP2 now has the requested final persisted evidence pack:
+
+- `09-final-review.md`
+- `investor-summary.md`
+- `customer-safe-summary.md`
+- `next-work-packages.md`
+
+The final review keeps the claim boundary explicit: WP2 is ready to commit as evidence and local upgrade-contract groundwork, but it is not a claim of production SaaS readiness, live customer upgrade readiness, vendor-certified connector coverage, or completed LanceDB/pgvector migration.
+
+Recommended next package: WP3, Scout Operator Migration CLI And Deterministic Local Upgrade Harness.
+
 ## Summary For The Next Prompt
 
 This step now includes `08-end-to-end-upgrade-simulation.md`, a local/dev simulation report for the Scout to Enterprise/Fortress upgrade path. A fresh temporary Scout SQLite bootstrap succeeded, focused Scout API/storage tests passed, Enterprise/Fortress import-contract tests passed, and the Cloud metadata-only onboarding guard passed. The live temp Scout API smoke remained partial because demo startup/recompute processing ran long and the HTTP event post did not complete before timeout.
@@ -102,4 +115,4 @@ Docker/PostgreSQL, browser, LanceDB/native-store, pgvector, model-runtime, live 
 
 ## Recommended Next Action
 
-Implement the Scout operator migration CLI wrapper that runs `ILocalDataPlaneStorageAdapter.ExportAsync()` dry runs and real exports with checkpoint resume, writes local validation reports/batch files, and exposes enough deterministic output for the next end-to-end upgrade simulation. Keep Cloud out of the data plane and keep Enterprise/Fortress import behind the private local contract.
+Implement WP3: the Scout operator migration CLI wrapper and deterministic local upgrade simulation harness. The CLI should run `ILocalDataPlaneStorageAdapter.ExportAsync()` dry runs and real exports with checkpoint resume, write local validation reports and batch files, and expose enough deterministic output for the next end-to-end upgrade simulation. Keep Cloud out of the data plane and keep Enterprise/Fortress import behind the private local contract.
