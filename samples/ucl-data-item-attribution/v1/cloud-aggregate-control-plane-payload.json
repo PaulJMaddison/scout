@@ -1,0 +1,27 @@
+{
+  "payloadKind": "ucl.cloud-aggregate-control-plane-payload",
+  "payloadVersion": "ucl.cloud-aggregate-control-plane-payload.v1",
+  "tenantSlug": "demo",
+  "feature": "relationship-item-attribution",
+  "eventName": "ucl.relationship-items.generated",
+  "status": "succeeded",
+  "generatedAtUtc": "2026-06-14T09:15:00Z",
+  "counters": {
+    "dataItemCount": 10,
+    "relationshipSetCount": 3,
+    "attributionPathCount": 3,
+    "historicalOutcomeCount": 2,
+    "possibleActionCount": 3
+  },
+  "dataBoundary": {
+    "rawDataRetainedInCustomerDataPlane": true,
+    "containsRawCustomerData": false,
+    "containsDataItems": false,
+    "containsExactPayloads": false,
+    "containsIdentities": false,
+    "containsRelationshipEdges": false,
+    "containsAttributionPaths": false,
+    "containsOutcomeEvents": false,
+    "containsEnterpriseAnalysisInput": false
+  }
+}

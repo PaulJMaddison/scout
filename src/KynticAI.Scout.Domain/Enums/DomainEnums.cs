@@ -221,3 +221,30 @@ public enum GovernancePolicyStatus
     Active = 1,
     Disabled = 2
 }
+
+public enum RelationshipType
+{
+    EmailToContact = 1,
+    ContactToAccount = 2,
+    AccountToOpportunity = 3,
+    ContactToEmailEngagement = 4,
+    ContactToWebConversion = 5,
+    AccountToSupportTicket = 6,
+    ContactToSupportTicket = 7,
+    AccountToProductUsage = 8,
+    ContactToProductUsage = 9,
+    AccountToBilling = 10,
+    AccountToOutcome = 11,
+    ContactToOutcome = 12,
+    SameDomain = 13,
+    SameSegment = 14,
+    SameRoleSeniority = 15,
+    SimilarProductUsagePattern = 16,
+    SimilarWebJourney = 17,
+    SimilarEmailResponsePattern = 18,
+    SimilarSupportBlockers = 19,
+    SimilarSuccessfulSalePath = 20,
+    AccountToWebConversion = 21,
+    AccountToSalesActivity = 22,
+    ContactToSalesActivity = 23
+}

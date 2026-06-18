@@ -85,6 +85,13 @@ describe('valid manifest', () => {
           },
         },
         sampleConfiguration: { endpoint: 'https://api.example.com' },
+        eventShape: {
+          sourceSystem: 'testConnector',
+          entityType: 'account',
+          sourceIdField: 'account_id',
+          timestampField: 'observed_at_utc',
+          payloadRoot: 'payload',
+        },
       }),
     )
     expect(result.isValid).toBe(true)
@@ -522,6 +529,66 @@ describe('configuration schema', () => {
     expect(result.isValid).toBe(false)
     expect(result.errors).toEqual(
       expect.arrayContaining([expect.stringContaining('apiVersion')]),
+    )
+  })
+})
+
+// ---------------------------------------------------------------------------
+// Event shape validation
+// ---------------------------------------------------------------------------
+
+describe('event shape', () => {
+  it('accepts a provider-neutral event shape', () => {
+    const result = validateManifest(
+      validManifest({
+        eventShape: {
+          sourceSystem: 'testConnector',
+          entityType: 'account',
+          sourceIdField: 'account_id',
+          timestampField: 'observed_at_utc',
+          payloadRoot: 'payload',
+        },
+      }),
+    )
+
+    expect(result.isValid).toBe(true)
+    expect(result.errors).toHaveLength(0)
+  })
+
+  it('rejects an event shape missing required fields', () => {
+    const result = validateManifest(
+      validManifest({
+        eventShape: {
+          sourceSystem: 'testConnector',
+          entityType: '',
+        },
+      }),
+    )
+
+    expect(result.isValid).toBe(false)
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining('eventShape.entityType'),
+        expect.stringContaining('eventShape.sourceIdField'),
+      ]),
+    )
+  })
+
+  it('rejects non-string optional event shape fields', () => {
+    const result = validateManifest(
+      validManifest({
+        eventShape: {
+          sourceSystem: 'testConnector',
+          entityType: 'account',
+          sourceIdField: 'account_id',
+          timestampField: 123,
+        },
+      }),
+    )
+
+    expect(result.isValid).toBe(false)
+    expect(result.errors).toEqual(
+      expect.arrayContaining([expect.stringContaining('eventShape.timestampField')]),
     )
   })
 })

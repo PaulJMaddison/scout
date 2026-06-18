@@ -1,0 +1,139 @@
+{
+  "restModels": [
+    {
+      "name": "ContextFactResult",
+      "surface": "rest",
+      "fields": [
+        { "name": "id", "type": "Guid" },
+        { "name": "attributeKey", "type": "string" },
+        { "name": "valueJson", "type": "string" }
+      ]
+    }
+  ],
+  "graphQlModels": [],
+  "dotnetSdkModels": [
+    {
+      "name": "ContextFactResult",
+      "surface": "dotnet-sdk",
+      "fields": [
+        { "name": "id", "type": "Guid" },
+        { "name": "attributeKey", "type": "string" },
+        { "name": "valueJson", "type": "string" }
+      ]
+    }
+  ],
+  "typescriptSdkModels": [
+    {
+      "name": "ContextFactResult",
+      "surface": "typescript-sdk",
+      "fields": [
+        { "name": "id", "type": "string" },
+        { "name": "attributeKey", "type": "string" },
+        { "name": "valueJson", "type": "string" }
+      ]
+    },
+    {
+      "name": "InvestmentScoreRequest",
+      "surface": "typescript-sdk",
+      "fields": [{ "name": "evidence", "type": "ScoreEvidenceInput[]" }]
+    },
+    {
+      "name": "CreditScoreRequest",
+      "surface": "typescript-sdk",
+      "fields": [{ "name": "evidence", "type": "ScoreEvidenceInput[]" }]
+    },
+    {
+      "name": "JobScoreRequest",
+      "surface": "typescript-sdk",
+      "fields": [{ "name": "evidence", "type": "ScoreEvidenceInput[]" }]
+    },
+    {
+      "name": "InvestmentScore",
+      "surface": "typescript-sdk",
+      "fields": [{ "name": "scoreType", "type": "'InvestmentScore'" }]
+    },
+    {
+      "name": "CreditScore",
+      "surface": "typescript-sdk",
+      "fields": [{ "name": "scoreType", "type": "'CreditScore'" }]
+    },
+    {
+      "name": "JobScore",
+      "surface": "typescript-sdk",
+      "fields": [{ "name": "scoreType", "type": "'JobScore'" }]
+    },
+    {
+      "name": "ConfidenceInterval",
+      "surface": "typescript-sdk",
+      "fields": [{ "name": "lower", "type": "number" }]
+    },
+    {
+      "name": "ScoreEvidencePoint",
+      "surface": "typescript-sdk",
+      "fields": [{ "name": "summary", "type": "string" }]
+    },
+    {
+      "name": "ScoreRiskFlag",
+      "surface": "typescript-sdk",
+      "fields": [{ "name": "code", "type": "string" }]
+    }
+  ],
+  "apiEnums": [
+    {
+      "name": "DataSourceKind",
+      "surface": "rest",
+      "values": ["Crm", "SqlMetric"]
+    }
+  ],
+  "dotnetSdkEnums": [
+    {
+      "name": "DataSourceKind",
+      "surface": "dotnet-sdk",
+      "values": ["Crm", "SqlMetric"]
+    }
+  ],
+  "typescriptSdkEnums": [
+    {
+      "name": "DataSourceKind",
+      "surface": "typescript-sdk",
+      "values": ["Crm", "SqlMetric"]
+    }
+  ],
+  "connectorManifest": {
+    "allowedFields": ["connectorId", "displayName", "supportedSourceTypes", "capabilities"],
+    "sourceTypes": ["Crm", "SqlMetric"],
+    "capabilities": ["FetchSubject", "HealthCheck"]
+  },
+  "manifests": [
+    {
+      "name": "valid-manifest",
+      "fields": ["connectorId", "displayName", "supportedSourceTypes", "capabilities"],
+      "supportedSourceTypes": ["Crm"],
+      "capabilities": ["FetchSubject"]
+    }
+  ],
+  "scoreApi": {
+    "sourceFile": "schema/kyntic-score.openapi.yaml",
+    "paths": [
+      "/v1/scores/investment",
+      "/v1/scores/credit",
+      "/v1/scores/job"
+    ],
+    "schemas": [
+      "InvestmentScoreRequest",
+      "CreditScoreRequest",
+      "JobScoreRequest",
+      "InvestmentScore",
+      "CreditScore",
+      "JobScore",
+      "ConfidenceInterval",
+      "ScoreEvidencePoint",
+      "ScoreRiskFlag"
+    ],
+    "sdkClientPaths": [
+      "/v1/scores/investment",
+      "/v1/scores/credit",
+      "/v1/scores/job"
+    ]
+  }
+}

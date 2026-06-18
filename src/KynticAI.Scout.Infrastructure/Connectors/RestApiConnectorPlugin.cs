@@ -46,6 +46,7 @@ internal sealed class RestApiConnectorPlugin(IHttpClientFactory httpClientFactor
                 ["staticResponses"] = new JsonObject { ["type"] = "array" },
                 ["responses"] = new JsonObject { ["type"] = "array" },
                 ["headers"] = new JsonObject { ["type"] = "object" },
+                ["apiKeyHeader"] = new JsonObject { ["type"] = "string" },
                 ["credentials"] = new JsonObject { ["type"] = "object" }
             }
         };
@@ -88,6 +89,10 @@ internal sealed class RestApiConnectorPlugin(IHttpClientFactory httpClientFactor
         {
             errors.Add("REST connector requires baseUrl.");
         }
+        else if (!IsHttpUri(request.Configuration["baseUrl"]!.GetValue<string>()))
+        {
+            errors.Add("REST connector baseUrl must be an absolute http or https URL.");
+        }
 
         if (request.Configuration["staticResponses"] is null
             && request.Configuration["responses"] is null
@@ -95,6 +100,20 @@ internal sealed class RestApiConnectorPlugin(IHttpClientFactory httpClientFactor
             && string.IsNullOrWhiteSpace(request.Configuration["subjectQueryParameter"]?.GetValue<string>()))
         {
             errors.Add("REST connector requires pathTemplate, subjectQueryParameter, or staticResponses.");
+        }
+
+        var method = request.Configuration["method"]?.GetValue<string>() ?? "GET";
+        if (!string.Equals(method, "GET", StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(method, "POST", StringComparison.OrdinalIgnoreCase))
+        {
+            errors.Add("REST connector method must be GET or POST.");
+        }
+
+        var staticResponses = request.Configuration["staticResponses"] as JsonArray
+            ?? request.Configuration["responses"] as JsonArray;
+        if (staticResponses is not null)
+        {
+            ValidateStaticResponses(staticResponses, errors);
         }
 
         return baseline with
@@ -281,5 +300,37 @@ internal sealed class RestApiConnectorPlugin(IHttpClientFactory httpClientFactor
             JsonValue value when value.TryGetValue<string>(out var stringValue) && DateTime.TryParse(stringValue, out var parsed) => parsed,
             _ => DateTime.UtcNow
         };
+    }
+
+    private static bool IsHttpUri(string value)
+        => Uri.TryCreate(value, UriKind.Absolute, out var uri)
+            && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
+
+    private static void ValidateStaticResponses(JsonArray responses, List<string> errors)
+    {
+        if (responses.Count == 0)
+        {
+            errors.Add("REST connector staticResponses must contain at least one response.");
+            return;
+        }
+
+        for (var index = 0; index < responses.Count; index++)
+        {
+            if (responses[index] is not JsonObject item)
+            {
+                errors.Add($"REST connector staticResponses[{index}] must be an object.");
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(item["externalUserId"]?.GetValue<string>()))
+            {
+                errors.Add($"REST connector staticResponses[{index}] requires externalUserId.");
+            }
+
+            if (item["payload"] is not JsonObject)
+            {
+                errors.Add($"REST connector staticResponses[{index}] requires payload object.");
+            }
+        }
     }
 }

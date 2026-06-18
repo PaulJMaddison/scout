@@ -1,0 +1,9 @@
+* text=auto
+
+# Shell scripts are mounted into Linux containers and must keep LF endings on
+# Windows checkouts. CRLF turns shebangs into /usr/bin/env "sh\r".
+*.sh text eol=lf
+deploy/docker/postgres/init/*.sh text eol=lf
+
+# PowerShell scripts are Windows-facing and can use native Windows endings.
+*.ps1 text eol=crlf

@@ -1,135 +1,282 @@
 # Connector Authoring Guide
 
-This document describes how to author a new connector for KynticAI Scout. It covers the public `IConnectorPlugin` contract, metadata requirements, validation helpers, and the open-core boundary.
+This guide shows how to build a public KynticAI Scout connector without reading any private repository. A connector is a small .NET plugin that fetches subject-scoped operational data, returns a normalised JSON payload, and describes its configuration and event shape for authoring tools.
 
-## Prerequisites
+The example below uses a fictional AcmeCRM API. It is intentionally generic: no vendor SDKs, no customer schemas, no CDC, no vector or embedding work, and no enterprise-only implementation details.
 
-- .NET 10 SDK
-- Familiarity with the [Connector Plugin Model](connector-plugin-model.md)
-- The public Scout solution (`KynticAI.Scout.slnx`)
+## Public Contract
 
-## Interface Contract
+Every connector implements `IConnectorPlugin` from `src/KynticAI.Scout.Application/Abstractions/IConnectorPlugin.cs`. In the Scout repo, extend `ConnectorPluginBase` from `src/KynticAI.Scout.Infrastructure/Connectors/ConnectorPluginBase.cs` unless you have a strong reason to implement the interface directly.
 
-Every connector implements `IConnectorPlugin` (defined in `src/KynticAI.Scout.Application/Abstractions/IConnectorPlugin.cs`). The recommended approach is to extend `ConnectorPluginBase` in the Infrastructure layer, which provides default implementations for health checks, credential schema, configuration sanitisation, and utility helpers.
+Required members:
 
-### Required Members
-
-| Member | Type | Description |
-|---|---|---|
-| `ConnectorType` | `string` | Unique lowercase identifier (e.g. `"inMemoryInventory"`). |
-| `DisplayName` | `string` | Human-readable name for admin UI. |
-| `Description` | `string` | Short technical description. |
-| `SupportedDataSourceKinds` | `IReadOnlyList<DataSourceKind>` | At least one of `Crm`, `SqlMetric`, `EventStream`, `ProductUsage`. |
-| `GetConfigurationSchema()` | `JsonObject` | JSON Schema with `"type": "object"` and a `"properties"` key. |
-| `GetSampleConfiguration()` | `JsonObject` | Example configuration satisfying all `required` fields in the schema. |
-| `FetchAsync(...)` | `Task<ConnectorFetchResult>` | Returns normalised payload, provenance, and observation timestamp. |
-
-### Optional Overrides
-
-| Member | Default Behaviour |
+| Member | Purpose |
 |---|---|
-| `Aliases` | Empty list. |
-| `SupportedCapabilities` | All capabilities enabled. |
-| `GetCredentialSchema()` | Empty object schema. |
-| `ValidateConfigurationAsync(...)` | Checks that the data source kind is supported. |
-| `CheckHealthAsync(...)` | Returns healthy. |
+| `ConnectorType` | Unique camelCase identifier, for example `acmeCrm`. |
+| `DisplayName` | Human-readable admin UI name. |
+| `Description` | Short public description of the connector. |
+| `SupportedDataSourceKinds` | One or more public kinds: `Crm`, `SqlMetric`, `EventStream`, `ProductUsage`. |
+| `GetConfigurationSchema()` | JSON Schema object for non-secret configuration. |
+| `GetCredentialSchema()` | JSON Schema object for secret fields. Mark secrets with `"secret": true`. |
+| `GetSampleConfiguration()` | Safe example config that satisfies every required schema field. |
+| `ValidateConfigurationAsync(...)` | Checks data-source kind plus connector-specific config rules. |
+| `CheckHealthAsync(...)` | Read-only connectivity or local-shape check. |
+| `FetchAsync(...)` | Fetches one subject and returns `ConnectorFetchResult`. |
 
-## Step-by-Step
+The public model also includes:
 
-1. **Copy the template.** Start from `samples/connector-template/TemplateConnectorPlugin.cs`.
+| Model | Purpose |
+|---|---|
+| `ConnectorConfigurationDescriptor` | Stable description of schema, credentials, sample config, and config fields. |
+| `ConnectorConfigurationField` | A single config field with type, required flag, secret flag, and optional default JSON. |
+| `ConnectorEventShape` | Provider-neutral event declaration: source system, entity type, source ID field, timestamp field, and payload root. |
+| `ConnectorIngestEvent` | Runtime event shape for connector-emitted events: source system, source ID, entity type, raw payload, and UTC timestamp. |
+| `ConnectorContractRules` | Small validation helper for public event contracts. |
 
-2. **Rename and customise.** Update `ConnectorType`, `DisplayName`, `Description`, and `SupportedDataSourceKinds`.
+## Build AcmeCRM
 
-3. **Define the configuration schema.** Return a JSON Schema object from `GetConfigurationSchema()`. Include a `required` array for mandatory fields.
-
-4. **Provide a sample configuration.** `GetSampleConfiguration()` must return a JSON object that satisfies all `required` fields in the schema.
-
-5. **Implement validation.** Override `ValidateConfigurationAsync` to add connector-specific checks. Always call `base.ValidateConfigurationAsync` first.
-
-6. **Implement fetch.** `FetchAsync` receives the full request context (subject, data source, selector, configuration, credentials, run mode). Return a `ConnectorFetchResult` with:
-   - `RawPayloadJson` — the raw response as a JSON string.
-   - `NormalizedPayload` — a `JsonObject` the selector engine can traverse.
-   - `ProvenanceJson` — an array of provenance entries (source, user ID, timestamp, mode).
-   - `ObservedAtUtc` — when the data was observed.
-   - `FreshUntilUtc` — optional expiry hint.
-   - `DiagnosticsJson` — optional diagnostics blob.
-
-7. **Register in DI.** Add the plugin to the service collection:
-   ```csharp
-   services.AddScoped<IConnectorPlugin, YourConnectorPlugin>();
-   ```
-
-8. **Validate metadata.** Use `ConnectorMetadataValidator.Validate(plugin)` to verify the connector's metadata is well-formed before shipping.
-
-## Metadata Validation
-
-The `ConnectorMetadataValidator` helper (in `src/KynticAI.Scout.Infrastructure/Connectors/ConnectorMetadataValidator.cs`) checks that a plugin:
-
-- Has a non-empty `ConnectorType`, `DisplayName`, and `Description`.
-- Declares at least one supported data source kind.
-- Declares at least one supported capability.
-- Returns non-null `Aliases`.
-- Returns a `ConfigurationSchema` and `CredentialSchema` with `"type": "object"` and `"properties"`.
-- Returns a `SampleConfiguration` that includes all `required` fields from the schema.
-
-Usage in tests:
+Start from `samples/connector-template/TemplateConnectorPlugin.cs`. Rename the class and connector ID, then keep the shape below.
 
 ```csharp
-var result = ConnectorMetadataValidator.Validate(plugin);
-Assert.True(result.IsValid, string.Join("; ", result.Errors));
+using System.Net.Http.Headers;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using KynticAI.Scout.Application.Abstractions;
+using KynticAI.Scout.Domain.Enums;
+using KynticAI.Scout.Infrastructure.Connectors;
+
+internal sealed class AcmeCrmConnectorPlugin(IHttpClientFactory httpClientFactory)
+    : ConnectorPluginBase
+{
+    public override string ConnectorType => "acmeCrm";
+    public override string DisplayName => "AcmeCRM Connector";
+    public override string Description => "Fetches account health and opportunity signals from a generic CRM-style API.";
+    public override IReadOnlyList<DataSourceKind> SupportedDataSourceKinds => [DataSourceKind.Crm];
+    public override IReadOnlyList<string> Aliases => ["acme"];
+
+    public override JsonObject GetConfigurationSchema() => new()
+    {
+        ["type"] = "object",
+        ["required"] = new JsonArray("baseUrl", "tenantSlug"),
+        ["properties"] = new JsonObject
+        {
+            ["baseUrl"] = new JsonObject { ["type"] = "string" },
+            ["tenantSlug"] = new JsonObject { ["type"] = "string" },
+            ["pathTemplate"] = new JsonObject { ["type"] = "string", ["default"] = "/v1/accounts/{externalUserId}" },
+            ["observedAtPath"] = new JsonObject { ["type"] = "string", ["default"] = "meta.observedAtUtc" }
+        }
+    };
+
+    public override JsonObject GetCredentialSchema() => new()
+    {
+        ["type"] = "object",
+        ["properties"] = new JsonObject
+        {
+            ["apiKey"] = new JsonObject { ["type"] = "string", ["secret"] = true }
+        }
+    };
+
+    public override JsonObject GetSampleConfiguration() => new()
+    {
+        ["baseUrl"] = "https://api.example.com",
+        ["tenantSlug"] = "demo",
+        ["pathTemplate"] = "/v1/accounts/{externalUserId}",
+        ["observedAtPath"] = "meta.observedAtUtc"
+    };
+
+    public override async Task<ConnectorConfigurationValidationResult> ValidateConfigurationAsync(
+        ConnectorConfigurationValidationRequest request,
+        CancellationToken cancellationToken)
+    {
+        var baseline = await base.ValidateConfigurationAsync(request, cancellationToken);
+        var errors = baseline.Errors.ToList();
+
+        var baseUrl = request.Configuration["baseUrl"]?.GetValue<string>();
+        if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out var uri)
+            || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
+        {
+            errors.Add("AcmeCRM connector requires an absolute http or https baseUrl.");
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Configuration["tenantSlug"]?.GetValue<string>()))
+        {
+            errors.Add("AcmeCRM connector requires tenantSlug.");
+        }
+
+        return baseline with { IsValid = errors.Count == 0, Errors = errors };
+    }
+
+    public override async Task<ConnectorFetchResult> FetchAsync(
+        ConnectorFetchRequest request,
+        CancellationToken cancellationToken)
+    {
+        var baseUrl = request.Configuration["baseUrl"]!.GetValue<string>().TrimEnd('/');
+        var template = request.Configuration["pathTemplate"]?.GetValue<string>() ?? "/v1/accounts/{externalUserId}";
+        var uri = baseUrl + template.Replace("{externalUserId}", Uri.EscapeDataString(request.Subject.ExternalUserId), StringComparison.Ordinal);
+
+        using var httpRequest = new HttpRequestMessage(HttpMethod.Get, uri);
+        if (request.Credentials["apiKey"]?.GetValue<string>() is { Length: > 0 } apiKey)
+        {
+            httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+        }
+
+        var client = httpClientFactory.CreateClient("scout-connectors");
+        using var response = await client.SendAsync(httpRequest, cancellationToken);
+        response.EnsureSuccessStatusCode();
+
+        var rawJson = await response.Content.ReadAsStringAsync(cancellationToken);
+        var payload = JsonNode.Parse(rawJson) as JsonObject
+            ?? throw new InvalidOperationException("AcmeCRM response must be a JSON object.");
+
+        var observedAtUtc = DateTime.UtcNow;
+        return new ConnectorFetchResult(
+            rawJson,
+            payload,
+            JsonSerializer.Serialize(new[]
+            {
+                new
+                {
+                    source = ConnectorType,
+                    request.Subject.ExternalUserId,
+                    observedAtUtc,
+                    mode = request.Mode.ToString()
+                }
+            }),
+            observedAtUtc,
+            null,
+            "{}");
+    }
+}
 ```
 
-## Run Modes
+Register it in dependency injection:
 
-Connectors should handle at least `Live` and `Preview` modes. The `ConnectorRunMode` enum defines:
+```csharp
+services.AddScoped<IConnectorPlugin, AcmeCrmConnectorPlugin>();
+```
 
-| Mode | Behaviour |
-|---|---|
-| `Live` | Full execution with real data access. |
-| `Preview` | Read-only, safe for demos. Use static responses if available. |
-| `DryRun` | Validate without side effects. |
-| `ScheduledSync` | Triggered by a scheduler. |
-| `EventTriggeredRecompute` | Triggered by a source-system event. |
+## Manifest
 
-## Credential Handling
+Connector authors should also ship a manifest for local validation tools. Keep it safe for publication.
 
-- Return a `CredentialSchema` from `GetCredentialSchema()` marking secret fields with `["secret"] = true`.
-- At runtime, credentials arrive as `JsonObject` values. Persisted configurations use `secret://` references resolved by `IConnectorCredentialStore`.
-- Never log or serialise raw credential values.
+```json
+{
+  "connectorId": "acmeCrm",
+  "displayName": "AcmeCRM Connector",
+  "version": "1.0.0",
+  "description": "Fetches account health and opportunity signals from a generic CRM-style API.",
+  "supportedSourceTypes": ["Crm"],
+  "requiredConfigFields": [
+    {
+      "name": "baseUrl",
+      "type": "string",
+      "description": "Base URL for the AcmeCRM-compatible API."
+    },
+    {
+      "name": "tenantSlug",
+      "type": "string",
+      "description": "Tenant or workspace slug used by the upstream API."
+    }
+  ],
+  "safeMetadataFields": ["connectorId", "displayName", "version", "supportedSourceTypes"],
+  "sampleEntityMappings": [
+    {
+      "sourceField": "deal_probability",
+      "semanticAttribute": "conversionProbability",
+      "description": "Maps deal probability to the Scout conversion probability attribute."
+    }
+  ],
+  "capabilities": ["FetchSubject", "Preview", "HealthCheck", "ConfigurationValidation"],
+  "configurationSchema": {
+    "type": "object",
+    "required": ["baseUrl", "tenantSlug"],
+    "properties": {
+      "baseUrl": { "type": "string" },
+      "tenantSlug": { "type": "string" },
+      "pathTemplate": { "type": "string", "default": "/v1/accounts/{externalUserId}" }
+    }
+  },
+  "sampleConfiguration": {
+    "baseUrl": "https://api.example.com",
+    "tenantSlug": "demo",
+    "pathTemplate": "/v1/accounts/{externalUserId}"
+  },
+  "eventShape": {
+    "sourceSystem": "acmeCrm",
+    "entityType": "account",
+    "sourceIdField": "externalUserId",
+    "timestampField": "observedAtUtc",
+    "payloadRoot": "payload"
+  }
+}
+```
+
+## Fetch Result Rules
+
+`FetchAsync` must return:
+
+- `RawPayloadJson`: the raw source JSON string.
+- `NormalizedPayload`: a JSON object the selector engine can traverse.
+- `ProvenanceJson`: a JSON array describing source, subject, observation time, and mode.
+- `ObservedAtUtc`: when the source data was observed.
+- `FreshUntilUtc`: optional freshness expiry.
+- `DiagnosticsJson`: non-secret diagnostics such as status code or timing.
+
+Never include raw credentials in `RawPayloadJson`, `NormalizedPayload`, `ProvenanceJson`, or `DiagnosticsJson`.
+
+## Validation Checklist
+
+Before submitting a connector:
+
+1. Run `ConnectorMetadataValidator.Validate(plugin)` in a unit test.
+2. Verify `GetSampleConfiguration()` satisfies every required schema field.
+3. Keep secret fields in `GetCredentialSchema()` and use `secret://` references in persisted samples.
+4. Validate `ConnectorIngestEvent` values with `ConnectorContractRules.ValidateIngestEvent(...)` when emitting event-shaped records.
+5. Run the TypeScript manifest validator or harness:
+
+```bash
+cd packages/typescript/scout-connector-validator
+npm test
+
+cd ../scout-connector-test-harness
+npm test
+```
+
+## Discovery Agent Check
+
+Use the canonical Discovery Agent when you want an agent-readable handover for
+connector work:
+
+```bash
+cd apps/discovery-agent
+npm install
+npm run build
+node dist/index.js --path ../.. --tier 2
+```
+
+The connector-metadata MCP package still exposes
+`scout_validate_connector_manifest_v2` for manifest validation. The Discovery
+Agent adds repo-wide audit, handover, and governance output.
+
+## n8n Event Sink
+
+The local `packages/typescript/n8n-node` package provides a write-only n8n node
+that maps incoming n8n items to the public source-system event endpoint. It is
+an event-ingestion bridge, not a private connector implementation. See
+`docs/n8n-node.md` for local build and mapping details.
+
+## Built-In Public References
+
+| Connector | Type | Boundary |
+|---|---|---|
+| Generic SQL | `sqlDatabase` | Generic SQL/PostgreSQL subject row fetches. No vendor-specific warehouse logic. |
+| Generic REST | `restApi` | Generic HTTP subject payload fetches with bearer, API key, or basic auth. |
+| CSV upload | `csvUpload` | Parsed row input for demos and local tests. It does not watch arbitrary directories or process untrusted files. |
+| In-memory inventory | `inMemoryInventory` | Fictional data for authoring examples. |
+| Template | `template` | Complete local template for new connector projects. |
 
 ## Open-Core Boundary
 
-The public Scout repository includes:
+Public Scout connectors may include generic protocol connectors, fictional demo data, authoring templates, and local validation tools.
 
-- Generic protocol connectors (SQL, REST, CSV, mock).
-- Fictional demo connectors with local data only.
-- The connector template and authoring documentation.
-
-The public repository must **not** include:
-
-- Vendor-specific connector implementations (Salesforce, HubSpot, Dynamics, etc.).
-- Customer-specific schemas or mappings.
-- Managed sync logic or credential vault integrations.
-- Private Fortress implementation details.
-
-Vendor connectors belong in a separate private repository and depend on the public `IConnectorPlugin` contract.
-
-## Example Connectors
-
-| Connector | File | Purpose |
-|---|---|---|
-| Template | `samples/connector-template/TemplateConnectorPlugin.cs` | Copy-paste starting point. |
-| In-Memory Inventory | `src/.../Connectors/InMemoryInventoryConnectorPlugin.cs` | Fictional warehouse data, demonstrates built-in demo fallback. |
-| Mock CRM | `src/.../Connectors/MockBusinessConnectorPlugins.cs` | Fictional CRM fields. |
-| Mock Billing | `src/.../Connectors/MockBusinessConnectorPlugins.cs` | Fictional billing signals. |
-| Mock Support | `src/.../Connectors/MockBusinessConnectorPlugins.cs` | Fictional ticket data. |
-
-## Tests
-
-The test suite in `tests/KynticAI.Scout.UnitTests/ConnectorAuthoringTests.cs` verifies:
-
-- Template and example connectors implement `IConnectorPlugin`.
-- All registered connectors pass `ConnectorMetadataValidator`.
-- Configuration validation rejects invalid inputs and accepts sample configurations.
-- `FetchAsync` returns expected payloads for known subjects.
-- The validator catches common authoring errors (empty type, missing schema fields, missing sample fields).
+Do not add vendor-specific connector code, private mappings, managed sync implementations, change-data-capture pipelines, embedded model calls, vector-store pipelines, credential vault integrations, or private planning material to this repository.

@@ -138,7 +138,7 @@ Confirm ownership before go-live:
 - who approves data categories and masking rules
 - who receives support bundles
 - who approves upgrades
-- who decides whether any aggregate usage metadata may be shared with a future control plane
+- who decides whether any aggregate usage metadata may be shared with an optional Cloud/control plane
 
 ## Hosted Control-Plane Boundary
 

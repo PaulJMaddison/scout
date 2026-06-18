@@ -8,11 +8,11 @@ export function PrivacyPage() {
       <PageHeader
         eyebrow="Privacy"
         title="Privacy policy for KynticAI Scout enquiries."
-        description="This policy covers the public website and paid-pilot enquiries. It is a practical template for the current project stage and must be reviewed by a solicitor before being used as a final customer-facing legal document."
+        description="This policy covers the public docs/demo app and paid-pilot enquiries. It is a practical template for the current project stage and must be reviewed by a solicitor before being used as a final customer-facing legal document."
       />
 
       <section className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
-        <Panel eyebrow="Operator" title="Who operates this site" action={<Mail className="size-5 text-copper-700" />}>
+        <Panel eyebrow="Operator" title="Who operates this app" action={<Mail className="size-5 text-copper-700" />}>
           <div className="grid gap-3">
             <Card className="bg-ivory-25 shadow-none">
               <p className="text-sm leading-7 text-ink-700">Operator: {siteOperatorName}.</p>
@@ -28,9 +28,9 @@ export function PrivacyPage() {
           </div>
         </Panel>
 
-        <Panel eyebrow="Data principle" title="Do not send raw operational data through the public site">
+        <Panel eyebrow="Data principle" title="Do not send raw operational data through the public docs/demo app">
           <p className="text-sm leading-7 text-ink-700">
-            KynticAI Scout is designed around a customer-owned data plane. Paid-pilot discussions may describe source systems, workflows, and desired outcomes, but raw customer operational data, credentials, secrets, production exports, and personal data should not be submitted through the public website or email enquiry flow unless a written agreement and secure transfer route are in place.
+            KynticAI Scout is designed around a customer-owned data plane. Paid-pilot discussions may describe source systems, workflows, and desired outcomes, but raw customer operational data, credentials, secrets, production exports, and personal data should not be submitted through the public docs/demo app or email enquiry flow unless a written agreement and secure transfer route are in place.
           </p>
         </Panel>
       </section>

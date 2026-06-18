@@ -68,12 +68,11 @@ implementations. It intentionally does not include vendor-specific
 enterprise connectors.
 
 Commercial connectors for services such as Salesforce, HubSpot, Dynamics,
-and others are available as part of
-[KynticAI Fortress](https://kyntic.ai) — the enterprise edition. Enterprise
-connectors implement the same `IConnectorPlugin` contract and plug into
-Scout without forking the core.
+and others are available as private enterprise modules outside this public
+repository. Enterprise connectors implement the same `IConnectorPlugin`
+contract and plug into Scout without forking the core.
 
-For enterprise connector enquiries, visit [kyntic.ai](https://kyntic.ai).
+For enterprise connector enquiries, visit [kynticai.com](https://kynticai.com).
 
 ## Writing a Custom Connector
 
@@ -90,6 +89,8 @@ implementations.
 
 ## Next Steps
 
+- [Connector Authoring](/connectors/authoring/) for the public connector
+  contract.
 - [Open Source vs Enterprise](/concepts/open-source-vs-enterprise/) for the
   full product boundary.
 - [API Overview](/apis/overview/) for querying context produced by connectors.

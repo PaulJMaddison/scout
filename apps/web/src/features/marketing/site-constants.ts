@@ -1,5 +1,5 @@
 export const pilotContactEmail =
-  import.meta.env.VITE_PILOT_CONTACT_EMAIL?.trim() || 'paul@kyticai.com'
+  import.meta.env.VITE_PILOT_CONTACT_EMAIL?.trim() || 'paul@kynticai.com'
 
 export const pilotLeadEndpoint =
   import.meta.env.VITE_PILOT_LEAD_ENDPOINT?.trim() || ''

@@ -16,6 +16,7 @@ export {
 export type {
   ConnectorManifest,
   AuthConfig,
+  ConnectorEventShape,
   RequiredConfigField,
   SampleEntityMapping,
   JsonSchemaObject,

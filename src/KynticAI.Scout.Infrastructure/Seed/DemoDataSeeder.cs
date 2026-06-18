@@ -15,6 +15,12 @@ namespace KynticAI.Scout.Infrastructure.Seed;
 public static class DemoDataSeeder
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+    private static readonly IReadOnlyDictionary<string, string[]> FeaturedDemoProfilesByTenant =
+        new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["demo"] = ["123", "126", "129"],
+            ["summit"] = ["132", "135"]
+        };
 
     public static async Task SeedAsync(IServiceProvider serviceProvider, CancellationToken cancellationToken = default)
     {
@@ -237,6 +243,23 @@ public static class DemoDataSeeder
                     true,
                     utcNow));
             }
+
+            var closedOutcomeIsWon = scenario.OpenOpportunityProbability >= 58
+                && scenario.SupportDragScore < 45
+                && scenario.PaymentFailures30 == 0;
+            opportunities.Add(SalesOpportunity.Create(
+                tenant.Id,
+                account.Id,
+                primaryContact.Id,
+                $"OPP-{opportunityIdCounter++:0000}",
+                $"{scenario.AccountName} Prior {TitleCase(scenario.PlanInterestSignal)} Outcome",
+                closedOutcomeIsWon ? "closed_won" : "closed_lost",
+                Math.Round(scenario.OpportunityAmount * 0.82m, 2),
+                closedOutcomeIsWon ? 100 : 0,
+                utcNow.AddDays(-45 - index),
+                "new-business",
+                false,
+                utcNow));
 
             var activityCount = index < 20 ? 7 : 6;
             for (var activityIndex = 0; activityIndex < activityCount; activityIndex++)
@@ -856,7 +879,8 @@ public static class DemoDataSeeder
         {
             var tenantSelectors = selectors.Where(x => x.TenantId == tenant.Id).ToList();
             var tenantProfiles = userProfiles.Where(x => x.TenantId == tenant.Id).ToList();
-            foreach (var userProfile in tenantProfiles)
+            var materializedProfiles = GetFeaturedDemoProfiles(tenant.Slug, tenantProfiles);
+            foreach (var userProfile in materializedProfiles)
             {
                 var correlationId = "seed-" + Guid.NewGuid().ToString("N");
                 var executions = tenantSelectors
@@ -921,6 +945,23 @@ public static class DemoDataSeeder
                 }
             }
         }
+    }
+
+    private static IReadOnlyList<UserProfile> GetFeaturedDemoProfiles(string tenantSlug, IReadOnlyList<UserProfile> tenantProfiles)
+    {
+        if (!FeaturedDemoProfilesByTenant.TryGetValue(tenantSlug, out var featuredExternalUserIds))
+        {
+            return tenantProfiles.Take(3).ToList();
+        }
+
+        var featuredSet = featuredExternalUserIds.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var featuredProfiles = tenantProfiles
+            .Where(profile => featuredSet.Contains(profile.ExternalUserId))
+            .ToList();
+
+        return featuredProfiles.Count > 0
+            ? featuredProfiles
+            : tenantProfiles.Take(3).ToList();
     }
 
     private static IReadOnlyList<BillingPlan> CreateBillingPlans(DateTime utcNow)

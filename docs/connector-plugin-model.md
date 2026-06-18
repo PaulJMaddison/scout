@@ -18,6 +18,8 @@ KynticAI Scout now resolves source-system access through a registry-backed conne
   - resolves a connector by canonical type or alias such as `crmApi`, `billingApi`, `telemetryApi`, `supportApi`, or `fileUpload`
 - `IConnectorCredentialStore`
   - stores secrets as protected `secret://...` references and resolves them at runtime
+- `ConnectorConfigurationDescriptor`, `ConnectorConfigurationField`, `ConnectorEventShape`, and `ConnectorIngestEvent`
+  - document the public config and event vocabulary used by connector authoring tools
 
 Key files:
 
@@ -36,6 +38,14 @@ Key files:
 - `mock`
   - aliases: `mockPayload`, `mockSignal`, `fileUpload`
   - current use: deterministic demos, uploaded payload fixtures, safe file-style examples, and tests
+- `csvUpload`
+  - aliases: `csv`, `spreadsheetUpload`
+  - current use: parsed CSV-style rows for demos and local tests; it does not watch arbitrary directories
+- `inMemoryInventory`
+  - alias: `demoInventory`
+  - current use: fictional inventory data for connector-authoring examples
+- `template`
+  - current use: complete local template for community connector projects
 
 ## Open core connector boundary
 
@@ -97,6 +107,22 @@ All persisted connector configurations include a canonical `connectorType` field
   ]
 }
 ```
+
+Connector manifests can also declare a provider-neutral event shape:
+
+```json
+{
+  "eventShape": {
+    "sourceSystem": "sampleCrm",
+    "entityType": "account",
+    "sourceIdField": "externalUserId",
+    "timestampField": "observedAtUtc",
+    "payloadRoot": "payload"
+  }
+}
+```
+
+Runtime event objects should use `ConnectorIngestEvent` and pass `ConnectorContractRules.ValidateIngestEvent(...)` before being handed to event ingestion code.
 
 ## GraphQL
 

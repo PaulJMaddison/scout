@@ -2,13 +2,17 @@
 
 This page explains the public KynticAI Scout API contract for context consumers, selector tooling, provenance review, machine-to-machine access, and SDK usage.
 
-Scout does not need to call an AI model to be useful. The core contract is that a customer-owned data plane turns approved operational signals into governed semantic context, then exposes that context to customer-owned apps, reports, workflows, agents, and AI tools through GraphQL, REST, SDKs, and context packages.
+Scout does not need to call an AI model to be useful. The core contract is that a customer-owned data plane turns approved operational signals into exact data items, relationships, attribution paths, outcomes, governed semantic context, and local JSON packages, then exposes that context to customer-owned apps, reports, workflows, agents, local LLMs, and AI tools through GraphQL, REST, SDKs, and context packages.
 
 ## Boundary
 
 The public repo includes the open-core API surface, SDK scaffolds, selector engine, generic connectors, mock connectors, context facts, snapshots, provenance, audit, and extension points.
 
 It does not include paid enterprise connector implementations, hosted account management, live billing, production SSO, vendor-certified connector packs, customer-specific mappings, or managed SaaS operations.
+
+For next-best-action workflows, exact authorised data and derived relationship intelligence remain in the customer data plane: normalised email address, CRM contact/account, account registration/profile, sales activity, opportunities, email replies, meetings booked, web conversion and pricing-page events, support tickets, product usage summaries, billing health, won/lost outcome signals, relationship types, attribution paths, `BasicRelationshipEngine` fallback signals, Enterprise handoff artefacts, recommendations, confidence, caveats, citations, local evidence packages, prompts, generated content, and per-entity relationship metadata. Optional Cloud/control-plane payloads are aggregate usage payloads only: tenant/control-plane identifiers, package version, feature usage counters, health/status, timestamps, and audit/control-plane event metadata. Canonical relationship-set analysis, attribution-path comparison, outcome matching, and governed JSON handoff belong to the Enterprise Rust engine/vector DB, not this open-core Scout contract.
+
+The existing v1 DTOs, schemas, validators, and cross-domain golden fixtures are documented in [UCL Evidence Pack Contract v1](evidence-pack-contract-v1.md). That contract name is an implementation envelope; the product story is relationship sets and attribution paths first.
 
 ## Tenant And Workspace Scoping
 
@@ -141,7 +145,7 @@ curl -X POST "http://127.0.0.1:5198/api/v1/selectors/validate?tenantSlug=demo" \
   }'
 ```
 
-Retrieve an AI-safe context package without Scout calling an AI model:
+Retrieve a governed context package without Scout calling an AI model:
 
 ```bash
 curl -X POST "http://127.0.0.1:5198/api/v1/context/users/123/ai-safe-context-package?tenantSlug=demo" \
@@ -151,6 +155,24 @@ curl -X POST "http://127.0.0.1:5198/api/v1/context/users/123/ai-safe-context-pac
     "objective": "Prepare a renewal-risk brief for the account team."
   }'
 ```
+
+Generate next-action relationship JSON from exact linked records in the customer data plane:
+
+```bash
+curl -X POST "http://127.0.0.1:5198/api/v1/intelligence/next-action?tenantSlug=demo" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "tenant": "demo",
+    "subjectType": "email",
+    "subjectIdentifier": "avery@example.test",
+    "objective": "sale",
+    "purpose": "customer_outreach",
+    "actorRole": "sales_rep"
+  }'
+```
+
+The response includes `exactLinkedRecords`, `relationships`, `similarWonLostPatterns`, `BasicRelationshipEngine` fallback `weightedSignals`, `recommendedNextAction`, `provenance`, `governance`, and `evidencePack`. Deterministic links cover email-to-contact, contact-to-account, account-to-opportunity, account/contact-to-activity, contact-to-email-engagement, account/contact-to-web-conversion, account/contact-to-support-ticket, account/contact-to-product-usage, account-to-billing, and account/contact-to-outcome. Those links are the local relationship-set foundation; attribution-path evidence describes what happened and in what order. `evidencePack.localDerivedEvidencePackageJson` is the customer-local derived relationship/evidence package and includes `relationshipWeighting` metadata declaring `scope: "basic-public-fallback-only"`, `scoutWeightsAreCanonical: false`, and `canonicalOwner: "Enterprise"`. `evidencePack.enterpriseRelationshipEngineHandoffJson` is the proof-mode handoff consumed by Enterprise canonical analysis proof runners; it includes candidate relationships, provenance, fallback weight scope, and required Enterprise outputs, with `requiresLiveEnterpriseService: false` and `enterpriseOnlyInternalsIncluded: false`. `evidencePack.cloudAggregateUsagePayloadJson` is the optional Cloud aggregate usage payload; it carries only control-plane usage metadata such as payload/package version, tenant slug, feature/event/status, timestamps, feature counters, governance counters, and explicit boundary flags. It must not carry raw records, context facts/snapshots, local evidence packs, prompts, generated content, recommendations, citation IDs, weighted signals, attribution paths, confidence, caveats, relationship type names, or per-entity relationship metadata. `cloudPayloadContainsRawCustomerData` remains `false`.
 
 Look up audit and provenance activity:
 
@@ -214,7 +236,7 @@ Errors use the v1 envelope:
 
 ## GraphQL Examples
 
-GraphQL samples live in [samples/graphql/demo-queries.graphql](../samples/graphql/demo-queries.graphql). They cover user context, account context, context snapshots, semantic catalogues, selector preview, selector validation, recomputation, audit events, AI-safe context packages, prompt templates, and the mock agent-run path.
+GraphQL samples live in [samples/graphql/demo-queries.graphql](../samples/graphql/demo-queries.graphql). They cover user context, account context, context snapshots, semantic catalogues, selector preview, selector validation, recomputation, audit events, governed context packages, prompt templates, and the mock agent-run path.
 
 Use `salesContextPackage` when the consumer only needs grounded context. Use `createAgentRun` only for the example AI workflow where Scout calls the configured mock or provider-backed structured LLM client.
 

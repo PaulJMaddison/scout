@@ -53,14 +53,14 @@ export function ExecutiveStoryFooter({
             Paid enterprise options
           </p>
           <p className="mt-2 text-sm leading-7 text-ink-700">
-            Open-source core, plus paid options for future managed control-plane work, private cloud, on-prem deployment, connector work, and enterprise support.
+            Open-source core, plus paid options for Rust relationship weighting, private connectors, optional control-plane work, private cloud, on-prem deployment, and enterprise support.
           </p>
           <div className="mt-4 grid gap-2 text-sm text-ink-950">
             <a
-              href="mailto:paul@kyticai.com"
+              href="mailto:paul@kynticai.com"
               className="font-semibold underline decoration-copper-300 underline-offset-4"
             >
-              paul@kyticai.com
+              paul@kynticai.com
             </a>
             <a
               href="https://kynticai.com"

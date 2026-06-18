@@ -54,6 +54,7 @@ npm install
 npm run dev
 npm run lint
 npm test
+$env:KYNTIC_RUN_BROWSER_TESTS = "1"
 npm run test:e2e
 npm run build
 ```
@@ -61,4 +62,4 @@ npm run build
 ## Testing
 
 - `vitest` covers key components and role-gated UI
-- `playwright` covers end-to-end flows for selector creation and outreach generation
+- `playwright` covers end-to-end flows for selector creation and outreach generation, and is opt-in via `KYNTIC_RUN_BROWSER_TESTS=1`

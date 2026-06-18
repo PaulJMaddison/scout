@@ -82,6 +82,77 @@ public enum ConnectorRunMode
     EventTriggeredRecompute = 5
 }
 
+public enum ConnectorConfigurationValueType
+{
+    String = 1,
+    Number = 2,
+    Integer = 3,
+    Boolean = 4,
+    Array = 5,
+    Object = 6
+}
+
+public sealed record ConnectorConfigurationField(
+    string Name,
+    ConnectorConfigurationValueType Type,
+    bool IsRequired,
+    string Description,
+    bool IsSecret = false,
+    string? DefaultValueJson = null);
+
+public sealed record ConnectorConfigurationDescriptor(
+    string ConnectorType,
+    string ConfigurationSchemaJson,
+    string CredentialSchemaJson,
+    string SampleConfigurationJson,
+    IReadOnlyList<ConnectorConfigurationField> Fields);
+
+public sealed record ConnectorEventShape(
+    string SourceSystem,
+    string EntityType,
+    string SourceIdField,
+    string? TimestampField,
+    string? PayloadRoot);
+
+public sealed record ConnectorIngestEvent(
+    string SourceSystem,
+    string SourceId,
+    string EntityType,
+    JsonObject RawPayload,
+    DateTime TimestampUtc);
+
+public sealed record ConnectorContractValidationResult(
+    bool IsValid,
+    IReadOnlyList<string> Errors);
+
+public static class ConnectorContractRules
+{
+    public static ConnectorContractValidationResult ValidateIngestEvent(ConnectorIngestEvent ingestEvent)
+    {
+        var errors = new List<string>();
+
+        if (string.IsNullOrWhiteSpace(ingestEvent.SourceSystem))
+            errors.Add("Connector ingest event requires sourceSystem.");
+
+        if (string.IsNullOrWhiteSpace(ingestEvent.SourceId))
+            errors.Add("Connector ingest event requires sourceId.");
+
+        if (string.IsNullOrWhiteSpace(ingestEvent.EntityType))
+            errors.Add("Connector ingest event requires entityType.");
+
+        if (ingestEvent.RawPayload.Count == 0)
+            errors.Add("Connector ingest event requires a non-empty rawPayload object.");
+
+        if (ingestEvent.TimestampUtc == default)
+            errors.Add("Connector ingest event requires timestampUtc.");
+
+        if (ingestEvent.TimestampUtc.Kind != DateTimeKind.Utc)
+            errors.Add("Connector ingest event timestampUtc must be UTC.");
+
+        return new ConnectorContractValidationResult(errors.Count == 0, errors);
+    }
+}
+
 public sealed record ConnectorConfigurationValidationRequest(
     string ConnectorType,
     DataSourceKind DataSourceKind,

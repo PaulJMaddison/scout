@@ -6,12 +6,12 @@ Local test harness for validating KynticAI Scout connectors against public inter
 
 | Suite | Checks |
 |---|---|
-| **manifest-shape** | connectorId, displayName, version (semver), description, supportedSourceTypes, requiredConfigFields, safeMetadataFields, sampleEntityMappings, configurationSchema, sampleConfiguration, authConfig |
+| **manifest-shape** | connectorId, displayName, version (semver), description, supportedSourceTypes, requiredConfigFields, safeMetadataFields, sampleEntityMappings, configurationSchema, sampleConfiguration, optional authConfig, optional eventShape |
 | **structured-issues** | Validates that structured `ValidationIssue` objects are consistent with error/warning counts, all carry machine-readable codes and field paths, and no issue messages leak private implementation detail. |
 | **metadata-extraction** | Runs the `@kynticai/scout-metadata-audit` against the manifest's configurationSchema and optional sample records. Checks for error-level warnings and a minimum readiness score. |
 | **entity-mapping** | At least one mapping declared, at least one uses a recognised public semantic attribute, source fields match sample record payloads when provided. |
 | **error-handling** | Optional `fakeFetch` function: validates returned objects, tests graceful error throwing (proper `Error` instances), supports async fetch functions. |
-| **unsafe-fields** | Checks safeMetadataFields, configurationSchema properties, sampleConfiguration keys, and entity mapping field names against the public unsafe-field blocklist (passwords, tokens, secrets, PII). |
+| **unsafe-fields** | Checks safeMetadataFields, configurationSchema properties, sampleConfiguration keys, event shape fields, and entity mapping field names against the public unsafe-field blocklist (passwords, tokens, secrets, PII). |
 | **auth-config** | Validates optional `authConfig` block: auth type, duplicate scopes, HTTPS enforcement for `tokenUrl`/`authoriseUrl`. |
 
 ## Installation
@@ -77,6 +77,13 @@ const definition: SampleConnectorDefinition = {
     },
     sampleConfiguration: {
       endpoint: 'https://api.mycrm.example.com/v1',
+    },
+    eventShape: {
+      sourceSystem: 'myCustomCrm',
+      entityType: 'account',
+      sourceIdField: 'externalUserId',
+      timestampField: 'observedAtUtc',
+      payloadRoot: 'payload',
     },
   },
   sampleRecords: [

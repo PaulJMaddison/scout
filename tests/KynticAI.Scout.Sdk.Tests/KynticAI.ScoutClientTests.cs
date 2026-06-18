@@ -7,6 +7,62 @@ namespace KynticAI.Scout.Sdk.Tests;
 public sealed class ScoutClientTests
 {
     [Fact]
+    public void SdkContractModels_CoverPublicRequestAndResultShapes()
+    {
+        var selectorId = Guid.Parse("8e22fcf4-6640-4fba-8992-14bd208b89fa");
+        var tenantId = Guid.Parse("5e9cdd48-b71c-4eb7-92fd-d29bfbe99731");
+        var userProfileId = Guid.Parse("0f864ac6-dcbf-4850-bd98-1d13975d7813");
+
+        var publish = new PublishSelectorDefinitionInput("demo", selectorId);
+        var scheduledRun = new RunScheduledRecomputeInput(null);
+        var dispatch = new ScheduledRecomputeDispatchResult(QueuedUserCount: 2, SkippedUserCount: 1);
+        var plugin = new ConnectorPluginDefinitionResult(
+            "restApi",
+            "REST API",
+            "Generic REST connector.",
+            [],
+            ["Crm"],
+            ["FetchSubject"],
+            "{\"type\":\"object\",\"properties\":{}}",
+            "{\"type\":\"object\",\"properties\":{}}",
+            "{}");
+        var catalogueEntry = new ConnectorCatalogueEntryResult(
+            "restApi",
+            "REST API",
+            "Generic REST connector.",
+            "API",
+            "PublicGenericExample",
+            "OpenCore",
+            IsIncludedInOpenCore: true,
+            RequiresCommercialAgreement: false,
+            IsPlaceholder: false,
+            IsEnabled: true,
+            ["Crm"],
+            ["FetchSubject"],
+            "{\"type\":\"object\",\"properties\":{}}",
+            "{\"type\":\"object\",\"properties\":{}}",
+            "HEAD request or static-response validation.");
+        var profile = new UserProfileResult(
+            userProfileId,
+            tenantId,
+            "123",
+            "Avery Stone",
+            "avery@example.com",
+            "Larkspur Logistics Group",
+            "VP Revenue",
+            "enterprise",
+            DateTime.Parse("2026-05-11T10:00:00Z"),
+            IsEmailMasked: false);
+
+        Assert.Equal(selectorId, publish.SelectorDefinitionId);
+        Assert.Null(scheduledRun.TenantSlug);
+        Assert.Equal(2, dispatch.QueuedUserCount);
+        Assert.Equal("restApi", plugin.ConnectorType);
+        Assert.Equal("PublicGenericExample", catalogueEntry.PublicStatus);
+        Assert.Equal("123", profile.ExternalUserId);
+    }
+
+    [Fact]
     public async Task UsersGetContextAsync_UsesV1RestPath_AndAddsTracingHeaders()
     {
         var handler = new StubHttpMessageHandler(request =>

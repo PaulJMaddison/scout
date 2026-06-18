@@ -50,6 +50,13 @@ This writes the spec to `docs/api/openapi.json`. You can also download it manual
 curl http://127.0.0.1:5198/swagger/v1/swagger.json -o docs/api/openapi.json
 ```
 
+## Score API Contract
+
+The separate KynticAI Score API contract is a static OpenAPI 3.1 document at
+`schema/kyntic-score.openapi.yaml`. It defines the public
+`InvestmentScore`, `CreditScore`, and `JobScore` request/response shapes for
+services that implement scoring outside the Scout API process.
+
 ## Authentication
 
 The API supports two authentication methods:

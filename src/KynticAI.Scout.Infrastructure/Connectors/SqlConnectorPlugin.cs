@@ -86,6 +86,28 @@ internal sealed class SqlConnectorPlugin(
         {
             errors.Add("SQL connector requires a non-empty columns array.");
         }
+        else
+        {
+            foreach (var column in columns)
+            {
+                var columnName = column?.GetValue<string>();
+                if (string.IsNullOrWhiteSpace(columnName) || !IsSafeIdentifier(columnName))
+                    errors.Add("SQL connector columns must contain only letters, numbers, or underscores.");
+            }
+        }
+
+        var mode = request.Configuration["mode"]?.GetValue<string>() ?? "customerOpsDatabase";
+        if (!IsSupportedMode(mode))
+        {
+            errors.Add($"SQL connector mode '{mode}' is not supported.");
+        }
+
+        if (string.Equals(mode, "connectionString", StringComparison.OrdinalIgnoreCase)
+            && string.IsNullOrWhiteSpace(request.Configuration["connectionString"]?.GetValue<string>())
+            && string.IsNullOrWhiteSpace(request.Credentials["connectionString"]?.GetValue<string>()))
+        {
+            errors.Add("SQL connector connectionString mode requires a connectionString in configuration or credentials.");
+        }
 
         return baseline with
         {
@@ -265,13 +287,21 @@ internal sealed class SqlConnectorPlugin(
     private static string GetIdentifier(JsonObject config, string key)
     {
         var value = config[key]?.GetValue<string>();
-        if (string.IsNullOrWhiteSpace(value) || !value.All(static c => char.IsLetterOrDigit(c) || c == '_'))
+        if (string.IsNullOrWhiteSpace(value) || !IsSafeIdentifier(value))
         {
             throw new InvalidOperationException($"SQL connector field '{key}' contains unsupported characters.");
         }
 
         return value;
     }
+
+    private static bool IsSafeIdentifier(string value)
+        => value.All(static c => char.IsLetterOrDigit(c) || c == '_');
+
+    private static bool IsSupportedMode(string mode)
+        => string.Equals(mode, "currentDatabase", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(mode, "customerOpsDatabase", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(mode, "connectionString", StringComparison.OrdinalIgnoreCase);
 
     private static string QuoteIdentifier(string identifier) => "\"" + identifier.Replace("\"", "\"\"", StringComparison.Ordinal) + "\"";
 }

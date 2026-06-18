@@ -98,9 +98,9 @@ export interface ScoutClient {
     /** Queue a context recomputation for a user. */
     queueForUser(tenantSlug: string, externalUserId: string, triggeredBy: string): Promise<QueueRecomputeResult>
   }
-  /** AI-safe context packages (Scout does not call an AI model). */
+  /** Governed evidence packages (Scout does not call an AI model). */
   packages: {
-    /** Retrieve a scoped AI-safe context package for a user and sales objective. */
+    /** Retrieve a scoped governed evidence package for a user and sales objective. */
     getAiContextForUser(
       tenantSlug: string,
       externalUserId: string,

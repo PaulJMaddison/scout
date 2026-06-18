@@ -1,6 +1,6 @@
 # Integration Layer
 
-KynticAI Scout sits beside existing business systems and turns approved operational signals into governed semantic context for customer-owned consumers.
+KynticAI Scout sits beside existing business systems and turns approved operational signals into exact data items, relationships, attribution paths, governed semantic context, and local JSON packages for customer-owned consumers.
 
 This page explains how external systems integrate with the open-core Scout data plane without implying that paid enterprise connector implementations ship in this public repository. The goal is practical: let a CTO or integration lead see how one paid pilot can prove a useful workflow while CRM, ERP, SQL, support, billing, files, emails, telemetry, and old applications stay in place.
 
@@ -13,7 +13,7 @@ The customer data plane is responsible for:
 - source access approved by the customer
 - connector configuration and health checks
 - selector execution
-- semantic facts and context snapshots
+- semantic facts, context snapshots, relationships, attribution paths, and governed JSON packages
 - provenance, confidence, freshness, masking, and audit
 - GraphQL, REST, SDK, context package, and event contracts for downstream consumers
 
@@ -38,13 +38,13 @@ External consumers should call Scout through stable contracts rather than rebuil
 
 | Consumer | Recommended Scout contract | Example use |
 | --- | --- | --- |
-| Customer-owned AI tools | AI-safe context package retrieval | Fetch scoped facts, citations, freshness, redactions, and guardrails before calling the customer's chosen model. |
+| Customer-owned AI tools | Governed relationship/context JSON retrieval | Fetch scoped facts, citations, freshness, redactions, similar-pattern references, attribution paths, and guardrails before calling the customer's chosen local, open-source, or approved model. |
 | Internal apps | GraphQL context lookup | Render account or user context in an operator workspace without reading every source system directly. |
 | Reports and dashboards | REST context lookup or snapshot retrieval | Use shared semantic facts in revenue, support, adoption, or risk reporting. |
 | Workflow automation | REST facts, recomputation, and events | Recompute context after source changes and act only when facts meet freshness and confidence thresholds. |
 | Product experiences | SDK context lookup | Add trusted account or user context to customer-facing flows without duplicating integration logic. |
 
-Scout does not need to call an AI model. It prepares the governed semantic context that the customer's own AI stack, workflow engine, report, app, or service can consume.
+Scout does not need to call an AI model. It prepares the governed semantic context, exact items, relationships, and attribution-path evidence that the customer's own AI stack, workflow engine, report, app, or service can consume. Enterprise can add canonical relationship-set analysis and governed JSON handoff when the paid engine is in scope.
 
 ## Event Contracts
 
@@ -88,7 +88,7 @@ Use [Public API Contract](public-api-contract.md) for concrete examples covering
 - recomputation request
 - selector preview and validation
 - audit/provenance lookup
-- AI-safe context package retrieval
+- governed context/relationship JSON retrieval
 - machine-to-machine auth
 - tenant/workspace scoping
 - error response shape
@@ -101,10 +101,10 @@ Use [Connector Marketplace Skeleton](connector-marketplace.md) to identify which
 
 Start with one workflow and a small source set:
 
-1. Pick one business decision, such as renewal risk, expansion readiness, account routing, service escalation, or onboarding next best action.
-2. Identify the minimum approved signals from SQL, CRM, support, billing, telemetry, email metadata, or web events.
+1. Pick one business decision, such as increasing conversion probability, renewal risk, expansion readiness, account routing, service escalation, or onboarding next best action.
+2. Identify the minimum approved signals from SQL, CRM, support, billing, telemetry, email engagement, web conversion, pricing-page visits, account registration, product usage, or won/lost outcome data.
 3. Build selectors for the semantic facts needed by the workflow.
-4. Expose a context snapshot or AI-safe package to one customer-owned consumer.
+4. Expose a context snapshot or governed relationship JSON package to one customer-owned consumer.
 5. Measure whether the workflow became faster, more accurate, safer, or easier to audit.
 
 That is the commercial proof: Scout creates a reusable semantic layer over existing systems before anyone commits to wider enterprise integration.

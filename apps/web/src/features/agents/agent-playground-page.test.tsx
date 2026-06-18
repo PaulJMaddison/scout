@@ -216,7 +216,7 @@ describe('AgentPlaygroundPage', () => {
       screen.getAllByText(/Lead with enterprise rollout timing and recent product momentum/i).length,
     ).toBeGreaterThan(0)
     expect(
-      screen.getByText(/The selected model only sees the governed package below/i),
+      screen.getByText(/The selected model only sees the governed evidence package below/i),
     ).toBeInTheDocument()
   })
 })

@@ -237,6 +237,30 @@ public sealed class CreateAgentRunInputValidator : AbstractValidator<CreateAgent
     }
 }
 
+public sealed class NextActionInputValidator : AbstractValidator<NextActionInput>
+{
+    private static readonly string[] AllowedSubjectTypes = ["email", "contact", "account"];
+    private static readonly string[] AllowedObjectives = ["sale", "sales", "conversion", "convert", "churn", "support", "retention", "retain"];
+
+    public NextActionInputValidator()
+    {
+        RuleFor(x => x.TenantSlug).NotEmpty().MaximumLength(100);
+        RuleFor(x => x.SubjectType)
+            .NotEmpty()
+            .MaximumLength(40)
+            .Must(value => AllowedSubjectTypes.Contains(value.Trim().ToLowerInvariant()))
+            .WithMessage("SubjectType must be email, contact, or account.");
+        RuleFor(x => x.SubjectIdentifier).NotEmpty().MaximumLength(320);
+        RuleFor(x => x.Objective)
+            .NotEmpty()
+            .MaximumLength(80)
+            .Must(value => AllowedObjectives.Contains(value.Trim().ToLowerInvariant()))
+            .WithMessage("Objective must be sale, conversion, churn, support, or retention.");
+        RuleFor(x => x.Purpose).NotEmpty().MaximumLength(300);
+        RuleFor(x => x.ActorRole).NotEmpty().MaximumLength(80);
+    }
+}
+
 public sealed class SubmitOnboardingInputValidator : AbstractValidator<SubmitOnboardingInput>
 {
     private static readonly string[] AllowedPiiSensitivityLevels = ["low", "moderate", "high", "regulated"];

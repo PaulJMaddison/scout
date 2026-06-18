@@ -1,0 +1,119 @@
+{
+  "fixtureSetVersion": "ucl.data-item-attribution.fixtures.v1",
+  "contractVersion": "ucl.relationship-set.v1",
+  "scenario": "canonical-email-page-product-attribution",
+  "attributionPaths": [
+    {
+      "pathId": "path-current-testname-product-b",
+      "subjectIdentityType": "email",
+      "subjectIdentityValue": "testname@test.com",
+      "objective": "conversion",
+      "events": [
+        {
+          "eventId": "evt-current-email-enquiry",
+          "dataItemId": "item-email-enquiry-001",
+          "sequence": 1,
+          "eventType": "email_enquiry",
+          "occurredAtUtc": "2026-06-14T09:03:00Z",
+          "label": "Email enquiry from testname@test.com"
+        },
+        {
+          "eventId": "evt-current-page-a-search",
+          "dataItemId": "item-web-event-page-a-search-001",
+          "sequence": 2,
+          "eventType": "page_a_search",
+          "occurredAtUtc": "2026-06-14T09:07:00Z",
+          "label": "Page A search"
+        },
+        {
+          "eventId": "evt-current-product-b-interest",
+          "dataItemId": "item-product-b-interest-001",
+          "sequence": 3,
+          "eventType": "product_b_interest",
+          "occurredAtUtc": "2026-06-14T09:09:00Z",
+          "label": "Product B interest"
+        }
+      ],
+      "possibleNextActions": [
+        "follow-up email",
+        "registration invite",
+        "sales outreach"
+      ],
+      "outcome": null
+    },
+    {
+      "pathId": "path-historical-converted-registration",
+      "subjectIdentityType": "email",
+      "subjectIdentityValue": "case.converted@test.com",
+      "objective": "conversion",
+      "events": [
+        {
+          "eventId": "evt-historical-registration",
+          "dataItemId": "item-account-registration-converted",
+          "sequence": 1,
+          "eventType": "account_registration",
+          "occurredAtUtc": "2026-05-20T10:00:00Z",
+          "label": "Registration invite accepted"
+        },
+        {
+          "eventId": "evt-historical-billing-converted",
+          "dataItemId": "item-billing-aggregate-converted",
+          "sequence": 2,
+          "eventType": "subscription_purchase",
+          "occurredAtUtc": "2026-05-20T10:30:00Z",
+          "label": "Purchase/subscription conversion"
+        }
+      ],
+      "possibleNextActions": [],
+      "outcome": {
+        "outcomeEventId": "outcome-historical-converted",
+        "dataItemId": "item-billing-aggregate-converted",
+        "outcomeType": "converted",
+        "converted": true,
+        "outcomeValue": 1.0,
+        "occurredAtUtc": "2026-05-20T10:30:00Z",
+        "citationDataItemIds": [
+          "item-account-registration-converted",
+          "item-billing-aggregate-converted"
+        ]
+      }
+    },
+    {
+      "pathId": "path-historical-not-converted-support",
+      "subjectIdentityType": "account",
+      "subjectIdentityValue": "acct-historical-not-converted",
+      "objective": "conversion",
+      "events": [
+        {
+          "eventId": "evt-historical-support",
+          "dataItemId": "item-support-event-not-converted",
+          "sequence": 1,
+          "eventType": "support_event",
+          "occurredAtUtc": "2026-05-21T10:00:00Z",
+          "label": "Support event before commercial decision"
+        },
+        {
+          "eventId": "evt-historical-sales-lost",
+          "dataItemId": "item-sales-opportunity-not-converted",
+          "sequence": 2,
+          "eventType": "sales_opportunity_closed_lost",
+          "occurredAtUtc": "2026-05-21T11:00:00Z",
+          "label": "Sales opportunity not converted"
+        }
+      ],
+      "possibleNextActions": [],
+      "outcome": {
+        "outcomeEventId": "outcome-historical-not-converted",
+        "dataItemId": "item-sales-opportunity-not-converted",
+        "outcomeType": "not_converted",
+        "converted": false,
+        "outcomeValue": 0.0,
+        "occurredAtUtc": "2026-05-21T11:00:00Z",
+        "citationDataItemIds": [
+          "item-support-event-not-converted",
+          "item-sales-opportunity-not-converted"
+        ]
+      }
+    }
+  ]
+}

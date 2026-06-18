@@ -38,6 +38,7 @@ describe('AppShell', () => {
 
     expect(screen.getByRole('link', { name: '1. Why Scout' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '360 Customer Profile' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Relationship Intelligence' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Example Sales Support' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Operational Overview' })).toBeInTheDocument()
     expect(screen.queryByText('Data Sources')).not.toBeInTheDocument()

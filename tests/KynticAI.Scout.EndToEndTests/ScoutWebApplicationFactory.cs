@@ -44,7 +44,7 @@ internal sealed class ScoutWebApplicationFactory : WebApplicationFactory<Program
                 ["Platform:EnableRest"] = "true",
                 ["Platform:EnableGraphQl"] = "true",
                 ["Platform:EnableOpenApi"] = "true",
-                ["Bootstrap:ApplyMigrationsOnStartup"] = "true",
+                ["Bootstrap:ApplyMigrationsOnStartup"] = "false",
                 ["Bootstrap:SeedDemoData"] = "false",
                 ["Auth:Issuer"] = TestIssuer,
                 ["Auth:Audience"] = TestAudience,
@@ -92,6 +92,9 @@ internal sealed class ScoutWebApplicationFactory : WebApplicationFactory<Program
                 provider.GetRequiredService<ScoutDbContext>());
             services.AddScoped<ICustomerOpsDbContext>(provider =>
                 provider.GetRequiredService<CustomerOpsDbContext>());
+
+            services.RemoveAll<PasswordHashingService>();
+            services.AddSingleton(new PasswordHashingService(1_000));
         });
     }
 

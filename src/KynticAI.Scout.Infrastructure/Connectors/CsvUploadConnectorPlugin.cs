@@ -64,6 +64,23 @@ internal sealed class CsvUploadConnectorPlugin : ConnectorPluginBase
         {
             errors.Add("CSV upload connector requires a non-empty rows array of parsed demo records.");
         }
+        else
+        {
+            var externalUserIdColumn = request.Configuration["externalUserIdColumn"]?.GetValue<string>() ?? "externalUserId";
+            for (var index = 0; index < rows.Count; index++)
+            {
+                if (rows[index] is not JsonObject row)
+                {
+                    errors.Add($"CSV upload connector rows[{index}] must be an object.");
+                    continue;
+                }
+
+                if (string.IsNullOrWhiteSpace(row[externalUserIdColumn]?.GetValue<string>()))
+                {
+                    errors.Add($"CSV upload connector rows[{index}] requires '{externalUserIdColumn}'.");
+                }
+            }
+        }
 
         return baseline with
         {

@@ -21,6 +21,15 @@ step() {
   echo "== $1 =="
 }
 
+require_opt_in() {
+  local name="$1" purpose="$2"
+  local value="${!name:-}"
+  if [[ "$value" != "1" && "${value,,}" != "true" ]]; then
+    echo "$purpose is opt-in. Set $name=1 to run this proof path." >&2
+    exit 1
+  fi
+}
+
 assert_setting() {
   local name="$1"
   local expected="$2"
@@ -102,6 +111,7 @@ echo "pg_restore --clean --if-exists --dbname customer_ops_restore_check ./backu
 
 step "Docker/PostgreSQL rehearsal"
 if [[ "$RUN_DOCKER" == "true" ]]; then
+  require_opt_in "KYNTIC_RUN_EXTERNAL_DOTNET_TESTS" "Docker/PostgreSQL rehearsal"
   command -v docker >/dev/null || { echo "Docker is not available." >&2; exit 1; }
   docker compose up -d postgres
   docker compose ps postgres

@@ -113,6 +113,10 @@ body {
     display: flex;
   }
 
+  .login-console-guide {
+    display: none;
+  }
+
   .login-access-card {
     padding: 1rem;
   }

@@ -56,6 +56,7 @@ Delegates to `@kynticai/scout-connector-validator`. Checks:
 - `connectorId` follows camelCase naming.
 - `configurationSchema` has `"type": "object"` with `"properties"`.
 - `sampleConfiguration` satisfies all `required` schema fields.
+- Optional `eventShape` declares `sourceSystem`, `entityType`, and `sourceIdField`.
 
 ### 2. Metadata Extraction (`metadata-extraction`)
 
@@ -89,6 +90,7 @@ Checks the public unsafe-field blocklist against:
 - `configurationSchema` property names.
 - `sampleConfiguration` key names.
 - Entity mapping `sourceField` and `semanticAttribute` values.
+- Connector event shape field names.
 
 Blocked names include: `password`, `secret`, `token`, `credential`, `apiKey`, `accessToken`, `refreshToken`, `privateKey`, `connectionString`, `ssn`, `creditCard`, and others.
 

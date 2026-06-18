@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, DatabaseZap, FileSearch, PlugZap, Sparkles } from 'lucide-react'
 import { Button, Card, Field, Input } from '@/components/ui/primitives'
 import { api } from '@/lib/api'
 import { useAuthSession } from '@/lib/auth'
@@ -27,6 +27,13 @@ const sampleAccounts = [
     email: 'rep@scout.local',
     password: 'DemoSales123!',
   },
+] as const
+
+const consoleGuide = [
+  [DatabaseZap, 'See the installed data plane', 'Web console, API, Postgres, demo tenant, health checks, and event history.'],
+  [PlugZap, 'Connect a source', 'Validate and register standard connectors from Data Sources.'],
+  [FileSearch, 'Create trusted facts', 'Selectors convert source rows and events into governed context.'],
+  [Sparkles, 'Use the outcomes', 'Profiles, relationship intelligence, evidence packs, GraphQL, and REST.'],
 ] as const
 
 export function LoginPage() {
@@ -74,6 +81,20 @@ export function LoginPage() {
               >
                 {item}
               </span>
+            ))}
+          </div>
+
+          <div className="login-console-guide mt-6 grid max-w-3xl gap-2 sm:grid-cols-2">
+            {consoleGuide.map(([Icon, title, body]) => (
+              <div key={title} className="rounded-[18px] border border-ink-900/8 bg-ivory-50/78 px-3 py-3 shadow-[0_10px_28px_rgba(24,18,15,0.05)]">
+                <div className="flex items-start gap-2.5">
+                  <Icon className="mt-1 size-4 shrink-0 text-copper-700" />
+                  <div>
+                    <p className="text-sm font-semibold text-ink-950">{title}</p>
+                    <p className="mt-1 text-xs leading-5 text-ink-700">{body}</p>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         </section>

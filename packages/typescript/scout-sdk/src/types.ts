@@ -58,6 +58,48 @@ export interface MachineTokenResponse {
   scope: string
 }
 
+/** Request body for resolving a user's current context profile. */
+export interface UserContextLookupInput {
+  /** Tenant identifier (slug). */
+  tenantSlug: string
+  /** External user identifier from the caller's source system. */
+  externalUserId: string
+}
+
+/** Request body for producing an AI-safe sales context package. Scout does not call an AI model. */
+export interface SalesContextPackageInput {
+  /** Tenant identifier (slug). */
+  tenantSlug: string
+  /** External user identifier from the caller's source system. */
+  externalUserId: string
+  /** Objective that scopes the grounded package. */
+  salesObjective: string
+}
+
+/** Request body for queueing a user context recomputation. */
+export interface QueueContextRecomputeInput {
+  /** Tenant identifier (slug). */
+  tenantSlug: string
+  /** External user identifier from the caller's source system. */
+  externalUserId: string
+  /** Actor or subsystem that requested the recomputation. */
+  triggeredBy: string
+}
+
+/** Request body for publishing a selector definition. */
+export interface PublishSelectorDefinitionInput {
+  /** Tenant identifier (slug). */
+  tenantSlug: string
+  /** Selector definition identifier to publish. */
+  selectorDefinitionId: string
+}
+
+/** Request body for running scheduled context recomputation. */
+export interface RunScheduledRecomputeInput {
+  /** Optional tenant slug when dispatching for a single tenant. */
+  tenantSlug?: string | null
+}
+
 /** A single semantic fact derived by the selector engine. */
 export interface ContextFactResult {
   /** Unique fact identifier. */
@@ -150,6 +192,62 @@ export interface SourceSystemEventAcceptedResult {
   isDuplicate: boolean
   /** Timestamp when the event was accepted (ISO 8601 UTC). */
   acceptedAtUtc: string
+}
+
+/** Public metadata describing a registered connector plugin. */
+export interface ConnectorPluginDefinitionResult {
+  /** Stable connector type identifier. */
+  connectorType: string
+  /** Human-readable connector name. */
+  displayName: string
+  /** Public connector description. */
+  description: string
+  /** Alternate connector type identifiers accepted by the runtime. */
+  aliases: string[]
+  /** Data-source kinds this plugin can serve. */
+  supportedDataSourceKinds: string[]
+  /** Connector capabilities exposed by the plugin. */
+  supportedCapabilities: string[]
+  /** JSON Schema for non-secret configuration. */
+  configurationSchemaJson: string
+  /** JSON Schema for secret credential fields. */
+  credentialSchemaJson: string
+  /** Example configuration JSON safe for authoring tools. */
+  sampleConfigurationJson: string
+}
+
+/** Public connector catalogue entry, including open-core and placeholder boundary labels. */
+export interface ConnectorCatalogueEntryResult {
+  /** Stable connector type identifier. */
+  connectorType: string
+  /** Human-readable connector name. */
+  displayName: string
+  /** Public connector description. */
+  description: string
+  /** Connector category used for filtering and display. */
+  category: string
+  /** Boundary label such as `PublicGenericExample`, `PaidEnterpriseImplementation`, or `PlannedConnector`. */
+  publicStatus: string
+  /** Availability label such as `OpenCore`, `Enterprise`, `SaaSManaged`, or `ComingSoon`. */
+  availability: string
+  /** Whether executable open-core code is included in this repository. */
+  isIncludedInOpenCore: boolean
+  /** Whether commercial agreement is required before use. */
+  requiresCommercialAgreement: boolean
+  /** Whether this row is metadata-only and not executable. */
+  isPlaceholder: boolean
+  /** Whether this catalogue entry is currently enabled. */
+  isEnabled: boolean
+  /** Data-source kinds advertised by the catalogue entry. */
+  supportedDataSourceKinds: string[]
+  /** Capabilities advertised by the catalogue entry. */
+  capabilities: string[]
+  /** JSON Schema for non-secret configuration. */
+  configurationSchemaJson: string
+  /** JSON Schema for secret credential fields. */
+  credentialSchemaJson: string
+  /** Public health-check mode label. */
+  healthCheckMode: string
 }
 
 /** A key operational metric surfaced from source data. */
@@ -268,6 +366,30 @@ export interface ContextProfileResult {
   facts: ContextFactResult[]
 }
 
+/** Public user profile metadata. */
+export interface UserProfileResult {
+  /** Internal user profile identifier. */
+  id: string
+  /** Internal tenant identifier. */
+  tenantId: string
+  /** External user identifier. */
+  externalUserId: string
+  /** User's full name. */
+  fullName: string
+  /** User's email address. */
+  email: string
+  /** User's company name. */
+  companyName: string
+  /** User's job title. */
+  jobTitle: string
+  /** Customer segment. */
+  segment: string
+  /** Last-seen timestamp (ISO 8601 UTC). */
+  lastSeenAtUtc: string
+  /** Whether the email address has been masked. */
+  isEmailMasked: boolean
+}
+
 /** Aggregated context for a business account (company). */
 export interface AccountContextResult {
   /** Tenant slug. */
@@ -346,7 +468,7 @@ export interface GroundedContextFactResult {
   provenanceJson: string
 }
 
-/** AI-safe context package scoped for a sales objective. Scout does not call an AI model. */
+/** Governed evidence package scoped for a sales objective. Scout does not call an AI model. */
 export interface SalesContextPackageResult {
   /** Snapshot identifier. */
   snapshotId: string
@@ -472,6 +594,14 @@ export interface QueueRecomputeResult {
   executionCount: number
 }
 
+/** Result of dispatching scheduled context recomputation work. */
+export interface ScheduledRecomputeDispatchResult {
+  /** Number of users queued for recomputation. */
+  queuedUserCount: number
+  /** Number of users skipped by the dispatcher. */
+  skippedUserCount: number
+}
+
 /** An audit trail entry recording a governance-relevant action. */
 export interface AuditEvent {
   /** Unique audit event identifier. */
@@ -506,6 +636,125 @@ export interface ScoutErrorDetail {
   target?: string | null
   /** Human-readable error message. */
   message: string
+}
+
+/** Evidence supplied to a KynticAI Score API implementation. */
+export interface ScoreEvidenceInput {
+  id: string
+  summary: string
+  source?: string | null
+  observedAtUtc?: string | null
+  weight?: number | null
+  metadata?: Record<string, string> | null
+}
+
+/** One of the top evidence points returned by a score response. */
+export interface ScoreEvidencePoint {
+  summary: string
+  source: string
+  weight: number
+  observedAtUtc?: string | null
+}
+
+/** One of the risk flags returned by a score response. */
+export interface ScoreRiskFlag {
+  code: string
+  severity: 'low' | 'moderate' | 'high' | 'critical'
+  summary: string
+}
+
+/** Numeric confidence interval around a 0-100 rating. */
+export interface ConfidenceInterval {
+  lower: number
+  upper: number
+  level: number
+}
+
+/** Optional trace metadata returned by a score service implementation. */
+export interface ScoreTrace {
+  requestId?: string | null
+  modelVersion?: string | null
+  generatedAtUtc?: string | null
+}
+
+/** Common fields for all score responses. */
+export interface ScoreBase {
+  scoreType: 'InvestmentScore' | 'CreditScore' | 'JobScore'
+  rating: number
+  supportingEvidence: ScoreEvidencePoint[]
+  riskFlags: ScoreRiskFlag[]
+  confidenceInterval: ConfidenceInterval
+  trace?: ScoreTrace | null
+}
+
+export interface InvestmentScoreRequest {
+  subject: {
+    name: string
+    sector?: string | null
+    stage?: string | null
+    geography?: string | null
+  }
+  objective?: string | null
+  horizon?: 'short_term' | 'medium_term' | 'long_term' | null
+  evidence: ScoreEvidenceInput[]
+  constraints?: string[] | null
+}
+
+export interface CreditScoreRequest {
+  subject: {
+    name: string
+    entityType?: 'individual' | 'company' | 'public_body' | 'other' | null
+    geography?: string | null
+  }
+  cashflowSummary?: string | null
+  obligations?: string[] | null
+  evidence: ScoreEvidenceInput[]
+}
+
+export interface JobScoreRequest {
+  candidate: {
+    name: string
+    currentRole?: string | null
+    seniority?: string | null
+  }
+  role: {
+    title: string
+    organisation?: string | null
+    requiredSkills?: string[] | null
+  }
+  evidence: ScoreEvidenceInput[]
+  constraints?: string[] | null
+}
+
+/** Score response for an investment scoring request. */
+export interface InvestmentScore extends ScoreBase {
+  scoreType: 'InvestmentScore'
+}
+
+/** Score response for a credit scoring request. */
+export interface CreditScore extends ScoreBase {
+  scoreType: 'CreditScore'
+}
+
+/** Score response for a job scoring request. */
+export interface JobScore extends ScoreBase {
+  scoreType: 'JobScore'
+}
+
+/** Configuration options for {@link createKynticScoreClient}. */
+export interface KynticScoreClientOptions {
+  /** Base URL of the score service implementing `schema/kyntic-score.openapi.yaml`. */
+  baseUrl: string
+  /** Static bearer token. Mutually exclusive with `getAccessToken`. */
+  accessToken?: string
+  /** Lazy bearer-token provider called before each request. */
+  getAccessToken?: (() => Promise<string | undefined> | string | undefined)
+  /** Optional API key for services that support key-based machine authentication. */
+  apiKey?: string
+  /** Additional headers sent with every request. */
+  defaultHeaders?: Record<string, string>
+  /** Custom `fetch` implementation (defaults to `globalThis.fetch`). */
+  fetch?: typeof fetch
 }
 
 /** Configuration options for {@link createScoutClient}. */

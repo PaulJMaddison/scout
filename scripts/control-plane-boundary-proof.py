@@ -147,7 +147,7 @@ def main() -> int:
     parser.add_argument("--installations", type=int, default=250)
     parser.add_argument("--events", type=int, default=1000)
     parser.add_argument("--support-cases", type=int, default=100)
-    parser.add_argument("--out", type=Path, default=Path("artifacts/control-plane-boundary-proof"))
+    parser.add_argument("--out", type=Path, default=Path("docs/proof-artifacts/control-plane-boundary-proof"))
     args = parser.parse_args()
     args.out.mkdir(parents=True, exist_ok=True)
 
@@ -174,6 +174,7 @@ def main() -> int:
     write_csv(accepted_csv, records)
     forbidden_results = forbidden_attempt_results(rejections)
     forbidden_json.write_text(json.dumps(forbidden_results, indent=2) + "\n", encoding="utf-8")
+    generated_at_utc = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
     artifact_paths = [
         args.out / "control-plane-boundary-proof.json",
         args.out / "control-plane-boundary-proof.md",
@@ -183,7 +184,7 @@ def main() -> int:
     ]
     report = {
         "verdict": verdict,
-        "generatedAtUtc": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
+        "generatedAtUtc": generated_at_utc,
         "counts": counts,
         "allowedRecordFields": sorted(ALLOWED_RECORD_FIELDS),
         "forbiddenPayloadResults": forbidden_results,
@@ -200,7 +201,18 @@ def main() -> int:
         "artifacts": [str(path) for path in artifact_paths],
     }
     (args.out / "control-plane-boundary-proof.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-    md = ["# Control-plane boundary proof", "", f"Verdict: **{verdict}**", "", "## Counts", ""]
+    md = [
+        "# Control-plane boundary proof",
+        "",
+        f"Verdict: **{verdict}**",
+        "",
+        f"Generated at UTC: `{generated_at_utc}`",
+        "",
+        "Status: deterministic synthetic Scout/UCL proof artefact. Cloud receives aggregate/control-plane metadata only; private evidence packs and `BasicRelationshipEngine` fallback data remain in the customer data plane.",
+        "",
+        "## Counts",
+        "",
+    ]
     md += [f"- {k}: {v}" for k, v in counts.items()]
     md += ["", "## Full result artifacts", ""]
     md += [f"- `{path}`" for path in artifact_paths]

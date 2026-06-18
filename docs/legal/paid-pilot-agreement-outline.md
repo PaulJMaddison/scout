@@ -4,7 +4,7 @@ This is a non-lawyer commercial/legal outline for solicitor review. It is not le
 
 ## Pilot Purpose
 
-KynticAI Scout turns existing business data into trusted semantic context that customer-owned AI tools, workflows, apps, reports, and agents can use. The paid pilot proves the customer data-plane pattern in a controlled scope.
+KynticAI Scout turns authorised customer data into exact data items, relationships, attribution paths, and governed JSON that customer-owned AI tools, workflows, apps, reports, local LLMs, and agents can use. The paid pilot proves the customer data-plane pattern in a controlled scope.
 
 ## Scope To Define
 
@@ -22,7 +22,7 @@ KynticAI Scout turns existing business data into trusted semantic context that c
 
 ## Data Boundary
 
-The customer data plane holds raw operational records, connector credentials, selectors, facts, snapshots, provenance, and local audit logs by default. The cloud control plane, if used, holds commercial metadata, licences, downloads, update channels, support metadata, entitlement state, and optional aggregate usage only.
+The customer data plane holds raw operational records, connector credentials, selectors, exact data items, relationships, attribution paths, facts, snapshots, provenance, and local audit logs by default. The cloud control plane, if used, holds commercial metadata, licences, downloads, update channels, support metadata, entitlement state, and optional aggregate usage only.
 
 Raw operational data must not be sent to cloud support by default. Any exceptional support data transfer needs written approval, redaction, retention, and deletion terms.
 
@@ -45,7 +45,7 @@ The agreement should cover export, deletion, revocation of licences and tokens, 
 ## Mandatory Legal Review Notes
 
 - This outline is not legal advice.
-- Customer data-plane operation keeps raw operational data, connector credentials, selectors, facts, snapshots, and provenance local by default.
+- Customer data-plane operation keeps raw operational data, connector credentials, selectors, exact data items, relationships, attribution paths, facts, snapshots, and provenance local by default.
 - Cloud control-plane processing is limited to account, licence, download, update, support, entitlement, lead, audit, and aggregate usage metadata unless separately reviewed.
 - Support data must be redacted; raw operational data must not be sent to cloud support by default.
 - First-party event tracking needs notice, consent/lawful-basis assessment, minimisation, retention, and opt-out/withdrawal handling.

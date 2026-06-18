@@ -281,6 +281,15 @@ const customerRoute = createRoute({
   ),
 })
 
+const relationshipIntelligenceRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/relationship-intelligence',
+  component: lazyRouteComponent(
+    () => import('@/features/intelligence/relationship-intelligence-page'),
+    'RelationshipIntelligencePage',
+  ),
+})
+
 const playgroundRoute = createRoute({
   getParentRoute: () => appRoute,
   path: '/agent-playground',
@@ -454,6 +463,7 @@ const routeTree = rootRoute.addChildren([
     bootstrapStudioRoute,
     customersRoute,
     customerRoute,
+    relationshipIntelligenceRoute,
     playgroundRoute,
     auditRoute,
     billingRoute,

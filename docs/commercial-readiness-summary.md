@@ -1,12 +1,14 @@
 # Commercial Readiness Summary
 
+Workspace naming source of truth: [`../../docs/source-of-truth-naming-map.md`](../../docs/source-of-truth-naming-map.md).
+
 KynticAI Scout is ready to show publicly and ready for paid pilot conversations. It is nearly ready for paid pilot delivery after live hosting configuration, legal review, and first-customer operational setup. It is not ready for complete self-serve SaaS and must not be sold that way.
 
 ## Ready To Show Publicly
 
 - product narrative: "We do not build the brain. We build the nervous system."
 - open-core local demo and customer data-plane story
-- public company website, local demo, and marketing pages
+- public docs/demo app, local demo, and admin console
 - customer data-plane boundary
 - REST/GraphQL/SDK foundations
 - supported paid pilot positioning
@@ -51,6 +53,7 @@ Remaining before first customer install:
 - cloud control plane stores or needs raw customer operational data
 - paid enterprise implementation code is in the public repo
 - real customer IdP support is validated before a customer IdP proof
+- customer traction, customer proof, or customer deployment without real dated evidence such as replies, meetings, LOIs, pilots, revenue, signed acceptance, or equivalent records
 
 ## Best Sales Wording
 
@@ -97,7 +100,7 @@ Remaining before first customer install:
 
 ## Public Marketing Launch Go/No-Go
 
-- public website build passes
+- public docs/demo app build passes
 - privacy and terms draft links are visible
 - paid-pilot wording avoids complete SaaS and vendor-certified connector claims
 - no private enterprise code or secrets are present in public artefacts

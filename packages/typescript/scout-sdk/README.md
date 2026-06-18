@@ -2,7 +2,7 @@
 
 Typed TypeScript client for the [KynticAI Scout](https://github.com/PaulJMaddison/scout) API. It gives application teams a stable, fully-typed surface for REST and GraphQL calls instead of hand-rolling HTTP requests.
 
-This package is part of the public open-core. It covers authentication, context lookups, semantic facts, snapshots, selector preview, recompute, AI-safe context packages, source-system event ingestion, and audit.
+This package is part of the public open-core. It covers authentication, context lookups, semantic facts, snapshots, selector preview, recompute, governed context and relationship/evidence packages, source-system event ingestion, audit, and the contract client for services implementing the KynticAI Score API.
 
 ## SDK Folder Structure
 
@@ -12,6 +12,7 @@ packages/typescript/scout-sdk/
     client.ts
     errors.ts
     index.ts
+    score-client.ts
     types.ts
   tests/
     client.test.ts
@@ -32,9 +33,10 @@ packages/typescript/scout-sdk/
 - semantic fact lookup with REST filtering and pagination options
 - selector preview and validation
 - context recompute requests
-- AI context package retrieval
+- governed context and relationship/evidence package retrieval
 - provider-neutral source-system event ingestion
 - audit event lookup
+- KynticAI Score API contract client
 - typed error handling
 - retries for transient failures
 - request tracing headers
@@ -64,6 +66,35 @@ const facts = await scout.facts.getForUser('demo', '123', {
 const snapshot = await scout.snapshots.getLatestForUser('demo', '123')
 const snapshotById = await scout.snapshots.getById('demo', snapshot!.snapshotId)
 const account = await scout.accounts.getContext('demo', 'ACC-123')
+```
+
+## Score API Client
+
+The score client calls services that implement `schema/kyntic-score.openapi.yaml`.
+Scout does not calculate scores itself.
+
+```ts
+import { createKynticScoreClient } from '@kynticai/scout-sdk'
+
+const scores = createKynticScoreClient({
+  baseUrl: 'http://127.0.0.1:3016',
+  accessToken: process.env.SCORE_TOKEN,
+})
+
+const result = await scores.createInvestmentScore({
+  subject: {
+    name: 'Example Infrastructure Ltd',
+    sector: 'Industrial software',
+  },
+  evidence: [
+    {
+      id: 'ev-001',
+      summary: 'Recurring revenue grew across the last four quarters.',
+      source: 'management-account-summary',
+      weight: 0.8,
+    },
+  ],
+})
 ```
 
 ## Tenant Scoped Usage
@@ -230,3 +261,4 @@ Current tests cover:
 - tenant-scoped delegation
 - transient retry handling
 - typed problem-details error mapping
+- Score API path alignment and response-limit validation

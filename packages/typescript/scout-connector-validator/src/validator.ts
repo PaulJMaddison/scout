@@ -93,6 +93,7 @@ export function validateManifest(
   validateConfigurationSchema(obj, errors, warnings, issues)
   validateSampleConfiguration(obj, errors, issues)
   validateAuthConfig(obj, errors, warnings, issues)
+  validateEventShape(obj, errors, issues)
 
   return { isValid: errors.length === 0, errors, warnings, issues }
 }
@@ -594,6 +595,36 @@ function validateAuthConfig(
         'authConfig.authoriseUrl must be a string.')
     } else {
       validateUrlValue(authObj['authoriseUrl'] as string, 'authConfig.authoriseUrl', errors, issues)
+    }
+  }
+}
+
+function validateEventShape(
+  obj: Record<string, unknown>,
+  errors: string[],
+  issues: ValidationIssue[],
+): void {
+  const eventShape = obj['eventShape']
+  if (eventShape === undefined) return
+
+  if (typeof eventShape !== 'object' || eventShape === null || Array.isArray(eventShape)) {
+    addError(issues, errors, 'INVALID_FORMAT', 'eventShape',
+      'eventShape, if provided, must be a JSON object.')
+    return
+  }
+
+  const shape = eventShape as Record<string, unknown>
+  for (const field of ['sourceSystem', 'entityType', 'sourceIdField']) {
+    if (typeof shape[field] !== 'string' || (shape[field] as string).trim() === '') {
+      addError(issues, errors, 'MISSING_REQUIRED_FIELD', `eventShape.${field}`,
+        `eventShape.${field} is required and must be a non-empty string.`)
+    }
+  }
+
+  for (const field of ['timestampField', 'payloadRoot']) {
+    if (shape[field] !== undefined && typeof shape[field] !== 'string') {
+      addError(issues, errors, 'INVALID_FORMAT', `eventShape.${field}`,
+        `eventShape.${field}, if provided, must be a string.`)
     }
   }
 }

@@ -1,0 +1,282 @@
+{
+  "fixtureSetVersion": "ucl.evidence-pack.fixtures.v1",
+  "contractVersion": "ucl.cloud-aggregate-usage.v1",
+  "fixtures": [
+    {
+      "scenario": "b2b-saas",
+      "violation": "records and evidence packs must not leave the customer data plane",
+      "payload": {
+        "payloadKind": "cloud-aggregate-usage",
+        "payloadVersion": "ucl.cloud-aggregate-usage.v1",
+        "packageVersion": "ucl.evidence-pack.v1",
+        "tenantSlug": "golden-b2b-saas",
+        "feature": "next-action",
+        "eventName": "intelligence.next-action.generated",
+        "status": "succeeded",
+        "generatedAtUtc": "2026-06-16T15:00:00Z",
+        "featureUsageCounters": {
+          "nextActionGenerateRequests": 1,
+          "dataPlanePackageBuilds": 1
+        },
+        "controlPlaneCounters": {
+          "appliedRuleCount": 1,
+          "maskedFieldCount": 0,
+          "deniedFieldCount": 0
+        },
+        "dataBoundary": {
+          "rawDataRetainedInCustomerDataPlane": true,
+          "containsRawCustomerData": false,
+          "containsRecords": false,
+          "containsFacts": false,
+          "containsContextFacts": false,
+          "containsSnapshots": false,
+          "containsContextSnapshots": false,
+          "containsEvidencePacks": false,
+          "containsPrompts": false,
+          "containsGeneratedContent": false,
+          "containsRecommendations": false,
+          "containsCitations": false,
+          "containsCitationIds": false,
+          "containsRelationshipTypes": false,
+          "containsWeightedSignals": false,
+          "containsCaveats": false,
+          "containsPerEntityRelationshipMetadata": false,
+          "containsDerivedRelationshipIntelligence": false,
+          "containsPerCustomerDerivedIntelligence": false
+        },
+        "records": [{ "recordType": "CustomerAccount", "name": "HarbourDesk Ltd" }],
+        "evidencePacks": [{ "packageId": "EP-GOLDEN-B2B-SAAS-001" }]
+      }
+    },
+    {
+      "scenario": "ecommerce",
+      "violation": "facts and snapshots must not be sent to Cloud aggregate usage",
+      "payload": {
+        "payloadKind": "cloud-aggregate-usage",
+        "payloadVersion": "ucl.cloud-aggregate-usage.v1",
+        "packageVersion": "ucl.evidence-pack.v1",
+        "tenantSlug": "golden-ecommerce",
+        "feature": "next-action",
+        "eventName": "intelligence.next-action.generated",
+        "status": "succeeded",
+        "generatedAtUtc": "2026-06-16T15:05:00Z",
+        "featureUsageCounters": {
+          "nextActionGenerateRequests": 1,
+          "dataPlanePackageBuilds": 1
+        },
+        "controlPlaneCounters": {
+          "appliedRuleCount": 1,
+          "maskedFieldCount": 0,
+          "deniedFieldCount": 0
+        },
+        "dataBoundary": {
+          "rawDataRetainedInCustomerDataPlane": true,
+          "containsRawCustomerData": false,
+          "containsRecords": false,
+          "containsFacts": false,
+          "containsContextFacts": false,
+          "containsSnapshots": false,
+          "containsContextSnapshots": false,
+          "containsEvidencePacks": false,
+          "containsPrompts": false,
+          "containsGeneratedContent": false,
+          "containsRecommendations": false,
+          "containsCitations": false,
+          "containsCitationIds": false,
+          "containsRelationshipTypes": false,
+          "containsWeightedSignals": false,
+          "containsCaveats": false,
+          "containsPerEntityRelationshipMetadata": false,
+          "containsDerivedRelationshipIntelligence": false,
+          "containsPerCustomerDerivedIntelligence": false
+        },
+        "facts": [{ "attributeKey": "basket_value", "value": "146.00" }],
+        "snapshots": [{ "snapshotId": "snap-shopper-1842" }]
+      }
+    },
+    {
+      "scenario": "support-churn",
+      "violation": "recommendations, caveats, and generated content are local-only",
+      "payload": {
+        "payloadKind": "cloud-aggregate-usage",
+        "payloadVersion": "ucl.cloud-aggregate-usage.v1",
+        "packageVersion": "ucl.evidence-pack.v1",
+        "tenantSlug": "golden-support-churn",
+        "feature": "next-action",
+        "eventName": "intelligence.next-action.generated",
+        "status": "succeeded",
+        "generatedAtUtc": "2026-06-16T15:10:00Z",
+        "featureUsageCounters": {
+          "nextActionGenerateRequests": 1,
+          "dataPlanePackageBuilds": 1
+        },
+        "controlPlaneCounters": {
+          "appliedRuleCount": 1,
+          "maskedFieldCount": 0,
+          "deniedFieldCount": 0
+        },
+        "dataBoundary": {
+          "rawDataRetainedInCustomerDataPlane": true,
+          "containsRawCustomerData": false,
+          "containsRecords": false,
+          "containsFacts": false,
+          "containsContextFacts": false,
+          "containsSnapshots": false,
+          "containsContextSnapshots": false,
+          "containsEvidencePacks": false,
+          "containsPrompts": false,
+          "containsGeneratedContent": false,
+          "containsRecommendations": false,
+          "containsCitations": false,
+          "containsCitationIds": false,
+          "containsRelationshipTypes": false,
+          "containsWeightedSignals": false,
+          "containsCaveats": false,
+          "containsPerEntityRelationshipMetadata": false,
+          "containsDerivedRelationshipIntelligence": false,
+          "containsPerCustomerDerivedIntelligence": false
+        },
+        "recommendation": "Escalate critical support ticket",
+        "caveats": ["Customer success owner must confirm renewal timing."],
+        "generatedContent": "Draft save-call email body"
+      }
+    },
+    {
+      "scenario": "recruitment",
+      "violation": "citations and prompts are local-only",
+      "payload": {
+        "payloadKind": "cloud-aggregate-usage",
+        "payloadVersion": "ucl.cloud-aggregate-usage.v1",
+        "packageVersion": "ucl.evidence-pack.v1",
+        "tenantSlug": "golden-recruitment",
+        "feature": "next-action",
+        "eventName": "intelligence.next-action.generated",
+        "status": "succeeded",
+        "generatedAtUtc": "2026-06-16T15:15:00Z",
+        "featureUsageCounters": {
+          "nextActionGenerateRequests": 1,
+          "dataPlanePackageBuilds": 1
+        },
+        "controlPlaneCounters": {
+          "appliedRuleCount": 1,
+          "maskedFieldCount": 0,
+          "deniedFieldCount": 0
+        },
+        "dataBoundary": {
+          "rawDataRetainedInCustomerDataPlane": true,
+          "containsRawCustomerData": false,
+          "containsRecords": false,
+          "containsFacts": false,
+          "containsContextFacts": false,
+          "containsSnapshots": false,
+          "containsContextSnapshots": false,
+          "containsEvidencePacks": false,
+          "containsPrompts": false,
+          "containsGeneratedContent": false,
+          "containsRecommendations": false,
+          "containsCitations": false,
+          "containsCitationIds": false,
+          "containsRelationshipTypes": false,
+          "containsWeightedSignals": false,
+          "containsCaveats": false,
+          "containsPerEntityRelationshipMetadata": false,
+          "containsDerivedRelationshipIntelligence": false,
+          "containsPerCustomerDerivedIntelligence": false
+        },
+        "citationIds": ["EVID-01"],
+        "prompts": ["Use the interview feedback to draft a candidate message."]
+      }
+    },
+    {
+      "scenario": "finance-retention",
+      "violation": "relationship types, weighted signals, and derived intelligence are local-only",
+      "payload": {
+        "payloadKind": "cloud-aggregate-usage",
+        "payloadVersion": "ucl.cloud-aggregate-usage.v1",
+        "packageVersion": "ucl.evidence-pack.v1",
+        "tenantSlug": "golden-finance-retention",
+        "feature": "next-action",
+        "eventName": "intelligence.next-action.generated",
+        "status": "succeeded",
+        "generatedAtUtc": "2026-06-16T15:20:00Z",
+        "featureUsageCounters": {
+          "nextActionGenerateRequests": 1,
+          "dataPlanePackageBuilds": 1
+        },
+        "controlPlaneCounters": {
+          "appliedRuleCount": 1,
+          "maskedFieldCount": 0,
+          "deniedFieldCount": 0
+        },
+        "dataBoundary": {
+          "rawDataRetainedInCustomerDataPlane": true,
+          "containsRawCustomerData": false,
+          "containsRecords": false,
+          "containsFacts": false,
+          "containsContextFacts": false,
+          "containsSnapshots": false,
+          "containsContextSnapshots": false,
+          "containsEvidencePacks": false,
+          "containsPrompts": false,
+          "containsGeneratedContent": false,
+          "containsRecommendations": false,
+          "containsCitations": false,
+          "containsCitationIds": false,
+          "containsRelationshipTypes": false,
+          "containsWeightedSignals": false,
+          "containsCaveats": false,
+          "containsPerEntityRelationshipMetadata": false,
+          "containsDerivedRelationshipIntelligence": false,
+          "containsPerCustomerDerivedIntelligence": false
+        },
+        "relationshipTypes": ["AccountToBilling"],
+        "weightedSignals": [{ "signalKey": "review-overdue", "score": 0.8 }],
+        "derivedRelationshipIntelligence": { "retentionRisk": "watch" }
+      }
+    },
+    {
+      "scenario": "healthcare-operations",
+      "violation": "boundary flags cannot declare forbidden content in Cloud payloads",
+      "payload": {
+        "payloadKind": "cloud-aggregate-usage",
+        "payloadVersion": "ucl.cloud-aggregate-usage.v1",
+        "packageVersion": "ucl.evidence-pack.v1",
+        "tenantSlug": "golden-healthcare-ops",
+        "feature": "next-action",
+        "eventName": "intelligence.next-action.generated",
+        "status": "succeeded",
+        "generatedAtUtc": "2026-06-16T15:25:00Z",
+        "featureUsageCounters": {
+          "nextActionGenerateRequests": 1,
+          "dataPlanePackageBuilds": 1
+        },
+        "controlPlaneCounters": {
+          "appliedRuleCount": 1,
+          "maskedFieldCount": 0,
+          "deniedFieldCount": 0
+        },
+        "dataBoundary": {
+          "rawDataRetainedInCustomerDataPlane": true,
+          "containsRawCustomerData": false,
+          "containsRecords": true,
+          "containsFacts": false,
+          "containsContextFacts": false,
+          "containsSnapshots": false,
+          "containsContextSnapshots": false,
+          "containsEvidencePacks": false,
+          "containsPrompts": false,
+          "containsGeneratedContent": false,
+          "containsRecommendations": false,
+          "containsCitations": false,
+          "containsCitationIds": false,
+          "containsRelationshipTypes": false,
+          "containsWeightedSignals": false,
+          "containsCaveats": false,
+          "containsPerEntityRelationshipMetadata": false,
+          "containsDerivedRelationshipIntelligence": false,
+          "containsPerCustomerDerivedIntelligence": true
+        }
+      }
+    }
+  ]
+}

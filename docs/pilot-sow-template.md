@@ -6,15 +6,15 @@ This template is a commercial and delivery starting point only. It is not legal 
 
 This Statement of Work is between `[Customer legal name]` and `[Supplier legal name]` for a time-boxed KynticAI Scout paid pilot. The pilot will prove one agreed workflow using a customer-owned Scout data plane and the source systems listed in this SOW.
 
-Scout is the nervous system, not the brain: the pilot supplies governed context to the customer's selected AI tool, workflow, app, report, or agent rather than requiring the customer to use a Scout-owned AI stack.
+Scout is the customer-owned data plane, not the brain: the pilot supplies governed exact items, relationships, attribution paths, and context to the customer's selected AI tool, workflow, app, report, or agent rather than requiring the customer to use a Scout-owned AI stack.
 
 The pilot does not create a general self-serve SaaS subscription unless a separate agreement says so.
 
 ## 2. Pilot Objectives
 
-- prove that existing customer data can be mapped into trusted semantic context
+- prove that authorised customer data can be mapped into exact data items, relationships, attribution paths, and governed JSON for the agreed workflow
 - keep systems of record in place
-- expose governed context to one agreed downstream consumer
+- expose governed context or relationship JSON to one agreed downstream consumer
 - validate confidence, freshness, provenance, audit, and masking expectations
 - agree a practical rollout, support, and enterprise connector recommendation
 
@@ -50,7 +50,7 @@ Attributes must include confidence, freshness, explanation, and provenance in th
 - source connector configuration for the agreed path
 - semantic attribute definitions
 - selector mappings
-- context facts and context snapshot for the agreed entity or workflow
+- context facts, relationship state, attribution-path evidence, and context snapshot for the agreed entity or workflow
 - REST, GraphQL, or SDK lookup example
 - provenance and audit review
 - support and handover notes
@@ -87,7 +87,7 @@ Attributes must include confidence, freshness, explanation, and provenance in th
 ## 10. Security And Privacy Responsibilities
 
 - Customer remains controller or owner of its operational data unless the legal agreement states otherwise.
-- Scout data-plane source records, credentials, context facts, snapshots, and local audit logs remain in the customer-controlled data plane by default.
+- Scout data-plane source records, credentials, exact data items, relationships, attribution paths, context facts, snapshots, and local audit logs remain in the customer-controlled data plane by default.
 - Hosted or private control-plane services should receive commercial metadata only by default, such as account, licence, support, download, update, entitlement, and optional aggregate usage metadata.
 - Both parties will agree masking, retention, audit access, and support bundle handling before customer-facing use.
 

@@ -3,28 +3,35 @@ title: API Overview
 description: An overview of the KynticAI Scout API surfaces — REST, GraphQL, and SDKs.
 ---
 
-KynticAI Scout exposes context through three complementary surfaces: a REST
-API, a GraphQL API, and typed client SDKs for TypeScript and .NET.
+KynticAI Scout exposes context through GraphQL, REST, and typed client SDKs
+for TypeScript and .NET. Use GraphQL when consumers need shaped context
+queries. Use REST for conventional HTTP integrations, machine clients,
+event ingestion, and OpenAPI-based tooling.
 
-## REST API (v1)
+The versioned REST surface also exposes `POST /api/v1/intelligence/next-action`
+for the customer data-plane demo flow. It links exact authorised records such
+as CRM contact/account, email engagement, web conversion, opportunities,
+support, usage, billing, and won/lost outcome signals into relationship JSON
+with relationships, attribution-path evidence, Scout basic fallback-only signals,
+provenance, governance decisions, and a recommended next action. Canonical
+relationship-set analysis belongs to the Enterprise Rust engine/vector
+DB. Raw records stay in
+the data plane; optional
+Cloud/control-plane payloads are aggregate usage metadata only and exclude
+relationship types, weighted signals, recommendations, confidence, caveats,
+and citation IDs.
 
-The REST API follows standard resource conventions. All context endpoints
-are tenant-scoped and require a bearer token.
+## Public Surfaces
 
-### Key Endpoints
-
-| Method | Path | Description |
+| Surface | Path or package | Reference |
 |---|---|---|
-| `GET` | `/api/v1/context/users/{id}?tenantSlug=…` | User context lookup |
-| `GET` | `/api/v1/context/accounts/{id}?tenantSlug=…` | Account context lookup |
-| `GET` | `/api/v1/context/users/{id}/facts?tenantSlug=…` | Semantic facts for a user |
-| `GET` | `/api/v1/context/snapshots/{id}?tenantSlug=…` | Retrieve a context snapshot |
-| `POST` | `/api/v1/context/recompute?tenantSlug=…` | Queue a context recomputation |
-| `GET` | `/api/v1/connectors/catalogue` | List available connectors |
-| `POST` | `/api/v1/selectors/preview?tenantSlug=…` | Preview a selector |
-| `POST` | `/api/v1/selectors/validate?tenantSlug=…` | Validate a selector draft |
+| GraphQL | `/graphql` | [GraphQL API](/apis/graphql/) |
+| REST v1 | `/api/v1` | [REST API](/apis/rest/) |
+| Legacy REST | `/api/rest` | [REST API](/apis/rest/#legacy-rest) |
+| TypeScript SDK | `@kynticai/scout-sdk` | [TypeScript SDK](/sdks/typescript/) |
+| .NET SDK | `KynticAI.Scout.Sdk` | [.NET SDK](/sdks/dotnet/) |
 
-### Authentication
+## Authentication
 
 Obtain a bearer token by logging in or exchanging client credentials:
 
@@ -47,7 +54,7 @@ curl -X POST http://localhost:8080/api/auth/token \
 
 Use the returned `accessToken` as a `Bearer` token in subsequent requests.
 
-### API Documentation UI
+## Runtime API Documentation
 
 When `Platform__EnableOpenApi=true` (the default for development), browse
 the full reference:
@@ -57,18 +64,7 @@ the full reference:
 | **Scalar** (recommended) | [http://localhost:8080/api-docs](http://localhost:8080/api-docs) |
 | **Swagger UI** | [http://localhost:8080/swagger](http://localhost:8080/swagger) |
 
-## GraphQL API
-
-The GraphQL API is powered by [Hot Chocolate](https://chillicream.com/docs/hotchocolate)
-and exposes the same context surfaces as REST.
-
-**Endpoint:** `http://localhost:8080/graphql`
-
-An interactive GraphQL IDE (Banana Cake Pop) is available at the same URL
-in a browser. Set the `Authorization: Bearer <token>` header to
-authenticate.
-
-### Example Query
+## First GraphQL Query
 
 ```graphql
 query {
@@ -86,13 +82,12 @@ query {
 }
 ```
 
-## SDKs
+## First REST Call
 
-Typed client libraries wrap the REST and GraphQL APIs for common
-development environments:
-
-- [TypeScript SDK](/apis/typescript-sdk/) — `@kynticai/scout-sdk`
-- [.NET SDK](/apis/dotnet-sdk/) — `KynticAI.Scout.Sdk`
+```bash
+curl "http://localhost:8080/api/v1/context/users/123?tenantSlug=demo" \
+  -H "Authorization: Bearer <token>"
+```
 
 ## Scopes
 
@@ -106,9 +101,12 @@ are:
 | `selectors:write` | Create and update selector definitions |
 | `events:ingest` | Submit events for context recomputation |
 | `audit:read` | Read audit and provenance records |
+| `admin:manage` | Manage API clients, webhook secrets, and admin records |
+| `blueprints:write` | Upload, validate, preview, and import blueprints |
+| `billing:read` | Read usage-metering overview |
 
 ## Next Steps
 
-- [TypeScript SDK reference](/apis/typescript-sdk/)
-- [.NET SDK reference](/apis/dotnet-sdk/)
-- [Connector Basics](/concepts/connector-basics/)
+- [GraphQL API](/apis/graphql/)
+- [REST API](/apis/rest/)
+- [SDK Overview](/sdks/overview/)

@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.kynticai.com/ucl/relationship-analysis/v1/ucl-enterprise-relationship-analysis-input-v1.schema.json",
+  "title": "EnterpriseRelationshipAnalysisInput",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "inputKind",
+    "inputVersion",
+    "inputId",
+    "generatedAtUtc",
+    "tenantSlug",
+    "dataPlane",
+    "producer",
+    "publicFallbackAnalysisScope",
+    "cloudControlPlaneRequired",
+    "enterpriseOnlyInternalsIncluded",
+    "dataItems",
+    "relationshipSets",
+    "requiredEnterpriseOutputs"
+  ],
+  "properties": {
+    "inputKind": { "const": "ucl.enterprise-relationship-analysis-input" },
+    "inputVersion": { "const": "ucl.enterprise-relationship-analysis-input.v1" },
+    "inputId": { "type": "string", "minLength": 1 },
+    "generatedAtUtc": { "type": "string", "format": "date-time" },
+    "tenantSlug": { "type": "string", "minLength": 1 },
+    "dataPlane": { "const": "customer-owned-data-plane" },
+    "producer": { "type": "string", "minLength": 1 },
+    "publicFallbackAnalysisScope": { "const": "basic-public-fallback-only" },
+    "cloudControlPlaneRequired": { "const": false },
+    "enterpriseOnlyInternalsIncluded": { "const": false },
+    "dataItems": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "ucl-data-item-v1.schema.json" }
+    },
+    "relationshipSets": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "ucl-relationship-set-v1.schema.json" }
+    },
+    "requiredEnterpriseOutputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 },
+      "allOf": [
+        { "contains": { "const": "rankedRelationshipSets" } },
+        { "contains": { "const": "attributionPathComparisons" } },
+        { "contains": { "const": "bestNextActionOptions" } }
+      ]
+    }
+  }
+}

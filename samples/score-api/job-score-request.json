@@ -1,0 +1,21 @@
+{
+  "candidate": {
+    "name": "Example Candidate",
+    "currentRole": "Senior Platform Engineer",
+    "seniority": "senior"
+  },
+  "role": {
+    "title": "Principal Platform Engineer",
+    "organisation": "Example Infrastructure Ltd",
+    "requiredSkills": ["distributed systems", "observability", "technical leadership"]
+  },
+  "evidence": [
+    {
+      "id": "ev-001",
+      "summary": "Candidate has led production reliability work across multiple services.",
+      "source": "structured-interview-notes",
+      "weight": 0.85
+    }
+  ],
+  "constraints": ["Do not infer protected characteristics."]
+}

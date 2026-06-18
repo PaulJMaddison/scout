@@ -58,7 +58,7 @@ The format is inspired by Keep a Changelog and this project follows semantic ver
 
 - Added buyer-facing docs for the customer data plane, public API contract, integration layer, and buyer FAQ.
 - Expanded the retired preview demo copy with a richer fictional data-plane story, connector catalogue framing, and proof/caveat copy.
-- Added REST, GraphQL, TypeScript SDK, and .NET SDK coverage for context facts, context snapshots, AI-safe context packages, selector preview/validation, source-system events, pagination, errors, and machine-to-machine auth.
+- Added REST, GraphQL, TypeScript SDK, and .NET SDK coverage for context facts, context snapshots, governed evidence packages, selector preview/validation, source-system events, pagination, errors, and machine-to-machine auth.
 
 ### Changed
 

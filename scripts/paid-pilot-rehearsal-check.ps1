@@ -25,6 +25,17 @@ function Invoke-RepoScript {
     }
 }
 
+function Test-OptIn([string]$Name) {
+    $value = [Environment]::GetEnvironmentVariable($Name)
+    return $value -eq "1" -or $value -ieq "true"
+}
+
+function Require-OptIn([string]$Name, [string]$Purpose) {
+    if (-not (Test-OptIn $Name)) {
+        throw "$Purpose is opt-in. Set $Name=1 to run this external proof path."
+    }
+}
+
 Write-Host "Paid pilot end-to-end local rehearsal check"
 Write-Host "Public repo: $publicRepo"
 Write-Host "Enterprise repo: $EnterpriseRepo"
@@ -48,6 +59,7 @@ Invoke-RepoScript $EnterpriseRepo "scripts\check-release-alignment.ps1"
 Invoke-RepoScript $CloudRepo "scripts\check-release-alignment.ps1"
 
 if (-not $SkipEnterpriseConnectorSmoke) {
+    Require-OptIn "KYNTIC_RUN_EXTERNAL_DOTNET_TESTS" "Enterprise connector smoke"
     $connectorSmoke = Join-Path $EnterpriseRepo "scripts\connector-smoke-test.ps1"
     Require-Path $connectorSmoke
     & $connectorSmoke -Provider postgres -ConfigPath (Join-Path $EnterpriseRepo "docs\examples\postgresql-connector.config.json")

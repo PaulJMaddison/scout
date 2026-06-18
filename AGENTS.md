@@ -21,21 +21,37 @@ Scout is the public face of KynticAI. Keep it useful, auditable, and safe for pu
 
 The setup scripts install repo-local .NET and Node.js runtimes. Use `./.dotnet/dotnet` if you do not have a global .NET 10 SDK.
 
-- Restore/build/test .NET: `dotnet restore KynticAI.Scout.slnx`, `dotnet build KynticAI.Scout.slnx`, `dotnet test KynticAI.Scout.slnx`.
-- Web app: `cd apps/web`, then `npm install`, `npm run build`, `npm run lint`, `npm run test`.
-- TypeScript SDK: `cd packages/typescript/scout-sdk`, then `npm install`, `npm run build`, `npm run test`.
+- Restore/build/unit .NET: `dotnet restore .\KynticAI.Scout.slnx`, `dotnet build .\KynticAI.Scout.slnx`, `dotnet test .\tests\KynticAI.Scout.UnitTests\KynticAI.Scout.UnitTests.csproj`, `dotnet test .\tests\KynticAI.Scout.Sdk.Tests\KynticAI.Scout.Sdk.Tests.csproj`.
+- Web app: `cd apps\web`, then `npm install`, `npm run build`, `npm run lint`, `npm run test`.
+- TypeScript SDK: `cd packages\typescript\scout-sdk`, then `npm install`, `npm run build`, `npm run test`.
 - Local demo (Linux/macOS): `sh ./scripts/setup-demo.sh`, then `sh ./scripts/start-demo.sh`.
-- Local demo (Windows): `./scripts/setup-demo.ps1`, then `./scripts/start-demo.ps1`.
-- Docker API demo: `docker compose -f deploy/docker-compose.yml up scout-api --build`.
+- Local demo (Windows): `.\scripts\setup-demo.ps1`, then `.\scripts\start-demo.ps1`.
+- Browser proof: `cd apps\web`, set `KYNTIC_RUN_BROWSER_TESTS=1`, then `npm run test:e2e`.
+- Docker/PostgreSQL and enterprise connector proof paths require `KYNTIC_RUN_EXTERNAL_DOTNET_TESTS=1`; see `LOCAL_VALIDATION.md`.
+- Laptop local-folder rule: before running tests on this machine, check `C:\Kyntic\UCL-local-aidocs\LOCAL_LAPTOP_TEST_COMMANDS.md` and use the nearest safe command for the folder touched; docs-only changes can use `git diff --check`.
 
 ## Do-Not-Do List
 
 - Do not add enterprise internals, private connector code, proprietary Fortress logic, LanceDB, embedded LLMs, vector pipelines, or obfuscation logic to Scout.
+- Do not add stubs, placeholder implementations, fake integrations, TODO-only paths, or demo shortcuts and present them as finished work.
 - Do not leak private planning docs, customer material, credentials, tokens, service-account files, or paid-customer details.
 - Do not change package names, public API contracts, or SDK shapes without compatibility notes and tests.
 - Do not add user-facing copy that says plain "Kyntic" when it means the public brand.
 - Do not publish releases, tags, packages, or public deployment changes without explicit approval.
 - Do not introduce telemetry that sends customer data to third parties.
+
+## Commercial Quality Bar
+
+- Every implementation must be commercial-standard code: real behaviour, typed errors, compatibility-aware public contracts, safe defaults, and focused tests for the changed behaviour.
+- If a live dependency, dataset, credential, or external service is unavailable, implement the public boundary cleanly, mark the task partial, document the blocker in `C:\Kyntic\UCL-local-aidocs\SESSION_LOG.md`, and do not hide the gap behind a stub.
+- Prefer small complete public-safe slices over broad incomplete scaffolding.
+
+## Review/Test Gates
+
+- Use xhigh review gates for public API, SDK, connector-contract, data-model, or security-sensitive changes before marking them complete.
+- When Scout work depends on Fortress Rust engine contracts, do not treat the integration as complete until the relevant engine change has passed the review policy in `C:\Kyntic\UCL-local-aidocs\RUST_ENGINE_REVIEW_POLICY.md`.
+- Prefer slower, meaningful verification over quick unchecked completion. Log tests run, skipped tests, and residual risk.
+- Routine .NET integration/E2E tests must stay local and deterministic: use EF InMemory or in-memory SQLite, not Docker, Postgres, Redis, MongoDB, or vendor services. Any future live dependency proof must be explicit opt-in and logged.
 
 ## Brand Rules
 
@@ -44,6 +60,7 @@ The setup scripts install repo-local .NET and Node.js runtimes. Use `./.dotnet/d
 - Use British English for user-facing copy.
 - Public positioning: context infrastructure for AI-enabled products. Scout does not call an AI model.
 - Keep the Aged Book/Sovereign Rust visual direction when touching public UI or docs.
+- Hard logo rule: every public image, screenshot, social card, README graphic, or generated marketing asset must use the approved KynticAI logo file (`docs/images/brand/kynticai-logo-mark.png` or `docs/images/brand/kynticai-logo-lockup.png`). Do not redraw, approximate, or AI-generate the logo; overlay the approved file after generating any background imagery.
 
 ## Current Sprint Priorities
 

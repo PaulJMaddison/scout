@@ -42,6 +42,8 @@ export interface ConnectorManifest {
   sampleConfiguration?: Record<string, unknown>
   /** Optional authentication configuration block. */
   authConfig?: AuthConfig
+  /** Optional provider-neutral event shape emitted by the connector. */
+  eventShape?: ConnectorEventShape
 }
 
 /** Authentication configuration for a connector. */
@@ -64,6 +66,15 @@ export interface SampleEntityMapping {
   sourceField: string
   semanticAttribute: string
   description?: string
+}
+
+/** Provider-neutral event shape emitted by the connector into Scout. */
+export interface ConnectorEventShape {
+  sourceSystem: string
+  entityType: string
+  sourceIdField: string
+  timestampField?: string
+  payloadRoot?: string
 }
 
 /** Minimal JSON Schema object representation. */

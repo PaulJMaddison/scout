@@ -4,9 +4,9 @@ This is a non-lawyer drafting aid for legal review. It is not legal advice and m
 
 ## Product Boundary
 
-KynticAI Scout turns existing business data into trusted semantic context that customer-owned AI tools, workflows, apps, reports, and agents can use. We do not build the brain. We build the nervous system.
+KynticAI Scout turns authorised customer data into exact data items, relationships, attribution paths, and governed JSON that customer-owned AI tools, workflows, apps, reports, local LLMs, and agents can use. We do not build the customer's brain; we build the customer-owned data plane and governed handoff.
 
-The customer data plane is designed to run beside the customer's systems. Raw operational data, connector credentials, selectors, context facts, snapshots, provenance, local audit logs, and customer-specific configuration stay in the customer data plane by default.
+The customer data plane is designed to run beside the customer's systems. Raw operational data, connector credentials, selectors, exact data items, relationships, attribution paths, context facts, snapshots, provenance, local audit logs, and customer-specific configuration stay in the customer data plane by default.
 
 The cloud control plane, where used, should hold commercial and operational metadata only: account records, contacts, licences, downloads, update channel metadata, support cases, optional aggregate usage, audit metadata, and entitlement state. It must not receive raw operational customer data by default.
 
@@ -44,7 +44,7 @@ KynticAI Scout processes limited account, lead, support, licence, download, upda
 ## Mandatory Legal Review Notes
 
 - This draft is not legal advice.
-- Customer data-plane operation keeps raw operational data, connector credentials, selectors, facts, snapshots, and provenance local by default.
+- Customer data-plane operation keeps raw operational data, connector credentials, selectors, exact data items, relationships, attribution paths, facts, snapshots, and provenance local by default.
 - Cloud control-plane processing is limited to metadata unless a separate reviewed arrangement says otherwise.
 - Support data must be redacted; raw operational data must not be sent to cloud support by default.
 - First-party event tracking needs notice, consent/lawful-basis assessment, minimisation, retention, and opt-out/withdrawal handling.

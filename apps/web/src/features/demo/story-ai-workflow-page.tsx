@@ -11,8 +11,8 @@ export function StoryAiWorkflowPage() {
     <div className="grid gap-8">
       <PageHeader
         eyebrow="Step 4 of 5"
-        title="Show one example consumer using governed context."
-        description="In this sales support example, a model receives grounded business context, produces a recommendation, and the product explains why that recommendation was made. Other consumers can use the same data plane."
+        title="Show one example consumer using a governed evidence pack."
+        description="In this sales support example, a model receives exact cited business context, produces a next-best-action recommendation, and the product explains why that recommendation was made. Other consumers can use the same data plane."
         actions={
           <Link to={executiveStorySteps[4].to}>
             <Button>
@@ -32,7 +32,7 @@ export function StoryAiWorkflowPage() {
                 <div>
                   <p className="font-display text-3xl">Grounded context in, explainable action out.</p>
                   <p className="mt-3 text-sm leading-7 text-ivory-200">
-                    This recommendation engine works from a structured context package with {salesPackageQuery.data?.facts.length ?? 0} cited facts, confidence metadata, and freshness rules. Scout creates the context; the sales assistant is just one consumer.
+                    This recommendation engine works from a structured evidence package with {salesPackageQuery.data?.facts.length ?? 0} cited facts, confidence metadata, freshness rules, and masking decisions. Scout creates the context; the sales assistant is just one consumer.
                   </p>
                 </div>
               </div>
@@ -45,7 +45,7 @@ export function StoryAiWorkflowPage() {
                   <div className="min-w-0">
                     <p className="font-semibold text-ink-950">Advice</p>
                     <p className="mt-2 text-sm leading-7 text-ink-700">
-                      The model recommends a channel, message, and next action using grounded facts rather than guesswork.
+                      The model recommends a channel, message, and next-best action using grounded facts rather than guesswork.
                     </p>
                   </div>
                 </div>
@@ -56,7 +56,7 @@ export function StoryAiWorkflowPage() {
                   <div className="min-w-0">
                     <p className="font-semibold text-ink-950">Action</p>
                     <p className="mt-2 text-sm leading-7 text-ink-700">
-                      The rep or workflow receives a usable recommendation that already includes the business rationale.
+                      The rep or workflow receives a usable recommendation that already includes the business rationale and citations.
                     </p>
                   </div>
                 </div>
@@ -67,7 +67,7 @@ export function StoryAiWorkflowPage() {
                   <div className="min-w-0">
                     <p className="font-semibold text-ink-950">Result</p>
                     <p className="mt-2 text-sm leading-7 text-ink-700">
-                      The product can prioritise the account, guide the next interaction, and explain exactly which context drove the recommendation.
+                      The product can prioritise the account, guide the next interaction, and explain exactly which evidence drove the recommendation.
                     </p>
                   </div>
                 </div>

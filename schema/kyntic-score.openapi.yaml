@@ -1,0 +1,391 @@
+openapi: 3.1.0
+info:
+  title: KynticAI Score API
+  version: 0.1.0
+  summary: Public contract for score requests and responses.
+  description: >
+    Public API contract for score services that accept structured evidence and
+    return InvestmentScore, CreditScore, or JobScore responses. This file defines
+    request and response shapes only; scoring behaviour is implemented by any
+    service that adopts this contract.
+jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
+servers:
+  - url: http://127.0.0.1:3016
+    description: Local score service implementing this contract.
+security:
+  - bearerAuth: []
+paths:
+  /v1/scores/investment:
+    post:
+      operationId: createInvestmentScore
+      tags: [Scores]
+      summary: Create an investment score.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvestmentScoreRequest'
+      responses:
+        '200':
+          description: Investment score created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvestmentScore'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorised'
+  /v1/scores/credit:
+    post:
+      operationId: createCreditScore
+      tags: [Scores]
+      summary: Create a credit score.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditScoreRequest'
+      responses:
+        '200':
+          description: Credit score created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreditScore'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorised'
+  /v1/scores/job:
+    post:
+      operationId: createJobScore
+      tags: [Scores]
+      summary: Create a job score.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobScoreRequest'
+      responses:
+        '200':
+          description: Job score created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobScore'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorised'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    BadRequest:
+      description: Request failed validation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ScoreError'
+    Unauthorised:
+      description: Authentication failed.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ScoreError'
+  schemas:
+    ScoreEvidenceInput:
+      type: object
+      additionalProperties: false
+      required: [id, summary]
+      properties:
+        id:
+          type: string
+          minLength: 1
+        summary:
+          type: string
+          minLength: 1
+        source:
+          type: string
+          minLength: 1
+        observedAtUtc:
+          type: string
+          format: date-time
+        weight:
+          type: number
+          minimum: 0
+          maximum: 1
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+    ScoreEvidencePoint:
+      type: object
+      additionalProperties: false
+      required: [summary, source, weight]
+      properties:
+        summary:
+          type: string
+          minLength: 1
+        source:
+          type: string
+          minLength: 1
+        weight:
+          type: number
+          minimum: 0
+          maximum: 1
+        observedAtUtc:
+          type: string
+          format: date-time
+    ScoreRiskFlag:
+      type: object
+      additionalProperties: false
+      required: [code, severity, summary]
+      properties:
+        code:
+          type: string
+          minLength: 1
+        severity:
+          type: string
+          enum: [low, moderate, high, critical]
+        summary:
+          type: string
+          minLength: 1
+    ConfidenceInterval:
+      type: object
+      additionalProperties: false
+      required: [lower, upper, level]
+      properties:
+        lower:
+          type: number
+          minimum: 0
+          maximum: 100
+        upper:
+          type: number
+          minimum: 0
+          maximum: 100
+        level:
+          type: number
+          minimum: 0
+          maximum: 1
+          default: 0.95
+    ScoreTrace:
+      type: object
+      additionalProperties: false
+      properties:
+        requestId:
+          type: string
+        modelVersion:
+          type: string
+        generatedAtUtc:
+          type: string
+          format: date-time
+    InvestmentScoreRequest:
+      type: object
+      additionalProperties: false
+      required: [subject, evidence]
+      properties:
+        subject:
+          type: object
+          additionalProperties: false
+          required: [name]
+          properties:
+            name:
+              type: string
+              minLength: 1
+            sector:
+              type: string
+            stage:
+              type: string
+            geography:
+              type: string
+        objective:
+          type: string
+        horizon:
+          type: string
+          enum: [short_term, medium_term, long_term]
+        evidence:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ScoreEvidenceInput'
+        constraints:
+          type: array
+          items:
+            type: string
+    CreditScoreRequest:
+      type: object
+      additionalProperties: false
+      required: [subject, evidence]
+      properties:
+        subject:
+          type: object
+          additionalProperties: false
+          required: [name]
+          properties:
+            name:
+              type: string
+              minLength: 1
+            entityType:
+              type: string
+              enum: [individual, company, public_body, other]
+            geography:
+              type: string
+        cashflowSummary:
+          type: string
+        obligations:
+          type: array
+          items:
+            type: string
+        evidence:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ScoreEvidenceInput'
+    JobScoreRequest:
+      type: object
+      additionalProperties: false
+      required: [candidate, role, evidence]
+      properties:
+        candidate:
+          type: object
+          additionalProperties: false
+          required: [name]
+          properties:
+            name:
+              type: string
+              minLength: 1
+            currentRole:
+              type: string
+            seniority:
+              type: string
+        role:
+          type: object
+          additionalProperties: false
+          required: [title]
+          properties:
+            title:
+              type: string
+              minLength: 1
+            organisation:
+              type: string
+            requiredSkills:
+              type: array
+              items:
+                type: string
+        evidence:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/ScoreEvidenceInput'
+        constraints:
+          type: array
+          items:
+            type: string
+    InvestmentScore:
+      type: object
+      additionalProperties: false
+      required: [scoreType, rating, supportingEvidence, riskFlags, confidenceInterval]
+      properties:
+        scoreType:
+          type: string
+          const: InvestmentScore
+        rating:
+          type: number
+          minimum: 0
+          maximum: 100
+        supportingEvidence:
+          type: array
+          maxItems: 5
+          items:
+            $ref: '#/components/schemas/ScoreEvidencePoint'
+        riskFlags:
+          type: array
+          maxItems: 3
+          items:
+            $ref: '#/components/schemas/ScoreRiskFlag'
+        confidenceInterval:
+          $ref: '#/components/schemas/ConfidenceInterval'
+        trace:
+          $ref: '#/components/schemas/ScoreTrace'
+    CreditScore:
+      type: object
+      additionalProperties: false
+      required: [scoreType, rating, supportingEvidence, riskFlags, confidenceInterval]
+      properties:
+        scoreType:
+          type: string
+          const: CreditScore
+        rating:
+          type: number
+          minimum: 0
+          maximum: 100
+        supportingEvidence:
+          type: array
+          maxItems: 5
+          items:
+            $ref: '#/components/schemas/ScoreEvidencePoint'
+        riskFlags:
+          type: array
+          maxItems: 3
+          items:
+            $ref: '#/components/schemas/ScoreRiskFlag'
+        confidenceInterval:
+          $ref: '#/components/schemas/ConfidenceInterval'
+        trace:
+          $ref: '#/components/schemas/ScoreTrace'
+    JobScore:
+      type: object
+      additionalProperties: false
+      required: [scoreType, rating, supportingEvidence, riskFlags, confidenceInterval]
+      properties:
+        scoreType:
+          type: string
+          const: JobScore
+        rating:
+          type: number
+          minimum: 0
+          maximum: 100
+        supportingEvidence:
+          type: array
+          maxItems: 5
+          items:
+            $ref: '#/components/schemas/ScoreEvidencePoint'
+        riskFlags:
+          type: array
+          maxItems: 3
+          items:
+            $ref: '#/components/schemas/ScoreRiskFlag'
+        confidenceInterval:
+          $ref: '#/components/schemas/ConfidenceInterval'
+        trace:
+          $ref: '#/components/schemas/ScoreTrace'
+    ScoreError:
+      type: object
+      additionalProperties: false
+      required: [code, message]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        correlationId:
+          type: string
+        details:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required: [target, message]
+            properties:
+              target:
+                type: string
+              message:
+                type: string

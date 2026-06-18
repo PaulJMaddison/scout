@@ -24,6 +24,17 @@ function Invoke-Step {
     & $Block
 }
 
+function Test-OptIn([string]$Name) {
+    $value = [Environment]::GetEnvironmentVariable($Name)
+    return $value -eq "1" -or $value -ieq "true"
+}
+
+function Require-OptIn([string]$Name, [string]$Purpose) {
+    if (-not (Test-OptIn $Name)) {
+        throw "$Purpose is opt-in. Set $Name=1 to run this external proof path."
+    }
+}
+
 Invoke-Step {
     Require-Path (Join-Path $publicRepo "docs\paid-pilot-end-to-end-rehearsal.md") "public paid-pilot rehearsal doc"
     Require-Path (Join-Path $publicRepo "docs\commercial-readiness-summary.md") "public readiness summary"
@@ -55,6 +66,7 @@ Invoke-Step {
     Require-Path (Join-Path $EnterpriseRepo "scripts\start-postgres-proof.ps1") "enterprise Postgres proof script"
     Require-Path (Join-Path $EnterpriseRepo "scripts\package-enterprise-preview.ps1") "enterprise package dry-run script"
     if (-not $SkipEnterpriseConnectorSmoke) {
+        Require-OptIn "KYNTIC_RUN_EXTERNAL_DOTNET_TESTS" "Enterprise connector smoke"
         & (Join-Path $EnterpriseRepo "scripts\connector-smoke-test.ps1") -Provider postgres -ConfigPath (Join-Path $EnterpriseRepo "samples\postgres\connector-proof.config.json") -SelectorName CustomerContextRollup
     }
 } "Enterprise repo checks"

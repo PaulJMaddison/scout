@@ -17,6 +17,17 @@ function Test-Command([string]$Name) {
     return [bool](Get-Command $Name -ErrorAction SilentlyContinue)
 }
 
+function Test-OptIn([string]$Name) {
+    $value = [Environment]::GetEnvironmentVariable($Name)
+    return $value -eq "1" -or $value -ieq "true"
+}
+
+function Require-OptIn([string]$Name, [string]$Purpose) {
+    if (-not (Test-OptIn $Name)) {
+        throw "$Purpose is opt-in. Set $Name=1 to run this proof path."
+    }
+}
+
 function Resolve-Dotnet {
     $localDotnet = Join-Path (Get-Location) ".dotnet\dotnet.exe"
     if (Test-Path $localDotnet) {
@@ -109,6 +120,7 @@ Write-Host "pg_restore --clean --if-exists --dbname customer_ops_restore_check .
 
 Write-Step "Docker/PostgreSQL rehearsal"
 if ($RunDocker) {
+    Require-OptIn "KYNTIC_RUN_EXTERNAL_DOTNET_TESTS" "Docker/PostgreSQL rehearsal"
     if (-not (Test-Command "docker")) {
         throw "Docker is not available. Install Docker or run the database checks in an environment with PostgreSQL."
     }

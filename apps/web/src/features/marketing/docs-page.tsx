@@ -10,7 +10,7 @@ export function DocsPage() {
       <PageHeader
         eyebrow="Documentation"
         title="APIs, architecture notes, and demo flows for understanding KynticAI Scout."
-        description="Use these docs to evaluate the open source core, run the local demo, inspect the control-plane/data-plane split, understand connector boundaries, and see how raw customer data becomes reusable semantic context."
+        description="Use these docs to evaluate the open source core, run the local demo, inspect the control-plane/data-plane split, understand connector boundaries, and see how authorised customer data becomes governed evidence."
         actions={
           <>
             <a href="https://github.com/PaulJMaddison/scout" target="_blank" rel="noreferrer">
@@ -51,8 +51,8 @@ export function DocsPage() {
               },
               {
                 label: 'Second',
-                title: 'Walk through the sales demo',
-                body: 'See how raw customer data becomes better AI sales recommendations with confidence and provenance.',
+                title: 'Walk through the data-plane demo',
+                body: 'See how exact authorised customer data becomes evidence-backed next-action recommendations with confidence, provenance, and masking decisions.',
               },
               {
                 label: 'Third',
