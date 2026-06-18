@@ -40,6 +40,15 @@ export interface MapResult {
   error?: string
 }
 
+export function buildSourceSystemEventUrl(sanitisedBaseUrl: string, tenantSlug: string): string {
+  const tenantResult = validateTenantSlug(tenantSlug)
+  if (!tenantResult.valid) {
+    throw new Error(tenantResult.error ?? 'Tenant slug is invalid.')
+  }
+
+  return `${sanitisedBaseUrl.replace(/\/+$/, '')}/api/v1/events/source-system?tenantSlug=${encodeURIComponent(tenantSlug)}`
+}
+
 export function mapSourceEvent(input: SourceEventInput): MapResult {
   const tenantResult = validateTenantSlug(input.tenantSlug)
   if (!tenantResult.valid) {

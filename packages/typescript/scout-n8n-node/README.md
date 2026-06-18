@@ -8,6 +8,14 @@
 
 The KynticAI Scout n8n node lets n8n workflows push source-system events (CRM updates, product usage, billing signals, web analytics) into a KynticAI Scout instance. Scout's selector engine then transforms these raw events into semantic context facts with confidence scores and provenance metadata.
 
+Events are sent to the local Scout API route:
+
+```text
+POST /api/v1/events/source-system?tenantSlug=<tenant>
+```
+
+The node does not write directly to Scout database tables, connector internals, vector stores, or Cloud services.
+
 ### Key Safety Features
 
 - **URL validation** — rejects embedded credentials, query strings, fragments, and non-HTTP(S) protocols in the API base URL.

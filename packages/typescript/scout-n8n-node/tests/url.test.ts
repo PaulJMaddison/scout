@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { validateBaseUrl } from '../src/validation/url.js'
+import { buildSourceSystemEventUrl } from '../src/nodes/sourceEventMapper.js'
 
 describe('validateBaseUrl', () => {
   it('accepts a valid HTTPS URL', () => {
@@ -101,5 +102,17 @@ describe('validateBaseUrl', () => {
   it('rejects data: URIs', () => {
     const r = validateBaseUrl('data:text/html,<h1>hi</h1>')
     expect(r.valid).toBe(false)
+  })
+})
+
+describe('buildSourceSystemEventUrl', () => {
+  it('builds the canonical Scout v1 local ingestion route', () => {
+    expect(buildSourceSystemEventUrl('https://scout.example.com/base', 'pilot-alpha')).toBe(
+      'https://scout.example.com/base/api/v1/events/source-system?tenantSlug=pilot-alpha',
+    )
+  })
+
+  it('rejects invalid tenant slugs before building the route', () => {
+    expect(() => buildSourceSystemEventUrl('https://scout.example.com', 'Bad Tenant')).toThrow('Tenant slug')
   })
 })

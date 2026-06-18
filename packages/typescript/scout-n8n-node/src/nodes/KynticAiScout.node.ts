@@ -7,7 +7,7 @@ import type {
 import { NodeOperationError } from 'n8n-workflow'
 
 import { validateBaseUrl } from '../validation/url.js'
-import { mapSourceEvent } from './sourceEventMapper.js'
+import { buildSourceSystemEventUrl, mapSourceEvent } from './sourceEventMapper.js'
 import { redactSensitiveKeys } from '../validation/redaction.js'
 
 /**
@@ -175,7 +175,7 @@ export class KynticAiScout implements INodeType {
           'kynticAiScoutApi',
           {
             method: 'POST',
-            url: `${baseUrl}/api/tenants/${encodeURIComponent(tenantSlug)}/events/source`,
+            url: buildSourceSystemEventUrl(baseUrl, tenantSlug),
             body: mapped.payload,
             json: true,
           },

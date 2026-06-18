@@ -2,9 +2,33 @@
 
 ## Summary For The Next Prompt
 
-This architecture step created `02-upgrade-architecture.md` for the canonical KynticAI Scout to Elite/Fortress upgrade path. The design keeps Scout as the local customer-owned Docker data plane, routes connector writes through the local Scout API where practical, hides vector/storage choices behind local API and storage abstraction contracts, and keeps Cloud limited to licence, entitlement, private artefact, download, update, registration, heartbeat, support, and safe aggregate metadata.
+This connector-routing step created `03-local-api-connector-routing.md` and made a scoped implementation change in the older `packages/typescript/scout-n8n-node` package. The stale `/api/tenants/{tenantSlug}/events/source` POST target now routes to the current local Scout source-system event endpoint:
 
-No code, schema, API, package, deployment, or runtime changes were made.
+```text
+POST /api/v1/events/source-system?tenantSlug=<tenant>
+```
+
+The previous architecture decision still stands: Scout remains the local customer-owned Docker data plane, connector writes should use local Scout APIs or local adapter boundaries where practical, vector/storage choices stay hidden behind local contracts, and Cloud remains limited to licence, entitlement, private artefact, download, update, registration, heartbeat, support, and safe aggregate metadata.
+
+No server API, schema, Docker, SDK contract, Cloud, Enterprise/Fortress, vector, LanceDB, pgvector, or selector-storage changes were made.
+
+## Latest Implementation
+
+- Added `buildSourceSystemEventUrl()` to `packages/typescript/scout-n8n-node/src/nodes/sourceEventMapper.ts`.
+- Updated `packages/typescript/scout-n8n-node/src/nodes/KynticAiScout.node.ts` to post to `/api/v1/events/source-system?tenantSlug=<tenant>`.
+- Exported the helper from `packages/typescript/scout-n8n-node/src/index.ts`.
+- Added route coverage in `packages/typescript/scout-n8n-node/tests/url.test.ts`.
+- Updated `packages/typescript/scout-n8n-node/README.md`.
+- Created `03-local-api-connector-routing.md` and updated WP2 README/status/handoff.
+
+## Verification
+
+- `npm test` in `packages/typescript/scout-n8n-node`: passed after `npm install`, 5 test files, 115 tests.
+- `npm run build` in `packages/typescript/scout-n8n-node`: passed after `npm install`.
+- `dotnet test .\tests\KynticAI.Scout.Sdk.Tests\KynticAI.Scout.Sdk.Tests.csproj`: passed, 12 tests.
+- Initial `npm test` and `npm run build` failed before `npm install` because `vitest` and `tsc` were not present locally.
+- `npm install` reported 2 critical npm audit findings in the existing dependency tree.
+- Docker, browser, native-store, LanceDB, pgvector, live connector, and external dependency proof paths were not run because the local laptop policy requires opt-in environment variables and they were not set.
 
 ## Key Decisions
 
@@ -16,6 +40,7 @@ No code, schema, API, package, deployment, or runtime changes were made.
 - The storage abstraction must support Scout-compatible storage, Enterprise/Fortress LanceDB/vector DB, pgvector companion storage, and local dual-write migration without using Cloud as a staging target.
 - Cloud entitlement success means the customer may download and run paid local capability. It is not proof that local LanceDB, pgvector, embeddings, data mapping, or relationship analysis are ready.
 - Rollback is local-first: Scout backups and local provider config recover the data plane; Cloud downgrade or licence revocation must not delete customer data.
+- The stale `packages/typescript/scout-n8n-node` source-event route has now been realigned to the current local API route.
 
 ## Data-Boundary Commitments
 
@@ -31,11 +56,10 @@ No code, schema, API, package, deployment, or runtime changes were made.
 - Implement provider selection for Scout-compatible storage, Enterprise/Fortress LanceDB/vector DB, pgvector companion storage, and local dual-write migration.
 - Build deterministic Scout-to-Fortress ID and layer mapping.
 - Add resumable local backfill, checkpoints, local dead letters, rollback hooks, and operator-visible status.
-- Realign or retire the stale `packages/typescript/scout-n8n-node` ingestion route.
 - Add local preflight and post-upgrade verification for Docker state, database migrations, backups, LanceDB/native dependencies, pgvector, embedding assets, tenant isolation, and governed JSON handoff.
 - Wire Cloud entitlement to local onboarding using only licence, artefact, version, channel, and safe config metadata.
 - Add focused tests and xhigh review gates before implementation is marked complete.
 
 ## Recommended Next Action
 
-Run a design prompt that creates `03-migration-contract-and-adapter-plan.md` for this work package. It should turn `02-upgrade-architecture.md` into concrete local API contracts, storage provider interfaces, data-item and relationship-set schemas, deterministic ID mapping rules, backfill/replay semantics, entitlement gates, rollback proof criteria, and test coverage. Do not start code changes until that contract is reviewed.
+Run a design prompt that creates `04-migration-contract-and-adapter-plan.md` for this work package. It should turn `02-upgrade-architecture.md` and `03-local-api-connector-routing.md` into concrete local API contracts, storage provider interfaces, data-item and relationship-set schemas, deterministic ID mapping rules, backfill/replay semantics, entitlement gates, rollback proof criteria, and test coverage. Do not start vector, LanceDB, pgvector, or relationship-set persistence changes until that contract is reviewed.
