@@ -61,11 +61,11 @@ Final checks run during this review:
 | Scout/open-core | `dotnet test .\tests\KynticAI.Scout.UnitTests\KynticAI.Scout.UnitTests.csproj --filter FullyQualifiedName~StorageAdapterBoundaryTests` | Passed; 7 tests. |
 | Scout/open-core | `dotnet test .\tests\KynticAI.Scout.IntegrationTests\KynticAI.Scout.IntegrationTests.csproj --filter FullyQualifiedName~V1RestApiIntegrationTests` | Passed; 5 tests. |
 | Scout/open-core | `dotnet test .\tests\KynticAI.Scout.Sdk.Tests\KynticAI.Scout.Sdk.Tests.csproj` | Passed; 12 tests. |
-| Scout/open-core | `git diff --check` | Passed; LF-to-CRLF working-copy warnings only. |
+| Scout/open-core | `git diff --check` | Passed; LF-to-CRLF working-copy warnings on `09-final-review.md` and `status.json` only. |
 | Scout/open-core | `Get-Content -Raw docs\work-packages\wp2-upgrade-and-lancedb-migration\status.json | ConvertFrom-Json | Out-Null` | Passed. |
 | Enterprise/Fortress | `cargo fmt --check -p ucl-vector` | Passed. |
 | Enterprise/Fortress | `cargo test -p ucl-vector --test scout_import_contract_tests` | Passed; 8 tests. |
-| Enterprise/Fortress | `git diff --check` | Passed; LF-to-CRLF working-copy warnings only. |
+| Enterprise/Fortress | `git diff --check` | Passed. |
 | Cloud/control-plane | `dotnet test .\tests\Ucl.Cloud.Tests\Ucl.Cloud.Tests.csproj --filter FullyQualifiedName~Scout_upgrade_onboarding_contract_keeps_cloud_metadata_only` | Passed; 1 test. |
 | Cloud/control-plane | `git diff --check` | Passed. |
 

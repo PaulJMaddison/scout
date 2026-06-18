@@ -97,7 +97,7 @@
     {
       "repo": "UCL",
       "command": "git diff --check",
-      "result": "passed; LF-to-CRLF working-copy warnings only"
+      "result": "passed; LF-to-CRLF working-copy warnings on 09-final-review.md and status.json only"
     },
     {
       "repo": "UCL",
@@ -117,7 +117,7 @@
     {
       "repo": "universalcontextlayer-enterprise",
       "command": "git diff --check",
-      "result": "passed; LF-to-CRLF working-copy warnings only"
+      "result": "passed"
     },
     {
       "repo": "universalcontextlayer-cloud",
