@@ -14,7 +14,7 @@ This work package records Scout/open-core implementation work after WP2 plus the
 
 ## Current Status
 
-Step `04-scout-migration-export` is now implemented in Scout/open-core and verified with unit tests plus local SQLite dry-run/export package proofs. The later `05-enterprise-import-contract` step remains implemented locally in the Enterprise/Fortress repo and recorded here. Step `07-cloud-entitlement-compatibility` is implemented on the Cloud side and recorded in this Scout WP3 folder.
+Step `04-scout-migration-export` is now implemented in Scout/open-core and verified with unit tests plus local SQLite dry-run/export package proofs. The later `05-enterprise-import-contract` step remains implemented locally in the Enterprise/Fortress repo and recorded here. Step `06-scout-cloud-licence-client` adds the Scout-side optional Cloud licence/entitlement client. Step `07-cloud-entitlement-compatibility` is implemented on the Cloud side and recorded in this Scout WP3 folder.
 
 Scout now has an additive registered-connector ingestion route:
 
@@ -38,6 +38,8 @@ Enterprise/Fortress now has a package-level Scout migration import contract in `
 
 Cloud now emits new signed licence downloads in the Scout-compatible `Scout-LICENCE-v1` envelope with `Scout-` licence keys, while preserving verification compatibility for previous `UCL-LICENCE-v1` envelopes. The existing licence status, validation, account entitlement, deployment registration, and heartbeat routes expose the optional runtime-check metadata Scout needs without moving customer data to Cloud.
 
+Scout now has `IControlPlaneEntitlementClient` and `CloudControlPlaneEntitlementClient` for optional Cloud checks. The default config keeps `ControlPlane:Enabled=false`; when enabled and called, the client performs a metadata-only licence status check, maps Cloud canonical tiers to Scout/Fortress/Elite decisions, accepts Cloud grace status, fails closed for paid capabilities when Cloud is unavailable, and never returns raw licence keys.
+
 ## File Index
 
 | File | Purpose |
@@ -46,6 +48,7 @@ Cloud now emits new signed licence downloads in the Scout-compatible `Scout-LICE
 | `03-storage-adapter-boundary.md` | Implementation evidence for the configured local storage adapter resolver and safe Scout default. |
 | `04-scout-migration-export.md` | Implementation evidence for Scout-side local migration export, dry-run validation, export package format, exclusions, tests, and CLI proof. |
 | `05-enterprise-import-contract.md` | Enterprise/Fortress import-side contract summary for Scout migration packages. |
+| `06-scout-cloud-licence-client.md` | Scout-side optional Cloud licence/entitlement client implementation evidence, config, metadata boundary, tests, and results. |
 | `07-cloud-entitlement-compatibility.md` | Cloud compatibility evidence for optional Scout runtime licence/entitlement checks, response shape, tests, and boundary checks. |
 | `handoff.md` | Summary, verification, open risks, and recommended next prompt. |
 | `status.json` | Machine-readable WP3 status and verification record. |
@@ -62,7 +65,8 @@ Cloud now emits new signed licence downloads in the Scout-compatible `Scout-LICE
 - Existing Docker quick start and existing mock/local connectors remain compatible.
 - Direct selector-time reads remain documented compatibility paths, not connector-owned direct ingestion writes.
 - Optional Cloud runtime checks use commercial/control-plane metadata only: licence status, entitlement tier, deployment registration, heartbeat health, and aggregate counters.
+- The Scout Cloud licence client is disabled by default and sends no customer raw data or derived intelligence.
 
 ## Recommended Next Prompt
 
-Implement the Enterprise/Fortress local importer CLI/API path that consumes Scout `kynticai.scout.migration-export-package.v1` outputs, runs a dry-run import report, and prepares local Fortress/LanceDB import records without Cloud upload.
+Wire the optional Scout `IControlPlaneEntitlementClient` into the private Enterprise/Fortress runtime gates for `fortress-runtime`, `relationship-set-engine`, and `elite-operator-pack` capabilities. Preserve local signed-licence offline grace and send only Cloud commercial/control-plane metadata.

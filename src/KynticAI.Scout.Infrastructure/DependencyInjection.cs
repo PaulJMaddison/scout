@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace KynticAI.Scout.Infrastructure;
 
@@ -52,6 +53,20 @@ public static class DependencyInjection
         }
 
         services.AddHttpClient("scout-connectors");
+        services.AddHttpClient<IControlPlaneEntitlementClient, CloudControlPlaneEntitlementClient>((provider, client) =>
+        {
+            var options = provider.GetRequiredService<IOptions<ControlPlaneOptions>>().Value;
+            if (!string.IsNullOrWhiteSpace(options.BaseUrl)
+                && Uri.TryCreate(options.BaseUrl.Trim(), UriKind.Absolute, out var baseUri)
+                && (baseUri.Scheme == Uri.UriSchemeHttps || baseUri.Scheme == Uri.UriSchemeHttp))
+            {
+                client.BaseAddress = baseUri.AbsoluteUri.EndsWith("/", StringComparison.Ordinal)
+                    ? baseUri
+                    : new Uri($"{baseUri.AbsoluteUri}/");
+            }
+
+            client.Timeout = TimeSpan.FromSeconds(Math.Clamp(options.TimeoutSeconds, 1, 60));
+        });
         services.AddHttpContextAccessor();
         services.Configure<AuthOptions>(configuration.GetSection(AuthOptions.SectionName));
         services.Configure<PlatformOptions>(configuration.GetSection(PlatformOptions.SectionName));

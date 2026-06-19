@@ -4,7 +4,7 @@ Date: 2026-06-19
 
 ## Summary
 
-Implemented the smallest safe code changes for connector-local API routing and storage adapter selection in Scout/open-core, then added Scout-side local migration export/dry-run validation tooling, then added the private Enterprise/Fortress import-side contract for Scout migration packages in the Enterprise repo. The latest Cloud compatibility slice aligns signed licence downloads and entitlement/status response contracts for optional Scout runtime checks.
+Implemented the smallest safe code changes for connector-local API routing and storage adapter selection in Scout/open-core, then added Scout-side local migration export/dry-run validation tooling, then added the private Enterprise/Fortress import-side contract for Scout migration packages in the Enterprise repo. The latest Scout slice adds the optional Scout-side Cloud licence/entitlement client, and the Cloud compatibility slice aligns signed licence downloads and entitlement/status response contracts for those optional checks.
 
 The registered-connector event route is:
 
@@ -28,7 +28,20 @@ The Enterprise/Fortress import contract now lives in `engine/crates/ucl-vector/s
 
 Cloud now emits new signed licence downloads as `Scout-LICENCE-v1` envelopes with `Scout-` licence keys. It still verifies previously issued `UCL-LICENCE-v1` envelopes. The existing Cloud routes for licence status, validation, account entitlements, data-plane registration, deployment heartbeat, and licensing heartbeat expose Scout/Fortress/Elite canonical tier metadata while preserving legacy numeric `PlanCode` compatibility.
 
+Scout now exposes `IControlPlaneEntitlementClient` with a disabled-by-default `CloudControlPlaneEntitlementClient`. When explicitly enabled and called, it checks `GET /api/v1/licences/{licenceKey}/status`, maps canonical Cloud tier metadata to Scout/Fortress/Elite capability decisions, accepts Cloud `Grace` status when `isValid=true`, and fails closed for paid capabilities if Cloud is unavailable. It sends only licence and safe deployment/control-plane metadata, uses no request body, and never returns the raw licence key.
+
 ## Files Changed
+
+Scout/open-core code for the optional Cloud licence client step:
+
+- `src/KynticAI.Scout.Application/Contracts/ControlPlaneEntitlementContracts.cs`
+- `src/KynticAI.Scout.Application/Services/IControlPlaneEntitlementClient.cs`
+- `src/KynticAI.Scout.Infrastructure/Services/CloudControlPlaneEntitlementClient.cs`
+- `src/KynticAI.Scout.Infrastructure/Configuration/RuntimeOptions.cs`
+- `src/KynticAI.Scout.Infrastructure/DependencyInjection.cs`
+- `src/KynticAI.Scout.Api/appsettings.json`
+- `src/KynticAI.Scout.Api/appsettings.Production.json`
+- `tests/KynticAI.Scout.UnitTests/CloudControlPlaneEntitlementClientTests.cs`
 
 Scout/open-core code for the migration export step:
 
@@ -74,6 +87,7 @@ Docs:
 - `docs/work-packages/wp3-runtime-upgrade-implementation/03-storage-adapter-boundary.md`
 - `docs/work-packages/wp3-runtime-upgrade-implementation/04-scout-migration-export.md`
 - `docs/work-packages/wp3-runtime-upgrade-implementation/05-enterprise-import-contract.md`
+- `docs/work-packages/wp3-runtime-upgrade-implementation/06-scout-cloud-licence-client.md`
 - `docs/work-packages/wp3-runtime-upgrade-implementation/07-cloud-entitlement-compatibility.md`
 - `docs/work-packages/wp3-runtime-upgrade-implementation/README.md`
 - `docs/work-packages/wp3-runtime-upgrade-implementation/handoff.md`
@@ -83,6 +97,17 @@ Docs:
 - `C:\Kyntic\universalcontextlayer-enterprise\AGENTS.md`
 
 ## Verification
+
+Passed for the Scout optional Cloud licence client step:
+
+- `dotnet build .\tests\KynticAI.Scout.UnitTests\KynticAI.Scout.UnitTests.csproj --no-restore`: passed with 0 warnings and 0 errors.
+- `dotnet test .\tests\KynticAI.Scout.UnitTests\KynticAI.Scout.UnitTests.csproj --no-build --filter FullyQualifiedName~CloudControlPlaneEntitlementClientTests`: passed; 7 tests.
+- `dotnet restore .\KynticAI.Scout.slnx`: passed; all projects up to date.
+- `dotnet build .\KynticAI.Scout.slnx --no-restore`: passed with 0 warnings and 0 errors.
+- `dotnet test .\tests\KynticAI.Scout.UnitTests\KynticAI.Scout.UnitTests.csproj --no-build`: passed; 102 tests.
+- `dotnet test .\tests\KynticAI.Scout.Sdk.Tests\KynticAI.Scout.Sdk.Tests.csproj --no-build`: passed; 13 tests.
+- WP3 `status.json`, `appsettings.json`, and `appsettings.Production.json` parse validation passed.
+- `git diff --check`: passed with LF-to-CRLF working-copy warnings only.
 
 Passed for the Scout migration export step:
 
@@ -148,7 +173,9 @@ One earlier command mistake was recorded:
 
 ## Data Boundary
 
-The Scout changes are local-only. They do not call Cloud, do not add customer-data upload paths, and do not import private Enterprise/Fortress code into Scout. Docker quick start and existing n8n/source-system event routes continue to use the existing local API route. `StorageAdapter__AllowCloudDataMovement` remains false by default. The migration export CLI writes local files only, rejects Cloud upload flags, and fails closed if adapter capabilities, health, or batch diagnostics report Cloud data-plane use.
+The Scout changes are local-first. They do not require Cloud, do not add customer-data upload paths, and do not import private Enterprise/Fortress code into Scout. Docker quick start and existing n8n/source-system event routes continue to use the existing local API route. `StorageAdapter__AllowCloudDataMovement` remains false by default. The migration export CLI writes local files only, rejects Cloud upload flags, and fails closed if adapter capabilities, health, or batch diagnostics report Cloud data-plane use.
+
+The optional Cloud licence client is disabled by default. When enabled and called, it sends only licence status metadata and optional deployment/control-plane headers: account ID, data-plane installation ID, deployment name, version, region, environment type, and update channel. It sends no request body and does not send raw records, exact data items, context facts/snapshots, prompts, relationship intelligence, relationship sets, attribution paths, outcome records, recommendations, weighted signals, citation IDs, embeddings, vectors, connector credentials, local databases, logs, migration exports, checkpoints, dead letters, or support bundles.
 
 The Enterprise package contract rejects Scout export batches whose diagnostics or record metadata indicate Cloud data-plane use. Scout payload content remains local package input and is not copied into vector metadata by the preparation layer.
 
@@ -168,9 +195,9 @@ The Cloud compatibility tests reject or avoid raw customer records, exact data i
 - No production Enterprise/Fortress importer CLI/API consumes Scout export files yet.
 - Local embedding generation, live LanceDB/native-store proof, pgvector fallback proof, checkpoints, dead letters, retry, rollback, relationship-set, attribution-path, outcome-event, and governed JSON handoff wiring remain future work.
 - The Scout export CLI exists, but no production operator UX wraps it yet.
-- Optional Scout runtime Cloud entitlement client/check wrapper is not implemented yet.
+- The optional Scout Cloud entitlement client exists, but it is not wired into private Enterprise/Fortress runtime gates in the public repo.
 - xhigh review gates remain required before release, pilot, or investor-visible technical proof that depends on this Rust engine/vector boundary.
 
 ## Recommended Next Prompt
 
-Implement the Enterprise/Fortress local importer CLI/API path that consumes Scout `kynticai.scout.migration-export-package.v1` outputs, runs a dry-run import report, and prepares local Fortress/LanceDB import records without Cloud upload.
+Wire the optional Scout `IControlPlaneEntitlementClient` into the private Enterprise/Fortress runtime gates for `fortress-runtime`, `relationship-set-engine`, and `elite-operator-pack` capabilities. Preserve local signed-licence offline grace and send only Cloud commercial/control-plane metadata.

@@ -91,11 +91,23 @@ public sealed class ControlPlaneOptions
 
     public string CustomerAccountId { get; set; } = string.Empty;
 
+    public string DataPlaneInstallationId { get; set; } = string.Empty;
+
+    public string DeploymentName { get; set; } = string.Empty;
+
+    public string DeploymentVersion { get; set; } = string.Empty;
+
+    public string DeploymentRegion { get; set; } = string.Empty;
+
+    public string EnvironmentType { get; set; } = "SelfHostedCommunity";
+
     public string UpdateChannel { get; set; } = "stable";
 
     public bool UsageReportingEnabled { get; set; } = false;
 
     public int OfflineGracePeriodDays { get; set; } = 30;
+
+    public int TimeoutSeconds { get; set; } = 10;
 }
 
 public sealed class LicenceOptions

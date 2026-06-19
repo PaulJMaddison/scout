@@ -1,11 +1,12 @@
 {
   "workPackage": "wp3-runtime-upgrade-implementation",
-  "currentStep": "04-scout-migration-export",
+  "currentStep": "06-scout-cloud-licence-client",
   "recordedSteps": [
     "02-connector-local-api-routing",
     "03-storage-adapter-boundary",
     "04-scout-migration-export",
     "05-enterprise-import-contract",
+    "06-scout-cloud-licence-client",
     "07-cloud-entitlement-compatibility"
   ],
   "status": "implemented-focused-verified-with-known-skipped-proofs",
@@ -168,12 +169,20 @@
   "implementedScoutCodeFiles": [
     "Directory.Packages.props",
     "KynticAI.Scout.slnx",
+    "src/KynticAI.Scout.Api/appsettings.Production.json",
+    "src/KynticAI.Scout.Api/appsettings.json",
+    "src/KynticAI.Scout.Application/Contracts/ControlPlaneEntitlementContracts.cs",
+    "src/KynticAI.Scout.Application/Services/IControlPlaneEntitlementClient.cs",
     "src/KynticAI.Scout.Application/Abstractions/StorageAdapterContracts.cs",
+    "src/KynticAI.Scout.Infrastructure/Configuration/RuntimeOptions.cs",
+    "src/KynticAI.Scout.Infrastructure/DependencyInjection.cs",
     "src/KynticAI.Scout.Infrastructure/Extensions/EnterpriseExtensionDefaults.cs",
     "src/KynticAI.Scout.Infrastructure/KynticAI.Scout.Infrastructure.csproj",
+    "src/KynticAI.Scout.Infrastructure/Services/CloudControlPlaneEntitlementClient.cs",
     "tools/KynticAI.Scout.MigrationTool/KynticAI.Scout.MigrationTool.csproj",
     "tools/KynticAI.Scout.MigrationTool/Program.cs",
     "tests/KynticAI.Scout.UnitTests/KynticAI.Scout.UnitTests.csproj",
+    "tests/KynticAI.Scout.UnitTests/CloudControlPlaneEntitlementClientTests.cs",
     "tests/KynticAI.Scout.UnitTests/StorageAdapterBoundaryTests.cs"
   ],
   "implementedEnterpriseCodeFiles": [
@@ -192,6 +201,7 @@
     "docs/work-packages/wp3-runtime-upgrade-implementation/03-storage-adapter-boundary.md",
     "docs/work-packages/wp3-runtime-upgrade-implementation/04-scout-migration-export.md",
     "docs/work-packages/wp3-runtime-upgrade-implementation/05-enterprise-import-contract.md",
+    "docs/work-packages/wp3-runtime-upgrade-implementation/06-scout-cloud-licence-client.md",
     "docs/work-packages/wp3-runtime-upgrade-implementation/07-cloud-entitlement-compatibility.md",
     "docs/work-packages/wp3-runtime-upgrade-implementation/README.md",
     "docs/work-packages/wp3-runtime-upgrade-implementation/handoff.md",
@@ -241,6 +251,95 @@
     "deploymentRegistrationAndHeartbeatCovered": true,
     "allowedPayloadClass": "commercial/control-plane metadata and aggregate counters only"
   },
+  "scoutCloudLicenceClient": {
+    "interface": "IControlPlaneEntitlementClient",
+    "implementation": "CloudControlPlaneEntitlementClient",
+    "defaultEnabled": false,
+    "cloudRouteUsed": "GET /api/v1/licences/{licenceKey}/status",
+    "requestBodySent": false,
+    "capabilityKeys": [
+      "scout-open-core",
+      "fortress-runtime",
+      "relationship-set-engine",
+      "elite-operator-pack"
+    ],
+    "tierDecisionModel": [
+      "Scout",
+      "Fortress",
+      "Elite"
+    ],
+    "configKeys": [
+      "ControlPlane:Enabled",
+      "ControlPlane:BaseUrl",
+      "ControlPlane:CustomerAccountId",
+      "ControlPlane:DataPlaneInstallationId",
+      "ControlPlane:DeploymentName",
+      "ControlPlane:DeploymentVersion",
+      "ControlPlane:DeploymentRegion",
+      "ControlPlane:EnvironmentType",
+      "ControlPlane:UpdateChannel",
+      "ControlPlane:UsageReportingEnabled",
+      "ControlPlane:OfflineGracePeriodDays",
+      "ControlPlane:TimeoutSeconds",
+      "Licence:FilePath",
+      "Licence:PublicKeyPem"
+    ],
+    "metadataSentToCloudWhenEnabledAndCalled": [
+      "licence key in route path",
+      "account ID",
+      "data-plane installation ID",
+      "deployment name",
+      "deployment version",
+      "deployment region",
+      "environment type",
+      "update channel"
+    ],
+    "metadataExplicitlyNotSent": [
+      "raw customer operational records",
+      "source payloads",
+      "exact data items",
+      "context facts",
+      "context snapshots",
+      "prompt context packages",
+      "relationship intelligence",
+      "relationship sets",
+      "attribution paths",
+      "outcome records",
+      "recommendations",
+      "weighted signals",
+      "citation IDs",
+      "embeddings",
+      "vectors",
+      "record IDs",
+      "connector credentials",
+      "source credentials",
+      "connection strings",
+      "local databases",
+      "local logs",
+      "audit event bodies",
+      "migration exports",
+      "checkpoints",
+      "dead letters",
+      "support bundles",
+      "aggregate usage counters from this client"
+    ],
+    "offlineGraceBehaviour": {
+      "acceptsCloudGraceStatus": true,
+      "paidCapabilityOnCloudUnavailable": "fail-closed-through-this-client",
+      "offlineGraceDaysSource": "ControlPlane:OfflineGracePeriodDays",
+      "separateOfflineGraceTokenImplemented": false
+    },
+    "tests": [
+      "disabled Cloud checks do not call Cloud",
+      "active Fortress response allows Fortress capability",
+      "safe metadata headers only and no request body",
+      "Fortress response denies Elite-only capability",
+      "Grace status is allowed when tier satisfies request",
+      "Cloud unavailable fails closed for paid capability",
+      "Cloud rejection does not block Scout open-core capability",
+      "local signed envelope can supply licence key without echoing raw key"
+    ]
+  },
   "dataBoundary": {
     "customerDataStaysLocal": true,
     "cloudDataPlaneUsed": false,
@@ -249,6 +348,9 @@
     "payloadCopiedToVectorMetadata": false,
     "cloudReceivesRawCustomerData": false,
     "cloudReceivesDerivedCustomerIntelligence": false,
+    "scoutCloudLicenceClientEnabledByDefault": false,
+    "scoutCloudLicenceClientSendsRequestBody": false,
+    "scoutCloudLicenceClientReturnsRawLicenceKey": false,
     "scoutMigrationExportWritesLocalFilesOnly": true,
     "scoutMigrationExportHasCloudUploadMode": false,
     "scoutMigrationExportExcludesSecretsAndUnsafeCredentials": true
@@ -293,6 +395,46 @@
     {
       "command": "dotnet run --no-build --project tools\\KynticAI.Scout.MigrationTool -- export --tenant demo --out C:\\Users\\pm\\AppData\\Local\\Temp\\scout-migration-cli-proof-20260619014447\\export --scope relationship-inputs --max-records 50",
       "result": "passed; isValid=true; checkedRecords=179; exportedRecords=179; batchCount=4"
+    },
+    {
+      "command": "dotnet build .\\tests\\KynticAI.Scout.UnitTests\\KynticAI.Scout.UnitTests.csproj --no-restore",
+      "result": "passed for Scout Cloud licence client step; 0 warnings; 0 errors"
+    },
+    {
+      "command": "dotnet test .\\tests\\KynticAI.Scout.UnitTests\\KynticAI.Scout.UnitTests.csproj --no-build --filter FullyQualifiedName~CloudControlPlaneEntitlementClientTests",
+      "result": "passed; 7 mocked Cloud tests"
+    },
+    {
+      "command": "dotnet restore .\\KynticAI.Scout.slnx",
+      "result": "passed for Scout Cloud licence client step; all projects up to date"
+    },
+    {
+      "command": "dotnet build .\\KynticAI.Scout.slnx --no-restore",
+      "result": "passed for Scout Cloud licence client step; 0 warnings; 0 errors"
+    },
+    {
+      "command": "dotnet test .\\tests\\KynticAI.Scout.UnitTests\\KynticAI.Scout.UnitTests.csproj --no-build",
+      "result": "passed for Scout Cloud licence client step; 102 tests"
+    },
+    {
+      "command": "dotnet test .\\tests\\KynticAI.Scout.Sdk.Tests\\KynticAI.Scout.Sdk.Tests.csproj --no-build",
+      "result": "passed for Scout Cloud licence client step; 13 tests"
+    },
+    {
+      "command": "Get-Content -Raw docs\\work-packages\\wp3-runtime-upgrade-implementation\\status.json | ConvertFrom-Json | Out-Null",
+      "result": "passed"
+    },
+    {
+      "command": "Get-Content -Raw src\\KynticAI.Scout.Api\\appsettings.json | ConvertFrom-Json | Out-Null",
+      "result": "passed"
+    },
+    {
+      "command": "Get-Content -Raw src\\KynticAI.Scout.Api\\appsettings.Production.json | ConvertFrom-Json | Out-Null",
+      "result": "passed"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed for Scout Cloud licence client step; LF-to-CRLF working-copy warnings only"
     },
     {
       "command": "cargo test -p ucl-vector --test scout_import_contract_tests",
@@ -341,9 +483,9 @@
     "Live LanceDB/native-store proof is not complete.",
     "pgvector fallback proof is not complete.",
     "Relationship-set, attribution-path, outcome-event, governed JSON handoff, checkpoint, retry, dead-letter, and rollback proof remain future work.",
-    "Optional Scout runtime Cloud entitlement client/check wrapper is not implemented yet.",
+    "The optional Scout Cloud entitlement client exists, but paid private runtime gates are not wired in the public repo.",
     "Full Cloud test suite is blocked by the existing marketing analytics guard failure that finds googletagmanager.",
     "xhigh review gates remain required for public API, SDK, connector-contract, data-model, security-sensitive, and Rust engine/vector boundary work."
   ],
-  "nextPrompt": "Implement the Enterprise/Fortress local importer CLI/API path that consumes Scout kynticai.scout.migration-export-package.v1 outputs, runs a dry-run import report, and prepares local Fortress/LanceDB import records without Cloud upload."
+  "nextPrompt": "Wire the optional Scout IControlPlaneEntitlementClient into the private Enterprise/Fortress runtime gates for fortress-runtime, relationship-set-engine, and elite-operator-pack capabilities, preserving local signed-licence offline grace and sending only Cloud commercial/control-plane metadata."
 }
