@@ -190,6 +190,17 @@ public sealed record StorageVectorWriteResult(
     IReadOnlyList<ExtensionError> Errors,
     JsonObject Diagnostics);
 
+public interface ILocalDataPlaneStorageAdapterResolver
+{
+    string DefaultProviderKey { get; }
+
+    IReadOnlyList<string> RegisteredProviderKeys { get; }
+
+    ILocalDataPlaneStorageAdapter? Resolve(string? providerKey = null);
+
+    ILocalDataPlaneStorageAdapter GetRequiredAdapter(string? providerKey = null);
+}
+
 public interface ILocalDataPlaneStorageAdapter
 {
     string AdapterKey { get; }

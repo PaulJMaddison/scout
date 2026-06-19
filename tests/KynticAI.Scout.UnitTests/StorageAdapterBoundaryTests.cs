@@ -94,6 +94,50 @@ public sealed class StorageAdapterBoundaryTests
     }
 
     [Fact]
+    public void DefaultStorageAdapterResolver_SelectsScoutPostgresFromDefaultConfiguration()
+    {
+        using var provider = BuildServiceProvider();
+        using var scope = provider.CreateScope();
+
+        var resolver = scope.ServiceProvider.GetRequiredService<ILocalDataPlaneStorageAdapterResolver>();
+        var adapter = resolver.GetRequiredAdapter();
+
+        Assert.Equal(StorageAdapterProviderKeys.ScoutPostgres, resolver.DefaultProviderKey);
+        Assert.Equal(StorageAdapterProviderKeys.ScoutPostgres, adapter.AdapterKey);
+        Assert.Contains(StorageAdapterProviderKeys.ScoutPostgres, resolver.RegisteredProviderKeys);
+    }
+
+    [Fact]
+    public void DefaultStorageAdapterResolver_UsesRegisteredEnterpriseRuntimeWhenConfigured()
+    {
+        using var provider = BuildServiceProvider(
+            options => options.Provider = StorageAdapterProviderKeys.EnterpriseRuntime,
+            services => services.AddLocalDataPlaneStorageAdapter<TestEnterpriseRuntimeStorageAdapter>());
+        using var scope = provider.CreateScope();
+
+        var resolver = scope.ServiceProvider.GetRequiredService<ILocalDataPlaneStorageAdapterResolver>();
+        var adapter = resolver.GetRequiredAdapter();
+
+        Assert.Equal(StorageAdapterProviderKeys.EnterpriseRuntime, resolver.DefaultProviderKey);
+        Assert.Equal(StorageAdapterProviderKeys.EnterpriseRuntime, adapter.AdapterKey);
+        Assert.Contains(StorageAdapterProviderKeys.ScoutPostgres, resolver.RegisteredProviderKeys);
+        Assert.Contains(StorageAdapterProviderKeys.EnterpriseRuntime, resolver.RegisteredProviderKeys);
+    }
+
+    [Fact]
+    public void DefaultStorageAdapterResolver_FailsClosedWhenConfiguredEnterpriseRuntimeIsMissing()
+    {
+        using var provider = BuildServiceProvider(options => options.Provider = StorageAdapterProviderKeys.EnterpriseRuntime);
+        using var scope = provider.CreateScope();
+
+        var resolver = scope.ServiceProvider.GetRequiredService<ILocalDataPlaneStorageAdapterResolver>();
+        var exception = Assert.Throws<InvalidOperationException>(() => resolver.GetRequiredAdapter());
+
+        Assert.Contains(StorageAdapterProviderKeys.EnterpriseRuntime, exception.Message, StringComparison.Ordinal);
+        Assert.Contains(StorageAdapterProviderKeys.ScoutPostgres, exception.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task DefaultStorageAdapter_ExportsScoutRelationalRecordsWithTenantLayerMetadata()
     {
         using var provider = BuildServiceProvider();
@@ -183,13 +227,17 @@ public sealed class StorageAdapterBoundaryTests
         Assert.False(batch.Diagnostics["usesCloudDataPlane"]!.GetValue<bool>());
     }
 
-    private static ServiceProvider BuildServiceProvider()
+    private static ServiceProvider BuildServiceProvider(
+        Action<StorageAdapterOptions>? configureStorage = null,
+        Action<IServiceCollection>? configureServices = null)
     {
         var services = new ServiceCollection();
         services.AddDbContext<ScoutDbContext>(options =>
             options.UseInMemoryDatabase($"storage-adapter-{Guid.NewGuid():N}"));
         services.AddScoped<IScoutDbContext>(provider => provider.GetRequiredService<ScoutDbContext>());
+        services.Configure<StorageAdapterOptions>(options => configureStorage?.Invoke(options));
         services.AddEnterpriseExtensionDefaults();
+        configureServices?.Invoke(services);
         return services.BuildServiceProvider();
     }
 
@@ -362,5 +410,92 @@ public sealed class StorageAdapterBoundaryTests
         await dbContext.SaveChangesAsync();
 
         return tenant;
+    }
+
+    private sealed class TestEnterpriseRuntimeStorageAdapter : ILocalDataPlaneStorageAdapter
+    {
+        public string AdapterKey => StorageAdapterProviderKeys.EnterpriseRuntime;
+
+        public ValueTask<StorageAdapterCapabilities> GetCapabilitiesAsync(
+            StorageAdapterCapabilitiesRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            return ValueTask.FromResult(new StorageAdapterCapabilities(
+                AdapterKey,
+                StorageAdapterProviderKeys.EnterpriseRuntime,
+                StorageAdapterProviderKeys.EnterpriseRuntime,
+                StorageAdapterDataScope.Vectors,
+                SupportsExport: false,
+                SupportsImport: false,
+                SupportsBackfill: false,
+                SupportsVectorWrites: true,
+                SupportsDenseEmbeddings: true,
+                SupportsDualWrite: false,
+                UsesCustomerOwnedDataPlane: true,
+                UsesCloudDataPlane: false,
+                RequiresEnterpriseRuntime: true,
+                ExpectedEmbeddingDimensions: 384,
+                RequiredConfigurationKeys: [],
+                Notes: ["Unit-test adapter used to prove configured provider selection."]));
+        }
+
+        public ValueTask<StorageAdapterHealthResult> CheckHealthAsync(
+            StorageAdapterHealthRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            return ValueTask.FromResult(new StorageAdapterHealthResult(
+                AdapterKey,
+                StorageAdapterReadiness.Unproven,
+                "Unit-test adapter only.",
+                DateTime.UtcNow,
+                [],
+                new JsonObject { ["usesCloudDataPlane"] = false }));
+        }
+
+        public async IAsyncEnumerable<StorageExportBatch> ExportAsync(
+            StorageExportRequest request,
+            [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            await Task.CompletedTask;
+            yield break;
+        }
+
+        public ValueTask<StorageImportResult> ImportAsync(
+            StorageImportRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            return ValueTask.FromResult(new StorageImportResult(
+                false,
+                AdapterKey,
+                request.Scope,
+                ImportedRecords: 0,
+                SkippedRecords: request.Records.Count,
+                NextCheckpoint: request.Checkpoint,
+                Errors: [],
+                Diagnostics: new JsonObject { ["usesCloudDataPlane"] = false }));
+        }
+
+        public ValueTask<StorageVectorWriteResult> WriteVectorAsync(
+            StorageVectorWriteRequest request,
+            CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            return ValueTask.FromResult(new StorageVectorWriteResult(
+                StorageVectorWriteStatus.Written,
+                AdapterKey,
+                request.Record.Id,
+                WrittenRecords: 1,
+                Reason: null,
+                Errors: [],
+                Diagnostics: new JsonObject { ["usesCloudDataPlane"] = false }));
+        }
     }
 }

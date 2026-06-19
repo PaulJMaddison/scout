@@ -4,7 +4,7 @@ Date: 2026-06-19
 
 ## Summary
 
-Implemented the smallest safe code change for connector-local API routing in Scout/open-core.
+Implemented the smallest safe code changes for connector-local API routing and storage adapter selection in Scout/open-core.
 
 The new registered-connector event route is:
 
@@ -14,13 +14,18 @@ POST /api/v1/connectors/{dataSourceId}/events/source-system?tenantSlug=<tenant>
 
 It accepts the existing source-system event request body, validates through the same auth/signature path, and delegates to the existing local `IngestSourceSystemEventAsync()` service. The stored source event and user signal are now bound to the registered data source when `dataSourceId` is provided.
 
+The storage boundary now also includes `ILocalDataPlaneStorageAdapterResolver`. It reads `StorageAdapter:Provider`, keeps `scout-postgres` as the default, selects any registered local adapter by provider key, and fails closed when a configured private provider such as `enterprise-runtime` is missing.
+
 ## Files Changed
 
 Code:
 
 - `src/KynticAI.Scout.Api/Rest/VersionedRestEndpointRouteBuilderExtensions.cs`
+- `src/KynticAI.Scout.Application/Abstractions/StorageAdapterContracts.cs`
 - `src/KynticAI.Scout.Application/Contracts/RestV1Contracts.cs`
 - `src/KynticAI.Scout.Application/Services/KynticAI.ScoutService.cs`
+- `src/KynticAI.Scout.Infrastructure/Extensions/LocalDataPlaneStorageAdapterResolver.cs`
+- `src/KynticAI.Scout.Infrastructure/Extensions/EnterpriseExtensionServiceCollectionExtensions.cs`
 - `src/KynticAI.Scout.Sdk/Abstractions.cs`
 - `src/KynticAI.Scout.Sdk/KynticAI.ScoutClient.cs`
 - `packages/typescript/scout-sdk/src/client.ts`
@@ -29,11 +34,13 @@ Tests:
 
 - `tests/KynticAI.Scout.IntegrationTests/V1RestApiIntegrationTests.cs`
 - `tests/KynticAI.Scout.Sdk.Tests/KynticAI.ScoutClientTests.cs`
+- `tests/KynticAI.Scout.UnitTests/StorageAdapterBoundaryTests.cs`
 - `packages/typescript/scout-sdk/tests/client.test.ts`
 
 Docs:
 
 - `docs/work-packages/wp3-runtime-upgrade-implementation/02-connector-local-api-routing.md`
+- `docs/work-packages/wp3-runtime-upgrade-implementation/03-storage-adapter-boundary.md`
 - `docs/work-packages/wp3-runtime-upgrade-implementation/README.md`
 - `docs/work-packages/wp3-runtime-upgrade-implementation/handoff.md`
 - `docs/work-packages/wp3-runtime-upgrade-implementation/status.json`
@@ -44,11 +51,12 @@ Passed so far:
 
 - Focused .NET SDK connector-route test.
 - Focused integration connector-route test.
+- Focused storage adapter boundary tests: 10 passed.
 - TypeScript SDK tests.
 - TypeScript SDK build.
 - `dotnet restore .\KynticAI.Scout.slnx`.
 - `dotnet build .\KynticAI.Scout.slnx` with 0 warnings and 0 errors.
-- Unit tests: 86 passed.
+- Unit tests: 89 passed.
 - SDK tests: 13 passed.
 - V1 REST integration test filter: 6 passed.
 - `git diff --check` with LF-to-CRLF working-copy warnings only.
@@ -62,7 +70,7 @@ Final broader local verification is recorded in `status.json`.
 
 ## Data Boundary
 
-The change is local-only. It does not call Cloud, does not add Cloud configuration, and does not add customer-data upload paths. Docker quick start and existing n8n/source-system event routes continue to use the existing local API route.
+The changes are local-only. They do not call Cloud, do not add customer-data upload paths, and do not import private Enterprise/Fortress code. Docker quick start and existing n8n/source-system event routes continue to use the existing local API route. `StorageAdapter__AllowCloudDataMovement` remains false by default.
 
 ## Remaining Direct Paths
 
@@ -70,6 +78,8 @@ The change is local-only. It does not call Cloud, does not add Cloud configurati
 - `MockConnectorPlugin` signal-backed direct local reads remain for mock/local compatibility.
 - Application service and recompute processor EF writes remain the owned local persistence path.
 - No connector-owned source-ingestion direct write path was added or left as the preferred path.
+- `scout-postgres` remains the configured default storage adapter.
+- `enterprise-runtime` can only be selected when a private local adapter is registered.
 
 ## Recommended Next Prompt
 

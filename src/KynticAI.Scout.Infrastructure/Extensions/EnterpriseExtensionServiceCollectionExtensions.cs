@@ -134,6 +134,7 @@ public static class EnterpriseExtensionServiceCollectionExtensions
         services.TryAddEnumerable(ServiceDescriptor.Scoped<IEnvironmentPromotionService, DisabledEnvironmentPromotionService>());
         services.TryAddEnumerable(ServiceDescriptor.Scoped<IUsageMeteringSink, InMemoryUsageMeteringSink>());
         services.TryAddEnumerable(ServiceDescriptor.Scoped<ILocalDataPlaneStorageAdapter, ScoutPostgresStorageAdapter>());
+        services.TryAddScoped<ILocalDataPlaneStorageAdapterResolver, LocalDataPlaneStorageAdapterResolver>();
         return services;
     }
 }
