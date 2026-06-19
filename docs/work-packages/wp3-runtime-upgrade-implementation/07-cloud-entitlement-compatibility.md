@@ -28,12 +28,18 @@ The entitlement and licence-status responses already expose the additive canonic
 - `canonicalTierName`
 - `canonicalTierRank`
 
+This update also adds HTTP-level regression coverage for the actual REST routes Scout uses, proving that `GET /api/v1/licences/{licenceKey}/status`, `GET /api/v1/accounts/{accountId}/entitlements`, and `POST /api/v1/data-planes/heartbeat` return the safe metadata shape without raw customer payloads or derived intelligence markers.
+
+Cloud data-plane heartbeat/status responses now expose parsed aggregate counters as `lastSafeUsageSummary` while preserving the existing `lastUsageSummaryJson` compatibility field. The stored data-plane API-key hash remains ignored by JSON serialisation and is not exposed on the endpoint.
+
 ## Cloud Code Files Changed
 
+- `C:\Kyntic\universalcontextlayer-cloud\src\Ucl.Cloud.Api\Domain.cs`
 - `C:\Kyntic\universalcontextlayer-cloud\src\Ucl.Cloud.Api\SecurityAndServices.cs`
 - `C:\Kyntic\universalcontextlayer-cloud\src\Ucl.Cloud.Api\Program.cs`
 - `C:\Kyntic\universalcontextlayer-cloud\apps\cloud-portal\src\app\api-client.ts`
 - `C:\Kyntic\universalcontextlayer-cloud\tests\Ucl.Cloud.Tests\ControlPlaneServiceTests.cs`
+- `C:\Kyntic\universalcontextlayer-cloud\tests\Ucl.Cloud.Tests\CloudApiHostingTests.cs`
 - `C:\Kyntic\universalcontextlayer-cloud\docs\licence-download-to-data-plane.md`
 
 ## Endpoint Contracts
@@ -64,6 +70,23 @@ Deployment registration accepts only public deployment metadata: registration to
 
 Deployment heartbeat accepts only deployment version, health status, and allowlisted aggregate counters such as `contextLookups`, `selectorExecutions`, `connectorHealthChecks`, and `activeUsers`.
 
+The heartbeat response preserves existing deployment fields and adds parsed aggregate metadata:
+
+- `id`
+- `accountId`
+- `name`
+- `environmentType`
+- `deploymentRegion`
+- `deploymentVersion`
+- `healthStatus`
+- `updateChannel`
+- `registeredAt`
+- `lastCheckInAt`
+- `lastUsageSummaryJson`
+- `lastSafeUsageSummary`
+
+The response does not include `apiKeyHash`.
+
 ## Example Response
 
 Elite-compatible account entitlement response, using the current numeric enum REST contract:
@@ -91,7 +114,9 @@ Elite-compatible account entitlement response, using the current numeric enum RE
     "updateChannel": 0,
     "enterpriseFeatures": [
       "scout-registration",
+      "scout-open-core",
       "fortress-runtime",
+      "relationship-set-engine",
       "elite-operator-pack"
     ]
   },
@@ -102,6 +127,29 @@ Elite-compatible account entitlement response, using the current numeric enum RE
   "canonicalTier": 2,
   "canonicalTierName": "Elite",
   "canonicalTierRank": 2
+}
+```
+
+Deployment heartbeat response, using the current numeric enum REST contract:
+
+```json
+{
+  "id": "33333333-3333-3333-3333-333333333333",
+  "accountId": "11111111-1111-1111-1111-111111111111",
+  "name": "northstar-fortress-prod",
+  "environmentType": 2,
+  "deploymentRegion": "uk-south",
+  "deploymentVersion": "2.8.1-private",
+  "healthStatus": 0,
+  "updateChannel": 2,
+  "registeredAt": "2026-06-19T09:00:00+00:00",
+  "lastCheckInAt": "2026-06-19T09:05:00+00:00",
+  "lastUsageSummaryJson": "{\"contextLookups\":12,\"selectorExecutions\":4,\"connectorHealthChecks\":2}",
+  "lastSafeUsageSummary": {
+    "contextLookups": 12,
+    "selectorExecutions": 4,
+    "connectorHealthChecks": 2
+  }
 }
 ```
 
@@ -123,7 +171,7 @@ Allowed Cloud metadata:
 - signed licence envelope fields and entitlement limits;
 - deployment name, region, version, environment type, health status, and update channel;
 - aggregate counters from the allowlist;
-- control-plane pack identifiers such as `scout-registration`, `fortress-runtime`, and `elite-operator-pack`.
+- control-plane pack identifiers such as `scout-registration`, `scout-open-core`, `fortress-runtime`, `relationship-set-engine`, and `elite-operator-pack`.
 
 Rejected or avoided by tests:
 
@@ -137,21 +185,19 @@ Rejected or avoided by tests:
 Cloud focused verification:
 
 ```text
-dotnet test .\tests\Ucl.Cloud.Tests\Ucl.Cloud.Tests.csproj --filter "FullyQualifiedName~ControlPlaneServiceTests.Scout_runtime_entitlement_endpoints_expose_canonical_tier_shape_without_customer_data|FullyQualifiedName~ControlPlaneServiceTests.Signed_licence_download_shape_is_scout_runtime_compatible_and_keeps_legacy_envelope_verification|FullyQualifiedName~ControlPlaneServiceTests.Allowed_control_plane_metadata_supports_runtime_registration_heartbeat_and_pack_flags|FullyQualifiedName~ControlPlaneServiceTests.Boundary_allowlists_reject_raw_and_derived_payloads_without_echoing_values"
+dotnet test .\tests\Ucl.Cloud.Tests\Ucl.Cloud.Tests.csproj --filter "FullyQualifiedName~ControlPlaneServiceTests.Scout_runtime_entitlement_endpoints_expose_canonical_tier_shape_without_customer_data|FullyQualifiedName~ControlPlaneServiceTests.Allowed_control_plane_metadata_supports_runtime_registration_heartbeat_and_pack_flags|FullyQualifiedName~ControlPlaneServiceTests.Boundary_allowlists_reject_raw_and_derived_payloads_without_echoing_values|FullyQualifiedName~CloudApiHostingTests.Scout_runtime_licence_status_and_entitlement_routes_expose_safe_canonical_shape|FullyQualifiedName~CloudApiHostingTests.Data_plane_heartbeat_route_exposes_safe_aggregate_summary_without_key_hash"
 ```
 
-Result: passed; 6 tests.
+Result: passed; 9 tests.
 
 Broader close-out validation:
 
 ```text
 dotnet restore .\UclCloudControlPlane.slnx
 dotnet build .\UclCloudControlPlane.slnx --no-restore
-npm run build
-git diff --check
 ```
 
-Result: passed. The portal build reported the existing Vite large-chunk warning. Cloud `git diff --check` reported LF-to-CRLF working-copy warnings only.
+Result: passed; build completed with 0 warnings and 0 errors.
 
 Scout-side documentation validation:
 
@@ -168,7 +214,7 @@ Full local Cloud test command:
 dotnet test .\UclCloudControlPlane.slnx --no-build
 ```
 
-Result: failed because existing `Ucl.Cloud.Tests.AnalyticsPixelTests.Marketing_helper_uses_send_beacon_session_storage_and_no_third_party_scripts` found `googletagmanager`; 610 passed, 1 failed.
+Result: failed because existing `Ucl.Cloud.Tests.AnalyticsPixelTests.Marketing_helper_uses_send_beacon_session_storage_and_no_third_party_scripts` found `googletagmanager`; 614 passed, 1 failed.
 
 ## Remaining Notes
 

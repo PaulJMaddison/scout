@@ -26,7 +26,7 @@ It supports dry runs, local export package generation, validation reports, tenan
 
 The Enterprise/Fortress import contract now lives in `engine/crates/ucl-vector/src/scout_migration_package.rs`. It mirrors Scout `kynticai.scout.storage-portable-export.v1` batches without importing Scout packages, validates local-only package shape and tenant/layer anchors, prepares deterministic Fortress import records, and only builds the existing LanceDB import batch after local embeddings are supplied by the private runtime.
 
-Cloud now emits new signed licence downloads as `Scout-LICENCE-v1` envelopes with `Scout-` licence keys. It still verifies previously issued `UCL-LICENCE-v1` envelopes. The existing Cloud routes for licence status, validation, account entitlements, data-plane registration, deployment heartbeat, and licensing heartbeat expose Scout/Fortress/Elite canonical tier metadata while preserving legacy numeric `PlanCode` compatibility.
+Cloud now emits new signed licence downloads as `Scout-LICENCE-v1` envelopes with `Scout-` licence keys. It still verifies previously issued `UCL-LICENCE-v1` envelopes. The existing Cloud routes for licence status, validation, account entitlements, data-plane registration, deployment heartbeat, and licensing heartbeat expose Scout/Fortress/Elite canonical tier metadata while preserving legacy numeric `PlanCode` compatibility. The latest Cloud test update adds hosted REST proof for the actual Scout-facing `GET /api/v1/licences/{licenceKey}/status`, `GET /api/v1/accounts/{accountId}/entitlements`, and `POST /api/v1/data-planes/heartbeat` JSON shape. Heartbeat/status responses include parsed `lastSafeUsageSummary` aggregate counters beside the legacy `lastUsageSummaryJson` field and do not expose `apiKeyHash`.
 
 Scout now exposes `IControlPlaneEntitlementClient` with a disabled-by-default `CloudControlPlaneEntitlementClient`. When explicitly enabled and called, it checks `GET /api/v1/licences/{licenceKey}/status`, maps canonical Cloud tier metadata to Scout/Fortress/Elite capability decisions, accepts Cloud `Grace` status when `isValid=true`, and fails closed for paid capabilities if Cloud is unavailable. It sends only licence and safe deployment/control-plane metadata, uses no request body, and never returns the raw licence key.
 
@@ -75,10 +75,12 @@ Enterprise/Fortress code:
 
 Cloud code:
 
+- `C:\Kyntic\universalcontextlayer-cloud\src\Ucl.Cloud.Api\Domain.cs`
 - `C:\Kyntic\universalcontextlayer-cloud\src\Ucl.Cloud.Api\SecurityAndServices.cs`
 - `C:\Kyntic\universalcontextlayer-cloud\src\Ucl.Cloud.Api\Program.cs`
 - `C:\Kyntic\universalcontextlayer-cloud\apps\cloud-portal\src\app\api-client.ts`
 - `C:\Kyntic\universalcontextlayer-cloud\tests\Ucl.Cloud.Tests\ControlPlaneServiceTests.cs`
+- `C:\Kyntic\universalcontextlayer-cloud\tests\Ucl.Cloud.Tests\CloudApiHostingTests.cs`
 - `C:\Kyntic\universalcontextlayer-cloud\docs\licence-download-to-data-plane.md`
 
 Docs:
@@ -157,7 +159,8 @@ Passed for the Cloud entitlement compatibility step:
 
 - `dotnet restore .\UclCloudControlPlane.slnx`: passed.
 - `dotnet build .\UclCloudControlPlane.slnx --no-restore`: passed with 0 warnings and 0 errors.
-- `dotnet test .\tests\Ucl.Cloud.Tests\Ucl.Cloud.Tests.csproj --filter "FullyQualifiedName~ControlPlaneServiceTests.Scout_runtime_entitlement_endpoints_expose_canonical_tier_shape_without_customer_data|FullyQualifiedName~ControlPlaneServiceTests.Signed_licence_download_shape_is_scout_runtime_compatible_and_keeps_legacy_envelope_verification|FullyQualifiedName~ControlPlaneServiceTests.Allowed_control_plane_metadata_supports_runtime_registration_heartbeat_and_pack_flags|FullyQualifiedName~ControlPlaneServiceTests.Boundary_allowlists_reject_raw_and_derived_payloads_without_echoing_values"`: passed; 6 tests.
+- `dotnet test .\tests\Ucl.Cloud.Tests\Ucl.Cloud.Tests.csproj --filter FullyQualifiedName~CloudApiHostingTests.Scout_runtime_licence_status_and_entitlement_routes_expose_safe_canonical_shape`: passed; 1 test.
+- `dotnet test .\tests\Ucl.Cloud.Tests\Ucl.Cloud.Tests.csproj --filter "FullyQualifiedName~ControlPlaneServiceTests.Scout_runtime_entitlement_endpoints_expose_canonical_tier_shape_without_customer_data|FullyQualifiedName~ControlPlaneServiceTests.Allowed_control_plane_metadata_supports_runtime_registration_heartbeat_and_pack_flags|FullyQualifiedName~ControlPlaneServiceTests.Boundary_allowlists_reject_raw_and_derived_payloads_without_echoing_values|FullyQualifiedName~CloudApiHostingTests.Scout_runtime_licence_status_and_entitlement_routes_expose_safe_canonical_shape|FullyQualifiedName~CloudApiHostingTests.Data_plane_heartbeat_route_exposes_safe_aggregate_summary_without_key_hash"`: passed; 9 tests.
 - `npm run build` in `C:\Kyntic\universalcontextlayer-cloud\apps\cloud-portal`: passed, including the control-plane boundary check and TypeScript checks; Vite reported the existing large-chunk warning.
 - Cloud `git diff --check`: passed with LF-to-CRLF working-copy warnings only.
 - Scout WP3 `status.json` parse validation: passed.
@@ -165,7 +168,7 @@ Passed for the Cloud entitlement compatibility step:
 
 Known Cloud full-suite blocker:
 
-- `dotnet test .\UclCloudControlPlane.slnx --no-build`: failed because existing `Ucl.Cloud.Tests.AnalyticsPixelTests.Marketing_helper_uses_send_beacon_session_storage_and_no_third_party_scripts` found `googletagmanager`; 610 passed, 1 failed.
+- `dotnet test .\UclCloudControlPlane.slnx --no-build`: failed because existing `Ucl.Cloud.Tests.AnalyticsPixelTests.Marketing_helper_uses_send_beacon_session_storage_and_no_third_party_scripts` found `googletagmanager`; latest run after the heartbeat compatibility update had 614 passed, 1 failed.
 
 One earlier command mistake was recorded:
 

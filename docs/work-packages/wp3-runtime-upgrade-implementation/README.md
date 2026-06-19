@@ -14,7 +14,9 @@ This work package records Scout/open-core implementation work after WP2 plus the
 
 ## Current Status
 
-Step `04-scout-migration-export` is now implemented in Scout/open-core and verified with unit tests plus local SQLite dry-run/export package proofs. The later `05-enterprise-import-contract` step remains implemented locally in the Enterprise/Fortress repo and recorded here. Step `06-scout-cloud-licence-client` adds the Scout-side optional Cloud licence/entitlement client. Step `07-cloud-entitlement-compatibility` is implemented on the Cloud side and recorded in this Scout WP3 folder.
+Step `07-cloud-entitlement-compatibility` is the latest recorded step. It verifies the Cloud-side licence/status, entitlement, deployment registration, and heartbeat compatibility needed by Scout optional runtime checks while keeping Cloud to commercial/control-plane metadata only.
+
+Earlier steps remain implemented and recorded: `04-scout-migration-export` in Scout/open-core, `05-enterprise-import-contract` in the Enterprise/Fortress repo, and `06-scout-cloud-licence-client` for the disabled-by-default Scout Cloud licence/entitlement client.
 
 Scout now has an additive registered-connector ingestion route:
 
@@ -36,7 +38,9 @@ It supports dry runs, package generation, validation reports, tenant/context met
 
 Enterprise/Fortress now has a package-level Scout migration import contract in `ucl-vector`. It validates `kynticai.scout.storage-portable-export.v1` batches, rejects Cloud data-plane packages and cross-tenant anchors, prepares deterministic Fortress import records, and can build the existing LanceDB import batch only after a private/local embedding provider supplies dense embeddings.
 
-Cloud now emits new signed licence downloads in the Scout-compatible `Scout-LICENCE-v1` envelope with `Scout-` licence keys, while preserving verification compatibility for previous `UCL-LICENCE-v1` envelopes. The existing licence status, validation, account entitlement, deployment registration, and heartbeat routes expose the optional runtime-check metadata Scout needs without moving customer data to Cloud.
+Cloud now emits new signed licence downloads in the Scout-compatible `Scout-LICENCE-v1` envelope with `Scout-` licence keys, while preserving verification compatibility for previous `UCL-LICENCE-v1` envelopes. The existing licence status, validation, account entitlement, deployment registration, and heartbeat routes expose the optional runtime-check metadata Scout needs without moving customer data to Cloud. Data-plane heartbeat/status responses now include parsed `lastSafeUsageSummary` aggregate counters beside the existing `lastUsageSummaryJson` compatibility field, and the API-key hash remains excluded from JSON.
+
+Cloud now also has hosted REST regression coverage proving `GET /api/v1/licences/{licenceKey}/status` and `GET /api/v1/accounts/{accountId}/entitlements` expose the canonical Scout/Fortress/Elite shape over the real API route and avoid raw customer payload or derived intelligence markers.
 
 Scout now has `IControlPlaneEntitlementClient` and `CloudControlPlaneEntitlementClient` for optional Cloud checks. The default config keeps `ControlPlane:Enabled=false`; when enabled and called, the client performs a metadata-only licence status check, maps Cloud canonical tiers to Scout/Fortress/Elite decisions, accepts Cloud grace status, fails closed for paid capabilities when Cloud is unavailable, and never returns raw licence keys.
 

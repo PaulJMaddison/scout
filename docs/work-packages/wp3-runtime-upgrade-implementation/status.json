@@ -1,6 +1,6 @@
 {
   "workPackage": "wp3-runtime-upgrade-implementation",
-  "currentStep": "06-scout-cloud-licence-client",
+  "currentStep": "07-cloud-entitlement-compatibility",
   "recordedSteps": [
     "02-connector-local-api-routing",
     "03-storage-adapter-boundary",
@@ -191,10 +191,12 @@
     "engine/crates/ucl-vector/tests/scout_import_contract_tests.rs"
   ],
   "implementedCloudCodeFiles": [
+    "src/Ucl.Cloud.Api/Domain.cs",
     "src/Ucl.Cloud.Api/SecurityAndServices.cs",
     "src/Ucl.Cloud.Api/Program.cs",
     "apps/cloud-portal/src/app/api-client.ts",
-    "tests/Ucl.Cloud.Tests/ControlPlaneServiceTests.cs"
+    "tests/Ucl.Cloud.Tests/ControlPlaneServiceTests.cs",
+    "tests/Ucl.Cloud.Tests/CloudApiHostingTests.cs"
   ],
   "docFiles": [
     "docs/work-packages/wp3-runtime-upgrade-implementation/02-connector-local-api-routing.md",
@@ -249,6 +251,9 @@
       "Elite"
     ],
     "deploymentRegistrationAndHeartbeatCovered": true,
+    "hostedStatusAndEntitlementRoutesCovered": true,
+    "heartbeatResponseIncludesLastSafeUsageSummary": true,
+    "heartbeatResponseExcludesApiKeyHash": true,
     "allowedPayloadClass": "commercial/control-plane metadata and aggregate counters only"
   },
   "scoutCloudLicenceClient": {
@@ -443,9 +448,29 @@
     {
       "command": "dotnet test .\\tests\\Ucl.Cloud.Tests\\Ucl.Cloud.Tests.csproj --no-build --filter \"FullyQualifiedName~ControlPlaneServiceTests.Scout_runtime_entitlement_endpoints_expose_canonical_tier_shape_without_customer_data|FullyQualifiedName~ControlPlaneServiceTests.Signed_licence_download_shape_is_scout_runtime_compatible_and_keeps_legacy_envelope_verification|FullyQualifiedName~ControlPlaneServiceTests.Allowed_control_plane_metadata_supports_runtime_registration_heartbeat_and_pack_flags|FullyQualifiedName~ControlPlaneServiceTests.Boundary_allowlists_reject_raw_and_derived_payloads_without_echoing_values\"",
       "result": "passed earlier for Cloud compatibility step; 6 tests"
+    },
+    {
+      "command": "dotnet test .\\tests\\Ucl.Cloud.Tests\\Ucl.Cloud.Tests.csproj --filter FullyQualifiedName~CloudApiHostingTests.Scout_runtime_licence_status_and_entitlement_routes_expose_safe_canonical_shape",
+      "result": "passed; 1 hosted REST route test"
+    },
+    {
+      "command": "dotnet restore .\\UclCloudControlPlane.slnx",
+      "result": "passed for latest Cloud compatibility verification; all projects up to date"
+    },
+    {
+      "command": "dotnet build .\\UclCloudControlPlane.slnx --no-restore",
+      "result": "passed for latest Cloud compatibility verification; 0 warnings; 0 errors"
+    },
+    {
+      "command": "dotnet test .\\tests\\Ucl.Cloud.Tests\\Ucl.Cloud.Tests.csproj --filter \"FullyQualifiedName~ControlPlaneServiceTests.Scout_runtime_entitlement_endpoints_expose_canonical_tier_shape_without_customer_data|FullyQualifiedName~ControlPlaneServiceTests.Allowed_control_plane_metadata_supports_runtime_registration_heartbeat_and_pack_flags|FullyQualifiedName~ControlPlaneServiceTests.Boundary_allowlists_reject_raw_and_derived_payloads_without_echoing_values|FullyQualifiedName~CloudApiHostingTests.Scout_runtime_licence_status_and_entitlement_routes_expose_safe_canonical_shape|FullyQualifiedName~CloudApiHostingTests.Data_plane_heartbeat_route_exposes_safe_aggregate_summary_without_key_hash\"",
+      "result": "passed; 9 Cloud compatibility tests"
     }
   ],
   "commandIssues": [
+    {
+      "command": "dotnet test .\\tests\\Ucl.Cloud.Tests\\Ucl.Cloud.Tests.csproj --filter Cloud compatibility set",
+      "result": "failed once before rerun because a stale local testhost process held Ucl.Cloud.Api.dll; dotnet build-server shutdown cleared the lock and the same focused test set passed"
+    },
     {
       "command": "dotnet restore .\\KynticAI.Scout.slnx",
       "result": "failed before dependency update because NU1903 was treated as an error for deprecated/vulnerable SQLitePCLRaw.lib.e_sqlite3 2.1.11"
@@ -460,7 +485,7 @@
     },
     {
       "command": "dotnet test .\\UclCloudControlPlane.slnx --no-build",
-      "result": "failed earlier in Cloud repo because existing Ucl.Cloud.Tests.AnalyticsPixelTests.Marketing_helper_uses_send_beacon_session_storage_and_no_third_party_scripts found googletagmanager; 610 passed; 1 failed"
+      "result": "failed in Cloud repo because existing Ucl.Cloud.Tests.AnalyticsPixelTests.Marketing_helper_uses_send_beacon_session_storage_and_no_third_party_scripts found googletagmanager; latest run after the heartbeat compatibility update had 614 passed; 1 failed"
     }
   ],
   "dependencyAuditSources": [
