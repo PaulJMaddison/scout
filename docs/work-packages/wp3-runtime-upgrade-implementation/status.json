@@ -1,6 +1,11 @@
 {
   "workPackage": "wp3-runtime-upgrade-implementation",
-  "currentStep": "09-end-to-end-runtime-simulation",
+  "currentStep": "10-final-review",
+  "date": "2026-06-19",
+  "status": "final-evidence-pack-validated-with-cloud-working-tree-blocker",
+  "overallWp3ReadyToCommit": false,
+  "overallReadinessReason": "Scout final evidence-pack files are ready for validation. Enterprise/Fortress is clean with the import-contract batch present. Cloud WP3 compatibility commits are present and focused validation passed, but the current Cloud working tree contains unrelated uncommitted AGENTS/brand changes and the full Cloud suite has a known analytics-pixel failure.",
+  "namingSourceOfTruth": "C:\\Kyntic\\docs\\source-of-truth-naming-map.md",
   "recordedSteps": [
     "02-connector-local-api-routing",
     "03-storage-adapter-boundary",
@@ -9,200 +14,127 @@
     "06-scout-cloud-licence-client",
     "07-cloud-entitlement-compatibility",
     "08-docker-startup-smoke-test",
-    "09-end-to-end-runtime-simulation"
+    "09-end-to-end-runtime-simulation",
+    "10-final-review"
   ],
-  "status": "end-to-end-runtime-simulation-verified-fast-package-with-known-residual-blockers",
-  "readyToCommit": false,
-  "date": "2026-06-19",
-  "primaryRepo": {
-    "repo": "UCL",
-    "role": "Scout/open-core public data plane",
-    "localPath": "C:\\Kyntic\\UCL"
-  },
-  "relatedPrivateRepo": {
-    "repo": "universalcontextlayer-enterprise",
-    "role": "Enterprise/Fortress private runtime and vector DB path",
-    "localPath": "C:\\Kyntic\\universalcontextlayer-enterprise"
-  },
-  "relatedCloudRepo": {
-    "repo": "universalcontextlayer-cloud",
-    "role": "Cloud commercial/control-plane licence and entitlement metadata",
-    "localPath": "C:\\Kyntic\\universalcontextlayer-cloud"
-  },
-  "namingSourceOfTruth": "C:\\Kyntic\\docs\\source-of-truth-naming-map.md",
-  "scoutMigrationExport": {
-    "toolProject": "tools/KynticAI.Scout.MigrationTool/KynticAI.Scout.MigrationTool.csproj",
-    "command": "dotnet run --project tools\\KynticAI.Scout.MigrationTool -- export --tenant <tenant-slug> --out <local-folder> [options]",
-    "packageKind": "kynticai.scout.migration-export-package.v1",
-    "contractVersion": "kynticai.scout.storage-portable-export.v1",
-    "supportsDryRun": true,
-    "writesExportPackage": true,
-    "writesValidationReport": true,
-    "cloudUploadSupported": false,
-    "rejectedOptions": [
-      "--upload",
-      "--cloud-upload"
-    ],
-    "defaultProvider": "scout-postgres",
-    "defaultScope": [
-      "TenantMetadata",
-      "SourceEvents",
-      "UserSignals",
-      "SelectorDefinitions",
-      "SelectorExecutions",
-      "ContextSnapshots",
-      "ContextFacts",
-      "Provenance",
-      "AuditEvents"
-    ],
-    "scopeAliases": [
-      "all",
-      "relationship-inputs",
-      "tenant-metadata",
-      "source-events",
-      "user-signals",
-      "selectors",
-      "selector-executions",
-      "context-snapshots",
-      "context-facts",
-      "provenance",
-      "audit-events",
-      "data-items",
-      "relationship-sets",
-      "attribution-paths",
-      "outcome-events",
-      "vectors"
-    ],
-    "exportedRecordKinds": [
-      "tenant_context_metadata",
-      "source_system_event",
-      "user_signal",
-      "selector_definition",
-      "selector_execution",
-      "context_snapshot",
-      "context_fact",
-      "provenance_metadata",
-      "audit_event"
-    ],
-    "relationshipInputsWhereScoutHasThem": [
-      "source events",
-      "user signals",
-      "selector definitions",
-      "selector executions",
-      "context snapshots",
-      "context facts",
-      "provenance metadata"
-    ],
-    "notExportedByDefaultAdapter": [
-      "relationship sets",
-      "attribution paths",
-      "outcome events",
-      "vectors"
-    ],
-    "excludedFilesAndFields": [
-      "connector_credentials table",
-      "saas_webhook_signing_secrets table",
-      "saas_api_clients API key material",
-      "data_sources.connection_config_json",
-      "source_system_events.headers_json",
-      "data-protection key-ring files",
-      "local .env files",
-      "licence/private key/certificate files",
-      "Cloud upload or staging locations"
-    ],
-    "validationReportFields": [
-      "packageKind",
-      "contractVersion",
-      "generatedAtUtc",
-      "dryRun",
-      "isValid",
-      "tenantSlug",
-      "tenantId",
-      "scope",
-      "checkedRecords",
-      "exportedRecords",
-      "batchCount",
-      "countsByRecordKind",
-      "findings",
-      "errors",
-      "excludedFilesAndFields",
-      "usesCloudDataPlane",
-      "cloudUploadSupported"
-    ],
-    "validationFailsClosedFor": [
-      "missing tenant",
-      "tenant ID and slug mismatch",
-      "unsupported scope for selected adapter",
-      "adapter capabilities reporting Cloud data-plane use",
-      "adapter health reporting Cloud data-plane use",
-      "batch diagnostics reporting Cloud data-plane use",
-      "invalid JSON in exported fields",
-      "secret or unsafe credential-looking JSON keys"
-    ],
-    "localCliProof": {
-      "testData": "bootstrap-demo SQLite databases for tenant demo",
-      "root": "C:\\Users\\pm\\AppData\\Local\\Temp\\scout-migration-cli-proof-20260619014447",
-      "dryRun": {
-        "exitCode": 0,
-        "isValid": true,
-        "checkedRecords": 179,
-        "exportedRecords": 0,
-        "batchCount": 1,
-        "batchDirectoryCreated": false
-      },
-      "export": {
-        "exitCode": 0,
-        "isValid": true,
-        "checkedRecords": 179,
-        "exportedRecords": 179,
-        "batchCount": 4,
-        "batchFiles": [
-          "batches/batch-000001.json",
-          "batches/batch-000002.json",
-          "batches/batch-000003.json",
-          "batches/batch-000004.json"
-        ]
-      },
-      "nonBlockingWarnings": [
-        "The CLI proof printed one EF query warning about row limiting without OrderBy; validation and package generation still passed."
+  "repositories": {
+    "scoutOpenCore": {
+      "path": "C:\\Kyntic\\UCL",
+      "branch": "pjm/cloud-entitlement-compatibility",
+      "role": "Scout/open-core public customer-owned data plane",
+      "workingTreeBeforeFinalDocs": "clean",
+      "readyToCommit": true,
+      "readyToCommitNotes": "Ready for final WP3 docs/status commit. Final Scout validation passed.",
+      "suggestedCommitMessage": "docs: add WP3 final evidence pack",
+      "latestWp3Commits": [
+        "8ff7198 fix: speed up Scout migration export packages",
+        "a2da076 docs: add WP3 Docker startup smoke proof",
+        "5ceaf8d Add optional Cloud entitlement client",
+        "6a15534 Add Scout migration export tooling",
+        "d98d344 feat: refine storage adapter boundary",
+        "a1d1cf0 Add registered connector local API ingestion route"
+      ]
+    },
+    "cloudControlPlane": {
+      "path": "C:\\Kyntic\\universalcontextlayer-cloud",
+      "branch": "codex/canonical-relationship-weighting",
+      "role": "Cloud commercial/control-plane licence and entitlement metadata",
+      "workingTree": "dirty with unrelated AGENTS.md and brand image files",
+      "readyToCommit": false,
+      "readyToCommitNotes": "Do not commit current dirty Cloud working tree as WP3. Separate unrelated changes first.",
+      "suggestedWp3CommitMessageIfReplayedOrSquashed": "feat: align Scout entitlement compatibility",
+      "latestWp3Commits": [
+        "04fee71 Expose Scout entitlement heartbeat compatibility",
+        "d593306 Align Cloud entitlement compatibility"
+      ],
+      "knownFullSuiteBlocker": "Ucl.Cloud.Tests.AnalyticsPixelTests.Marketing_helper_uses_send_beacon_session_storage_and_no_third_party_scripts finds googletagmanager."
+    },
+    "enterpriseFortress": {
+      "path": "C:\\Kyntic\\universalcontextlayer-enterprise",
+      "branch": "pjm/ucl-evidence-pack-v1-adapter",
+      "role": "Enterprise/Fortress private runtime and vector/import boundary",
+      "workingTree": "clean",
+      "readyToCommit": true,
+      "readyToCommitNotes": "No pending WP3 working-tree commit. xhigh Rust/vector review remains required before pilot, release, or investor-visible technical proof claims.",
+      "suggestedWp3CommitMessageIfReplayedOrSquashed": "feat: add Scout migration package import contract",
+      "latestWp3Commits": [
+        "4680454 Add Scout migration package import contract",
+        "2477c5f Add Scout LanceDB import contract"
       ]
     }
   },
-  "implementedScoutCodeFiles": [
-    "Directory.Packages.props",
-    "KynticAI.Scout.slnx",
-    "src/KynticAI.Scout.Api/appsettings.Production.json",
-    "src/KynticAI.Scout.Api/appsettings.json",
-    "src/KynticAI.Scout.Application/Contracts/ControlPlaneEntitlementContracts.cs",
-    "src/KynticAI.Scout.Application/Services/IControlPlaneEntitlementClient.cs",
-    "src/KynticAI.Scout.Application/Abstractions/StorageAdapterContracts.cs",
-    "src/KynticAI.Scout.Infrastructure/Configuration/RuntimeOptions.cs",
-    "src/KynticAI.Scout.Infrastructure/DependencyInjection.cs",
-    "src/KynticAI.Scout.Infrastructure/Extensions/EnterpriseExtensionDefaults.cs",
-    "src/KynticAI.Scout.Infrastructure/KynticAI.Scout.Infrastructure.csproj",
-    "src/KynticAI.Scout.Infrastructure/Services/CloudControlPlaneEntitlementClient.cs",
-    "tools/KynticAI.Scout.MigrationTool/KynticAI.Scout.MigrationTool.csproj",
-    "tools/KynticAI.Scout.MigrationTool/Program.cs",
-    "apps/web/tests/e2e/agent-playground.spec.ts",
-    "apps/web/tests/e2e/selector-builder.spec.ts",
-    "tests/KynticAI.Scout.UnitTests/KynticAI.Scout.UnitTests.csproj",
-    "tests/KynticAI.Scout.UnitTests/CloudControlPlaneEntitlementClientTests.cs",
-    "tests/KynticAI.Scout.UnitTests/StorageAdapterBoundaryTests.cs"
-  ],
-  "implementedEnterpriseCodeFiles": [
-    "engine/crates/ucl-vector/src/lib.rs",
-    "engine/crates/ucl-vector/src/scout_migration_package.rs",
-    "engine/crates/ucl-vector/tests/scout_import_contract_tests.rs"
-  ],
-  "implementedCloudCodeFiles": [
-    "src/Ucl.Cloud.Api/Domain.cs",
-    "src/Ucl.Cloud.Api/SecurityAndServices.cs",
-    "src/Ucl.Cloud.Api/Program.cs",
-    "apps/cloud-portal/src/app/api-client.ts",
-    "tests/Ucl.Cloud.Tests/ControlPlaneServiceTests.cs",
-    "tests/Ucl.Cloud.Tests/CloudApiHostingTests.cs"
-  ],
-  "docFiles": [
+  "codeChangesCompleted": {
+    "scoutOpenCore": [
+      "Registered connector ingestion route delegating to local source-system event ingestion.",
+      "Backwards-compatible .NET and TypeScript SDK helpers for connector event ingestion.",
+      "Local storage adapter resolver with scout-postgres default and fail-closed missing-provider behaviour.",
+      "Local migration export CLI with dry-run validation, export package writing, secret exclusions, and Cloud-upload rejection.",
+      "Disabled-by-default optional Cloud entitlement client for licence/status metadata.",
+      "Migration export performance fix to build one local snapshot and page from that snapshot.",
+      "Portable export compatibility fixes for UTC timestamps and Enterprise-compatible provenance references.",
+      "Web e2e assertion updates for current UI headings."
+    ],
+    "cloudControlPlane": [
+      "Scout-LICENCE-v1 signed licence envelope and Scout- licence key compatibility.",
+      "Canonical Scout/Fortress/Elite entitlement metadata on Scout-facing routes.",
+      "Safe parsed aggregate heartbeat metadata as lastSafeUsageSummary.",
+      "JSON exclusion of data-plane API key hash.",
+      "Focused route and service regression tests for safe metadata boundaries."
+    ],
+    "enterpriseFortress": [
+      "Scout migration package contract in ucl-vector for kynticai.scout.storage-portable-export.v1.",
+      "Validation for package shape, tenant/layer anchors, local-only diagnostics, provenance, duplicates, and deterministic import anchors.",
+      "Prepared import records and LanceDB batch construction only after caller-supplied local embeddings."
+    ]
+  },
+  "primaryCodeFilesChanged": {
+    "scoutOpenCore": [
+      "Directory.Packages.props",
+      "KynticAI.Scout.slnx",
+      "src/KynticAI.Scout.Api/Rest/VersionedRestEndpointRouteBuilderExtensions.cs",
+      "src/KynticAI.Scout.Api/appsettings.json",
+      "src/KynticAI.Scout.Api/appsettings.Production.json",
+      "src/KynticAI.Scout.Application/Abstractions/StorageAdapterContracts.cs",
+      "src/KynticAI.Scout.Application/Contracts/ControlPlaneEntitlementContracts.cs",
+      "src/KynticAI.Scout.Application/Contracts/RestV1Contracts.cs",
+      "src/KynticAI.Scout.Application/Services/IControlPlaneEntitlementClient.cs",
+      "src/KynticAI.Scout.Application/Services/KynticAI.ScoutService.cs",
+      "src/KynticAI.Scout.Infrastructure/Configuration/RuntimeOptions.cs",
+      "src/KynticAI.Scout.Infrastructure/DependencyInjection.cs",
+      "src/KynticAI.Scout.Infrastructure/Extensions/EnterpriseExtensionDefaults.cs",
+      "src/KynticAI.Scout.Infrastructure/Extensions/EnterpriseExtensionServiceCollectionExtensions.cs",
+      "src/KynticAI.Scout.Infrastructure/Extensions/LocalDataPlaneStorageAdapterResolver.cs",
+      "src/KynticAI.Scout.Infrastructure/KynticAI.Scout.Infrastructure.csproj",
+      "src/KynticAI.Scout.Infrastructure/Services/CloudControlPlaneEntitlementClient.cs",
+      "src/KynticAI.Scout.Sdk/Abstractions.cs",
+      "src/KynticAI.Scout.Sdk/KynticAI.ScoutClient.cs",
+      "packages/typescript/scout-sdk/src/client.ts",
+      "packages/typescript/scout-sdk/tests/client.test.ts",
+      "tools/KynticAI.Scout.MigrationTool/KynticAI.Scout.MigrationTool.csproj",
+      "tools/KynticAI.Scout.MigrationTool/Program.cs",
+      "apps/web/tests/e2e/agent-playground.spec.ts",
+      "apps/web/tests/e2e/selector-builder.spec.ts",
+      "tests/KynticAI.Scout.IntegrationTests/V1RestApiIntegrationTests.cs",
+      "tests/KynticAI.Scout.Sdk.Tests/KynticAI.ScoutClientTests.cs",
+      "tests/KynticAI.Scout.UnitTests/KynticAI.Scout.UnitTests.csproj",
+      "tests/KynticAI.Scout.UnitTests/CloudControlPlaneEntitlementClientTests.cs",
+      "tests/KynticAI.Scout.UnitTests/StorageAdapterBoundaryTests.cs"
+    ],
+    "cloudControlPlane": [
+      "src/Ucl.Cloud.Api/Domain.cs",
+      "src/Ucl.Cloud.Api/SecurityAndServices.cs",
+      "src/Ucl.Cloud.Api/Program.cs",
+      "apps/cloud-portal/src/app/api-client.ts",
+      "tests/Ucl.Cloud.Tests/ControlPlaneServiceTests.cs",
+      "tests/Ucl.Cloud.Tests/CloudApiHostingTests.cs"
+    ],
+    "enterpriseFortress": [
+      "engine/crates/ucl-vector/src/lib.rs",
+      "engine/crates/ucl-vector/src/scout_migration_package.rs",
+      "engine/crates/ucl-vector/tests/scout_import_contract_tests.rs"
+    ]
+  },
+  "docsCreatedOrUpdated": [
     "docs/work-packages/wp3-runtime-upgrade-implementation/02-connector-local-api-routing.md",
     "docs/work-packages/wp3-runtime-upgrade-implementation/03-storage-adapter-boundary.md",
     "docs/work-packages/wp3-runtime-upgrade-implementation/04-scout-migration-export.md",
@@ -210,599 +142,164 @@
     "docs/work-packages/wp3-runtime-upgrade-implementation/06-scout-cloud-licence-client.md",
     "docs/work-packages/wp3-runtime-upgrade-implementation/07-cloud-entitlement-compatibility.md",
     "docs/work-packages/wp3-runtime-upgrade-implementation/08-docker-startup-smoke-test.md",
+    "docs/work-packages/wp3-runtime-upgrade-implementation/09-end-to-end-runtime-simulation.md",
+    "docs/work-packages/wp3-runtime-upgrade-implementation/10-final-review.md",
+    "docs/work-packages/wp3-runtime-upgrade-implementation/investor-summary.md",
+    "docs/work-packages/wp3-runtime-upgrade-implementation/customer-safe-summary.md",
+    "docs/work-packages/wp3-runtime-upgrade-implementation/next-work-packages.md",
     "docs/work-packages/wp3-runtime-upgrade-implementation/README.md",
     "docs/work-packages/wp3-runtime-upgrade-implementation/handoff.md",
     "docs/work-packages/wp3-runtime-upgrade-implementation/status.json",
-    "docs/work-packages/wp3-runtime-upgrade-implementation/09-end-to-end-runtime-simulation.md"
+    "C:\\Kyntic\\universalcontextlayer-cloud\\docs\\licence-download-to-data-plane.md",
+    "C:\\Kyntic\\universalcontextlayer-enterprise\\docs\\scout-lancedb-import-contract.md",
+    "C:\\Kyntic\\universalcontextlayer-enterprise\\engine\\crates\\ucl-vector\\README.md"
   ],
-  "enterpriseDocFiles": [
-    "engine/crates/ucl-vector/README.md",
-    "docs/scout-lancedb-import-contract.md",
-    "AGENTS.md"
+  "worksEndToEnd": [
+    "Scout local runtime can accept registered connector source-system events and store source event/signal records locally.",
+    "Scout migration dry run and local export package generation work against local SQLite and Docker/PostgreSQL smoke paths.",
+    "Full seeded Scout package export completed with 109693 records, 110 batches, isValid=true, and usesCloudDataPlane=false.",
+    "Enterprise/Fortress contract validation accepted the full fixed Scout package.",
+    "Cloud Scout-facing entitlement/status/heartbeat metadata shape is covered by focused local tests."
   ],
-  "apiRoutes": {
-    "preserved": [
-      "POST /api/v1/events/source-system?tenantSlug=<tenant>"
-    ],
-    "added": [
-      "POST /api/v1/connectors/{dataSourceId}/events/source-system?tenantSlug=<tenant>"
-    ]
-  },
-  "storageBoundary": {
-    "defaultProvider": "scout-postgres",
-    "defaultVectorProvider": "disabled",
-    "resolverContract": "ILocalDataPlaneStorageAdapterResolver",
-    "defaultUsesCloudDataPlane": false,
-    "enterpriseRuntimeExtensionPoint": "Register a private local ILocalDataPlaneStorageAdapter with AdapterKey enterprise-runtime and set StorageAdapter__Provider=enterprise-runtime.",
-    "missingPrivateProviderBehaviour": "fail-closed-local-error"
-  },
-  "enterpriseImportContract": {
-    "scoutPortableExportContract": "kynticai.scout.storage-portable-export.v1",
-    "lanceDbImportContract": "2026-06-18.scout-lancedb-import.v1",
-    "validatesPackageShape": true,
-    "requiresCustomerOwnedLocalDataPlane": true,
-    "rejectsCloudDataPlane": true,
-    "rejectsCrossTenantLayerMismatch": true,
-    "requiresLocalEmbeddingsBeforeLanceDbBatch": true,
-    "opensLanceDbOrCloud": false
-  },
-  "cloudCompatibility": {
-    "signedLicenceFormat": "Scout-LICENCE-v1",
-    "legacySignedLicenceFormatVerified": "UCL-LICENCE-v1",
-    "newLicenceKeyPrefix": "Scout-",
-    "downloadFilenameSuffix": ".scout-licence.json",
-    "tiersCovered": [
-      "Scout",
-      "Fortress",
-      "Elite"
-    ],
-    "deploymentRegistrationAndHeartbeatCovered": true,
-    "hostedStatusAndEntitlementRoutesCovered": true,
-    "heartbeatResponseIncludesLastSafeUsageSummary": true,
-    "heartbeatResponseExcludesApiKeyHash": true,
-    "allowedPayloadClass": "commercial/control-plane metadata and aggregate counters only"
-  },
-  "scoutCloudLicenceClient": {
-    "interface": "IControlPlaneEntitlementClient",
-    "implementation": "CloudControlPlaneEntitlementClient",
-    "defaultEnabled": false,
-    "cloudRouteUsed": "GET /api/v1/licences/{licenceKey}/status",
-    "requestBodySent": false,
-    "capabilityKeys": [
-      "scout-open-core",
-      "fortress-runtime",
-      "relationship-set-engine",
-      "elite-operator-pack"
-    ],
-    "tierDecisionModel": [
-      "Scout",
-      "Fortress",
-      "Elite"
-    ],
-    "configKeys": [
-      "ControlPlane:Enabled",
-      "ControlPlane:BaseUrl",
-      "ControlPlane:CustomerAccountId",
-      "ControlPlane:DataPlaneInstallationId",
-      "ControlPlane:DeploymentName",
-      "ControlPlane:DeploymentVersion",
-      "ControlPlane:DeploymentRegion",
-      "ControlPlane:EnvironmentType",
-      "ControlPlane:UpdateChannel",
-      "ControlPlane:UsageReportingEnabled",
-      "ControlPlane:OfflineGracePeriodDays",
-      "ControlPlane:TimeoutSeconds",
-      "Licence:FilePath",
-      "Licence:PublicKeyPem"
-    ],
-    "metadataSentToCloudWhenEnabledAndCalled": [
-      "licence key in route path",
-      "account ID",
-      "data-plane installation ID",
-      "deployment name",
-      "deployment version",
-      "deployment region",
-      "environment type",
-      "update channel"
-    ],
-    "metadataExplicitlyNotSent": [
-      "raw customer operational records",
+  "manualOrFutureWork": [
+    "Production Enterprise/Fortress importer CLI/API.",
+    "Operator UX with progress, cancellation, checkpoint, retry, dead-letter, rollback, and remediation guidance.",
+    "Local embedding provider wiring into a resumable importer.",
+    "Live Cloud endpoint proof.",
+    "Live vendor connector/customer sandbox proof.",
+    "Live LanceDB/native-store, pgvector fallback, and model-runtime proof.",
+    "Release/deployment/package publication checks."
+  ],
+  "notProductionSaas": [
+    "Production account, billing, subscription, support, backup/restore, legal, security, observability, and operations readiness are not complete.",
+    "Production signed binary/package delivery and key custody are not complete.",
+    "Licence suspend/reactivate and atomic commercial-tier movement remain future Cloud work.",
+    "Customer traction, LOIs, pilots, revenue, signed acceptance, or equivalent dated customer proof are not established by WP3."
+  ],
+  "dataBoundaryReview": {
+    "result": "pass-with-residual-release-gates",
+    "scoutCustomerDataStaysLocal": true,
+    "scoutMigrationExportWritesLocalFilesOnly": true,
+    "scoutMigrationExportSupportsCloudUpload": false,
+    "scoutCloudClientEnabledByDefault": false,
+    "cloudReceivesRawCustomerData": false,
+    "cloudReceivesDerivedCustomerIntelligence": false,
+    "enterpriseRejectsCloudDataPlanePackages": true,
+    "explicitlyExcludedFromCloud": [
+      "raw customer records",
       "source payloads",
       "exact data items",
       "context facts",
       "context snapshots",
-      "prompt context packages",
       "relationship intelligence",
       "relationship sets",
       "attribution paths",
-      "outcome records",
+      "outcomes",
       "recommendations",
       "weighted signals",
       "citation IDs",
       "embeddings",
       "vectors",
-      "record IDs",
       "connector credentials",
       "source credentials",
-      "connection strings",
+      "API key material",
+      "webhook secrets",
       "local databases",
-      "local logs",
-      "audit event bodies",
+      "logs",
       "migration exports",
       "checkpoints",
-      "dead letters",
-      "support bundles",
-      "aggregate usage counters from this client"
-    ],
-    "offlineGraceBehaviour": {
-      "acceptsCloudGraceStatus": true,
-      "paidCapabilityOnCloudUnavailable": "fail-closed-through-this-client",
-      "offlineGraceDaysSource": "ControlPlane:OfflineGracePeriodDays",
-      "separateOfflineGraceTokenImplemented": false
-    },
-    "tests": [
-      "disabled Cloud checks do not call Cloud",
-      "active Fortress response allows Fortress capability",
-      "safe metadata headers only and no request body",
-      "Fortress response denies Elite-only capability",
-      "Grace status is allowed when tier satisfies request",
-      "Cloud unavailable fails closed for paid capability",
-      "Cloud rejection does not block Scout open-core capability",
-      "local signed envelope can supply licence key without echoing raw key"
+      "dead letters"
     ]
   },
-  "dockerStartupSmokeTest": {
-    "date": "2026-06-19",
-    "explicitOptInEnvVars": [
-      "KYNTIC_RUN_EXTERNAL_DOTNET_TESTS=1",
-      "KYNTIC_RUN_BROWSER_TESTS=1"
+  "repoBoundaryReview": {
+    "result": "pass-with-cloud-working-tree-caveat",
+    "scoutImportsPrivateEnterprisePackages": false,
+    "cloudActsAsDataPlane": false,
+    "enterpriseOwnsPrivateImportVectorBoundary": true,
+    "cloudUnrelatedWorkingTreeChangesPresent": true
+  },
+  "previousVerificationHighlights": [
+    "Scout Docker startup smoke passed with KYNTIC_RUN_EXTERNAL_DOTNET_TESTS=1 and KYNTIC_RUN_BROWSER_TESTS=1.",
+    "Scout Playwright e2e passed after local Chromium install and e2e assertion updates.",
+    "Scout local runtime simulation passed registered connector ingestion, local storage confirmation, dry run, full export, and Enterprise validation.",
+    "Enterprise cargo test -p ucl-vector --test scout_import_contract_tests passed; 14 tests.",
+    "Cloud focused Scout runtime entitlement/status/heartbeat tests passed; 9 tests."
+  ],
+  "finalValidationThisTurn": {
+    "status": "passed-with-known-cloud-working-tree-and-full-suite-blockers",
+    "commands": [
+      {
+        "repo": "Scout/open-core",
+        "command": "Get-Content -Raw docs\\work-packages\\wp3-runtime-upgrade-implementation\\status.json | ConvertFrom-Json | Out-Null",
+        "result": "passed"
+      },
+      {
+        "repo": "Scout/open-core",
+        "command": "git diff --check",
+        "result": "passed with LF-to-CRLF working-copy warnings only"
+      },
+      {
+        "repo": "Scout/open-core",
+        "command": "dotnet restore .\\KynticAI.Scout.slnx",
+        "result": "passed; all projects up to date"
+      },
+      {
+        "repo": "Scout/open-core",
+        "command": "dotnet build .\\KynticAI.Scout.slnx --no-restore",
+        "result": "passed; 0 warnings; 0 errors"
+      },
+      {
+        "repo": "Scout/open-core",
+        "command": "dotnet test .\\tests\\KynticAI.Scout.UnitTests\\KynticAI.Scout.UnitTests.csproj --no-build",
+        "result": "passed; 107 tests"
+      },
+      {
+        "repo": "Scout/open-core",
+        "command": "dotnet test .\\tests\\KynticAI.Scout.Sdk.Tests\\KynticAI.Scout.Sdk.Tests.csproj --no-build",
+        "result": "passed; 13 tests"
+      },
+      {
+        "repo": "Cloud/control-plane",
+        "command": "git diff --check",
+        "result": "passed with existing LF-to-CRLF working-copy warning on AGENTS.md"
+      },
+      {
+        "repo": "Cloud/control-plane",
+        "command": "dotnet restore .\\UclCloudControlPlane.slnx",
+        "result": "passed; all projects up to date"
+      },
+      {
+        "repo": "Cloud/control-plane",
+        "command": "dotnet build .\\UclCloudControlPlane.slnx --no-restore",
+        "result": "passed; 0 warnings; 0 errors"
+      },
+      {
+        "repo": "Cloud/control-plane",
+        "command": "dotnet test .\\tests\\Ucl.Cloud.Tests\\Ucl.Cloud.Tests.csproj --no-build --filter \"FullyQualifiedName~ControlPlaneServiceTests.Scout_runtime_entitlement_endpoints_expose_canonical_tier_shape_without_customer_data|FullyQualifiedName~ControlPlaneServiceTests.Allowed_control_plane_metadata_supports_runtime_registration_heartbeat_and_pack_flags|FullyQualifiedName~ControlPlaneServiceTests.Boundary_allowlists_reject_raw_and_derived_payloads_without_echoing_values|FullyQualifiedName~CloudApiHostingTests.Scout_runtime_licence_status_and_entitlement_routes_expose_safe_canonical_shape|FullyQualifiedName~CloudApiHostingTests.Data_plane_heartbeat_route_exposes_safe_aggregate_summary_without_key_hash\"",
+        "result": "passed; 9 tests"
+      },
+      {
+        "repo": "Enterprise/Fortress",
+        "command": "git diff --check",
+        "result": "passed"
+      },
+      {
+        "repo": "Enterprise/Fortress",
+        "command": "cargo test -p ucl-vector --test scout_import_contract_tests",
+        "result": "passed; 14 tests"
+      }
     ],
-    "freshStartCommand": ".\\scripts\\start-scout-docker.ps1 -Reset -NoOpenReport",
-    "freshStartResult": "passed",
-    "dockerServerVersion": "29.4.3",
-    "dockerComposeVersion": "v5.1.3",
-    "urlsTested": [
-      "http://127.0.0.1:5198/health/ready",
-      "http://127.0.0.1:5198",
-      "http://127.0.0.1:5198/graphql",
-      "http://127.0.0.1:5198/api-docs",
-      "http://127.0.0.1:5173",
-      "http://192.168.1.145:5198/health/ready",
-      "http://192.168.1.145:5173",
-      "http://192.168.1.145:5198/api/v1/events/source-system?tenantSlug=demo",
-      "http://127.0.0.1:5198/api/v1/connectors/{dataSourceId}/events/source-system?tenantSlug=demo"
-    ],
-    "healthResults": {
-      "apiReadyStatusCode": 200,
-      "apiContainerHealth": "healthy",
-      "postgresContainerHealth": "healthy",
-      "webLocalStatusCode": 200,
-      "lanApiStatusCode": 200,
-      "lanWebStatusCode": 200
-    },
-    "lan": {
-      "detectedIp": "192.168.1.145",
-      "startScriptPrintedLanUrls": true,
-      "lanWebhookSmokePassedByStartScript": true
-    },
-    "connectorIngestion": {
-      "dataSourceId": "21bf08a7-8eb8-4c85-91da-b8196bedcf1d",
-      "route": "POST /api/v1/connectors/{dataSourceId}/events/source-system?tenantSlug=demo",
-      "eventId": "wp3-registered-connector-smoke-20260619064523",
-      "status": "Processed",
-      "storedSignalCount": 1,
-      "matchedSelectorCount": 0
-    },
-    "migrationDryRun": {
-      "command": "dotnet run --project tools\\KynticAI.Scout.MigrationTool -- export --tenant demo --out C:\\Users\\pm\\AppData\\Local\\Temp\\scout-wp3-docker-smoke-dry-run-20260619 --dry-run --scope relationship-inputs --max-records 25",
-      "exitCode": 0,
-      "isValid": true,
-      "checkedRecords": 2357,
-      "exportedRecords": 0,
-      "batchCount": 1,
-      "usesCloudDataPlane": false,
-      "cloudUploadSupported": false,
-      "batchDirectoryCreated": false,
-      "nonBlockingWarnings": [
-        "EF Core row-limiting-without-OrderBy warning printed during export enumeration."
-      ]
-    },
-    "cloudLicenceChecks": {
-      "defaultDisabledInAppsettings": true,
-      "dockerContainerControlPlaneOverridePresent": false,
-      "mockedEnabledTests": "passed; 7 CloudControlPlaneEntitlementClientTests"
-    },
-    "uiProof": {
-      "httpLocalWebStatusCode": 200,
-      "httpLanWebStatusCode": 200,
-      "playwrightInitialMissingBrowser": true,
-      "playwrightBrowserInstallCommand": "npx playwright install chromium",
-      "playwrightAfterFix": "passed; 6 tests",
-      "staleAssertionsFixed": [
-        "apps/web/tests/e2e/agent-playground.spec.ts",
-        "apps/web/tests/e2e/selector-builder.spec.ts"
-      ]
-    },
-    "fixesMade": [
-      "Updated agent playground e2e heading assertion for current evidence-pack copy.",
-      "Updated selector builder e2e heading assertion for current page H1."
-    ],
-    "remainingBlockers": [
-      "No live Cloud endpoint was used; enabled Cloud licence path was verified with mocked unit tests.",
-      "Docker web image build reported existing npm audit output: 3 vulnerabilities, 1 low and 2 high.",
-      "LanceDB/native-store, pgvector fallback, model runtime, vendor sandbox/live connector, hosted endpoint, release/deployment, and xhigh review gates were not run."
+    "skipped": [
+      "Cloud full suite was not rerun in this close-out pass because the existing analytics-pixel guard failure is already recorded.",
+      "Docker/PostgreSQL, Playwright/browser, hosted Cloud endpoint, vendor sandbox/live connector, LanceDB/native-store, pgvector fallback, model runtime, package publication, release, and deployment proof were not rerun."
     ]
   },
-  "dataBoundary": {
-    "customerDataStaysLocal": true,
-    "cloudDataPlaneUsed": false,
-    "privateEnterpriseCodeImportedIntoScout": false,
-    "scoutDependsOnPrivatePackages": false,
-    "payloadCopiedToVectorMetadata": false,
-    "cloudReceivesRawCustomerData": false,
-    "cloudReceivesDerivedCustomerIntelligence": false,
-    "scoutCloudLicenceClientEnabledByDefault": false,
-    "scoutCloudLicenceClientSendsRequestBody": false,
-    "scoutCloudLicenceClientReturnsRawLicenceKey": false,
-    "scoutMigrationExportWritesLocalFilesOnly": true,
-    "scoutMigrationExportHasCloudUploadMode": false,
-    "scoutMigrationExportExcludesSecretsAndUnsafeCredentials": true
-  },
-  "verification": [
-    {
-      "command": "docker version",
-      "result": "initially showed Docker CLI installed but Docker Desktop Linux engine not running"
-    },
-    {
-      "command": "docker compose version",
-      "result": "passed; Docker Compose v5.1.3"
-    },
-    {
-      "command": "docker compose config --quiet",
-      "result": "passed"
-    },
-    {
-      "command": "Get-NetTCPConnection -State Listen -LocalPort 5198,5173,5432,3000,9090,4317,4318,9464,3200",
-      "result": "found stale repo-local Vite process on 5173; stopped before Docker startup"
-    },
-    {
-      "command": "Start-Process 'C:\\Program Files\\Docker\\Docker\\Docker Desktop.exe' -WindowStyle Hidden; docker readiness loop",
-      "result": "passed; Docker engine became ready with server version 29.4.3"
-    },
-    {
-      "command": ".\\scripts\\start-scout-docker.ps1 -Reset -NoOpenReport",
-      "result": "passed with KYNTIC_RUN_EXTERNAL_DOTNET_TESTS=1 and KYNTIC_RUN_BROWSER_TESTS=1; rebuilt API/web images, seeded demo data, generated install report, printed LAN URLs, and reported API/Postgres healthy"
-    },
-    {
-      "command": "docker compose ps",
-      "result": "passed; API, web, Postgres, Grafana, Prometheus, Tempo, and OTLP collector running on expected ports"
-    },
-    {
-      "command": "docker inspect --format '{{.State.Health.Status}}' scout-postgres",
-      "result": "healthy"
-    },
-    {
-      "command": "docker inspect --format '{{.State.Health.Status}}' scout-api",
-      "result": "healthy"
-    },
-    {
-      "command": "Invoke-WebRequest http://127.0.0.1:5198/health/ready",
-      "result": "passed; HTTP 200 with DB health checks"
-    },
-    {
-      "command": "Invoke-WebRequest http://127.0.0.1:5173",
-      "result": "passed; HTTP 200 with HTML"
-    },
-    {
-      "command": "POST http://127.0.0.1:5198/api/v1/connectors/{dataSourceId}/events/source-system?tenantSlug=demo",
-      "result": "passed; event wp3-registered-connector-smoke-20260619064523 returned Processed with storedSignalCount=1"
-    },
-    {
-      "command": "Invoke-WebRequest http://192.168.1.145:5198/health/ready; Invoke-WebRequest http://192.168.1.145:5173",
-      "result": "passed; both LAN API and LAN web returned HTTP 200"
-    },
-    {
-      "command": "dotnet run --project tools\\KynticAI.Scout.MigrationTool -- export --tenant demo --out C:\\Users\\pm\\AppData\\Local\\Temp\\scout-wp3-docker-smoke-dry-run-20260619 --dry-run --scope relationship-inputs --max-records 25",
-      "result": "passed against live Docker Postgres; isValid=true; checkedRecords=2357; exportedRecords=0; batchCount=1; usesCloudDataPlane=false; cloudUploadSupported=false"
-    },
-    {
-      "command": "Get-Content -Raw src\\KynticAI.Scout.Api\\appsettings.json | ConvertFrom-Json | Select-Object -ExpandProperty ControlPlane",
-      "result": "passed; ControlPlane.Enabled=false by default"
-    },
-    {
-      "command": "docker inspect --format '{{range .Config.Env}}{{println .}}{{end}}' scout-api | Select-String -Pattern '^ControlPlane__|^Licence__|^StorageAdapter__'",
-      "result": "passed; no ControlPlane override present in running Docker API container"
-    },
-    {
-      "command": "dotnet test .\\tests\\KynticAI.Scout.UnitTests\\KynticAI.Scout.UnitTests.csproj --filter FullyQualifiedName~CloudControlPlaneEntitlementClientTests",
-      "result": "passed; 7 mocked Cloud entitlement tests"
-    },
-    {
-      "command": "npx playwright install chromium",
-      "result": "passed; installed missing local Playwright Chromium prerequisite"
-    },
-    {
-      "command": "npm run test:e2e",
-      "result": "passed after updating stale e2e heading assertions; 6 tests"
-    },
-    {
-      "command": "npm run lint",
-      "result": "passed in apps/web"
-    },
-    {
-      "command": "npm run test",
-      "result": "passed in apps/web; 4 files; 4 tests"
-    },
-    {
-      "command": "npm run build",
-      "result": "passed in apps/web"
-    },
-    {
-      "command": "docker compose down",
-      "result": "passed; stopped and removed smoke-test containers and network"
-    },
-    {
-      "command": "dotnet restore .\\KynticAI.Scout.slnx",
-      "result": "passed after updating SQLitePCLRaw dependency away from the deprecated/vulnerable transitive native package flagged by NuGet audit"
-    },
-    {
-      "command": "dotnet build .\\tools\\KynticAI.Scout.MigrationTool\\KynticAI.Scout.MigrationTool.csproj --no-restore",
-      "result": "passed; 0 warnings; 0 errors"
-    },
-    {
-      "command": "dotnet build .\\tests\\KynticAI.Scout.UnitTests\\KynticAI.Scout.UnitTests.csproj --no-restore",
-      "result": "passed; 0 warnings; 0 errors"
-    },
-    {
-      "command": "dotnet test .\\tests\\KynticAI.Scout.UnitTests\\KynticAI.Scout.UnitTests.csproj --no-build --filter FullyQualifiedName~StorageAdapterBoundaryTests",
-      "result": "passed; 16 tests"
-    },
-    {
-      "command": "dotnet build .\\KynticAI.Scout.slnx --no-restore",
-      "result": "passed; 0 warnings; 0 errors"
-    },
-    {
-      "command": "dotnet test .\\tests\\KynticAI.Scout.UnitTests\\KynticAI.Scout.UnitTests.csproj --no-build",
-      "result": "passed; 95 tests"
-    },
-    {
-      "command": "dotnet test .\\tests\\KynticAI.Scout.Sdk.Tests\\KynticAI.Scout.Sdk.Tests.csproj --no-build",
-      "result": "passed; 13 tests"
-    },
-    {
-      "command": "dotnet run --no-build --project src\\KynticAI.Scout.Api -- bootstrap-demo",
-      "result": "passed; temporary local SQLite demo databases created"
-    },
-    {
-      "command": "dotnet run --no-build --project tools\\KynticAI.Scout.MigrationTool -- export --tenant demo --out C:\\Users\\pm\\AppData\\Local\\Temp\\scout-migration-cli-proof-20260619014447\\dry-run --dry-run --scope relationship-inputs --max-records 25",
-      "result": "passed; isValid=true; checkedRecords=179; exportedRecords=0; batchCount=1; no batches directory"
-    },
-    {
-      "command": "dotnet run --no-build --project tools\\KynticAI.Scout.MigrationTool -- export --tenant demo --out C:\\Users\\pm\\AppData\\Local\\Temp\\scout-migration-cli-proof-20260619014447\\export --scope relationship-inputs --max-records 50",
-      "result": "passed; isValid=true; checkedRecords=179; exportedRecords=179; batchCount=4"
-    },
-    {
-      "command": "dotnet build .\\tests\\KynticAI.Scout.UnitTests\\KynticAI.Scout.UnitTests.csproj --no-restore",
-      "result": "passed for Scout Cloud licence client step; 0 warnings; 0 errors"
-    },
-    {
-      "command": "dotnet test .\\tests\\KynticAI.Scout.UnitTests\\KynticAI.Scout.UnitTests.csproj --no-build --filter FullyQualifiedName~CloudControlPlaneEntitlementClientTests",
-      "result": "passed; 7 mocked Cloud tests"
-    },
-    {
-      "command": "dotnet restore .\\KynticAI.Scout.slnx",
-      "result": "passed for Scout Cloud licence client step; all projects up to date"
-    },
-    {
-      "command": "dotnet build .\\KynticAI.Scout.slnx --no-restore",
-      "result": "passed for Scout Cloud licence client step; 0 warnings; 0 errors"
-    },
-    {
-      "command": "dotnet test .\\tests\\KynticAI.Scout.UnitTests\\KynticAI.Scout.UnitTests.csproj --no-build",
-      "result": "passed for Scout Cloud licence client step; 102 tests"
-    },
-    {
-      "command": "dotnet test .\\tests\\KynticAI.Scout.Sdk.Tests\\KynticAI.Scout.Sdk.Tests.csproj --no-build",
-      "result": "passed for Scout Cloud licence client step; 13 tests"
-    },
-    {
-      "command": "Get-Content -Raw docs\\work-packages\\wp3-runtime-upgrade-implementation\\status.json | ConvertFrom-Json | Out-Null",
-      "result": "passed"
-    },
-    {
-      "command": "Get-Content -Raw src\\KynticAI.Scout.Api\\appsettings.json | ConvertFrom-Json | Out-Null",
-      "result": "passed"
-    },
-    {
-      "command": "Get-Content -Raw src\\KynticAI.Scout.Api\\appsettings.Production.json | ConvertFrom-Json | Out-Null",
-      "result": "passed"
-    },
-    {
-      "command": "git diff --check",
-      "result": "passed for Scout Cloud licence client step; LF-to-CRLF working-copy warnings only"
-    },
-    {
-      "command": "cargo test -p ucl-vector --test scout_import_contract_tests",
-      "result": "passed earlier for Enterprise import contract step; 14 tests"
-    },
-    {
-      "command": "dotnet test .\\tests\\Ucl.Cloud.Tests\\Ucl.Cloud.Tests.csproj --no-build --filter \"FullyQualifiedName~ControlPlaneServiceTests.Scout_runtime_entitlement_endpoints_expose_canonical_tier_shape_without_customer_data|FullyQualifiedName~ControlPlaneServiceTests.Signed_licence_download_shape_is_scout_runtime_compatible_and_keeps_legacy_envelope_verification|FullyQualifiedName~ControlPlaneServiceTests.Allowed_control_plane_metadata_supports_runtime_registration_heartbeat_and_pack_flags|FullyQualifiedName~ControlPlaneServiceTests.Boundary_allowlists_reject_raw_and_derived_payloads_without_echoing_values\"",
-      "result": "passed earlier for Cloud compatibility step; 6 tests"
-    },
-    {
-      "command": "dotnet test .\\tests\\Ucl.Cloud.Tests\\Ucl.Cloud.Tests.csproj --filter FullyQualifiedName~CloudApiHostingTests.Scout_runtime_licence_status_and_entitlement_routes_expose_safe_canonical_shape",
-      "result": "passed; 1 hosted REST route test"
-    },
-    {
-      "command": "dotnet restore .\\UclCloudControlPlane.slnx",
-      "result": "passed for latest Cloud compatibility verification; all projects up to date"
-    },
-    {
-      "command": "dotnet build .\\UclCloudControlPlane.slnx --no-restore",
-      "result": "passed for latest Cloud compatibility verification; 0 warnings; 0 errors"
-    },
-    {
-      "command": "dotnet test .\\tests\\Ucl.Cloud.Tests\\Ucl.Cloud.Tests.csproj --filter \"FullyQualifiedName~ControlPlaneServiceTests.Scout_runtime_entitlement_endpoints_expose_canonical_tier_shape_without_customer_data|FullyQualifiedName~ControlPlaneServiceTests.Allowed_control_plane_metadata_supports_runtime_registration_heartbeat_and_pack_flags|FullyQualifiedName~ControlPlaneServiceTests.Boundary_allowlists_reject_raw_and_derived_payloads_without_echoing_values|FullyQualifiedName~CloudApiHostingTests.Scout_runtime_licence_status_and_entitlement_routes_expose_safe_canonical_shape|FullyQualifiedName~CloudApiHostingTests.Data_plane_heartbeat_route_exposes_safe_aggregate_summary_without_key_hash\"",
-      "result": "passed; 9 Cloud compatibility tests"
-    }
-  ],
-  "commandIssues": [
-    {
-      "command": "docker version",
-      "result": "Docker CLI was installed but Docker Desktop Linux engine was not running; starting Docker Desktop resolved the blocker"
-    },
-    {
-      "command": "Docker startup preflight ports",
-      "result": "port 5173 was occupied by a stale repo-local Vite process; stopping that process allowed Docker web to bind"
-    },
-    {
-      "command": ".\\scripts\\start-scout-docker.ps1 -Reset -NoOpenReport",
-      "result": "passed; Docker web build printed existing npm audit output with 3 vulnerabilities, 1 low and 2 high"
-    },
-    {
-      "command": "first npm run test:e2e",
-      "result": "failed because the local Playwright Chromium binary was missing; npx playwright install chromium resolved it"
-    },
-    {
-      "command": "second npm run test:e2e",
-      "result": "failed because two e2e assertions expected old UI headings; updating agent playground and selector builder assertions resolved it"
-    },
-    {
-      "command": "Docker-backed migration dry run",
-      "result": "passed but printed the existing EF Core row-limiting-without-OrderBy warning"
-    },
-    {
-      "command": "dotnet test .\\tests\\Ucl.Cloud.Tests\\Ucl.Cloud.Tests.csproj --filter Cloud compatibility set",
-      "result": "failed once before rerun because a stale local testhost process held Ucl.Cloud.Api.dll; dotnet build-server shutdown cleared the lock and the same focused test set passed"
-    },
-    {
-      "command": "dotnet restore .\\KynticAI.Scout.slnx",
-      "result": "failed before dependency update because NU1903 was treated as an error for deprecated/vulnerable SQLitePCLRaw.lib.e_sqlite3 2.1.11"
-    },
-    {
-      "command": "parallel dotnet build of tool project and unit test project",
-      "result": "failed once due shared obj file lock; rerun serially and passed"
-    },
-    {
-      "command": "local migration CLI proof",
-      "result": "passed but printed one non-blocking EF row-limit warning"
-    },
-    {
-      "command": "dotnet test .\\UclCloudControlPlane.slnx --no-build",
-      "result": "failed in Cloud repo because existing Ucl.Cloud.Tests.AnalyticsPixelTests.Marketing_helper_uses_send_beacon_session_storage_and_no_third_party_scripts found googletagmanager; latest run after the heartbeat compatibility update had 614 passed; 1 failed"
-    }
-  ],
-  "dependencyAuditSources": [
-    "https://www.nuget.org/packages/SQLitePCLRaw.lib.e_sqlite3/2.1.11",
-    "https://www.nuget.org/packages/SQLitePCLRaw.bundle_e_sqlite3/3.0.3"
-  ],
-  "skippedProof": [
-    "Live Cloud endpoint proof was not run; optional enabled Cloud licence behaviour was verified with mocked Scout unit tests.",
-    "LanceDB/native-store, pgvector, and production-runtime proof were not run because KYNTIC_RUN_NATIVE_STORE_TESTS was not set.",
-    "Ollama/model-runtime and Rust external proof were not run because KYNTIC_RUN_EXTERNAL_RUST_TESTS was not set.",
-    "Hosted endpoint, vendor sandbox, live connector proof, package publication, release, and deployment checks were not run.",
-    "Cloud production API/database/CORS, SMTP, SSL/DNS, Stripe/live payment, object storage, browser/Playwright, hosted endpoint, and public deployment proof were not run.",
-    "xhigh review gates were not run and remain required before release or pilot claims."
-  ],
-  "openRisks": [
-    "No production Enterprise/Fortress importer CLI/API consumes Scout export files yet.",
-    "The Scout export CLI exists, but no production operator UX wraps it yet.",
-    "Local embedding generation is not wired into a resumable importer.",
-    "Live LanceDB/native-store proof is not complete.",
-    "pgvector fallback proof is not complete.",
-    "Relationship-set, attribution-path, outcome-event, governed JSON handoff, checkpoint, retry, dead-letter, and rollback proof remain future work.",
-    "The optional Scout Cloud entitlement client exists, but paid private runtime gates are not wired in the public repo.",
-    "Docker startup smoke passed, but the Docker web build reported npm audit vulnerabilities that need separate dependency/security triage.",
-    "Full Cloud test suite is blocked by the existing marketing analytics guard failure that finds googletagmanager.",
-    "xhigh review gates remain required for public API, SDK, connector-contract, data-model, security-sensitive, and Rust engine/vector boundary work."
-  ],
-  "nextPrompt": "Build the production Enterprise/Fortress importer CLI/API for validated Scout export folders, then rerun the fast full local package export and import it into a local private runtime target with xhigh review gates.",
-  "endToEndRuntimeSimulation": {
-    "date": "2026-06-19",
-    "tempRoot": "C:\\Users\\pm\\AppData\\Local\\Temp\\scout-wp3-e2e-runtime-simulation-20260619083141",
-    "scoutDb": "C:\\Users\\pm\\AppData\\Local\\Temp\\scout-wp3-e2e-runtime-simulation-20260619083141\\scout_context_demo.db",
-    "customerOpsDb": "C:\\Users\\pm\\AppData\\Local\\Temp\\scout-wp3-e2e-runtime-simulation-20260619083141\\customer_ops_demo.db",
-    "sampleData": {
-      "tenantSlug": "demo",
-      "connectorType": "mockCrm",
-      "dataSourceKind": "Crm",
-      "dataSourceId": "fda1e7aa-7a83-4cc3-8d5b-24ed1f7eab67",
-      "eventId": "wp3-e2e-runtime-simulation-final-20260619083602",
-      "sourceSystem": "mock_crm",
-      "eventType": "source.crm.contact_updated",
-      "externalUserId": "123",
-      "syntheticAccountReference": "Larkspur Logistics Group / ACC-WP3-E2E-001"
-    },
-    "apiCalls": [
-      "GET http://127.0.0.1:5198/health",
-      "POST http://127.0.0.1:5198/api/auth/login",
-      "POST http://127.0.0.1:5198/api/rest/connectors/register",
-      "POST http://127.0.0.1:5198/api/v1/connectors/fda1e7aa-7a83-4cc3-8d5b-24ed1f7eab67/events/source-system?tenantSlug=demo",
-      "POST http://127.0.0.1:5198/graphql"
-    ],
-    "ingestion": {
-      "status": "Processed",
-      "storedSignalCount": 1,
-      "matchedSelectorCount": 0,
-      "localStorageConfirmed": true,
-      "sqliteSignalCountForDataSource": 1
-    },
-    "migrationDryRun": {
-      "scope": "relationship-inputs",
-      "isValid": true,
-      "checkedRecords": 107738,
-      "exportedRecords": 0
-    },
-    "exportPackage": {
-      "packageDir": "C:\\Users\\pm\\AppData\\Local\\Temp\\scout-wp3-e2e-runtime-simulation-20260619083141\\fast-full-fixed-scout-export-package-20260619095335",
-      "manifest": "C:\\Users\\pm\\AppData\\Local\\Temp\\scout-wp3-e2e-runtime-simulation-20260619083141\\fast-full-fixed-scout-export-package-20260619095335\\manifest.json",
-      "validationReport": "C:\\Users\\pm\\AppData\\Local\\Temp\\scout-wp3-e2e-runtime-simulation-20260619083141\\fast-full-fixed-scout-export-package-20260619095335\\validation-report.json",
-      "batchGlob": "C:\\Users\\pm\\AppData\\Local\\Temp\\scout-wp3-e2e-runtime-simulation-20260619083141\\fast-full-fixed-scout-export-package-20260619095335\\batches\\batch-*.json",
-      "scope": "source-events,user-signals,selector-executions,context-facts,provenance,audit-events",
-      "maxRecords": 1000,
-      "elapsedSeconds": 72.95,
-      "isValid": true,
-      "checkedRecords": 109693,
-      "exportedRecords": 109693,
-      "batchCount": 110,
-      "usesCloudDataPlane": false
-    },
-    "enterpriseValidation": {
-      "result": "passed",
-      "elapsedSeconds": 59.22,
-      "validatorLog": "C:\\Users\\pm\\AppData\\Local\\Temp\\scout-wp3-e2e-runtime-simulation-20260619083141\\enterprise-validator-fast-full-fixed.log",
-      "validator": "temporary harness using ucl-vector ScoutPortableExportBatch::from_json(...).prepare_import_plan(Some(\"demo\"))",
-      "builtInTests": "cargo test -p ucl-vector --test scout_import_contract_tests passed; 14 tests"
-    },
-    "fixesMade": [
-      "Changed Scout export adapter to build one portable record snapshot and yield all pages from that snapshot.",
-      "Normalised portable export DateTime values to UTC.",
-      "Promoted eventId provenance to sourceRecordId where possible.",
-      "Added local provenance fallback references for user_signal, selector_execution, and context_fact records.",
-      "Added storage adapter regression tests for fast paging, UTC timestamps, and Enterprise-compatible provenance."
-    ],
-    "dataBoundary": {
-      "cloudDataPlaneUsed": false,
-      "cloudReceivesRawCustomerData": false,
-      "cloudReceivesDerivedCustomerIntelligence": false,
-      "exportWritesLocalFilesOnly": true,
-      "optionalCloudPath": "safe metadata tests only; no live Cloud endpoint used"
-    },
-    "tests": {
-      "storageAdapterBoundary": "passed; 21 tests",
-      "scoutCloudEntitlement": "passed; 7 tests",
-      "enterpriseScoutImportContract": "passed; 14 tests",
-      "cloudSafeMetadata": "passed; 9 tests"
-    },
-    "stoppedProcesses": [
-      "Stopped hanging/old Scout API and migration export processes before rerunning fixed export.",
-      "Port 5198 was clear after cleanup."
-    ],
-    "remainingBlockers": [
-      "No production Enterprise/Fortress importer CLI/API consumes Scout export folders yet.",
-      "Live Cloud endpoint proof was not run; safe local/mocked metadata tests passed.",
-      "Production operator UX still needs no-build/runbook/progress/cancellation/resumable import polish.",
-      "xhigh review gates remain required before release or pilot claims."
-    ]
-  }
+  "blockers": [
+    "Cloud current working tree has unrelated uncommitted AGENTS.md and brand image files.",
+    "Cloud full suite has existing analytics-pixel guard failure.",
+    "No production Enterprise/Fortress importer CLI/API consumes Scout export folders yet.",
+    "Live Cloud endpoint proof was not run.",
+    "Live LanceDB/native-store, pgvector fallback, model runtime, hosted endpoint, vendor sandbox/live connector, package publication, release, and deployment proof were not run.",
+    "xhigh review gates remain required for public API, SDK, connector-contract, data-model, security-sensitive, and Rust/vector boundary claims."
+  ]
 }

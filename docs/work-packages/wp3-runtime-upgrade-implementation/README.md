@@ -14,7 +14,11 @@ This work package records Scout/open-core implementation work after WP2 plus the
 
 ## Current Status
 
-Step `09-end-to-end-runtime-simulation` is the latest recorded step. It verifies local Scout startup, registered-connector ingestion, local SQLite storage, migration dry run, full local export package generation, Enterprise/Fortress package contract validation, and optional Cloud entitlement checks using safe metadata only.
+Step `10-final-review` is the latest recorded step. It closes WP3 with a final evidence pack, investor-safe summary, customer-safe summary, next-work-package list, data-boundary review, repo-boundary review, and commit-readiness review across Scout/open-core, Cloud/control plane, and Enterprise/Fortress.
+
+The final verdict is that WP3 is a real, tested runtime-upgrade foundation, not a production SaaS release. Scout/open-core is ready for the final evidence-pack commit after final validation. Enterprise/Fortress is clean with the import-contract batch present, subject to xhigh review before release, pilot, or investor-visible Rust/vector claims. Cloud WP3 compatibility commits are present and focused validation passed, but the current Cloud working tree has unrelated brand/AGENTS changes and should not be committed as WP3.
+
+Step `09-end-to-end-runtime-simulation` verifies local Scout startup, registered-connector ingestion, local SQLite storage, migration dry run, full local export package generation, Enterprise/Fortress package contract validation, and optional Cloud entitlement checks using safe metadata only.
 
 Earlier steps remain implemented and recorded: `04-scout-migration-export` in Scout/open-core, `05-enterprise-import-contract` in the Enterprise/Fortress repo, and `06-scout-cloud-licence-client` for the disabled-by-default Scout Cloud licence/entitlement client.
 
@@ -62,6 +66,10 @@ The smoke pass fixed stale Playwright e2e assertions for current UI copy in the 
 | `07-cloud-entitlement-compatibility.md` | Cloud compatibility evidence for optional Scout runtime licence/entitlement checks, response shape, tests, and boundary checks. |
 | `08-docker-startup-smoke-test.md` | Fresh Docker/PostgreSQL startup smoke-test evidence, URLs, ingestion checks, migration dry run, UI/browser proof, fixes, and blockers. |
 | `09-end-to-end-runtime-simulation.md` | Local runtime simulation evidence, API calls, storage proof, fixed full export timing, Enterprise/Fortress validation, Cloud boundary verification, fixes, and blockers. |
+| `10-final-review.md` | Final WP3 evidence pack and commit-readiness review across Scout, Cloud, and Enterprise/Fortress. |
+| `investor-summary.md` | Investor-safe WP3 summary with claim boundaries and evidence highlights. |
+| `customer-safe-summary.md` | Customer-safe WP3 summary focused on data boundaries and practical readiness. |
+| `next-work-packages.md` | Recommended next work packages after WP3. |
 | `handoff.md` | Summary, verification, open risks, and recommended next prompt. |
 | `status.json` | Machine-readable WP3 status and verification record. |
 
@@ -81,4 +89,4 @@ The smoke pass fixed stale Playwright e2e assertions for current UI copy in the 
 
 ## Recommended Next Prompt
 
-Build the production Enterprise/Fortress importer CLI/API for validated Scout export folders, then rerun the fast full local package export and import it into a local private runtime target with xhigh review gates.
+Build the production Enterprise/Fortress importer CLI/API for validated Scout export folders, then rerun the fast full local package export and import it into a local private runtime target with xhigh review gates. Keep the Cloud analytics/test blocker and Docker npm audit triage separate from the WP3 final evidence-pack commit.
