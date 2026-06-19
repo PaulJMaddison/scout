@@ -14,7 +14,7 @@ This work package records Scout/open-core implementation work after WP2 plus the
 
 ## Current Status
 
-Step `07-cloud-entitlement-compatibility` is the latest recorded step. It verifies the Cloud-side licence/status, entitlement, deployment registration, and heartbeat compatibility needed by Scout optional runtime checks while keeping Cloud to commercial/control-plane metadata only.
+Step `08-docker-startup-smoke-test` is the latest recorded step. It verifies the fresh Docker/PostgreSQL startup path after WP3, API health, Postgres health, UI health, LAN URL behaviour, registered-connector ingestion, migration dry run, and optional Cloud licence checks with the default disabled path plus mocked enabled-path unit coverage.
 
 Earlier steps remain implemented and recorded: `04-scout-migration-export` in Scout/open-core, `05-enterprise-import-contract` in the Enterprise/Fortress repo, and `06-scout-cloud-licence-client` for the disabled-by-default Scout Cloud licence/entitlement client.
 
@@ -44,6 +44,10 @@ Cloud now also has hosted REST regression coverage proving `GET /api/v1/licences
 
 Scout now has `IControlPlaneEntitlementClient` and `CloudControlPlaneEntitlementClient` for optional Cloud checks. The default config keeps `ControlPlane:Enabled=false`; when enabled and called, the client performs a metadata-only licence status check, maps Cloud canonical tiers to Scout/Fortress/Elite decisions, accepts Cloud grace status, fails closed for paid capabilities when Cloud is unavailable, and never returns raw licence keys.
 
+The Docker startup smoke test passed with fresh Compose volumes and PostgreSQL. `scripts/start-scout-docker.ps1 -Reset -NoOpenReport` rebuilt API/web images, seeded demo data, returned healthy API/Postgres checks, served the web console locally and on LAN, validated/registered the mock CRM connector, and accepted local/LAN source events. A direct call to the WP3 registered-connector route returned `Processed` with one stored signal. The migration dry run against the live Postgres stack returned `isValid=true`, `checkedRecords=2357`, `usesCloudDataPlane=false`, and `cloudUploadSupported=false`.
+
+The smoke pass fixed stale Playwright e2e assertions for current UI copy in the agent playground and selector builder tests. No API, database, Docker Compose, Cloud entitlement, storage adapter, migration tool, or connector runtime code needed changes.
+
 ## File Index
 
 | File | Purpose |
@@ -54,6 +58,7 @@ Scout now has `IControlPlaneEntitlementClient` and `CloudControlPlaneEntitlement
 | `05-enterprise-import-contract.md` | Enterprise/Fortress import-side contract summary for Scout migration packages. |
 | `06-scout-cloud-licence-client.md` | Scout-side optional Cloud licence/entitlement client implementation evidence, config, metadata boundary, tests, and results. |
 | `07-cloud-entitlement-compatibility.md` | Cloud compatibility evidence for optional Scout runtime licence/entitlement checks, response shape, tests, and boundary checks. |
+| `08-docker-startup-smoke-test.md` | Fresh Docker/PostgreSQL startup smoke-test evidence, URLs, ingestion checks, migration dry run, UI/browser proof, fixes, and blockers. |
 | `handoff.md` | Summary, verification, open risks, and recommended next prompt. |
 | `status.json` | Machine-readable WP3 status and verification record. |
 
@@ -73,4 +78,4 @@ Scout now has `IControlPlaneEntitlementClient` and `CloudControlPlaneEntitlement
 
 ## Recommended Next Prompt
 
-Wire the optional Scout `IControlPlaneEntitlementClient` into the private Enterprise/Fortress runtime gates for `fortress-runtime`, `relationship-set-engine`, and `elite-operator-pack` capabilities. Preserve local signed-licence offline grace and send only Cloud commercial/control-plane metadata.
+Triage and fix the `apps/web` npm audit vulnerabilities reported during Docker image build, then rerun the Docker startup smoke and web verification commands.

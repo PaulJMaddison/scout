@@ -12,7 +12,12 @@ test('tenant admin can create a selector draft', async ({ page }) => {
   await expect(page).toHaveURL(/\/demo/)
 
   await page.getByRole('navigation').getByRole('link', { name: 'Selector Builder', exact: true }).click()
-  await expect(page.getByRole('heading', { level: 1, name: 'Selector builder' })).toBeVisible()
+  await expect(
+    page.getByRole('heading', {
+      level: 1,
+      name: 'Map raw fields into business meaning that apps, workflows, and AI can use.',
+    }),
+  ).toBeVisible()
   await expect(page.getByLabel('Preview user')).not.toHaveValue('')
   await expect(page.getByLabel('Data source')).not.toHaveValue('')
   await expect(page.getByLabel('Target semantic attribute')).not.toHaveValue('')

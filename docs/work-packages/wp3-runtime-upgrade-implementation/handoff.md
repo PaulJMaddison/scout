@@ -4,7 +4,7 @@ Date: 2026-06-19
 
 ## Summary
 
-Implemented the smallest safe code changes for connector-local API routing and storage adapter selection in Scout/open-core, then added Scout-side local migration export/dry-run validation tooling, then added the private Enterprise/Fortress import-side contract for Scout migration packages in the Enterprise repo. The latest Scout slice adds the optional Scout-side Cloud licence/entitlement client, and the Cloud compatibility slice aligns signed licence downloads and entitlement/status response contracts for those optional checks.
+Implemented the smallest safe code changes for connector-local API routing and storage adapter selection in Scout/open-core, then added Scout-side local migration export/dry-run validation tooling, then added the private Enterprise/Fortress import-side contract for Scout migration packages in the Enterprise repo. The Scout-side Cloud slice adds the optional Scout-side Cloud licence/entitlement client, and the Cloud compatibility slice aligns signed licence downloads and entitlement/status response contracts for those optional checks. The latest Scout slice runs the fresh Docker/PostgreSQL startup smoke test after WP3 and verifies API health, Postgres health, UI health, LAN URLs, connector ingestion, migration dry run, and optional Cloud licence default/mocked paths.
 
 The registered-connector event route is:
 
@@ -29,6 +29,8 @@ The Enterprise/Fortress import contract now lives in `engine/crates/ucl-vector/s
 Cloud now emits new signed licence downloads as `Scout-LICENCE-v1` envelopes with `Scout-` licence keys. It still verifies previously issued `UCL-LICENCE-v1` envelopes. The existing Cloud routes for licence status, validation, account entitlements, data-plane registration, deployment heartbeat, and licensing heartbeat expose Scout/Fortress/Elite canonical tier metadata while preserving legacy numeric `PlanCode` compatibility. The latest Cloud test update adds hosted REST proof for the actual Scout-facing `GET /api/v1/licences/{licenceKey}/status`, `GET /api/v1/accounts/{accountId}/entitlements`, and `POST /api/v1/data-planes/heartbeat` JSON shape. Heartbeat/status responses include parsed `lastSafeUsageSummary` aggregate counters beside the legacy `lastUsageSummaryJson` field and do not expose `apiKeyHash`.
 
 Scout now exposes `IControlPlaneEntitlementClient` with a disabled-by-default `CloudControlPlaneEntitlementClient`. When explicitly enabled and called, it checks `GET /api/v1/licences/{licenceKey}/status`, maps canonical Cloud tier metadata to Scout/Fortress/Elite capability decisions, accepts Cloud `Grace` status when `isValid=true`, and fails closed for paid capabilities if Cloud is unavailable. It sends only licence and safe deployment/control-plane metadata, uses no request body, and never returns the raw licence key.
+
+The Docker startup smoke test passed using `.\scripts\start-scout-docker.ps1 -Reset -NoOpenReport` after starting Docker Desktop and stopping one stale repo-local Vite process on port `5173`. The stack rebuilt API/web images, created fresh Docker volumes, ran PostgreSQL-backed startup migrations and demo seeding, returned healthy API and Postgres checks, served web locally and over LAN, validated and registered the mock CRM connector, and accepted local/LAN source events. A direct call to `POST /api/v1/connectors/{dataSourceId}/events/source-system?tenantSlug=demo` returned `Processed` with one stored signal. The migration dry run against the live Postgres stack returned `isValid=true`, `checkedRecords=2357`, `usesCloudDataPlane=false`, and `cloudUploadSupported=false`.
 
 ## Files Changed
 
@@ -83,6 +85,11 @@ Cloud code:
 - `C:\Kyntic\universalcontextlayer-cloud\tests\Ucl.Cloud.Tests\CloudApiHostingTests.cs`
 - `C:\Kyntic\universalcontextlayer-cloud\docs\licence-download-to-data-plane.md`
 
+Scout web e2e test fixes from the Docker startup smoke step:
+
+- `apps/web/tests/e2e/agent-playground.spec.ts`
+- `apps/web/tests/e2e/selector-builder.spec.ts`
+
 Docs:
 
 - `docs/work-packages/wp3-runtime-upgrade-implementation/02-connector-local-api-routing.md`
@@ -91,6 +98,7 @@ Docs:
 - `docs/work-packages/wp3-runtime-upgrade-implementation/05-enterprise-import-contract.md`
 - `docs/work-packages/wp3-runtime-upgrade-implementation/06-scout-cloud-licence-client.md`
 - `docs/work-packages/wp3-runtime-upgrade-implementation/07-cloud-entitlement-compatibility.md`
+- `docs/work-packages/wp3-runtime-upgrade-implementation/08-docker-startup-smoke-test.md`
 - `docs/work-packages/wp3-runtime-upgrade-implementation/README.md`
 - `docs/work-packages/wp3-runtime-upgrade-implementation/handoff.md`
 - `docs/work-packages/wp3-runtime-upgrade-implementation/status.json`
@@ -99,6 +107,34 @@ Docs:
 - `C:\Kyntic\universalcontextlayer-enterprise\AGENTS.md`
 
 ## Verification
+
+Passed for the Docker startup smoke step:
+
+- `docker version`: initially showed Docker CLI installed but Docker Desktop Linux engine not running.
+- `docker compose version`: passed; Docker Compose `v5.1.3`.
+- `docker compose config --quiet`: passed.
+- `Get-NetTCPConnection -State Listen -LocalPort 5198,5173,5432,3000,9090,4317,4318,9464,3200`: found stale repo-local Vite on `5173`; stopped before Docker startup.
+- `Start-Process 'C:\Program Files\Docker\Docker\Docker Desktop.exe' -WindowStyle Hidden` plus readiness loop: Docker engine became ready; server version `29.4.3`.
+- `.\scripts\start-scout-docker.ps1 -Reset -NoOpenReport` with `KYNTIC_RUN_EXTERNAL_DOTNET_TESTS=1` and `KYNTIC_RUN_BROWSER_TESTS=1`: passed; rebuilt API/web images, seeded demo data, generated `.local/scout-install-report.html`, printed local and LAN URLs, and reported `scout-api` and `scout-postgres` healthy.
+- `docker compose ps`: API, web, Postgres, Grafana, Prometheus, Tempo, and OTLP collector running on expected ports.
+- `docker inspect --format '{{.State.Health.Status}}' scout-postgres`: `healthy`.
+- `docker inspect --format '{{.State.Health.Status}}' scout-api`: `healthy`.
+- `Invoke-WebRequest http://127.0.0.1:5198/health/ready`: `200`, with DB health checks.
+- `Invoke-WebRequest http://127.0.0.1:5173`: `200`, returned HTML.
+- `Invoke-WebRequest http://192.168.1.145:5198/health/ready`: `200`.
+- `Invoke-WebRequest http://192.168.1.145:5173`: `200`.
+- Direct registered-connector ingestion route: passed; event `wp3-registered-connector-smoke-20260619064523` returned `Processed`, `storedSignalCount=1`, `matchedSelectorCount=0`.
+- `dotnet run --project tools\KynticAI.Scout.MigrationTool -- export --tenant demo --out C:\Users\pm\AppData\Local\Temp\scout-wp3-docker-smoke-dry-run-20260619 --dry-run --scope relationship-inputs --max-records 25`: passed; `isValid=true`, `checkedRecords=2357`, `exportedRecords=0`, `batchCount=1`, `usesCloudDataPlane=false`, `cloudUploadSupported=false`.
+- `Get-Content -Raw src\KynticAI.Scout.Api\appsettings.json | ConvertFrom-Json | Select-Object -ExpandProperty ControlPlane`: passed; `Enabled=false`.
+- `docker inspect --format '{{range .Config.Env}}{{println .}}{{end}}' scout-api | Select-String -Pattern '^ControlPlane__|^Licence__|^StorageAdapter__'`: no ControlPlane override found in the container environment.
+- `dotnet test .\tests\KynticAI.Scout.UnitTests\KynticAI.Scout.UnitTests.csproj --filter FullyQualifiedName~CloudControlPlaneEntitlementClientTests`: passed; 7 tests.
+- First `npm run test:e2e` failed because the local Playwright Chromium binary was missing; `npx playwright install chromium` fixed the local prerequisite.
+- Second `npm run test:e2e` found stale e2e assertions for current UI headings; assertions were updated in two test files.
+- Final `npm run test:e2e`: passed; 6 tests.
+- `npm run lint` in `apps\web`: passed.
+- `npm run test` in `apps\web`: passed; 4 files, 4 tests.
+- `npm run build` in `apps\web`: passed.
+- `docker compose down`: passed; stopped/removed the smoke-test containers and network.
 
 Passed for the Scout optional Cloud licence client step:
 
@@ -174,6 +210,15 @@ One earlier command mistake was recorded:
 
 - `npm test -- --runInBand` failed because Vitest does not support Jest's `--runInBand` option. It was rerun as `npm test` and passed.
 
+Command issues from the Docker startup smoke step:
+
+- Docker Desktop was installed but not running during preflight; starting Docker Desktop resolved it.
+- Port `5173` was occupied by a stale repo-local Vite process; stopping that process allowed the Docker web container to bind.
+- Docker web image build printed existing npm audit output: 3 vulnerabilities, 1 low and 2 high.
+- First Playwright run failed because the Chromium browser bundle was missing; `npx playwright install chromium` resolved it.
+- Second Playwright run exposed stale e2e expectations for current UI copy; updating assertions resolved it.
+- The migration dry run printed the existing EF row-limiting-without-`OrderBy` warning; validation still passed.
+
 ## Data Boundary
 
 The Scout changes are local-first. They do not require Cloud, do not add customer-data upload paths, and do not import private Enterprise/Fortress code into Scout. Docker quick start and existing n8n/source-system event routes continue to use the existing local API route. `StorageAdapter__AllowCloudDataMovement` remains false by default. The migration export CLI writes local files only, rejects Cloud upload flags, and fails closed if adapter capabilities, health, or batch diagnostics report Cloud data-plane use.
@@ -199,8 +244,9 @@ The Cloud compatibility tests reject or avoid raw customer records, exact data i
 - Local embedding generation, live LanceDB/native-store proof, pgvector fallback proof, checkpoints, dead letters, retry, rollback, relationship-set, attribution-path, outcome-event, and governed JSON handoff wiring remain future work.
 - The Scout export CLI exists, but no production operator UX wraps it yet.
 - The optional Scout Cloud entitlement client exists, but it is not wired into private Enterprise/Fortress runtime gates in the public repo.
+- The Docker startup smoke passed, but the Docker web build reported npm audit vulnerabilities that still need a separate dependency/security triage.
 - xhigh review gates remain required before release, pilot, or investor-visible technical proof that depends on this Rust engine/vector boundary.
 
 ## Recommended Next Prompt
 
-Wire the optional Scout `IControlPlaneEntitlementClient` into the private Enterprise/Fortress runtime gates for `fortress-runtime`, `relationship-set-engine`, and `elite-operator-pack` capabilities. Preserve local signed-licence offline grace and send only Cloud commercial/control-plane metadata.
+Triage and fix the `apps/web` npm audit vulnerabilities reported during Docker image build, then rerun the Docker startup smoke and web verification commands.

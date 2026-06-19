@@ -13,7 +13,7 @@ test('sales rep can generate a grounded outreach recommendation', async ({ page 
   await expect(
     page.getByRole('heading', {
       level: 1,
-      name: 'Intelligent Sales Support uses Scout context to generate grounded sales recommendations.',
+      name: 'Intelligent Sales Support uses Scout evidence packs to generate grounded sales recommendations.',
     }),
   ).toBeVisible()
 
