@@ -1,6 +1,6 @@
 {
   "workPackage": "wp3-runtime-upgrade-implementation",
-  "currentStep": "08-docker-startup-smoke-test",
+  "currentStep": "09-end-to-end-runtime-simulation",
   "recordedSteps": [
     "02-connector-local-api-routing",
     "03-storage-adapter-boundary",
@@ -8,9 +8,10 @@
     "05-enterprise-import-contract",
     "06-scout-cloud-licence-client",
     "07-cloud-entitlement-compatibility",
-    "08-docker-startup-smoke-test"
+    "08-docker-startup-smoke-test",
+    "09-end-to-end-runtime-simulation"
   ],
-  "status": "docker-startup-smoke-verified-with-known-residual-blockers",
+  "status": "end-to-end-runtime-simulation-verified-fast-package-with-known-residual-blockers",
   "readyToCommit": false,
   "date": "2026-06-19",
   "primaryRepo": {
@@ -211,7 +212,8 @@
     "docs/work-packages/wp3-runtime-upgrade-implementation/08-docker-startup-smoke-test.md",
     "docs/work-packages/wp3-runtime-upgrade-implementation/README.md",
     "docs/work-packages/wp3-runtime-upgrade-implementation/handoff.md",
-    "docs/work-packages/wp3-runtime-upgrade-implementation/status.json"
+    "docs/work-packages/wp3-runtime-upgrade-implementation/status.json",
+    "docs/work-packages/wp3-runtime-upgrade-implementation/09-end-to-end-runtime-simulation.md"
   ],
   "enterpriseDocFiles": [
     "engine/crates/ucl-vector/README.md",
@@ -714,5 +716,93 @@
     "Full Cloud test suite is blocked by the existing marketing analytics guard failure that finds googletagmanager.",
     "xhigh review gates remain required for public API, SDK, connector-contract, data-model, security-sensitive, and Rust engine/vector boundary work."
   ],
-  "nextPrompt": "Triage and fix the apps/web npm audit vulnerabilities reported during Docker image build, then rerun the Docker startup smoke and web verification commands."
+  "nextPrompt": "Build the production Enterprise/Fortress importer CLI/API for validated Scout export folders, then rerun the fast full local package export and import it into a local private runtime target with xhigh review gates.",
+  "endToEndRuntimeSimulation": {
+    "date": "2026-06-19",
+    "tempRoot": "C:\\Users\\pm\\AppData\\Local\\Temp\\scout-wp3-e2e-runtime-simulation-20260619083141",
+    "scoutDb": "C:\\Users\\pm\\AppData\\Local\\Temp\\scout-wp3-e2e-runtime-simulation-20260619083141\\scout_context_demo.db",
+    "customerOpsDb": "C:\\Users\\pm\\AppData\\Local\\Temp\\scout-wp3-e2e-runtime-simulation-20260619083141\\customer_ops_demo.db",
+    "sampleData": {
+      "tenantSlug": "demo",
+      "connectorType": "mockCrm",
+      "dataSourceKind": "Crm",
+      "dataSourceId": "fda1e7aa-7a83-4cc3-8d5b-24ed1f7eab67",
+      "eventId": "wp3-e2e-runtime-simulation-final-20260619083602",
+      "sourceSystem": "mock_crm",
+      "eventType": "source.crm.contact_updated",
+      "externalUserId": "123",
+      "syntheticAccountReference": "Larkspur Logistics Group / ACC-WP3-E2E-001"
+    },
+    "apiCalls": [
+      "GET http://127.0.0.1:5198/health",
+      "POST http://127.0.0.1:5198/api/auth/login",
+      "POST http://127.0.0.1:5198/api/rest/connectors/register",
+      "POST http://127.0.0.1:5198/api/v1/connectors/fda1e7aa-7a83-4cc3-8d5b-24ed1f7eab67/events/source-system?tenantSlug=demo",
+      "POST http://127.0.0.1:5198/graphql"
+    ],
+    "ingestion": {
+      "status": "Processed",
+      "storedSignalCount": 1,
+      "matchedSelectorCount": 0,
+      "localStorageConfirmed": true,
+      "sqliteSignalCountForDataSource": 1
+    },
+    "migrationDryRun": {
+      "scope": "relationship-inputs",
+      "isValid": true,
+      "checkedRecords": 107738,
+      "exportedRecords": 0
+    },
+    "exportPackage": {
+      "packageDir": "C:\\Users\\pm\\AppData\\Local\\Temp\\scout-wp3-e2e-runtime-simulation-20260619083141\\fast-full-fixed-scout-export-package-20260619095335",
+      "manifest": "C:\\Users\\pm\\AppData\\Local\\Temp\\scout-wp3-e2e-runtime-simulation-20260619083141\\fast-full-fixed-scout-export-package-20260619095335\\manifest.json",
+      "validationReport": "C:\\Users\\pm\\AppData\\Local\\Temp\\scout-wp3-e2e-runtime-simulation-20260619083141\\fast-full-fixed-scout-export-package-20260619095335\\validation-report.json",
+      "batchGlob": "C:\\Users\\pm\\AppData\\Local\\Temp\\scout-wp3-e2e-runtime-simulation-20260619083141\\fast-full-fixed-scout-export-package-20260619095335\\batches\\batch-*.json",
+      "scope": "source-events,user-signals,selector-executions,context-facts,provenance,audit-events",
+      "maxRecords": 1000,
+      "elapsedSeconds": 72.95,
+      "isValid": true,
+      "checkedRecords": 109693,
+      "exportedRecords": 109693,
+      "batchCount": 110,
+      "usesCloudDataPlane": false
+    },
+    "enterpriseValidation": {
+      "result": "passed",
+      "elapsedSeconds": 59.22,
+      "validatorLog": "C:\\Users\\pm\\AppData\\Local\\Temp\\scout-wp3-e2e-runtime-simulation-20260619083141\\enterprise-validator-fast-full-fixed.log",
+      "validator": "temporary harness using ucl-vector ScoutPortableExportBatch::from_json(...).prepare_import_plan(Some(\"demo\"))",
+      "builtInTests": "cargo test -p ucl-vector --test scout_import_contract_tests passed; 14 tests"
+    },
+    "fixesMade": [
+      "Changed Scout export adapter to build one portable record snapshot and yield all pages from that snapshot.",
+      "Normalised portable export DateTime values to UTC.",
+      "Promoted eventId provenance to sourceRecordId where possible.",
+      "Added local provenance fallback references for user_signal, selector_execution, and context_fact records.",
+      "Added storage adapter regression tests for fast paging, UTC timestamps, and Enterprise-compatible provenance."
+    ],
+    "dataBoundary": {
+      "cloudDataPlaneUsed": false,
+      "cloudReceivesRawCustomerData": false,
+      "cloudReceivesDerivedCustomerIntelligence": false,
+      "exportWritesLocalFilesOnly": true,
+      "optionalCloudPath": "safe metadata tests only; no live Cloud endpoint used"
+    },
+    "tests": {
+      "storageAdapterBoundary": "passed; 21 tests",
+      "scoutCloudEntitlement": "passed; 7 tests",
+      "enterpriseScoutImportContract": "passed; 14 tests",
+      "cloudSafeMetadata": "passed; 9 tests"
+    },
+    "stoppedProcesses": [
+      "Stopped hanging/old Scout API and migration export processes before rerunning fixed export.",
+      "Port 5198 was clear after cleanup."
+    ],
+    "remainingBlockers": [
+      "No production Enterprise/Fortress importer CLI/API consumes Scout export folders yet.",
+      "Live Cloud endpoint proof was not run; safe local/mocked metadata tests passed.",
+      "Production operator UX still needs no-build/runbook/progress/cancellation/resumable import polish.",
+      "xhigh review gates remain required before release or pilot claims."
+    ]
+  }
 }

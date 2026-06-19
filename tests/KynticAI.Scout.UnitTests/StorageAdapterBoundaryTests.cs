@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using KynticAI.Scout.Application.Abstractions;
 using KynticAI.Scout.Domain.Entities;
@@ -185,6 +186,36 @@ public sealed class StorageAdapterBoundaryTests
     }
 
     [Fact]
+    public async Task DefaultStorageAdapter_ExportsAllPagesFromSingleSnapshot()
+    {
+        using var provider = BuildServiceProvider();
+        using var scope = provider.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ScoutDbContext>();
+        var tenant = await SeedMigrationExportGraphAsync(dbContext);
+        var adapter = ResolveDefaultAdapter(scope);
+
+        var batches = await ExportBatchesAsync(adapter, new StorageExportRequest(
+            CreateContext(tenant.Id, tenant.Slug),
+            StorageAdapterDataScope.SourceEvents
+                | StorageAdapterDataScope.UserSignals
+                | StorageAdapterDataScope.SelectorExecutions
+                | StorageAdapterDataScope.ContextFacts
+                | StorageAdapterDataScope.Provenance
+                | StorageAdapterDataScope.AuditEvents,
+            MaxRecords: 2));
+
+        Assert.Equal(3, batches.Count);
+        Assert.All(batches.Take(2), batch => Assert.False(batch.IsFinal));
+        Assert.True(batches[^1].IsFinal);
+        Assert.Equal(6, batches.Sum(batch => batch.Records.Count));
+        Assert.All(batches, batch =>
+        {
+            Assert.True(batch.ValidationReport!.IsValid);
+            Assert.Equal(6, batch.ValidationReport.CheckedRecords);
+        });
+    }
+
+    [Fact]
     public async Task DefaultStorageAdapter_ExportsTenantSelectorAndContextMetadataWithoutCredentialConfig()
     {
         using var provider = BuildServiceProvider();
@@ -233,6 +264,180 @@ public sealed class StorageAdapterBoundaryTests
         Assert.Contains(
             sourceEvent.Metadata["excludedFields"]!.AsArray(),
             item => item!.GetValue<string>() == "headersJson");
+    }
+
+    [Fact]
+    public async Task DefaultStorageAdapter_NormalizesPortableRecordTimestampsToUtc()
+    {
+        using var provider = BuildServiceProvider();
+        using var scope = provider.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ScoutDbContext>();
+        var tenant = await SeedMigrationExportGraphAsync(dbContext);
+        var user = await dbContext.UserProfiles.SingleAsync();
+        var dataSource = await dbContext.DataSources.SingleAsync();
+        var observedAtUtc = new DateTime(2026, 6, 18, 13, 30, 0, DateTimeKind.Unspecified);
+        var receivedAtUtc = new DateTime(2026, 6, 18, 13, 31, 0, DateTimeKind.Unspecified);
+        var sourceEvent = SourceSystemEvent.Create(
+            tenant.Id,
+            null,
+            "evt-unspecified-timestamp-001",
+            "crm",
+            "account.updated",
+            user.ExternalUserId,
+            "account-001",
+            user.Id,
+            dataSource.Id,
+            """{"accountId":"account-001","health":"amber"}""",
+            "{}",
+            "corr-unspecified-timestamp-001",
+            observedAtUtc,
+            receivedAtUtc);
+        sourceEvent.MarkProcessed(0, "Processed for UTC timestamp export validation.", receivedAtUtc);
+        dbContext.SourceSystemEvents.Add(sourceEvent);
+        await dbContext.SaveChangesAsync();
+        var adapter = ResolveDefaultAdapter(scope);
+
+        var batch = Assert.Single(await ExportBatchesAsync(adapter, new StorageExportRequest(
+            CreateContext(tenant.Id, tenant.Slug),
+            StorageAdapterDataScope.SourceEvents,
+            MaxRecords: 20)));
+
+        Assert.True(batch.ValidationReport!.IsValid);
+        var exportedEvent = batch.Records.Single(record => record.RecordId == sourceEvent.Id.ToString("D"));
+        Assert.Equal(DateTimeKind.Utc, exportedEvent.ObservedAtUtc.Kind);
+        Assert.Equal("2026-06-18T13:31:00.0000000Z", exportedEvent.Metadata["receivedAtUtc"]!.GetValue<string>());
+        var json = JsonSerializer.Serialize(exportedEvent, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        Assert.Contains("\"observedAtUtc\":\"2026-06-18T13:30:00Z\"", json);
+    }
+
+    [Fact]
+    public async Task DefaultStorageAdapter_AddsLocalProvenanceReferenceForContextFacts()
+    {
+        using var provider = BuildServiceProvider();
+        using var scope = provider.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ScoutDbContext>();
+        var tenant = await SeedMigrationExportGraphAsync(dbContext);
+        var snapshot = await dbContext.ContextSnapshots.SingleAsync();
+        var selector = await dbContext.SelectorDefinitions.SingleAsync();
+        var semanticAttribute = await dbContext.SemanticAttributeDefinitions.SingleAsync();
+        var utcNow = new DateTime(2026, 6, 18, 13, 40, 0, DateTimeKind.Utc);
+        var fact = ContextFact.Create(
+            tenant.Id,
+            snapshot.Id,
+            semanticAttribute.Id,
+            selector.Id,
+            "nested_only_context_fact",
+            "\"email\"",
+            FactValueType.String,
+            0.87m,
+            utcNow,
+            utcNow.AddHours(12),
+            "Nested provenance shape from local connector output.",
+            """[{"selector":{"Id":"selector-001"},"source":[{"source":"sqlDatabase","tableName":"customer_email_signals"}]}]""",
+            utcNow);
+        dbContext.ContextFacts.Add(fact);
+        await dbContext.SaveChangesAsync();
+        var adapter = ResolveDefaultAdapter(scope);
+
+        var batch = Assert.Single(await ExportBatchesAsync(adapter, new StorageExportRequest(
+            CreateContext(tenant.Id, tenant.Slug),
+            StorageAdapterDataScope.ContextFacts,
+            MaxRecords: 20)));
+
+        Assert.True(batch.ValidationReport!.IsValid);
+        var exportedFact = batch.Records.Single(record => record.RecordId == fact.Id.ToString("D"));
+        Assert.Contains(exportedFact.Provenance, entry =>
+        {
+            var provenance = entry!.AsObject();
+            return provenance["sourceSystem"]?.GetValue<string>() == "scout-selector"
+                && provenance["sourceRecordId"]?.GetValue<string>() == selector.Id.ToString("D")
+                && provenance["contextFactId"]?.GetValue<string>() == fact.Id.ToString("D");
+        });
+    }
+
+    [Fact]
+    public async Task DefaultStorageAdapter_PromotesUserSignalEventProvenanceToSourceRecordReference()
+    {
+        using var provider = BuildServiceProvider();
+        using var scope = provider.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ScoutDbContext>();
+        var tenant = await SeedMigrationExportGraphAsync(dbContext);
+        var user = await dbContext.UserProfiles.SingleAsync();
+        var dataSource = await dbContext.DataSources.SingleAsync();
+        var utcNow = new DateTime(2026, 6, 18, 13, 45, 0, DateTimeKind.Utc);
+        var signal = UserSignal.Create(
+            tenant.Id,
+            user.Id,
+            dataSource.Id,
+            "mock_crm.source.crm.contact_updated",
+            """{"crm":{"preferredChannel":"email"}}""",
+            FactValueType.Json,
+            utcNow,
+            """{"eventId":"evt-user-signal-001","sourceSystem":"mock_crm","eventType":"source.crm.contact_updated","sourceSystemEventId":"source-event-pk-001"}""",
+            utcNow);
+        dbContext.UserSignals.Add(signal);
+        await dbContext.SaveChangesAsync();
+        var adapter = ResolveDefaultAdapter(scope);
+
+        var batch = Assert.Single(await ExportBatchesAsync(adapter, new StorageExportRequest(
+            CreateContext(tenant.Id, tenant.Slug),
+            StorageAdapterDataScope.UserSignals,
+            MaxRecords: 20)));
+
+        Assert.True(batch.ValidationReport!.IsValid);
+        var exportedSignal = batch.Records.Single(record => record.RecordId == signal.Id.ToString("D"));
+        var provenance = Assert.Single(exportedSignal.Provenance)!.AsObject();
+        Assert.Equal("mock_crm", provenance["sourceSystem"]!.GetValue<string>());
+        Assert.Equal("evt-user-signal-001", provenance["sourceRecordId"]!.GetValue<string>());
+    }
+
+    [Fact]
+    public async Task DefaultStorageAdapter_AddsLocalProvenanceReferenceForSelectorExecutions()
+    {
+        using var provider = BuildServiceProvider();
+        using var scope = provider.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ScoutDbContext>();
+        var tenant = await SeedMigrationExportGraphAsync(dbContext);
+        var selector = await dbContext.SelectorDefinitions.SingleAsync();
+        var user = await dbContext.UserProfiles.SingleAsync();
+        var utcNow = new DateTime(2026, 6, 18, 13, 50, 0, DateTimeKind.Utc);
+        var execution = SelectorExecution.Create(
+            tenant.Id,
+            selector.Id,
+            user.Id,
+            "corr-selector-execution-local-reference",
+            "unit-test",
+            SelectorExecutionMode.Live,
+            utcNow);
+        execution.MarkSucceeded(
+            "\"email\"",
+            FactValueType.String,
+            0.88m,
+            utcNow,
+            "Nested provenance shape from local selector execution.",
+            """[{"selector":{"Id":"selector-001"},"source":[{"source":"sqlDatabase","tableName":"customer_email_signals"}]}]""",
+            """{"engagement_channel_signal":"email"}""",
+            "[]",
+            """{"steps":["mapped"]}""",
+            utcNow);
+        dbContext.SelectorExecutions.Add(execution);
+        await dbContext.SaveChangesAsync();
+        var adapter = ResolveDefaultAdapter(scope);
+
+        var batch = Assert.Single(await ExportBatchesAsync(adapter, new StorageExportRequest(
+            CreateContext(tenant.Id, tenant.Slug),
+            StorageAdapterDataScope.SelectorExecutions,
+            MaxRecords: 20)));
+
+        Assert.True(batch.ValidationReport!.IsValid);
+        var exportedExecution = batch.Records.Single(record => record.RecordId == execution.Id.ToString("D"));
+        Assert.Contains(exportedExecution.Provenance, entry =>
+        {
+            var provenance = entry!.AsObject();
+            return provenance["sourceSystem"]?.GetValue<string>() == "scout-selector"
+                && provenance["sourceRecordId"]?.GetValue<string>() == selector.Id.ToString("D")
+                && provenance["selectorExecutionId"]?.GetValue<string>() == execution.Id.ToString("D");
+        });
     }
 
     [Fact]

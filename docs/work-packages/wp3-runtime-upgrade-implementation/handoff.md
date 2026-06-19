@@ -4,7 +4,11 @@ Date: 2026-06-19
 
 ## Summary
 
-Implemented the smallest safe code changes for connector-local API routing and storage adapter selection in Scout/open-core, then added Scout-side local migration export/dry-run validation tooling, then added the private Enterprise/Fortress import-side contract for Scout migration packages in the Enterprise repo. The Scout-side Cloud slice adds the optional Scout-side Cloud licence/entitlement client, and the Cloud compatibility slice aligns signed licence downloads and entitlement/status response contracts for those optional checks. The latest Scout slice runs the fresh Docker/PostgreSQL startup smoke test after WP3 and verifies API health, Postgres health, UI health, LAN URLs, connector ingestion, migration dry run, and optional Cloud licence default/mocked paths.
+Implemented the smallest safe code changes for connector-local API routing and storage adapter selection in Scout/open-core, then added Scout-side local migration export/dry-run validation tooling, then added the private Enterprise/Fortress import-side contract for Scout migration packages in the Enterprise repo. The Scout-side Cloud slice adds the optional Scout-side Cloud licence/entitlement client, and the Cloud compatibility slice aligns signed licence downloads and entitlement/status response contracts for those optional checks. The latest Scout slice runs an end-to-end local runtime simulation after WP3 and verifies local Scout startup, connector ingestion, local storage, migration dry run, full package generation, Enterprise/Fortress package validation, and optional Cloud entitlement checks with safe metadata only.
+
+The runtime simulation found and fixed an unacceptable migration package performance issue. Scout was rebuilding the full portable export set once per package page; the adapter now builds one snapshot and yields all pages from that snapshot. The fixed full seeded local package exported `109693` records in `110` batches in `72.95s`, with `isValid=true` and `usesCloudDataPlane=false`. Enterprise/Fortress validation of that exact package passed in `59.22s`.
+
+The same run fixed package compatibility issues found by the Enterprise validator: exported timestamps are normalised to UTC, and `user_signal`, `selector_execution`, and `context_fact` records now carry usable local provenance references when original provenance is nested or event-shaped.
 
 The registered-connector event route is:
 
@@ -90,6 +94,11 @@ Scout web e2e test fixes from the Docker startup smoke step:
 - `apps/web/tests/e2e/agent-playground.spec.ts`
 - `apps/web/tests/e2e/selector-builder.spec.ts`
 
+Scout/open-core code changed in the end-to-end runtime simulation step:
+
+- `src/KynticAI.Scout.Infrastructure/Extensions/EnterpriseExtensionDefaults.cs`
+- `tests/KynticAI.Scout.UnitTests/StorageAdapterBoundaryTests.cs`
+
 Docs:
 
 - `docs/work-packages/wp3-runtime-upgrade-implementation/02-connector-local-api-routing.md`
@@ -135,6 +144,20 @@ Passed for the Docker startup smoke step:
 - `npm run test` in `apps\web`: passed; 4 files, 4 tests.
 - `npm run build` in `apps\web`: passed.
 - `docker compose down`: passed; stopped/removed the smoke-test containers and network.
+
+Passed for the end-to-end runtime simulation step:
+
+- Local Scout API started on `http://127.0.0.1:5198` against temporary SQLite databases under `C:\Users\pm\AppData\Local\Temp\scout-wp3-e2e-runtime-simulation-20260619083141`.
+- `POST /api/v1/connectors/fda1e7aa-7a83-4cc3-8d5b-24ed1f7eab67/events/source-system?tenantSlug=demo`: passed; event `wp3-e2e-runtime-simulation-final-20260619083602` returned `Processed` with `storedSignalCount=1`.
+- GraphQL `sourceSystemEvents` and direct SQLite probe confirmed the event and one matching signal were stored locally and bound to the registered data source.
+- Relationship-input dry run passed on the large seeded local database; `checkedRecords=107738`, `exportedRecords=0`.
+- First full export attempts exposed the repeated full-snapshot pagination bug and were stopped.
+- Fixed full package export passed: `109693` records, `110` batches, `72.95s`, `isValid=true`, `usesCloudDataPlane=false`.
+- Temporary Enterprise validator passed against the full fixed package: `59.22s`.
+- `dotnet test .\tests\KynticAI.Scout.UnitTests\KynticAI.Scout.UnitTests.csproj --filter FullyQualifiedName~StorageAdapterBoundaryTests`: passed; 21 tests.
+- `dotnet test .\tests\KynticAI.Scout.UnitTests\KynticAI.Scout.UnitTests.csproj --filter FullyQualifiedName~CloudControlPlaneEntitlementClientTests`: passed; 7 tests.
+- `cargo test -p ucl-vector --test scout_import_contract_tests`: passed; 14 tests.
+- Cloud safe metadata/control-plane focused tests: passed; 9 tests.
 
 Passed for the Scout optional Cloud licence client step:
 
@@ -242,11 +265,11 @@ The Cloud compatibility tests reject or avoid raw customer records, exact data i
 
 - No production Enterprise/Fortress importer CLI/API consumes Scout export files yet.
 - Local embedding generation, live LanceDB/native-store proof, pgvector fallback proof, checkpoints, dead letters, retry, rollback, relationship-set, attribution-path, outcome-event, and governed JSON handoff wiring remain future work.
-- The Scout export CLI exists, but no production operator UX wraps it yet.
+- The Scout export CLI now completes a large seeded local package quickly enough for client proof, but no production operator UX wraps it yet.
 - The optional Scout Cloud entitlement client exists, but it is not wired into private Enterprise/Fortress runtime gates in the public repo.
 - The Docker startup smoke passed, but the Docker web build reported npm audit vulnerabilities that still need a separate dependency/security triage.
 - xhigh review gates remain required before release, pilot, or investor-visible technical proof that depends on this Rust engine/vector boundary.
 
 ## Recommended Next Prompt
 
-Triage and fix the `apps/web` npm audit vulnerabilities reported during Docker image build, then rerun the Docker startup smoke and web verification commands.
+Build the production Enterprise/Fortress importer CLI/API for validated Scout export folders, then rerun the fast full local package export and import it into a local private runtime target with xhigh review gates.

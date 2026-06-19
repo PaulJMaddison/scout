@@ -14,7 +14,7 @@ This work package records Scout/open-core implementation work after WP2 plus the
 
 ## Current Status
 
-Step `08-docker-startup-smoke-test` is the latest recorded step. It verifies the fresh Docker/PostgreSQL startup path after WP3, API health, Postgres health, UI health, LAN URL behaviour, registered-connector ingestion, migration dry run, and optional Cloud licence checks with the default disabled path plus mocked enabled-path unit coverage.
+Step `09-end-to-end-runtime-simulation` is the latest recorded step. It verifies local Scout startup, registered-connector ingestion, local SQLite storage, migration dry run, full local export package generation, Enterprise/Fortress package contract validation, and optional Cloud entitlement checks using safe metadata only.
 
 Earlier steps remain implemented and recorded: `04-scout-migration-export` in Scout/open-core, `05-enterprise-import-contract` in the Enterprise/Fortress repo, and `06-scout-cloud-licence-client` for the disabled-by-default Scout Cloud licence/entitlement client.
 
@@ -44,7 +44,9 @@ Cloud now also has hosted REST regression coverage proving `GET /api/v1/licences
 
 Scout now has `IControlPlaneEntitlementClient` and `CloudControlPlaneEntitlementClient` for optional Cloud checks. The default config keeps `ControlPlane:Enabled=false`; when enabled and called, the client performs a metadata-only licence status check, maps Cloud canonical tiers to Scout/Fortress/Elite decisions, accepts Cloud grace status, fails closed for paid capabilities when Cloud is unavailable, and never returns raw licence keys.
 
-The Docker startup smoke test passed with fresh Compose volumes and PostgreSQL. `scripts/start-scout-docker.ps1 -Reset -NoOpenReport` rebuilt API/web images, seeded demo data, returned healthy API/Postgres checks, served the web console locally and on LAN, validated/registered the mock CRM connector, and accepted local/LAN source events. A direct call to the WP3 registered-connector route returned `Processed` with one stored signal. The migration dry run against the live Postgres stack returned `isValid=true`, `checkedRecords=2357`, `usesCloudDataPlane=false`, and `cloudUploadSupported=false`.
+The end-to-end local runtime simulation found and fixed a serious migration export performance issue. Scout was rebuilding the full portable export set once per package page; the adapter now builds one export snapshot and yields all pages from that snapshot. The fixed full seeded local package exported `109693` records in `110` batches in `72.95s`, with `isValid=true` and `usesCloudDataPlane=false`. Enterprise/Fortress validation of that exact package passed in `59.22s`.
+
+The simulation also fixed portable export compatibility gaps for Enterprise/Fortress import preparation: SQLite-materialised timestamps are normalised to UTC, and `user_signal`, `selector_execution`, and `context_fact` records now include usable local provenance references when source provenance is nested or event-shaped.
 
 The smoke pass fixed stale Playwright e2e assertions for current UI copy in the agent playground and selector builder tests. No API, database, Docker Compose, Cloud entitlement, storage adapter, migration tool, or connector runtime code needed changes.
 
@@ -59,6 +61,7 @@ The smoke pass fixed stale Playwright e2e assertions for current UI copy in the 
 | `06-scout-cloud-licence-client.md` | Scout-side optional Cloud licence/entitlement client implementation evidence, config, metadata boundary, tests, and results. |
 | `07-cloud-entitlement-compatibility.md` | Cloud compatibility evidence for optional Scout runtime licence/entitlement checks, response shape, tests, and boundary checks. |
 | `08-docker-startup-smoke-test.md` | Fresh Docker/PostgreSQL startup smoke-test evidence, URLs, ingestion checks, migration dry run, UI/browser proof, fixes, and blockers. |
+| `09-end-to-end-runtime-simulation.md` | Local runtime simulation evidence, API calls, storage proof, fixed full export timing, Enterprise/Fortress validation, Cloud boundary verification, fixes, and blockers. |
 | `handoff.md` | Summary, verification, open risks, and recommended next prompt. |
 | `status.json` | Machine-readable WP3 status and verification record. |
 
@@ -78,4 +81,4 @@ The smoke pass fixed stale Playwright e2e assertions for current UI copy in the 
 
 ## Recommended Next Prompt
 
-Triage and fix the `apps/web` npm audit vulnerabilities reported during Docker image build, then rerun the Docker startup smoke and web verification commands.
+Build the production Enterprise/Fortress importer CLI/API for validated Scout export folders, then rerun the fast full local package export and import it into a local private runtime target with xhigh review gates.

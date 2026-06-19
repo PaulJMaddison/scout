@@ -536,8 +536,71 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
         StorageExportRequest request,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var batch = await BuildExportBatchAsync(request, cancellationToken);
-        yield return batch;
+        var exportSet = await BuildExportSetAsync(request, cancellationToken);
+
+        if (exportSet.StartIndex is null)
+        {
+            yield return CreateExportBatch(
+                request,
+                exportSet.OrderedRecords,
+                [],
+                exportSet.Errors,
+                exportSet.Findings,
+                exportSet.FinalCheckpoint,
+                true);
+            yield break;
+        }
+
+        if (request.DryRun)
+        {
+            AddFinding(
+                exportSet.Findings,
+                exportSet.Errors,
+                StorageMigrationValidationSeverity.Info,
+                "dry_run",
+                "Dry run completed without returning portable records.",
+                target: nameof(request.DryRun));
+
+            yield return CreateExportBatch(request, exportSet.OrderedRecords, [], exportSet.Errors, exportSet.Findings, null, true);
+            yield break;
+        }
+
+        if (exportSet.OrderedRecords.Count == 0)
+        {
+            yield return CreateExportBatch(request, exportSet.OrderedRecords, [], exportSet.Errors, exportSet.Findings, null, true);
+            yield break;
+        }
+
+        for (var startIndex = exportSet.StartIndex.Value; startIndex < exportSet.OrderedRecords.Count; startIndex += exportSet.MaxRecords)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var selectedRecords = exportSet.OrderedRecords
+                .Skip(startIndex)
+                .Take(exportSet.MaxRecords)
+                .ToList();
+            var nextIndex = startIndex + selectedRecords.Count;
+            var isFinal = nextIndex >= exportSet.OrderedRecords.Count;
+            var nextCheckpoint = isFinal || selectedRecords.Count == 0
+                ? null
+                : EncodeCheckpoint(selectedRecords[^1]);
+
+            yield return CreateExportBatch(
+                request,
+                exportSet.OrderedRecords,
+                selectedRecords,
+                exportSet.Errors,
+                exportSet.Findings,
+                nextCheckpoint,
+                isFinal);
+
+            if (isFinal || selectedRecords.Count == 0)
+            {
+                yield break;
+            }
+        }
+
+        yield return CreateExportBatch(request, exportSet.OrderedRecords, [], exportSet.Errors, exportSet.Findings, null, true);
     }
 
     public ValueTask<StorageImportResult> ImportAsync(
@@ -592,7 +655,7 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
             }));
     }
 
-    private async Task<StorageExportBatch> BuildExportBatchAsync(
+    private async Task<ScoutExportSet> BuildExportSetAsync(
         StorageExportRequest request,
         CancellationToken cancellationToken)
     {
@@ -640,7 +703,7 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
         var tenant = await ResolveTenantAsync(request.Context.Tenant, findings, errors, cancellationToken);
         if (tenant is null || errors.Count > 0 && (request.Scope == StorageAdapterDataScope.None || maxRecords == 0))
         {
-            return CreateExportBatch(request, [], [], errors, findings, request.Checkpoint, true);
+            return new ScoutExportSet([], findings, errors, maxRecords, null, request.Checkpoint);
         }
 
         var records = tenant is null
@@ -655,37 +718,16 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
         ValidateSecretAndCredentialKeys(orderedRecords, findings, errors);
         if (findings.Any(static finding => string.Equals(finding.Code, "unsafe.secret_or_credential_key", StringComparison.Ordinal)))
         {
-            return CreateExportBatch(request, orderedRecords, [], errors, findings, null, true);
+            return new ScoutExportSet(orderedRecords, findings, errors, maxRecords, null, null);
         }
 
         var startIndex = ResolveStartIndex(request.Checkpoint, orderedRecords, findings, errors);
         if (startIndex is null)
         {
-            return CreateExportBatch(request, orderedRecords, [], errors, findings, request.Checkpoint, true);
+            return new ScoutExportSet(orderedRecords, findings, errors, maxRecords, null, request.Checkpoint);
         }
 
-        var selectedRecords = request.DryRun || maxRecords == 0
-            ? []
-            : orderedRecords.Skip(startIndex.Value).Take(maxRecords).ToList();
-
-        var nextIndex = startIndex.Value + selectedRecords.Count;
-        var isFinal = request.DryRun || nextIndex >= orderedRecords.Count;
-        var nextCheckpoint = isFinal || selectedRecords.Count == 0
-            ? null
-            : EncodeCheckpoint(selectedRecords[^1]);
-
-        if (request.DryRun)
-        {
-            AddFinding(
-                findings,
-                errors,
-                StorageMigrationValidationSeverity.Info,
-                "dry_run",
-                "Dry run completed without returning portable records.",
-                target: nameof(request.DryRun));
-        }
-
-        return CreateExportBatch(request, orderedRecords, selectedRecords, errors, findings, nextCheckpoint, isFinal);
+        return new ScoutExportSet(orderedRecords, findings, errors, maxRecords, startIndex, null);
     }
 
     private async Task<Tenant?> ResolveTenantAsync(
@@ -935,7 +977,7 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
             recordId,
             "scout-tenancy",
             tenant.Slug,
-            tenant.UpdatedAtUtc,
+            NormalizeUtc(tenant.UpdatedAtUtc),
             payload,
             new JsonArray
             {
@@ -984,7 +1026,7 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
             recordId,
             sourceEvent.SourceSystem,
             sourceEvent.EventId,
-            sourceEvent.ObservedAtUtc,
+            NormalizeUtc(sourceEvent.ObservedAtUtc),
             payload,
             new JsonArray
             {
@@ -1015,15 +1057,24 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
         var metadata = CreateBaseMetadata("user_signals", "user_signal", recordId, tenant, signal.CreatedAtUtc, signal.UpdatedAtUtc);
         metadata["userProfileId"] = signal.UserProfileId.ToString("D");
         metadata["dataSourceId"] = signal.DataSourceId?.ToString("D");
+        var provenance = ParseJsonArray(signal.ProvenanceJson, "user_signal", recordId, "provenanceJson", findings, errors);
+        PromoteEventIdToSourceRecordId(provenance);
+        EnsureLocalProvenanceReference(provenance, new JsonObject
+        {
+            ["kind"] = "user_signal",
+            ["sourceSystem"] = "scout-user-signals",
+            ["sourceRecordId"] = recordId,
+            ["userSignalId"] = recordId
+        });
 
         return new StoragePortableRecord(
             "user_signal",
             recordId,
             "scout-user-signals",
             signal.Id.ToString("D"),
-            signal.ObservedAtUtc,
+            NormalizeUtc(signal.ObservedAtUtc),
             payload,
-            ParseJsonArray(signal.ProvenanceJson, "user_signal", recordId, "provenanceJson", findings, errors),
+            provenance,
             metadata);
     }
 
@@ -1063,7 +1114,7 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
             recordId,
             "scout-selectors",
             selector.Id.ToString("D"),
-            selector.PublishedAtUtc ?? selector.UpdatedAtUtc,
+            NormalizeUtc(selector.PublishedAtUtc ?? selector.UpdatedAtUtc),
             payload,
             new JsonArray
             {
@@ -1110,15 +1161,24 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
         metadata["resultConfidence"] = (double)execution.ResultConfidence;
         metadata["resultObservedAtUtc"] = FormatUtc(execution.ResultObservedAtUtc);
         metadata["resultExplanation"] = execution.ResultExplanation;
+        var provenance = ParseJsonArray(execution.ResultProvenanceJson, "selector_execution", recordId, "resultProvenanceJson", findings, errors);
+        PromoteEventIdToSourceRecordId(provenance);
+        EnsureLocalProvenanceReference(provenance, new JsonObject
+        {
+            ["kind"] = "selector_execution",
+            ["sourceSystem"] = "scout-selector",
+            ["sourceRecordId"] = execution.SelectorDefinitionId.ToString("D"),
+            ["selectorExecutionId"] = recordId
+        });
 
         return new StoragePortableRecord(
             "selector_execution",
             recordId,
             "scout-selectors",
             execution.SelectorDefinitionId.ToString("D"),
-            observedAtUtc,
+            NormalizeUtc(observedAtUtc),
             payload,
-            ParseJsonArray(execution.ResultProvenanceJson, "selector_execution", recordId, "resultProvenanceJson", findings, errors),
+            provenance,
             metadata);
     }
 
@@ -1144,7 +1204,7 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
             recordId,
             "scout-context",
             snapshot.Id.ToString("D"),
-            snapshot.GeneratedAtUtc,
+            NormalizeUtc(snapshot.GeneratedAtUtc),
             payload,
             new JsonArray
             {
@@ -1178,15 +1238,24 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
         metadata["confidence"] = (double)fact.Confidence;
         metadata["explanation"] = fact.Explanation;
         metadata["freshUntilUtc"] = FormatUtc(fact.FreshUntilUtc);
+        var provenance = ParseJsonArray(fact.ProvenanceJson, "context_fact", recordId, "provenanceJson", findings, errors);
+        EnsureLocalProvenanceReference(provenance, new JsonObject
+        {
+            ["kind"] = "context_fact_selector",
+            ["sourceSystem"] = "scout-selector",
+            ["sourceRecordId"] = fact.SourceSelectorDefinitionId.ToString("D"),
+            ["contextFactId"] = recordId,
+            ["contextSnapshotId"] = fact.ContextSnapshotId.ToString("D")
+        });
 
         return new StoragePortableRecord(
             "context_fact",
             recordId,
             "scout-context",
             fact.AttributeKey,
-            fact.ObservedAtUtc,
+            NormalizeUtc(fact.ObservedAtUtc),
             payload,
-            ParseJsonArray(fact.ProvenanceJson, "context_fact", recordId, "provenanceJson", findings, errors),
+            provenance,
             metadata);
     }
 
@@ -1208,7 +1277,7 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
             recordId,
             provenance.SourceSystem,
             provenance.SourceRecordKey,
-            provenance.ObservedAtUtc,
+            NormalizeUtc(provenance.ObservedAtUtc),
             payload,
             new JsonArray
             {
@@ -1249,7 +1318,7 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
             recordId,
             "scout-audit",
             auditEvent.EntityId,
-            auditEvent.CreatedAtUtc,
+            NormalizeUtc(auditEvent.CreatedAtUtc),
             payload,
             new JsonArray
             {
@@ -1588,6 +1657,77 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
         return [];
     }
 
+    private static void PromoteEventIdToSourceRecordId(JsonArray provenance)
+    {
+        foreach (var entry in provenance)
+        {
+            if (entry is not JsonObject provenanceObject
+                || !TryGetString(provenanceObject, "sourceSystem", out _)
+                || TryGetString(provenanceObject, "sourceRecordId", out _)
+                || TryGetString(provenanceObject, "sourceRecordKey", out _)
+                || !TryGetString(provenanceObject, "eventId", out var eventId))
+            {
+                continue;
+            }
+
+            provenanceObject["sourceRecordId"] = eventId;
+        }
+    }
+
+    private static void EnsureLocalProvenanceReference(JsonArray provenance, JsonObject fallbackReference)
+    {
+        if (!HasUsableProvenanceReference(provenance))
+        {
+            provenance.Add(fallbackReference);
+        }
+    }
+
+    private static bool HasUsableProvenanceReference(JsonArray provenance)
+    {
+        foreach (var entry in provenance)
+        {
+            if (entry is not JsonObject provenanceObject)
+            {
+                continue;
+            }
+
+            if (TryGetString(provenanceObject, "provenanceId", out _)
+                || TryGetString(provenanceObject, "id", out _)
+                || TryGetString(provenanceObject, "correlationId", out _))
+            {
+                return true;
+            }
+
+            if (TryGetString(provenanceObject, "sourceSystem", out _)
+                && (TryGetString(provenanceObject, "sourceRecordId", out _)
+                    || TryGetString(provenanceObject, "sourceRecordKey", out _)))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool TryGetString(JsonObject jsonObject, string propertyName, out string value)
+    {
+        value = string.Empty;
+        if (!jsonObject.TryGetPropertyValue(propertyName, out var node) || node is null)
+        {
+            return false;
+        }
+
+        try
+        {
+            value = node.GetValue<string>();
+            return !string.IsNullOrWhiteSpace(value);
+        }
+        catch (InvalidOperationException)
+        {
+            return false;
+        }
+    }
+
     private static JsonNode? ParseJsonNode(
         string json,
         string recordKind,
@@ -1655,9 +1795,23 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
         => value.HasValue ? FormatUtc(value.Value) : null;
 
     private static string FormatUtc(DateTime value)
-        => value.Kind == DateTimeKind.Utc
-            ? value.ToString("O")
-            : DateTime.SpecifyKind(value, DateTimeKind.Utc).ToString("O");
+        => NormalizeUtc(value).ToString("O");
+
+    private static DateTime NormalizeUtc(DateTime value)
+        => value.Kind switch
+        {
+            DateTimeKind.Utc => value,
+            DateTimeKind.Local => value.ToUniversalTime(),
+            _ => DateTime.SpecifyKind(value, DateTimeKind.Utc)
+        };
+
+    private sealed record ScoutExportSet(
+        IReadOnlyList<StoragePortableRecord> OrderedRecords,
+        List<StorageMigrationValidationFinding> Findings,
+        List<ExtensionError> Errors,
+        int MaxRecords,
+        int? StartIndex,
+        string? FinalCheckpoint);
 
     private sealed record ScoutExportCheckpoint(string RecordKind, string RecordId);
 }
