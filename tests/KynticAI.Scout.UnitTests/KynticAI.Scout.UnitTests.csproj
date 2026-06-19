@@ -26,6 +26,7 @@
     <ProjectReference Include="..\..\src\KynticAI.Scout.Application\KynticAI.Scout.Application.csproj" />
     <ProjectReference Include="..\..\src\KynticAI.Scout.Domain\KynticAI.Scout.Domain.csproj" />
     <ProjectReference Include="..\..\src\KynticAI.Scout.Infrastructure\KynticAI.Scout.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\tools\KynticAI.Scout.MigrationTool\KynticAI.Scout.MigrationTool.csproj" />
   </ItemGroup>
 
 </Project>

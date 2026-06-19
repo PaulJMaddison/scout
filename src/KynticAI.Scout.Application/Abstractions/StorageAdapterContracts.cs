@@ -25,6 +25,9 @@ public enum StorageAdapterDataScope
     OutcomeEvents = 256,
     Vectors = 512,
     AuditEvents = 1024,
+    SelectorDefinitions = 2048,
+    ContextSnapshots = 4096,
+    TenantMetadata = 8192,
     All = SourceEvents
         | UserSignals
         | SelectorExecutions
@@ -36,6 +39,9 @@ public enum StorageAdapterDataScope
         | OutcomeEvents
         | Vectors
         | AuditEvents
+        | SelectorDefinitions
+        | ContextSnapshots
+        | TenantMetadata
 }
 
 public enum StorageAdapterReadiness

@@ -1,18 +1,20 @@
 # WP3 Runtime Upgrade Implementation
 
-This work package records Scout/open-core implementation work after WP2. The focus is practical local runtime upgrade groundwork that keeps Scout as the customer-owned data plane, keeps Cloud out of customer data movement, and avoids adding private Enterprise/Fortress internals to the public repo.
+This work package records Scout/open-core implementation work after WP2 plus the private Enterprise/Fortress import-side contract summary needed for the Scout migration path. The focus is practical local runtime upgrade groundwork that keeps Scout as the customer-owned data plane, keeps Cloud out of customer data movement, and avoids adding private Enterprise/Fortress internals to the public repo.
 
 ## Scope
 
 - Implement small, public-safe runtime changes that move connector ingestion toward local Scout API boundaries.
 - Refine the public local storage adapter boundary so Scout remains on its safe default while private Enterprise/Fortress adapters can be selected later by local configuration.
+- Implement or record private Enterprise/Fortress import-side contracts in the Enterprise repo when the work belongs behind the paid/private boundary.
+- Add Scout-side local migration export and validation tooling that operators can run before moving to Elite/Fortress.
 - Preserve existing Docker quick start, mock/local connectors, SDK compatibility, and event webhook routes.
-- Keep customer payloads inside the local Scout environment.
-- Record code files changed, API routes used or added, connector/storage changes, tests, commands, results, and remaining direct paths.
+- Keep customer payloads inside the local Scout/Fortress customer-owned environment.
+- Record code files changed, API routes used or added, connector/storage/import changes, tests, commands, results, and remaining direct paths.
 
 ## Current Status
 
-Step `03-storage-adapter-boundary` is implemented.
+Step `04-scout-migration-export` is now implemented in Scout/open-core and verified with unit tests plus local SQLite dry-run/export package proofs. The later `05-enterprise-import-contract` step remains implemented locally in the Enterprise/Fortress repo and recorded here. Step `07-cloud-entitlement-compatibility` is implemented on the Cloud side and recorded in this Scout WP3 folder.
 
 Scout now has an additive registered-connector ingestion route:
 
@@ -24,24 +26,43 @@ The route delegates to the existing local source-system event ingestion service 
 
 Scout also now has a configured local storage adapter resolver. The resolver keeps `StorageAdapter:Provider=scout-postgres` as the default, returns the current Scout relational adapter by default, and can select a registered private `enterprise-runtime` adapter later without connector rewrites. If a private provider is configured but not registered, Scout fails closed locally.
 
+Scout now has a local migration export CLI:
+
+```text
+dotnet run --project tools/KynticAI.Scout.MigrationTool -- export --tenant <tenant-slug> --out <local-folder> [options]
+```
+
+It supports dry runs, package generation, validation reports, tenant/context metadata, source events, signals, selectors, relationship inputs where Scout has them, provenance, and audit events. It rejects Cloud upload options and records explicit exclusions for connector credentials, webhook secrets, API key material, data-source connection config, source-event headers, key-ring files, environment files, licence/private key/certificate files, and Cloud staging locations.
+
+Enterprise/Fortress now has a package-level Scout migration import contract in `ucl-vector`. It validates `kynticai.scout.storage-portable-export.v1` batches, rejects Cloud data-plane packages and cross-tenant anchors, prepares deterministic Fortress import records, and can build the existing LanceDB import batch only after a private/local embedding provider supplies dense embeddings.
+
+Cloud now emits new signed licence downloads in the Scout-compatible `Scout-LICENCE-v1` envelope with `Scout-` licence keys, while preserving verification compatibility for previous `UCL-LICENCE-v1` envelopes. The existing licence status, validation, account entitlement, deployment registration, and heartbeat routes expose the optional runtime-check metadata Scout needs without moving customer data to Cloud.
+
 ## File Index
 
 | File | Purpose |
 | --- | --- |
 | `02-connector-local-api-routing.md` | Implementation evidence for the registered-connector local API ingestion route. |
 | `03-storage-adapter-boundary.md` | Implementation evidence for the configured local storage adapter resolver and safe Scout default. |
+| `04-scout-migration-export.md` | Implementation evidence for Scout-side local migration export, dry-run validation, export package format, exclusions, tests, and CLI proof. |
+| `05-enterprise-import-contract.md` | Enterprise/Fortress import-side contract summary for Scout migration packages. |
+| `07-cloud-entitlement-compatibility.md` | Cloud compatibility evidence for optional Scout runtime licence/entitlement checks, response shape, tests, and boundary checks. |
 | `handoff.md` | Summary, verification, open risks, and recommended next prompt. |
 | `status.json` | Machine-readable WP3 status and verification record. |
 
 ## Boundary Commitments
 
-- Customer data remains in the local Scout data plane.
+- Customer data remains in the local Scout/Fortress data plane.
 - No customer data goes to Cloud.
 - The public repo does not gain Enterprise/Fortress private runtime internals.
 - The default local storage provider remains `scout-postgres`; vector writes remain disabled unless a private local adapter is registered and configured.
+- Enterprise/Fortress package validation lives in the private repo and does not make UCL depend on private packages.
+- Scout migration export writes local files only and has no Cloud upload path.
+- Scout migration export fails closed when selected adapters report Cloud data-plane use or unsafe credential-looking JSON keys.
 - Existing Docker quick start and existing mock/local connectors remain compatible.
 - Direct selector-time reads remain documented compatibility paths, not connector-owned direct ingestion writes.
+- Optional Cloud runtime checks use commercial/control-plane metadata only: licence status, entitlement tier, deployment registration, heartbeat health, and aggregate counters.
 
 ## Recommended Next Prompt
 
-Implement the Scout operator migration CLI wrapper around `ILocalDataPlaneStorageAdapter.ExportAsync()` with dry-run, real export, checkpoint resume, local reports, typed exit codes, and deterministic local upgrade simulation evidence. Keep Cloud out of the data plane.
+Implement the Enterprise/Fortress local importer CLI/API path that consumes Scout `kynticai.scout.migration-export-package.v1` outputs, runs a dry-run import report, and prepares local Fortress/LanceDB import records without Cloud upload.

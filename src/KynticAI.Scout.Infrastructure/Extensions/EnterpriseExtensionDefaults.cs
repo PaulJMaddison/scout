@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using KynticAI.Scout.Application.Abstractions;
 using KynticAI.Scout.Domain.Entities;
+using KynticAI.Scout.Domain.Saas;
 using Microsoft.EntityFrameworkCore;
 
 namespace KynticAI.Scout.Infrastructure.Extensions;
@@ -432,7 +433,10 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
     private const string ExportContractVersion = "kynticai.scout.storage-portable-export.v1";
 
     private static readonly StorageAdapterDataScope ExportableScopes =
-        StorageAdapterDataScope.SourceEvents
+        StorageAdapterDataScope.TenantMetadata
+        | StorageAdapterDataScope.SelectorDefinitions
+        | StorageAdapterDataScope.ContextSnapshots
+        | StorageAdapterDataScope.SourceEvents
         | StorageAdapterDataScope.UserSignals
         | StorageAdapterDataScope.SelectorExecutions
         | StorageAdapterDataScope.ContextFacts
@@ -451,9 +455,12 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
             AdapterKey,
             StorageAdapterProviderKeys.ScoutPostgres,
             StorageAdapterProviderKeys.Disabled,
-            StorageAdapterDataScope.SourceEvents
+            StorageAdapterDataScope.TenantMetadata
+                | StorageAdapterDataScope.SourceEvents
                 | StorageAdapterDataScope.UserSignals
+                | StorageAdapterDataScope.SelectorDefinitions
                 | StorageAdapterDataScope.SelectorExecutions
+                | StorageAdapterDataScope.ContextSnapshots
                 | StorageAdapterDataScope.ContextFacts
                 | StorageAdapterDataScope.Provenance
                 | StorageAdapterDataScope.AuditEvents,
@@ -470,7 +477,7 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
             RequiredConfigurationKeys: ["Database:Provider", "ConnectionStrings:Scout"],
             Notes:
             [
-                "Scout uses the existing EF-backed relational store for source events, signals, selector outputs, context facts, provenance, and audit.",
+                "Scout uses the existing EF-backed relational store for tenant/context metadata, source events, signals, selectors, selector outputs, context facts, provenance, and audit.",
                 "Scout can export current relational migration records in the storage-portable v1 contract.",
                 "The open source default does not import into Enterprise/Fortress or write vectors. Configure a local Enterprise/Fortress storage adapter for those paths."
             ]));
@@ -645,6 +652,11 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
             .ThenBy(static record => record.ObservedAtUtc)
             .ThenBy(static record => record.RecordId, StringComparer.Ordinal)
             .ToList();
+        ValidateSecretAndCredentialKeys(orderedRecords, findings, errors);
+        if (findings.Any(static finding => string.Equals(finding.Code, "unsafe.secret_or_credential_key", StringComparison.Ordinal)))
+        {
+            return CreateExportBatch(request, orderedRecords, [], errors, findings, null, true);
+        }
 
         var startIndex = ResolveStartIndex(request.Checkpoint, orderedRecords, findings, errors);
         if (startIndex is null)
@@ -722,6 +734,30 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
     {
         var records = new List<StoragePortableRecord>();
 
+        if (scope.HasFlag(StorageAdapterDataScope.TenantMetadata))
+        {
+            var workspaces = await dbContext.Workspaces
+                .AsNoTracking()
+                .Where(workspace => workspace.TenantId == tenant.Id)
+                .OrderBy(workspace => workspace.Slug)
+                .ThenBy(workspace => workspace.Id)
+                .ToListAsync(cancellationToken);
+            var dataSources = await dbContext.DataSources
+                .AsNoTracking()
+                .Where(dataSource => dataSource.TenantId == tenant.Id)
+                .OrderBy(dataSource => dataSource.Name)
+                .ThenBy(dataSource => dataSource.Id)
+                .ToListAsync(cancellationToken);
+            var semanticAttributes = await dbContext.SemanticAttributeDefinitions
+                .AsNoTracking()
+                .Where(attribute => attribute.TenantId == tenant.Id)
+                .OrderBy(attribute => attribute.Key)
+                .ThenBy(attribute => attribute.Id)
+                .ToListAsync(cancellationToken);
+
+            records.Add(MapTenantMetadata(tenant, workspaces, dataSources, semanticAttributes, findings, errors));
+        }
+
         if (scope.HasFlag(StorageAdapterDataScope.SourceEvents))
         {
             var sourceEvents = await dbContext.SourceSystemEvents
@@ -746,6 +782,18 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
             records.AddRange(userSignals.Select(signal => MapUserSignal(signal, tenant, findings, errors)));
         }
 
+        if (scope.HasFlag(StorageAdapterDataScope.SelectorDefinitions))
+        {
+            var selectorDefinitions = await dbContext.SelectorDefinitions
+                .AsNoTracking()
+                .Where(selector => selector.TenantId == tenant.Id)
+                .OrderBy(selector => selector.Name)
+                .ThenBy(selector => selector.Id)
+                .ToListAsync(cancellationToken);
+
+            records.AddRange(selectorDefinitions.Select(selector => MapSelectorDefinition(selector, tenant, findings, errors)));
+        }
+
         if (scope.HasFlag(StorageAdapterDataScope.SelectorExecutions))
         {
             var selectorExecutions = await dbContext.SelectorExecutions
@@ -756,6 +804,18 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
                 .ToListAsync(cancellationToken);
 
             records.AddRange(selectorExecutions.Select(execution => MapSelectorExecution(execution, tenant, findings, errors)));
+        }
+
+        if (scope.HasFlag(StorageAdapterDataScope.ContextSnapshots))
+        {
+            var contextSnapshots = await dbContext.ContextSnapshots
+                .AsNoTracking()
+                .Where(snapshot => snapshot.TenantId == tenant.Id)
+                .OrderBy(snapshot => snapshot.GeneratedAtUtc)
+                .ThenBy(snapshot => snapshot.Id)
+                .ToListAsync(cancellationToken);
+
+            records.AddRange(contextSnapshots.Select(snapshot => MapContextSnapshot(snapshot, tenant)));
         }
 
         if (scope.HasFlag(StorageAdapterDataScope.ContextFacts))
@@ -797,6 +857,98 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
         return records;
     }
 
+    private static StoragePortableRecord MapTenantMetadata(
+        Tenant tenant,
+        IReadOnlyList<Workspace> workspaces,
+        IReadOnlyList<DataSource> dataSources,
+        IReadOnlyList<SemanticAttributeDefinition> semanticAttributes,
+        List<StorageMigrationValidationFinding> findings,
+        List<ExtensionError> errors)
+    {
+        var recordId = tenant.Id.ToString("D");
+        var payload = new JsonObject
+        {
+            ["tenant"] = new JsonObject
+            {
+                ["id"] = recordId,
+                ["slug"] = tenant.Slug,
+                ["name"] = tenant.Name,
+                ["isActive"] = tenant.IsActive,
+                ["createdAtUtc"] = FormatUtc(tenant.CreatedAtUtc),
+                ["updatedAtUtc"] = FormatUtc(tenant.UpdatedAtUtc)
+            },
+            ["workspaces"] = new JsonArray(workspaces
+                .Select(workspace => new JsonObject
+                {
+                    ["id"] = workspace.Id.ToString("D"),
+                    ["slug"] = workspace.Slug,
+                    ["name"] = workspace.Name,
+                    ["description"] = workspace.Description,
+                    ["status"] = workspace.Status.ToString(),
+                    ["isDefault"] = workspace.IsDefault,
+                    ["createdAtUtc"] = FormatUtc(workspace.CreatedAtUtc),
+                    ["updatedAtUtc"] = FormatUtc(workspace.UpdatedAtUtc)
+                })
+                .Cast<JsonNode?>()
+                .ToArray()),
+            ["dataSources"] = new JsonArray(dataSources
+                .Select(dataSource => new JsonObject
+                {
+                    ["id"] = dataSource.Id.ToString("D"),
+                    ["name"] = dataSource.Name,
+                    ["description"] = dataSource.Description,
+                    ["kind"] = dataSource.Kind.ToString(),
+                    ["status"] = dataSource.Status.ToString(),
+                    ["lastSuccessfulSyncAtUtc"] = FormatUtc(dataSource.LastSuccessfulSyncAtUtc),
+                    ["connectionConfigExcluded"] = true,
+                    ["createdAtUtc"] = FormatUtc(dataSource.CreatedAtUtc),
+                    ["updatedAtUtc"] = FormatUtc(dataSource.UpdatedAtUtc)
+                })
+                .Cast<JsonNode?>()
+                .ToArray()),
+            ["semanticAttributes"] = new JsonArray(semanticAttributes
+                .Select(attribute => new JsonObject
+                {
+                    ["id"] = attribute.Id.ToString("D"),
+                    ["key"] = attribute.Key,
+                    ["displayName"] = attribute.DisplayName,
+                    ["description"] = attribute.Description,
+                    ["dataType"] = attribute.DataType.ToString(),
+                    ["exampleValue"] = ParseJsonNode(attribute.ExampleValueJson, "tenant_context_metadata", recordId, "semanticAttribute.exampleValueJson", findings, errors),
+                    ["isSystem"] = attribute.IsSystem,
+                    ["createdAtUtc"] = FormatUtc(attribute.CreatedAtUtc),
+                    ["updatedAtUtc"] = FormatUtc(attribute.UpdatedAtUtc)
+                })
+                .Cast<JsonNode?>()
+                .ToArray())
+        };
+        var metadata = CreateBaseMetadata("tenants", "tenant_context_metadata", recordId, tenant, tenant.CreatedAtUtc, tenant.UpdatedAtUtc);
+        metadata["excludedFields"] = new JsonArray
+        {
+            JsonValue.Create("data_sources.connection_config_json"),
+            JsonValue.Create("connector_credentials"),
+            JsonValue.Create("webhook_signing_secrets")
+        };
+
+        return new StoragePortableRecord(
+            "tenant_context_metadata",
+            recordId,
+            "scout-tenancy",
+            tenant.Slug,
+            tenant.UpdatedAtUtc,
+            payload,
+            new JsonArray
+            {
+                new JsonObject
+                {
+                    ["kind"] = "tenant_context",
+                    ["tenantId"] = recordId,
+                    ["tenantSlug"] = tenant.Slug
+                }
+            },
+            metadata);
+    }
+
     private static StoragePortableRecord MapSourceEvent(
         SourceSystemEvent sourceEvent,
         Tenant tenant,
@@ -813,7 +965,11 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
         metadata["externalAccountId"] = sourceEvent.ExternalAccountId;
         metadata["eventType"] = sourceEvent.EventType;
         metadata["status"] = sourceEvent.Status.ToString();
-        metadata["headers"] = ParseJsonObject(sourceEvent.HeadersJson, "source_system_event", recordId, "headersJson", findings, errors);
+        metadata["headersExcluded"] = true;
+        metadata["excludedFields"] = new JsonArray
+        {
+            JsonValue.Create("headersJson")
+        };
         metadata["processingSummary"] = sourceEvent.ProcessingSummary;
         metadata["errorMessage"] = sourceEvent.ErrorMessage;
         metadata["deadLetterReason"] = sourceEvent.DeadLetterReason;
@@ -871,6 +1027,57 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
             metadata);
     }
 
+    private static StoragePortableRecord MapSelectorDefinition(
+        SelectorDefinition selector,
+        Tenant tenant,
+        List<StorageMigrationValidationFinding> findings,
+        List<ExtensionError> errors)
+    {
+        var recordId = selector.Id.ToString("D");
+        var payload = new JsonObject
+        {
+            ["dataSourceId"] = selector.DataSourceId?.ToString("D"),
+            ["targetAttributeDefinitionId"] = selector.TargetAttributeDefinitionId.ToString("D"),
+            ["name"] = selector.Name,
+            ["description"] = selector.Description,
+            ["mappingKind"] = selector.MappingKind.ToString(),
+            ["status"] = selector.Status.ToString(),
+            ["version"] = selector.Version,
+            ["expression"] = ParseJsonNode(selector.ExpressionJson, "selector_definition", recordId, "expressionJson", findings, errors),
+            ["explanationTemplate"] = selector.ExplanationTemplate,
+            ["validationSchema"] = ParseJsonNode(selector.ValidationSchemaJson, "selector_definition", recordId, "validationSchemaJson", findings, errors),
+            ["defaultConfidence"] = (double)selector.DefaultConfidence,
+            ["freshnessWindowMinutes"] = selector.FreshnessWindowMinutes,
+            ["priority"] = selector.Priority,
+            ["scheduleIntervalMinutes"] = selector.ScheduleIntervalMinutes,
+            ["publishedAtUtc"] = FormatUtc(selector.PublishedAtUtc)
+        };
+        var metadata = CreateBaseMetadata("selector_definitions", "selector_definition", recordId, tenant, selector.CreatedAtUtc, selector.UpdatedAtUtc);
+        metadata["dataSourceId"] = selector.DataSourceId?.ToString("D");
+        metadata["targetAttributeDefinitionId"] = selector.TargetAttributeDefinitionId.ToString("D");
+        metadata["status"] = selector.Status.ToString();
+        metadata["version"] = selector.Version;
+
+        return new StoragePortableRecord(
+            "selector_definition",
+            recordId,
+            "scout-selectors",
+            selector.Id.ToString("D"),
+            selector.PublishedAtUtc ?? selector.UpdatedAtUtc,
+            payload,
+            new JsonArray
+            {
+                new JsonObject
+                {
+                    ["kind"] = "selector_definition",
+                    ["selectorDefinitionId"] = selector.Id.ToString("D"),
+                    ["dataSourceId"] = selector.DataSourceId?.ToString("D"),
+                    ["targetAttributeDefinitionId"] = selector.TargetAttributeDefinitionId.ToString("D")
+                }
+            },
+            metadata);
+    }
+
     private static StoragePortableRecord MapSelectorExecution(
         SelectorExecution execution,
         Tenant tenant,
@@ -912,6 +1119,42 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
             observedAtUtc,
             payload,
             ParseJsonArray(execution.ResultProvenanceJson, "selector_execution", recordId, "resultProvenanceJson", findings, errors),
+            metadata);
+    }
+
+    private static StoragePortableRecord MapContextSnapshot(ContextSnapshot snapshot, Tenant tenant)
+    {
+        var recordId = snapshot.Id.ToString("D");
+        var payload = new JsonObject
+        {
+            ["userProfileId"] = snapshot.UserProfileId.ToString("D"),
+            ["snapshotVersion"] = snapshot.SnapshotVersion,
+            ["summary"] = snapshot.Summary,
+            ["overallConfidence"] = (double)snapshot.OverallConfidence,
+            ["isStale"] = snapshot.IsStale,
+            ["generatedAtUtc"] = FormatUtc(snapshot.GeneratedAtUtc)
+        };
+        var metadata = CreateBaseMetadata("context_snapshots", "context_snapshot", recordId, tenant, snapshot.CreatedAtUtc, snapshot.UpdatedAtUtc);
+        metadata["userProfileId"] = snapshot.UserProfileId.ToString("D");
+        metadata["snapshotVersion"] = snapshot.SnapshotVersion;
+        metadata["isStale"] = snapshot.IsStale;
+
+        return new StoragePortableRecord(
+            "context_snapshot",
+            recordId,
+            "scout-context",
+            snapshot.Id.ToString("D"),
+            snapshot.GeneratedAtUtc,
+            payload,
+            new JsonArray
+            {
+                new JsonObject
+                {
+                    ["kind"] = "context_snapshot",
+                    ["contextSnapshotId"] = snapshot.Id.ToString("D"),
+                    ["userProfileId"] = snapshot.UserProfileId.ToString("D")
+                }
+            },
             metadata);
     }
 
@@ -1170,6 +1413,103 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
         }
     }
 
+    private static void ValidateSecretAndCredentialKeys(
+        IReadOnlyList<StoragePortableRecord> records,
+        List<StorageMigrationValidationFinding> findings,
+        List<ExtensionError> errors)
+    {
+        foreach (var record in records)
+        {
+            ValidateSecretAndCredentialKeys(record.Payload, record, "payload", findings, errors);
+            ValidateSecretAndCredentialKeys(record.Provenance, record, "provenance", findings, errors);
+            ValidateSecretAndCredentialKeys(record.Metadata, record, "metadata", findings, errors);
+        }
+    }
+
+    private static void ValidateSecretAndCredentialKeys(
+        JsonNode? node,
+        StoragePortableRecord record,
+        string path,
+        List<StorageMigrationValidationFinding> findings,
+        List<ExtensionError> errors)
+    {
+        switch (node)
+        {
+            case JsonObject jsonObject:
+                foreach (var (propertyName, propertyValue) in jsonObject)
+                {
+                    var propertyPath = $"{path}.{propertyName}";
+                    if (IsUnsafeSecretOrCredentialKey(propertyName))
+                    {
+                        AddFinding(
+                            findings,
+                            errors,
+                            StorageMigrationValidationSeverity.Error,
+                            "unsafe.secret_or_credential_key",
+                            "The migration export found a JSON key that looks like a secret or unsafe customer credential. Remove credentials from Scout source payloads or use a reviewed local redaction path before export.",
+                            record.RecordKind,
+                            record.RecordId,
+                            propertyPath);
+                    }
+
+                    ValidateSecretAndCredentialKeys(propertyValue, record, propertyPath, findings, errors);
+                }
+
+                break;
+            case JsonArray jsonArray:
+                for (var index = 0; index < jsonArray.Count; index++)
+                {
+                    ValidateSecretAndCredentialKeys(jsonArray[index], record, $"{path}[{index}]", findings, errors);
+                }
+
+                break;
+        }
+    }
+
+    private static bool IsUnsafeSecretOrCredentialKey(string propertyName)
+    {
+        var normalized = new string(propertyName
+            .Where(char.IsLetterOrDigit)
+            .Select(char.ToLowerInvariant)
+            .ToArray());
+        if (string.IsNullOrWhiteSpace(normalized))
+        {
+            return false;
+        }
+
+        return normalized is
+            "password" or
+            "passwd" or
+            "pwd" or
+            "secret" or
+            "secrets" or
+            "secretkey" or
+            "token" or
+            "authtoken" or
+            "accesstoken" or
+            "refreshtoken" or
+            "apikey" or
+            "clientsecret" or
+            "authorization" or
+            "credential" or
+            "credentials" or
+            "connectionstring" or
+            "privatekey" or
+            "webhooksecret" or
+            "signingsecret" or
+            "bearer" or
+            "cookie" or
+            "setcookie" or
+            "sessionsecret"
+            || normalized.EndsWith("password", StringComparison.Ordinal)
+            || normalized.EndsWith("secret", StringComparison.Ordinal)
+            || normalized.EndsWith("token", StringComparison.Ordinal)
+            || normalized.EndsWith("apikey", StringComparison.Ordinal)
+            || normalized.EndsWith("credential", StringComparison.Ordinal)
+            || normalized.Contains("connectionstring", StringComparison.Ordinal)
+            || normalized.StartsWith("authorization", StringComparison.Ordinal);
+    }
+
     private static JsonNode? ParseOptionalJsonNode(
         string? json,
         string recordKind,
@@ -1225,12 +1565,22 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
             return parsedArray;
         }
 
+        if (parsed is JsonObject parsedObject)
+        {
+            return [parsedObject];
+        }
+
+        if (parsed is null)
+        {
+            return [];
+        }
+
         AddFinding(
             findings,
             errors,
             StorageMigrationValidationSeverity.Error,
-            "json.expected_array",
-            "The migration export expected a JSON array.",
+            "json.expected_array_or_object",
+            "The migration export expected a JSON array or object.",
             recordKind,
             recordId,
             target);

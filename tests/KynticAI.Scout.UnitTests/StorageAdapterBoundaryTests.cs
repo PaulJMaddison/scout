@@ -5,6 +5,7 @@ using KynticAI.Scout.Domain.Enums;
 using KynticAI.Scout.Infrastructure.Configuration;
 using KynticAI.Scout.Infrastructure.Extensions;
 using KynticAI.Scout.Infrastructure.Persistence;
+using KynticAI.Scout.MigrationTool;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -44,7 +45,10 @@ public sealed class StorageAdapterBoundaryTests
         Assert.True(capabilities.SupportsExport);
         Assert.False(capabilities.SupportsVectorWrites);
         Assert.False(capabilities.SupportsDenseEmbeddings);
+        Assert.True(capabilities.SupportedScopes.HasFlag(StorageAdapterDataScope.TenantMetadata));
         Assert.True(capabilities.SupportedScopes.HasFlag(StorageAdapterDataScope.SourceEvents));
+        Assert.True(capabilities.SupportedScopes.HasFlag(StorageAdapterDataScope.SelectorDefinitions));
+        Assert.True(capabilities.SupportedScopes.HasFlag(StorageAdapterDataScope.ContextSnapshots));
         Assert.True(capabilities.SupportedScopes.HasFlag(StorageAdapterDataScope.ContextFacts));
         Assert.True(capabilities.SupportedScopes.HasFlag(StorageAdapterDataScope.AuditEvents));
         Assert.False(capabilities.SupportedScopes.HasFlag(StorageAdapterDataScope.Vectors));
@@ -181,6 +185,134 @@ public sealed class StorageAdapterBoundaryTests
     }
 
     [Fact]
+    public async Task DefaultStorageAdapter_ExportsTenantSelectorAndContextMetadataWithoutCredentialConfig()
+    {
+        using var provider = BuildServiceProvider();
+        using var scope = provider.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ScoutDbContext>();
+        var tenant = await SeedMigrationExportGraphAsync(dbContext);
+        var adapter = ResolveDefaultAdapter(scope);
+
+        var batches = await ExportBatchesAsync(adapter, new StorageExportRequest(
+            CreateContext(tenant.Id, tenant.Slug),
+            StorageAdapterDataScope.TenantMetadata
+                | StorageAdapterDataScope.SelectorDefinitions
+                | StorageAdapterDataScope.ContextSnapshots,
+            MaxRecords: 20));
+
+        var batch = Assert.Single(batches);
+        Assert.True(batch.ValidationReport!.IsValid);
+        Assert.Equal(3, batch.Records.Count);
+        var tenantMetadata = batch.Records.Single(record => record.RecordKind == "tenant_context_metadata");
+        var firstDataSource = tenantMetadata.Payload["dataSources"]!.AsArray()[0]!.AsObject();
+        Assert.True(firstDataSource["connectionConfigExcluded"]!.GetValue<bool>());
+        Assert.Contains(
+            tenantMetadata.Metadata["excludedFields"]!.AsArray(),
+            item => item!.GetValue<string>() == "data_sources.connection_config_json");
+        Assert.Contains(batch.Records, record => record.RecordKind == "selector_definition");
+        Assert.Contains(batch.Records, record => record.RecordKind == "context_snapshot");
+    }
+
+    [Fact]
+    public async Task DefaultStorageAdapter_ExcludesSourceEventHeadersFromPortableRecords()
+    {
+        using var provider = BuildServiceProvider();
+        using var scope = provider.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ScoutDbContext>();
+        var tenant = await SeedMigrationExportGraphAsync(dbContext);
+        var adapter = ResolveDefaultAdapter(scope);
+
+        var batch = Assert.Single(await ExportBatchesAsync(adapter, new StorageExportRequest(
+            CreateContext(tenant.Id, tenant.Slug),
+            StorageAdapterDataScope.SourceEvents,
+            MaxRecords: 20)));
+
+        var sourceEvent = Assert.Single(batch.Records);
+        Assert.Null(sourceEvent.Metadata["headers"]);
+        Assert.True(sourceEvent.Metadata["headersExcluded"]!.GetValue<bool>());
+        Assert.Contains(
+            sourceEvent.Metadata["excludedFields"]!.AsArray(),
+            item => item!.GetValue<string>() == "headersJson");
+    }
+
+    [Fact]
+    public async Task DefaultStorageAdapter_PreservesObjectShapedProvenanceAsPortableArray()
+    {
+        using var provider = BuildServiceProvider();
+        using var scope = provider.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ScoutDbContext>();
+        var tenant = await SeedMigrationExportGraphAsync(dbContext);
+        var user = await dbContext.UserProfiles.SingleAsync();
+        var dataSource = await dbContext.DataSources.SingleAsync();
+        var utcNow = new DateTime(2026, 6, 18, 12, 20, 0, DateTimeKind.Utc);
+        var signal = UserSignal.Create(
+            tenant.Id,
+            user.Id,
+            dataSource.Id,
+            "crm.object-provenance",
+            """{"health":"green"}""",
+            FactValueType.Json,
+            utcNow,
+            """{"sourceSystem":"crm","sourceRecordId":"evt-object-001"}""",
+            utcNow);
+        dbContext.UserSignals.Add(signal);
+        await dbContext.SaveChangesAsync();
+        var adapter = ResolveDefaultAdapter(scope);
+
+        var batch = Assert.Single(await ExportBatchesAsync(adapter, new StorageExportRequest(
+            CreateContext(tenant.Id, tenant.Slug),
+            StorageAdapterDataScope.UserSignals,
+            MaxRecords: 20)));
+
+        Assert.True(batch.ValidationReport!.IsValid);
+        var exportedSignal = batch.Records.Single(record => record.RecordId == signal.Id.ToString("D"));
+        var provenance = exportedSignal.Provenance;
+        var provenanceEntry = Assert.Single(provenance)!.AsObject();
+        Assert.Equal("crm", provenanceEntry["sourceSystem"]!.GetValue<string>());
+        Assert.Equal("evt-object-001", provenanceEntry["sourceRecordId"]!.GetValue<string>());
+    }
+
+    [Fact]
+    public async Task DefaultStorageAdapter_ValidationRejectsUnsafeCredentialKeysInSourcePayload()
+    {
+        using var provider = BuildServiceProvider();
+        using var scope = provider.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ScoutDbContext>();
+        var tenant = await SeedMigrationExportGraphAsync(dbContext);
+        var user = await dbContext.UserProfiles.SingleAsync();
+        var dataSource = await dbContext.DataSources.SingleAsync();
+        var utcNow = new DateTime(2026, 6, 18, 12, 15, 0, DateTimeKind.Utc);
+        var unsafeEvent = SourceSystemEvent.Create(
+            tenant.Id,
+            null,
+            "evt-secret-001",
+            "crm",
+            "account.updated",
+            user.ExternalUserId,
+            "account-001",
+            user.Id,
+            dataSource.Id,
+            """{"accountId":"account-001","apiKey":"unsafe-test-value"}""",
+            "{}",
+            "corr-secret-001",
+            utcNow,
+            utcNow);
+        unsafeEvent.MarkProcessed(0, "Processed for unsafe payload validation test.", utcNow);
+        dbContext.SourceSystemEvents.Add(unsafeEvent);
+        await dbContext.SaveChangesAsync();
+        var adapter = ResolveDefaultAdapter(scope);
+
+        var batch = Assert.Single(await ExportBatchesAsync(adapter, new StorageExportRequest(
+            CreateContext(tenant.Id, tenant.Slug),
+            StorageAdapterDataScope.SourceEvents,
+            DryRun: true)));
+
+        Assert.False(batch.ValidationReport!.IsValid);
+        Assert.Contains(batch.ValidationReport.Findings, finding => finding.Code == "unsafe.secret_or_credential_key");
+        Assert.Empty(batch.Records);
+    }
+
+    [Fact]
     public async Task DefaultStorageAdapter_DryRunValidatesExportWithoutReturningRecords()
     {
         using var provider = BuildServiceProvider();
@@ -227,13 +359,101 @@ public sealed class StorageAdapterBoundaryTests
         Assert.False(batch.Diagnostics["usesCloudDataPlane"]!.GetValue<bool>());
     }
 
+    [Fact]
+    public async Task MigrationTool_DryRunWritesValidationReportWithoutExportBatches()
+    {
+        using var provider = BuildServiceProvider();
+        using var seedScope = provider.CreateScope();
+        var dbContext = seedScope.ServiceProvider.GetRequiredService<ScoutDbContext>();
+        var tenant = await SeedMigrationExportGraphAsync(dbContext);
+        var outputPath = CreateTemporaryOutputPath();
+
+        try
+        {
+            var runner = new MigrationExportRunner(provider);
+            var result = await runner.RunAsync(new MigrationExportOptions(
+                tenant.Slug,
+                outputPath,
+                StorageAdapterDataScope.SourceEvents | StorageAdapterDataScope.UserSignals,
+                MaxRecords: 10,
+                DryRun: true,
+                Checkpoint: null,
+                Provider: null,
+                TenantId: tenant.Id,
+                Purpose: "unit-test-dry-run",
+                CorrelationId: "corr-unit-dry-run",
+                SettingsPath: null));
+
+            Assert.Equal(MigrationToolExitCode.Success, result.ExitCode);
+            Assert.True(File.Exists(Path.Combine(outputPath, "manifest.json")));
+            Assert.True(File.Exists(Path.Combine(outputPath, "validation-report.json")));
+            Assert.False(Directory.Exists(Path.Combine(outputPath, "batches")));
+
+            var report = JsonNode.Parse(await File.ReadAllTextAsync(Path.Combine(outputPath, "validation-report.json")))!.AsObject();
+            Assert.True(report["dryRun"]!.GetValue<bool>());
+            Assert.True(report["isValid"]!.GetValue<bool>());
+            Assert.Equal(0, report["exportedRecords"]!.GetValue<int>());
+        }
+        finally
+        {
+            DeleteTemporaryOutputPath(outputPath);
+        }
+    }
+
+    [Fact]
+    public async Task MigrationTool_ExportWritesPackageManifestValidationReportAndBatches()
+    {
+        using var provider = BuildServiceProvider();
+        using var seedScope = provider.CreateScope();
+        var dbContext = seedScope.ServiceProvider.GetRequiredService<ScoutDbContext>();
+        var tenant = await SeedMigrationExportGraphAsync(dbContext);
+        var outputPath = CreateTemporaryOutputPath();
+
+        try
+        {
+            var runner = new MigrationExportRunner(provider);
+            var result = await runner.RunAsync(new MigrationExportOptions(
+                tenant.Slug,
+                outputPath,
+                MigrationExportOptions.DefaultScope,
+                MaxRecords: 2,
+                DryRun: false,
+                Checkpoint: null,
+                Provider: null,
+                TenantId: tenant.Id,
+                Purpose: "unit-test-export",
+                CorrelationId: "corr-unit-export",
+                SettingsPath: null));
+
+            Assert.Equal(MigrationToolExitCode.Success, result.ExitCode);
+            Assert.True(result.BatchCount > 1);
+            Assert.True(result.ExportedRecords > 0);
+            Assert.True(File.Exists(Path.Combine(outputPath, "manifest.json")));
+            Assert.True(File.Exists(Path.Combine(outputPath, "validation-report.json")));
+            var batchFiles = Directory.GetFiles(Path.Combine(outputPath, "batches"), "batch-*.json");
+            Assert.Equal(result.BatchCount, batchFiles.Length);
+
+            var manifest = JsonNode.Parse(await File.ReadAllTextAsync(Path.Combine(outputPath, "manifest.json")))!.AsObject();
+            Assert.False(manifest["dryRun"]!.GetValue<bool>());
+            Assert.False(manifest["usesCloudDataPlane"]!.GetValue<bool>());
+            Assert.Contains(
+                manifest["excludedFilesAndFields"]!.AsArray(),
+                item => item!.GetValue<string>() == "source_system_events.headers_json");
+        }
+        finally
+        {
+            DeleteTemporaryOutputPath(outputPath);
+        }
+    }
+
     private static ServiceProvider BuildServiceProvider(
         Action<StorageAdapterOptions>? configureStorage = null,
         Action<IServiceCollection>? configureServices = null)
     {
         var services = new ServiceCollection();
+        var databaseName = $"storage-adapter-{Guid.NewGuid():N}";
         services.AddDbContext<ScoutDbContext>(options =>
-            options.UseInMemoryDatabase($"storage-adapter-{Guid.NewGuid():N}"));
+            options.UseInMemoryDatabase(databaseName));
         services.AddScoped<IScoutDbContext>(provider => provider.GetRequiredService<ScoutDbContext>());
         services.Configure<StorageAdapterOptions>(options => configureStorage?.Invoke(options));
         services.AddEnterpriseExtensionDefaults();
@@ -410,6 +630,17 @@ public sealed class StorageAdapterBoundaryTests
         await dbContext.SaveChangesAsync();
 
         return tenant;
+    }
+
+    private static string CreateTemporaryOutputPath()
+        => Path.Combine(Path.GetTempPath(), $"scout-migration-tool-{Guid.NewGuid():N}");
+
+    private static void DeleteTemporaryOutputPath(string outputPath)
+    {
+        if (Directory.Exists(outputPath))
+        {
+            Directory.Delete(outputPath, recursive: true);
+        }
     }
 
     private sealed class TestEnterpriseRuntimeStorageAdapter : ILocalDataPlaneStorageAdapter
