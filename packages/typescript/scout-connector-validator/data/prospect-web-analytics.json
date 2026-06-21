@@ -1,0 +1,77 @@
+{
+  "connectorId": "prospectWebAnalytics",
+  "displayName": "Prospect Web Analytics Metadata",
+  "version": "1.0.0",
+  "description": "Synthetic prospect web analytics metadata manifest for validating safe discovery inputs.",
+  "supportedSourceTypes": ["EventStream", "ProductUsage"],
+  "requiredConfigFields": [
+    {
+      "name": "metadataEndpoint",
+      "type": "string",
+      "description": "HTTPS endpoint that exposes aggregate event taxonomy metadata only."
+    },
+    {
+      "name": "siteKey",
+      "type": "string",
+      "description": "Public site grouping key used for synthetic metadata review."
+    }
+  ],
+  "safeMetadataFields": [
+    "connectorId",
+    "displayName",
+    "version",
+    "supportedSourceTypes",
+    "safeMetadataFields",
+    "sampleEntityMappings"
+  ],
+  "sampleEntityMappings": [
+    {
+      "sourceField": "pricing_page_visit_band",
+      "semanticAttribute": "salesUrgency",
+      "description": "Maps visit-frequency metadata bands to a synthetic sales urgency signal."
+    },
+    {
+      "sourceField": "feature_interest_band",
+      "semanticAttribute": "productFit",
+      "description": "Maps public feature-interest labels to a synthetic product-fit signal."
+    },
+    {
+      "sourceField": "engagement_depth_band",
+      "semanticAttribute": "engagementLevel",
+      "description": "Maps aggregate session-depth bands to a synthetic engagement level."
+    }
+  ],
+  "aliases": ["prospectAnalytics"],
+  "capabilities": ["Preview", "DryRun", "ConfigurationValidation", "HealthCheck"],
+  "configurationSchema": {
+    "type": "object",
+    "required": ["metadataEndpoint", "siteKey"],
+    "properties": {
+      "metadataEndpoint": {
+        "type": "string",
+        "description": "HTTPS endpoint for aggregate analytics taxonomy metadata."
+      },
+      "siteKey": {
+        "type": "string",
+        "description": "Public site grouping key used for synthetic review."
+      },
+      "includeAggregateEventCounts": {
+        "type": "boolean",
+        "description": "Whether to include coarse aggregate event count bands.",
+        "default": false
+      }
+    }
+  },
+  "sampleConfiguration": {
+    "metadataEndpoint": "https://metadata.example.com/web-analytics",
+    "siteKey": "synthetic-site",
+    "includeAggregateEventCounts": false
+  },
+  "eventShape": {
+    "sourceSystem": "prospectWebAnalytics",
+    "entityType": "metadataSummary",
+    "sourceIdField": "metadataSourceId",
+    "timestampField": "observedAtUtc",
+    "payloadRoot": "metadata"
+  }
+}

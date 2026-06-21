@@ -167,11 +167,13 @@ const FORBIDDEN_KEY_PATTERNS = [
   /^tokens?$/i,
   /^connection[-_ ]?strings?$/i,
   /^raw(?:[-_ ]?(?:payloads?|data|exports?))?$/i,
+  /^source[-_ ]?rows?$/i,
   /^source[-_ ]?documents?$/i,
   /^pii$/i,
   /^vectors?$/i,
   /^embeddings?$/i,
   /^prompt[-_ ]?packages?$/i,
+  /^analytics[-_ ]?payloads?$/i,
   /^local[-_ ]?logs?$/i,
   /^logs?$/i,
 ]

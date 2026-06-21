@@ -1,0 +1,77 @@
+{
+  "connectorId": "prospectCrmMetadata",
+  "displayName": "Prospect CRM Metadata",
+  "version": "1.0.0",
+  "description": "Synthetic prospect CRM metadata manifest for validating metadata-only Discovery Signature inputs.",
+  "supportedSourceTypes": ["Crm"],
+  "requiredConfigFields": [
+    {
+      "name": "metadataEndpoint",
+      "type": "string",
+      "description": "HTTPS endpoint that exposes connector metadata, not source records."
+    },
+    {
+      "name": "workspaceSlug",
+      "type": "string",
+      "description": "Workspace slug used to scope metadata labels for review."
+    }
+  ],
+  "safeMetadataFields": [
+    "connectorId",
+    "displayName",
+    "version",
+    "supportedSourceTypes",
+    "safeMetadataFields",
+    "sampleEntityMappings"
+  ],
+  "sampleEntityMappings": [
+    {
+      "sourceField": "opportunity_stage_band",
+      "semanticAttribute": "conversionProbability",
+      "description": "Maps CRM stage labels to a synthetic conversion probability band."
+    },
+    {
+      "sourceField": "decision_role_band",
+      "semanticAttribute": "decisionMakerLikelihood",
+      "description": "Maps role metadata to a synthetic decision-maker likelihood band."
+    },
+    {
+      "sourceField": "sales_motion_label",
+      "semanticAttribute": "recommendedSalesMotion",
+      "description": "Maps CRM motion labels to a synthetic recommended sales motion."
+    }
+  ],
+  "aliases": ["prospectCrm"],
+  "capabilities": ["Preview", "DryRun", "ConfigurationValidation", "HealthCheck"],
+  "configurationSchema": {
+    "type": "object",
+    "required": ["metadataEndpoint", "workspaceSlug"],
+    "properties": {
+      "metadataEndpoint": {
+        "type": "string",
+        "description": "HTTPS endpoint for metadata labels only."
+      },
+      "workspaceSlug": {
+        "type": "string",
+        "description": "Workspace slug used for metadata scoping."
+      },
+      "includeFieldLabels": {
+        "type": "boolean",
+        "description": "Whether to include public field labels in the metadata summary.",
+        "default": false
+      }
+    }
+  },
+  "sampleConfiguration": {
+    "metadataEndpoint": "https://metadata.example.com/crm",
+    "workspaceSlug": "synthetic-review",
+    "includeFieldLabels": false
+  },
+  "eventShape": {
+    "sourceSystem": "prospectCrmMetadata",
+    "entityType": "metadataSummary",
+    "sourceIdField": "metadataSourceId",
+    "timestampField": "observedAtUtc",
+    "payloadRoot": "metadata"
+  }
+}

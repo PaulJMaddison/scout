@@ -101,6 +101,40 @@ describe('KynticAI Discovery MCP buyer wrapper', () => {
     expect(validation.errors.join('\n')).not.toContain('C:\\Users\\Admin')
   })
 
+  it('rejects the full forbidden payload checklist by name', () => {
+    const unsafe = {
+      ...loadSyntheticSignature(),
+      credentials: { user: 'demo' },
+      tokens: ['redacted-token-placeholder'],
+      connectionString: 'Host=example.invalid;Database=demo;',
+      rawPayload: { kind: 'raw' },
+      sourceRows: [{ rowNumber: 1 }],
+      promptPackage: { name: 'unsafe-prompt-package' },
+      analyticsPayload: { eventName: 'unsafe-event' },
+      connectorManifests: [
+        { id: '1', payload: {}, createdAt: '2026-06-21T10:00:00Z' },
+        { id: '2', payload: {}, createdAt: '2026-06-21T11:00:00Z' },
+      ],
+      governanceNotes: ['x'.repeat(900), 'Review mentioned C:\\Users\\Admin\\private\\source.txt'],
+    }
+
+    const validation = validateDiscoverySignature(unsafe)
+    const errors = validation.errors.join('\n')
+
+    expect(validation.isValid).toBe(false)
+    expect(errors).toContain('credentials')
+    expect(errors).toContain('tokens')
+    expect(errors).toContain('connectionString')
+    expect(errors).toContain('rawPayload')
+    expect(errors).toContain('sourceRows')
+    expect(errors).toContain('promptPackage')
+    expect(errors).toContain('analyticsPayload')
+    expect(errors).toContain('raw record output')
+    expect(errors).toContain('too long')
+    expect(errors).toContain('[REDACTED_PATH]')
+    expect(errors).not.toContain('C:\\Users\\Admin')
+  })
+
   it('refuses forbidden approved metadata file names before reading JSON', async () => {
     const root = mkdtempSync(path.join(tmpdir(), 'kyntic-discovery-safe-reader-'))
     const blockedPath = path.join(root, 'service-account.json')
