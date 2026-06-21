@@ -6,6 +6,7 @@ import {
   BookOpen,
   BriefcaseBusiness,
   Building2,
+  ClipboardCheck,
   DatabaseZap,
   FileArchive,
   FileKey2,
@@ -124,6 +125,7 @@ const navigationSections: NavigationSection[] = [
     title: 'Admin Console',
     items: [
       { to: '/data-sources', label: 'Data Sources', icon: DatabaseZap, roles: ['tenant_admin'] },
+      { to: '/pilot-setup', label: 'Pilot Setup', icon: ClipboardCheck, roles: ['tenant_admin', 'integration_admin', 'analyst'] },
       { to: '/selectors', label: 'Selector Builder', icon: Shapes, roles: ['tenant_admin'] },
       { to: '/semantic-schema', label: 'Schema Registry', icon: FileSearch, roles: ['tenant_admin'] },
       { to: '/bootstrap-studio', label: 'Bootstrap Studio', icon: FileUp, roles: ['tenant_admin'] },

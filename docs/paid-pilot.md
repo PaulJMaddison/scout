@@ -98,6 +98,7 @@ Those paths require separate commercial, legal, security, and delivery review.
 ## Related Documents
 
 - [First Paid Pilot One-Pager](first-paid-pilot-one-pager.md)
+- [Paid Pilot Setup](paid-pilot-setup.md)
 - [Pilot SOW Template](pilot-sow-template.md)
 - [Customer Data Plane](customer-data-plane.md)
 - [Buyer FAQ](buyer-faq.md)

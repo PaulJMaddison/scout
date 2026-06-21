@@ -16,6 +16,7 @@ import {
   TriangleAlert,
 } from 'lucide-react'
 import { JsonViewer } from '@/components/data-display/json-viewer'
+import { RelationshipJsonExplorer } from '@/features/intelligence/relationship-json-explorer'
 import {
   Badge,
   Button,
@@ -251,7 +252,7 @@ export function RelationshipIntelligencePage() {
       <PageHeader
         eyebrow="Synthetic relationship intelligence"
         title="Relationship intelligence dashboard for grounded next actions."
-        description="Resolve a synthetic email, contact, or account into exact linked records, relationship weights, similar won/lost patterns, a cited draft response, and governance controls for the evidence package."
+        description="Resolve a synthetic email, contact, or account into exact linked records, Scout fallback weighted signals, similar won/lost patterns, a cited draft response, governance controls, and handoff JSON."
         actions={
           <>
             <Link to="/agent-playground">
@@ -276,7 +277,7 @@ export function RelationshipIntelligencePage() {
         <MetricCard
           label="Recommendation confidence"
           value={formatConfidence(result?.confidence)}
-          footnote="Composite confidence across exact evidence, relationship weighting, and similar-pattern support."
+          footnote="Composite confidence across exact evidence, Scout fallback signals, and similar-pattern support."
           accent="copper"
         />
         <MetricCard
@@ -288,7 +289,7 @@ export function RelationshipIntelligencePage() {
         <MetricCard
           label="Relationships resolved"
           value={String(result?.relationships.length ?? '—')}
-          footnote="Deterministic joins and probabilistic pattern links with explicit weights and citations."
+          footnote="Deterministic joins and local pattern links with explicit fallback weights and citations."
           accent="gold"
         />
         <MetricCard
@@ -617,6 +618,8 @@ export function RelationshipIntelligencePage() {
           </Panel>
         </div>
       </section>
+
+      {result ? <RelationshipJsonExplorer result={result} /> : null}
 
       <section className="grid gap-4 xl:grid-cols-[1fr_1fr]">
         <Panel eyebrow="Relationship map" title="How the lookup links source records">

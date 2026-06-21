@@ -11,6 +11,7 @@ import type {
   ConnectorPublicStatus,
 } from '@/lib/types'
 import { cn, prettyJson, safeJsonParse } from '@/lib/utils'
+import { getConnectorMaturityLabels, type ConnectorMaturityLabel } from '@/features/connectors/connector-readiness'
 
 const availabilityLabels: Record<ConnectorCatalogueAvailability, string> = {
   OpenCore: 'Open core',
@@ -113,9 +114,12 @@ export function ConnectorCataloguePage() {
             <p className="text-sm font-semibold text-rosewood-700">{pluginsQuery.error.message}</p>
           ) : null}
           <div className="grid gap-3 md:grid-cols-2 2xl:grid-cols-3">
-            {executablePlugins.map((plugin) => (
-              <ExecutableConnectorCard key={plugin.connectorType} plugin={plugin} />
-            ))}
+            {executablePlugins.map((plugin) => {
+              const entry = entries.find((item) =>
+                item.connectorType === plugin.connectorType || plugin.aliases.includes(item.connectorType),
+              )
+              return <ExecutableConnectorCard key={plugin.connectorType} plugin={plugin} entry={entry} />
+            })}
           </div>
         </Panel>
       ) : null}
@@ -206,7 +210,28 @@ export function ConnectorCataloguePage() {
   )
 }
 
-function ExecutableConnectorCard({ plugin }: { plugin: ConnectorPluginDefinition }) {
+function ExecutableConnectorCard({
+  plugin,
+  entry,
+}: {
+  plugin: ConnectorPluginDefinition
+  entry?: ConnectorCatalogueEntry
+}) {
+  const maturityLabels: ConnectorMaturityLabel[] = entry
+    ? getConnectorMaturityLabels(entry, true)
+    : [
+        {
+          label: 'Executable open-core',
+          tone: 'success',
+          detail: 'Registered plugin path is available in this Scout build.',
+        },
+        {
+          label: 'Not vendor-certified',
+          tone: 'neutral',
+          detail: 'Plugin availability is not a vendor certification claim.',
+        },
+      ]
+
   return (
     <div className="rounded-[24px] border border-sage-700/16 bg-sage-50/70 p-4">
       <div className="flex items-start justify-between gap-3">
@@ -223,6 +248,13 @@ function ExecutableConnectorCard({ plugin }: { plugin: ConnectorPluginDefinition
         {plugin.supportedCapabilities.includes('EventTriggeredRecompute') ? (
           <Badge tone="accent">Events</Badge>
         ) : null}
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {maturityLabels.map((label) => (
+          <Badge key={label.label} tone={label.tone}>
+            {label.label}
+          </Badge>
+        ))}
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
         <Button
@@ -243,6 +275,7 @@ function ExecutableConnectorCard({ plugin }: { plugin: ConnectorPluginDefinition
 function ConnectorCard({ entry, isExecutable }: { entry: ConnectorCatalogueEntry; isExecutable: boolean }) {
   const schema = safeJsonParse<Record<string, unknown>>(entry.configurationSchemaJson, {})
   const credentialSchema = safeJsonParse<Record<string, unknown>>(entry.credentialSchemaJson, {})
+  const maturityLabels = getConnectorMaturityLabels(entry, isExecutable)
 
   return (
     <Card
@@ -267,6 +300,14 @@ function ConnectorCard({ entry, isExecutable }: { entry: ConnectorCatalogueEntry
           </div>
         </div>
 
+        <div className="mt-4 flex flex-wrap gap-2">
+          {maturityLabels.map((label) => (
+            <Badge key={label.label} tone={label.tone}>
+              {label.label}
+            </Badge>
+          ))}
+        </div>
+
         <p className="mt-4 text-sm leading-7 text-ink-700">{entry.description}</p>
 
         <div className="mt-5 flex flex-wrap gap-2">
@@ -283,11 +324,11 @@ function ConnectorCard({ entry, isExecutable }: { entry: ConnectorCatalogueEntry
             <p className="mt-2 text-sm leading-6 text-ink-700">{entry.healthCheckMode}</p>
           </div>
           <div className="rounded-3xl border border-ink-900/8 bg-white/42 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-copper-800">Credential boundary</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-copper-800">Readiness boundary</p>
             <p className="mt-2 text-sm leading-6 text-ink-700">
               {entry.isPlaceholder
-                ? 'Schema only; no vendor credential flow is implemented here.'
-                : 'Credentials flow through the connector credential abstraction, never page-local storage.'}
+                ? 'Schema only; no vendor credential flow, sync job, or certification is implemented here.'
+                : 'Credentials flow through the connector credential abstraction; executable here still means open-core or local proof, not vendor certification.'}
             </p>
           </div>
         </div>

@@ -7,7 +7,11 @@ import type {
   BillingUsageOverview,
   BlueprintImportInput,
   BlueprintImportResult,
+  CheckConnectorHealthInput,
   ConnectorCatalogueEntry,
+  ConnectorConfigurationValidationResult,
+  ConnectorHealthResult,
+  ConnectorPluginDefinition,
   ContextFactResult,
   ContextProfileResult,
   CreateAgentRunInput,
@@ -41,6 +45,7 @@ import type {
   UpsertSelectorDefinitionInput,
   UpsertSemanticAttributeInput,
   UserProfile,
+  ValidateConnectorConfigurationInput,
 } from '@/lib/types'
 import { authStore } from '@/lib/auth'
 import { prettyJson, safeJsonParse } from '@/lib/utils'
@@ -482,6 +487,112 @@ export async function mockGetConnectorCatalogue(): Promise<PagedResponse<Connect
     pageSize: 100,
     totalCount: connectorCatalogue.length,
     hasMore: false,
+  }
+}
+
+export async function mockGetConnectorPlugins(): Promise<ConnectorPluginDefinition[]> {
+  await new Promise((resolve) => window.setTimeout(resolve, 100))
+  return connectorCatalogue
+    .filter((entry) =>
+      entry.availability === 'OpenCore' &&
+      !entry.isPlaceholder &&
+      !entry.connectorType.endsWith('Events'),
+    )
+    .map((entry) => ({
+      connectorType: entry.connectorType,
+      displayName: entry.displayName,
+      description: entry.description,
+      aliases:
+        entry.connectorType === 'sqlDatabase'
+          ? ['sqlTable', 'postgresql']
+          : entry.connectorType === 'postgresql'
+            ? ['sqlDatabase']
+            : [],
+      supportedDataSourceKinds: entry.supportedDataSourceKinds,
+      supportedCapabilities: [
+        'ConfigurationValidation',
+        'HealthCheck',
+        'Preview',
+        'DryRun',
+        'EventTriggeredRecompute',
+      ],
+      configurationSchemaJson: entry.configurationSchemaJson,
+      credentialSchemaJson: entry.credentialSchemaJson,
+      sampleConfigurationJson: prettyJson({
+        connectorType: entry.connectorType,
+        mode: 'demo-preview',
+        source: 'mock-api',
+      }),
+    }))
+}
+
+export async function mockValidateConnectorConfiguration(
+  input: ValidateConnectorConfigurationInput,
+): Promise<ConnectorConfigurationValidationResult> {
+  await new Promise((resolve) => window.setTimeout(resolve, 120))
+  const plugins = await mockGetConnectorPlugins()
+  const plugin = plugins.find((entry) =>
+    entry.connectorType === input.connectorType || entry.aliases.includes(input.connectorType),
+  )
+  const errors: string[] = []
+  let configuration: Record<string, unknown> = {}
+
+  try {
+    const parsed = JSON.parse(input.configurationJson) as unknown
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      errors.push('Configuration must be a JSON object.')
+    } else {
+      configuration = parsed as Record<string, unknown>
+    }
+  } catch {
+    errors.push('Configuration must be valid JSON.')
+  }
+
+  if (input.credentialsJson?.trim()) {
+    try {
+      const parsedCredentials = JSON.parse(input.credentialsJson) as unknown
+      if (!parsedCredentials || typeof parsedCredentials !== 'object' || Array.isArray(parsedCredentials)) {
+        errors.push('Credentials must be a JSON object when supplied.')
+      }
+    } catch {
+      errors.push('Credentials must be valid JSON when supplied.')
+    }
+  }
+
+  if (!plugin) {
+    errors.push('Connector plugin is not executable in this public Scout demo build.')
+  }
+
+  return {
+    connectorType: plugin?.connectorType ?? input.connectorType,
+    isValid: errors.length === 0,
+    errors,
+    sanitizedConfigurationJson: prettyJson({
+      ...configuration,
+      connectorType: plugin?.connectorType ?? input.connectorType,
+      credentials: input.credentialsJson?.trim() ? 'protected-reference-required' : 'not-supplied',
+    }),
+    configurationSchemaJson: plugin?.configurationSchemaJson ?? '{}',
+  }
+}
+
+export async function mockCheckConnectorHealth(input: CheckConnectorHealthInput): Promise<ConnectorHealthResult> {
+  await new Promise((resolve) => window.setTimeout(resolve, 120))
+  return {
+    dataSourceId: input.dataSourceId,
+    connectorType: 'mock-demo',
+    isHealthy: true,
+    status: 'Healthy',
+    messages: [
+      'Demo health check completed without contacting a live vendor system.',
+      'This is a local proof, not vendor certification.',
+    ],
+    detailsJson: prettyJson({
+      mode: input.mode ?? 'preview',
+      externalUserId: input.externalUserId ?? '123',
+      vendorCertified: false,
+    }),
+    checkedAtUtc: isoNow(),
   }
 }
 
