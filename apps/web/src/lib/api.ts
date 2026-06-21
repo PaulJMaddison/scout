@@ -325,21 +325,41 @@ export const api = {
   },
 
   async getConnectorPlugins() {
-    return restRequest<ConnectorPluginDefinition[]>('/api/rest/connectors/plugins', {
-      method: 'GET',
-    })
+    return restRequest<ConnectorPluginDefinition[]>(
+      '/api/rest/connectors/plugins',
+      {
+        method: 'GET',
+      },
+      {
+        allowDemoFallback: true,
+        fallback: async () => {
+          const { mockGetConnectorPlugins } = await import('@/mocks/mock-api')
+          return mockGetConnectorPlugins()
+        },
+      },
+    )
   },
 
   async validateConnectorConfiguration(input: ValidateConnectorConfigurationInput) {
-    return restRequest<ConnectorConfigurationValidationResult>('/api/rest/connectors/validate', {
-      method: 'POST',
-      body: JSON.stringify({
-        connectorType: input.connectorType,
-        kind: restDataSourceKinds[input.kind],
-        configurationJson: input.configurationJson,
-        credentialsJson: input.credentialsJson?.trim() ? input.credentialsJson : null,
-      }),
-    })
+    return restRequest<ConnectorConfigurationValidationResult>(
+      '/api/rest/connectors/validate',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          connectorType: input.connectorType,
+          kind: restDataSourceKinds[input.kind],
+          configurationJson: input.configurationJson,
+          credentialsJson: input.credentialsJson?.trim() ? input.credentialsJson : null,
+        }),
+      },
+      {
+        allowDemoFallback: true,
+        fallback: async () => {
+          const { mockValidateConnectorConfiguration } = await import('@/mocks/mock-api')
+          return mockValidateConnectorConfiguration(input)
+        },
+      },
+    )
   },
 
   async registerConnector(input: RegisterConnectorInput) {
@@ -359,15 +379,25 @@ export const api = {
   },
 
   async checkConnectorHealth(input: CheckConnectorHealthInput) {
-    return restRequest<ConnectorHealthResult>('/api/rest/connectors/health', {
-      method: 'POST',
-      body: JSON.stringify({
-        tenantSlug: input.tenantSlug,
-        dataSourceId: input.dataSourceId,
-        externalUserId: input.externalUserId?.trim() ? input.externalUserId : null,
-        mode: input.mode?.trim() ? input.mode : null,
-      }),
-    })
+    return restRequest<ConnectorHealthResult>(
+      '/api/rest/connectors/health',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          tenantSlug: input.tenantSlug,
+          dataSourceId: input.dataSourceId,
+          externalUserId: input.externalUserId?.trim() ? input.externalUserId : null,
+          mode: input.mode?.trim() ? input.mode : null,
+        }),
+      },
+      {
+        allowDemoFallback: true,
+        fallback: async () => {
+          const { mockCheckConnectorHealth } = await import('@/mocks/mock-api')
+          return mockCheckConnectorHealth(input)
+        },
+      },
+    )
   },
 
   async ingestSourceSystemEvent(input: IngestSourceSystemEventInput) {

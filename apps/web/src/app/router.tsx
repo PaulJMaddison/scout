@@ -227,6 +227,18 @@ const dataSourcesRoute = createRoute({
   ),
 })
 
+const pilotSetupRoute = createRoute({
+  getParentRoute: () => appRoute,
+  path: '/pilot-setup',
+  beforeLoad: ({ context, location }) => {
+    requireRole(context, location.href, ['tenant_admin', 'integration_admin', 'analyst'])
+  },
+  component: lazyRouteComponent(
+    () => import('@/features/pilot/pilot-setup-page'),
+    'PilotSetupPage',
+  ),
+})
+
 const selectorsRoute = createRoute({
   getParentRoute: () => appRoute,
   path: '/selectors',
@@ -458,6 +470,7 @@ const routeTree = rootRoute.addChildren([
     storyOutcomesRoute,
     overviewRoute,
     dataSourcesRoute,
+    pilotSetupRoute,
     selectorsRoute,
     semanticRoute,
     bootstrapStudioRoute,

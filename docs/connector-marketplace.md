@@ -16,6 +16,20 @@ This page is the public connector status record. Keep it factual, replayable, an
 | Placeholder | A visible non-executable entry used to describe capability boundaries. | Must not register a runtime plugin or pretend to ingest data. |
 | Customer-specific connector | Custom integration for one customer estate, mapping, security posture, or network boundary. | Private delivery only. Never committed to the public repo. |
 
+## Readiness Labels
+
+The web console also shows first-slice connector readiness labels:
+
+| Label | Meaning |
+| --- | --- |
+| Executable open-core | A registered public Scout plugin is available in the current build. |
+| Mock/local proof | Suitable for deterministic demo, dry-run, approved export, or provider-neutral event proof. |
+| Private/customer-specific | Requires scoped private implementation or customer-specific delivery work. |
+| Placeholder | Catalogue metadata only; no executable vendor connector is included in the public repo. |
+| Not vendor-certified | The listing must not be read as vendor certification or vendor approval. |
+
+These labels are deliberately conservative. A connector can be useful for a paid-pilot discussion while still requiring customer-approved validation before operational use.
+
 ## Public Catalogue
 
 | Connector family | Public label | What the public repo may contain | What is not included publicly |
