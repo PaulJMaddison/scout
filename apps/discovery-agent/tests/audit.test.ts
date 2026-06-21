@@ -54,6 +54,37 @@ describe('Discovery Agent audit tiers', () => {
     expect(audit.tier2).toBeUndefined()
   })
 
+  it('does not include forbidden local files or folders in the audit tree', async () => {
+    const root = createFixtureProject()
+    mkdirSync(path.join(root, 'node_modules', 'pkg'), { recursive: true })
+    mkdirSync(path.join(root, 'dist'), { recursive: true })
+    mkdirSync(path.join(root, 'raw-exports'), { recursive: true })
+    mkdirSync(path.join(root, 'database-dumps'), { recursive: true })
+    mkdirSync(path.join(root, 'support-bundles'), { recursive: true })
+    writeFileSync(path.join(root, '.env'), 'TOKEN=not-read')
+    writeFileSync(path.join(root, 'service-account.json'), '{"private_key":"not-read"}')
+    writeFileSync(path.join(root, 'access-token.json'), '{"token":"not-read"}')
+    writeFileSync(path.join(root, 'local-licence.json'), '{"licence":"not-read"}')
+    writeFileSync(path.join(root, 'database-dumps', 'customer-dump.sql'), 'CREATE TABLE leaked (id text);')
+    writeFileSync(path.join(root, 'raw-exports', 'customers.json'), '[]')
+    writeFileSync(path.join(root, 'support-bundles', 'tickets.json'), '[]')
+    writeFileSync(path.join(root, 'dist', 'bundle.js'), 'console.log("not-read")')
+    writeFileSync(path.join(root, 'node_modules', 'pkg', 'package.json'), '{"name":"not-read"}')
+
+    const audit = await auditCodebase({ path: root, tier: 1 })
+    const tree = audit.tier1.fileTree.join('\n')
+
+    expect(tree).not.toContain('.env')
+    expect(tree).not.toContain('service-account.json')
+    expect(tree).not.toContain('access-token.json')
+    expect(tree).not.toContain('local-licence.json')
+    expect(tree).not.toContain('database-dumps')
+    expect(tree).not.toContain('raw-exports')
+    expect(tree).not.toContain('support-bundles')
+    expect(tree).not.toContain('dist/')
+    expect(tree).not.toContain('node_modules')
+  })
+
   it('runs Tier 2 semantic index with endpoints, types, schema, and business patterns', async () => {
     const root = createFixtureProject()
     const audit = await auditCodebase({ path: root, tier: 2 })

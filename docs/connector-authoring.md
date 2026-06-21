@@ -258,6 +258,24 @@ The connector-metadata MCP package still exposes
 `scout_validate_connector_manifest_v2` for manifest validation. The Discovery
 Agent adds repo-wide audit, handover, and governance output.
 
+For buyer-facing discovery, use the `kyntic-discovery-mcp` wrapper after a
+manifest is ready for IT review:
+
+```bash
+cd apps/discovery-agent
+npm install
+npm run build
+node dist/kyntic-discovery-mcp.js --manifest ../../samples/connector-template/template-connector-manifest.json
+```
+
+The wrapper validates the manifest locally, runs the metadata quality report,
+and can include a metadata-only manifest summary in a
+`kynticai.discovery-signature.v1` draft that IT reviews. Do not add sample
+records, exports, ticket contents, database dumps, credentials, tokens,
+connection strings, raw payloads, source documents, PII, vectors, embeddings,
+prompt packages, local logs, or private connector implementation details to the
+signature draft.
+
 ## n8n Event Sink
 
 The local `packages/typescript/n8n-node` package provides a write-only n8n node

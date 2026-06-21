@@ -20,6 +20,7 @@ The buyer message is simple:
 - paid/private enterprise modules provide the proprietary Enterprise Rust engine/vector DB, relationship-set analysis, attribution-path analysis, scoped private connector modules, SSO/SAML, SCIM, vault integrations, advanced governance, compliance exports, deployment packs, and support tooling
 - paid/private Cloud modules provide optional hosted account management, billing, commercial licence portal, download portal, update channels, support portal, health/status, aggregate usage reporting backend, and cloud operations only
 - metadata-only remains a safe discovery mode for mapping systems and governance; private exact-data mode is the core product promise for production relationship-set analysis
+- KynticAI Discovery MCP is the buyer-facing metadata-only wrapper for IT-manager discovery: local codebase audit, public connector catalogue inspection, manifest validation, metadata quality report, Discovery Signature review, and optional signature-only handoff for a KynticAI-built synthetic demo
 - Clarity and Importance are separate KynticAI products, not required UCL dependencies
 
 Avoid overclaiming. The public repo is a credible open-core product foundation, not a self-serve hosted SaaS product, not a paid enterprise connector pack, not vendor-certified connector proof, and not customer traction by itself.

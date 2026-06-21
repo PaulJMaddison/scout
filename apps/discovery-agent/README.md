@@ -29,7 +29,7 @@ By default the CLI prints a JSON handover document. Use `--audit-only` for the r
 | 2 | `--tier 2` | Tier 1 plus API endpoints, type signatures, schema objects, and business logic patterns. |
 | 3 | `--tier 3` | Tier 2 plus data-flow inference, security surface, coupling hot spots, and tech-debt scoring. |
 
-The scanner skips secret-bearing files such as `.env`, private keys, local licence files, build outputs, and dependency folders.
+The scanner skips `.env`, private keys, local licence files, service-account JSON, token files, dependency folders, build outputs, raw exports, database dumps, and support bundles.
 
 ## CLI Examples
 
@@ -115,3 +115,78 @@ node dist/index.js --path ../.. --tier 1
 ```
 
 The implementation is TypeScript only and is designed to run unchanged on Windows, macOS, and Linux.
+
+## KynticAI Discovery MCP Buyer Wrapper
+
+`kyntic-discovery-mcp` is the buyer-facing wrapper for the IT-manager discovery
+journey. It reuses this local codebase audit package and the public
+`@kynticai/scout-discovery-mcp` connector metadata package. It does not add a
+second scanner.
+
+```bash
+cd apps/discovery-agent
+npm install
+npm run build
+
+# Local report with connector catalogue metadata only
+node dist/kyntic-discovery-mcp.js
+
+# Local codebase audit
+node dist/kyntic-discovery-mcp.js --path ../.. --audit --tier 2
+
+# Validate a connector manifest and run the metadata quality report
+node dist/kyntic-discovery-mcp.js --manifest ./examples/connector-manifest.json
+
+# Validate and print a Discovery Signature v1 draft
+node dist/kyntic-discovery-mcp.js --metadata ./examples/synthetic-approved-metadata.json --signature
+
+# Export the validated signature to a local file
+node dist/kyntic-discovery-mcp.js --metadata ./examples/synthetic-approved-metadata.json --signature --export-signature ./discovery-signature.json
+```
+
+Start the buyer-facing MCP server:
+
+```bash
+node dist/kyntic-discovery-mcp.js --mcp
+```
+
+Claude or Codex MCP config from a checkout:
+
+```json
+{
+  "mcpServers": {
+    "kynticai-discovery-mcp": {
+      "command": "npx",
+      "args": ["--package", "./apps/discovery-agent", "kyntic-discovery-mcp", "--mcp"]
+    }
+  }
+}
+```
+
+Direct local node path:
+
+```json
+{
+  "mcpServers": {
+    "kynticai-discovery-mcp": {
+      "command": "node",
+      "args": ["C:/Kyntic/UCL/apps/discovery-agent/dist/kyntic-discovery-mcp.js", "--mcp"]
+    }
+  }
+}
+```
+
+Safe-output contract:
+
+- Local report output is the default.
+- Discovery Signature output must match `kynticai.discovery-signature.v1`.
+- IT reviews `companyType`, `targetWorkflow`, `sourceSystemFamilies`,
+  `connectorManifests`, `conversionPoints`, `governanceNotes`,
+  `closestSyntheticDomain`, and `approvedForSyntheticDemoBuild`.
+- The wrapper refuses `.env`, private keys, local licence files,
+  service-account JSON, token files, dependency folders, build outputs, raw
+  exports, database dumps, and support bundles.
+- Network handoff is disabled unless `--submit-handoff`, `--allow-handoff`,
+  `--consent-handoff`, `--handoff-endpoint`, and an approved
+  `--handoff-config` are all present.
+- Handoff request bodies contain the Discovery Signature object only.

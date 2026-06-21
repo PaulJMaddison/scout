@@ -2,6 +2,13 @@
 
 MCP (Model Context Protocol) server for **KynticAI Scout** discovery. Exposes metadata-only inspection tools that let AI agents explore the Scout connector catalogue, semantic attribute keys, and configuration schemas without accessing live data or enterprise internals.
 
+For the buyer-facing IT-manager journey, use the `kyntic-discovery-mcp`
+wrapper in [`apps/discovery-agent`](../../../apps/discovery-agent). The
+wrapper reuses this package for connector catalogue inspection, connector
+manifest validation, and metadata quality reports, then combines it with the
+local Discovery Agent codebase audit and metadata-only Discovery Signature
+generation.
+
 ## Tools
 
 | Tool | Description |

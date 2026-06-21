@@ -122,6 +122,14 @@ the `scout_validate_connector_manifest_v2` tool. The canonical codebase
 handover agent is `apps/discovery-agent`; it can audit this package alongside
 the rest of the repo and produce a Codex-ready handover.
 
+For buyer-facing discovery, `kyntic-discovery-mcp` can validate the manifest and
+then include only a metadata-only summary in `kynticai.discovery-signature.v1`.
+IT should review connector identity, display name, supported source kinds, safe
+metadata fields, and sample entity mappings. The Discovery Signature must not
+include records, query output, credentials, tokens, connection strings, raw
+payloads, source documents, PII, vectors, embeddings, prompt packages, or local
+logs.
+
 ## Relationship to Existing Validation
 
 The `.NET` `ConnectorMetadataValidator` in `src/KynticAI.Scout.Infrastructure/Connectors/ConnectorMetadataValidator.cs` validates live `IConnectorPlugin` instances at runtime. This TypeScript validator operates on static JSON manifest files and adds checks for version format, safe metadata fields, and entity mappings. Both validators share the same underlying rules for connector ID, display name, description, and source types.

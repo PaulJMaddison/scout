@@ -1,5 +1,6 @@
 import { readdir, readFile, stat } from 'node:fs/promises'
 import path from 'node:path'
+import { shouldSkipDiscoveryDirectory, shouldSkipDiscoveryFile } from './safe-paths.js'
 import type {
   ApiEndpoint,
   AuditOptions,
@@ -22,39 +23,6 @@ import type {
 
 const DEFAULT_MAX_FILES = 6000
 const DEFAULT_MAX_FILE_BYTES = 384 * 1024
-const IGNORE_DIRECTORIES = new Set([
-  '.git',
-  '.vs',
-  '.vscode',
-  '.idea',
-  '.astro',
-  '.demo',
-  '.demo-data',
-  '.demo-runtime',
-  '.dotnet',
-  '.next',
-  '.turbo',
-  'bin',
-  'obj',
-  'coverage',
-  'dist',
-  'node_modules',
-  'out',
-  'playwright-report',
-  'support-bundles',
-  'test-results',
-  'artifacts-private',
-  'private-packages',
-])
-
-const SECRET_FILE_PATTERNS = [
-  /^\.env/i,
-  /\.pem$/i,
-  /\.key$/i,
-  /\.pfx$/i,
-  /\.p12$/i,
-  /\.lic(?:ence)?(?:\.json)?$/i,
-]
 
 const TEXT_EXTENSIONS = new Set([
   '.cs',
@@ -147,13 +115,13 @@ async function collectFiles(rootPath: string, maxFiles: number): Promise<FileSum
       const absolute = path.join(directory, entry.name)
       const relative = toRelative(rootPath, absolute)
       if (entry.isDirectory()) {
-        if (!IGNORE_DIRECTORIES.has(entry.name)) {
+        if (!shouldSkipDiscoveryDirectory(entry.name, relative)) {
           await visit(absolute)
         }
         continue
       }
 
-      if (!entry.isFile() || SECRET_FILE_PATTERNS.some((pattern) => pattern.test(entry.name))) {
+      if (!entry.isFile() || shouldSkipDiscoveryFile(entry.name, relative)) {
         continue
       }
 
