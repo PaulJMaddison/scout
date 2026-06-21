@@ -33,7 +33,8 @@ apt_install() {
     pkg-config \
     python3 \
     python3-venv \
-    python3-pip
+    python3-pip \
+    xz-utils
 }
 
 ensure_dotnet() {
@@ -53,9 +54,80 @@ ensure_dotnet() {
   dotnet --info
 }
 
+ensure_node() {
+  local min_version="${NODE_MIN_VERSION:-22.12.0}"
+
+  if node_satisfies_min "$min_version"; then
+    log "Using node $(node --version) and npm $(npm --version)"
+    return 0
+  fi
+
+  if command -v node >/dev/null 2>&1; then
+    log "Node $(node --version) is older than the required version ${min_version}"
+  fi
+
+  install_node_tarball "$min_version"
+
+  if ! node_satisfies_min "$min_version"; then
+    log "Node.js ${min_version}+ and npm are required. Current node is $(node --version 2>/dev/null || printf 'not installed')."
+    return 1
+  fi
+
+  log "Using node $(node --version) and npm $(npm --version)"
+}
+
+node_satisfies_min() {
+  local min_version="$1"
+
+  command -v node >/dev/null 2>&1 || return 1
+  command -v npm >/dev/null 2>&1 || return 1
+
+  node - "$min_version" <<'NODE'
+const min = process.argv[2].split('.').map(Number)
+const current = process.versions.node.split('.').map(Number)
+for (let i = 0; i < 3; i += 1) {
+  if (current[i] > min[i]) process.exit(0)
+  if (current[i] < min[i]) process.exit(1)
+}
+process.exit(0)
+NODE
+}
+
+install_node_tarball() {
+  local node_version="${NODE_VERSION:-$1}"
+  local node_tag="v${node_version#v}"
+  local arch
+
+  case "$(uname -m)" in
+    x86_64|amd64) arch="x64" ;;
+    aarch64|arm64) arch="arm64" ;;
+    *)
+      log "Unsupported CPU architecture for Node.js tarball install: $(uname -m)"
+      return 1
+      ;;
+  esac
+
+  local install_dir="$ROOT_DIR/.codex-cloud/node-${node_tag}-linux-${arch}"
+  local archive="$ROOT_DIR/.codex-cloud/tmp/node-${node_tag}-linux-${arch}.tar.xz"
+
+  if [ ! -x "$install_dir/bin/node" ]; then
+    log "Installing Node.js ${node_tag} into ${install_dir}"
+    mkdir -p "$ROOT_DIR/.codex-cloud/tmp" "$install_dir"
+    curl -fsSL "https://nodejs.org/dist/${node_tag}/node-${node_tag}-linux-${arch}.tar.xz" -o "$archive"
+    rm -rf "$install_dir"
+    mkdir -p "$install_dir"
+    tar -xJf "$archive" -C "$install_dir" --strip-components=1
+  fi
+
+  export PATH="$install_dir/bin:$PATH"
+}
+
 npm_install_dir() {
   local dir="$1"
-  [ -f "$dir/package.json" ] || return 0
+  if [ ! -f "$dir/package.json" ]; then
+    log "Expected package.json was not found in ${dir}"
+    return 1
+  fi
 
   log "Installing npm dependencies in ${dir}"
   if [ -f "$dir/package-lock.json" ]; then
@@ -117,16 +189,18 @@ mkdir -p .codex-cloud/{cache,data,evidence,logs,models,tmp}
 
 apt_install
 ensure_dotnet
+ensure_node
 
 log "Restoring .NET solution"
 dotnet restore KynticAI.Scout.slnx
 
 for dir in \
   apps/web \
+  apps/discovery-agent \
   docs-site \
-  packages/typescript/discovery-agent \
+  packages/typescript/scout-sdk \
   packages/typescript/n8n-node \
-  packages/typescript/sdk
+  packages/typescript/scout-n8n-node
 do
   npm_install_dir "$dir"
 done
