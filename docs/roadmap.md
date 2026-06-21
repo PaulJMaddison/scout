@@ -6,12 +6,9 @@ This roadmap describes the current direction of KynticAI Scout at a high level. 
 
 The expected repository split is:
 
-- `scout`
-  The public open source core
-- `scout-enterprise`
-  A private paid repository for enterprise extensions
-- `scout-cloud`
-  A private cloud/control-plane repository for hosted commercial operations
+- this public repository for the open source core
+- private paid repositories for enterprise extensions
+- private control-plane repositories for hosted commercial operations
 
 ## Public open source core
 

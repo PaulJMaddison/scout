@@ -420,8 +420,8 @@ public sealed class CloudControlPlaneEntitlementClient(
         => plan switch
         {
             0 or 1 => (int)ControlPlaneCommercialTier.Scout,
-            2 or 3 => (int)ControlPlaneCommercialTier.Fortress,
-            4 => (int)ControlPlaneCommercialTier.Elite,
+            2 or 3 => (int)ControlPlaneCommercialTier.PrivateRuntime,
+            4 => (int)ControlPlaneCommercialTier.AssistedPrivate,
             _ => null
         };
 
@@ -430,12 +430,12 @@ public sealed class CloudControlPlaneEntitlementClient(
         {
             var value when value.Equals("Free", StringComparison.OrdinalIgnoreCase) => (int)ControlPlaneCommercialTier.Scout,
             var value when value.Equals("Pro", StringComparison.OrdinalIgnoreCase) => (int)ControlPlaneCommercialTier.Scout,
-            var value when value.Equals("Business", StringComparison.OrdinalIgnoreCase) => (int)ControlPlaneCommercialTier.Fortress,
-            var value when value.Equals("Enterprise", StringComparison.OrdinalIgnoreCase) => (int)ControlPlaneCommercialTier.Fortress,
-            var value when value.Equals("PrivateCloud", StringComparison.OrdinalIgnoreCase) => (int)ControlPlaneCommercialTier.Elite,
+            var value when value.Equals("Business", StringComparison.OrdinalIgnoreCase) => (int)ControlPlaneCommercialTier.PrivateRuntime,
+            var value when value.Equals("Enterprise", StringComparison.OrdinalIgnoreCase) => (int)ControlPlaneCommercialTier.PrivateRuntime,
+            var value when value.Equals("PrivateCloud", StringComparison.OrdinalIgnoreCase) => (int)ControlPlaneCommercialTier.AssistedPrivate,
             var value when value.Equals("Scout", StringComparison.OrdinalIgnoreCase) => (int)ControlPlaneCommercialTier.Scout,
-            var value when value.Equals("Fortress", StringComparison.OrdinalIgnoreCase) => (int)ControlPlaneCommercialTier.Fortress,
-            var value when value.Equals("Elite", StringComparison.OrdinalIgnoreCase) => (int)ControlPlaneCommercialTier.Elite,
+            var value when value.Equals("PrivateRuntime", StringComparison.OrdinalIgnoreCase) => (int)ControlPlaneCommercialTier.PrivateRuntime,
+            var value when value.Equals("AssistedPrivate", StringComparison.OrdinalIgnoreCase) => (int)ControlPlaneCommercialTier.AssistedPrivate,
             _ => null
         };
 
@@ -443,8 +443,8 @@ public sealed class CloudControlPlaneEntitlementClient(
         => rank switch
         {
             <= 0 => ControlPlaneCommercialTier.Scout,
-            1 => ControlPlaneCommercialTier.Fortress,
-            _ => ControlPlaneCommercialTier.Elite
+            1 => ControlPlaneCommercialTier.PrivateRuntime,
+            _ => ControlPlaneCommercialTier.AssistedPrivate
         };
 
     private static int? ReadInt(JsonElement root, string propertyName)

@@ -1,6 +1,6 @@
 import { env } from '@/lib/env'
 import { authStore } from '@/lib/auth'
-import { mockGraphqlRequest } from '@/mocks/mock-api'
+import type { OperationName } from '@/mocks/mock-api'
 import type {
   AgentRun,
   AgentRunResult,
@@ -173,7 +173,7 @@ async function restRequest<TData>(
 }
 
 async function graphqlRequest<TData>(
-  operationName: Parameters<typeof mockGraphqlRequest>[0],
+  operationName: OperationName,
   query: string,
   variables?: Record<string, unknown>,
 ) {
@@ -215,10 +215,18 @@ async function graphqlRequest<TData>(
       throw error
     }
 
-    const fallback = await mockGraphqlRequest<TData>(operationName, variables)
+    const fallback = await mockGraphqlFallback<TData>(operationName, variables)
     apiModeStore.setMode('demo')
     return fallback
   }
+}
+
+async function mockGraphqlFallback<TData>(
+  operationName: OperationName,
+  variables?: Record<string, unknown>,
+) {
+  const { mockGraphqlRequest } = await import('@/mocks/mock-api')
+  return mockGraphqlRequest<TData>(operationName, variables)
 }
 
 export const api = {
@@ -505,7 +513,7 @@ export const api = {
       {
         allowDemoFallback: true,
         fallback: async () => {
-          const data = await mockGraphqlRequest<{ updateOperatorAccount: OperatorAccountSummary }>('UpdateOperatorAccount', { input })
+          const data = await mockGraphqlFallback<{ updateOperatorAccount: OperatorAccountSummary }>('UpdateOperatorAccount', { input })
           return data.updateOperatorAccount
         },
       },
@@ -550,7 +558,7 @@ export const api = {
       {
         allowDemoFallback: true,
         fallback: async () => {
-          const data = await mockGraphqlRequest<{ createApiClient: ApiClientCreatedResult }>('CreateApiClient', { input })
+          const data = await mockGraphqlFallback<{ createApiClient: ApiClientCreatedResult }>('CreateApiClient', { input })
           return data.createApiClient
         },
       },
@@ -564,7 +572,7 @@ export const api = {
       {
         allowDemoFallback: true,
         fallback: async () => {
-          const data = await mockGraphqlRequest<{ rotateApiClient: ApiClientRotatedResult }>('RotateApiClient', { tenantSlug, clientId })
+          const data = await mockGraphqlFallback<{ rotateApiClient: ApiClientRotatedResult }>('RotateApiClient', { tenantSlug, clientId })
           return data.rotateApiClient
         },
       },
@@ -578,7 +586,7 @@ export const api = {
       {
         allowDemoFallback: true,
         fallback: async () => {
-          await mockGraphqlRequest<{ revokeApiClient: boolean }>('RevokeApiClient', { tenantSlug, clientId })
+          await mockGraphqlFallback<{ revokeApiClient: boolean }>('RevokeApiClient', { tenantSlug, clientId })
         },
       },
     )

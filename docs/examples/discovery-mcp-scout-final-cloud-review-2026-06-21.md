@@ -90,7 +90,7 @@ The rejection path is covered by `apps/discovery-agent/tests/buyer-wrapper.test.
 
 ## Boundary result
 
-No Enterprise internals, private connector implementations, LanceDB, embedded model runtime, customer data, or live vendor calls were added for this review. Public Scout still contains documented extension contracts and placeholder metadata by design; the Discovery MCP public outputs remain metadata-only and are tested not to expose private implementation terms.
+No private implementation internals, private connector implementations, vector-store integrations, embedded model runtime, customer data, or live vendor calls were added for this review. Public Scout still contains documented extension contracts and placeholder metadata by design; the Discovery MCP public outputs remain metadata-only and are tested not to expose private implementation terms.
 
 ## Residual blockers
 

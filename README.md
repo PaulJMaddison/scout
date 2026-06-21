@@ -19,12 +19,12 @@
 </p>
 
 <p align="center">
-  Scout is the open-core UCL data plane: it ingests company data through connectors or assisted imports, keeps exact items in the customer's environment, and prepares the relationship-set foundation used by Enterprise and customer-owned LLMs.
+  Scout is the open-core UCL data plane: it ingests company data through connectors or assisted imports, keeps exact items in the customer's environment, and prepares relationship-set evidence for customer-owned apps, workflows, and LLMs.
 </p>
 
 ---
 
-> **Naming and maturity note:** Workspace naming is defined in [source-of-truth-naming-map.md](../docs/source-of-truth-naming-map.md). This README describes the open-core Scout/UCL data plane and local demo; it does not claim complete self-serve SaaS maturity, vendor-certified connectors, live customer deployments, customer traction, or canonical Enterprise relationship-set/vector analysis.
+> **Naming and maturity note:** Workspace naming is defined in [source-of-truth-naming-map.md](../docs/source-of-truth-naming-map.md). This README describes the open-core Scout/UCL data plane and local demo; it does not claim complete self-serve SaaS maturity, vendor-certified connectors, live customer deployments, customer traction, or private-extension production capabilities.
 
 ## Docker Quick Start
 
@@ -69,24 +69,24 @@ What is running:
 
 | Service | URL | Purpose |
 |---|---|---|
-| Scout web console | [http://127.0.0.1:5173](http://127.0.0.1:5173) | Admin console and investor walkthrough |
+| Scout web console | [http://127.0.0.1:5173](http://127.0.0.1:5173) | Admin console and guided demo walkthrough |
 | Scout API | [http://127.0.0.1:5198](http://127.0.0.1:5198) | REST, GraphQL, auth, OpenAPI |
 | OpenAPI / Scalar | [http://127.0.0.1:5198/api-docs](http://127.0.0.1:5198/api-docs) | Interactive API documentation |
 | Grafana | [http://127.0.0.1:3000](http://127.0.0.1:3000) | Local observability (`admin` / `admin`) |
 | Prometheus | [http://127.0.0.1:9090](http://127.0.0.1:9090) | Metrics |
 | Tempo | [http://127.0.0.1:3200](http://127.0.0.1:3200) | Traces |
 
-The API also listens on the host network interface. On a trusted LAN/VPN you can point another machine, workflow runner, CRM simulator, or n8n flow at:
+Docker Compose binds published demo ports to `127.0.0.1` by default. To allow another machine, workflow runner, CRM simulator, or n8n flow on a trusted LAN/VPN to reach the API, set `SCOUT_BIND_ADDRESS=0.0.0.0` before starting the stack and use:
 
 ```text
 http://<host-ip>:5198/api/v1/events/source-system?tenantSlug=demo
 ```
 
-The start scripts print the detected LAN web/API/webhook URLs. IP-only webhooks are fine for local workshops, private customer networks, VPNs, and static private IP installs. For public internet webhooks, put HTTPS with a stable DNS name or reverse proxy in front of the Docker API. From the web console, use **Data Sources** -> **Send source event** to test this path without setting up an external sender.
+The start scripts print detected LAN web/API/webhook URLs only when LAN exposure is enabled. IP-only webhooks are suitable for local workshops, private customer networks, VPNs, and static private IP installs. For public internet webhooks, put HTTPS with a stable DNS name or reverse proxy in front of the Docker API. From the web console, use **Data Sources** -> **Send source event** to test this path without setting up an external sender.
 
 Use `docker compose ps` to inspect services and `docker compose logs -f api web` to follow application logs.
 
-For contributor-only local runtime scripts (`.NET` + Node outside Docker), see the **[Getting Started Guide](docs/getting-started.md)**. Do not use the non-Docker path as the investor/customer sovereign install path.
+For contributor-only local runtime scripts (`.NET` + Node outside Docker), see the **[Getting Started Guide](docs/getting-started.md)**. Do not use the non-Docker path as the customer evaluation install path.
 
 ---
 
@@ -94,12 +94,12 @@ For contributor-only local runtime scripts (`.NET` + Node outside Docker), see t
 
 Scout is **customer-owned data-plane infrastructure for AI-enabled products**. It does not replace your CRM, ERP, support desk, or billing system. It sits beside those systems and creates governed exact data items, relationships, attribution paths, outcomes, provenance, and local APIs so that downstream consumers -- AI copilots, workflow engines, reporting tools, internal apps, local LLMs -- get trusted business meaning instead of disconnected records.
 
-The flagship UCL workflow is: source systems -> UCL/Scout customer-owned data plane -> exact data items, relationships, attribution paths, comparable relationship sets, and outcomes -> Enterprise Rust engine/vector DB canonical analysis -> governed JSON with evidence, matches, ranked options, confidence, and caveats -> customer-owned LLM or KynticAI open-source/private LLM runtime -> text explanation of what to do next. This public repo demonstrates the open-core data-plane mechanics: source access, selectors, semantic facts, exact linked records, provenance, masking, audit, APIs, SDKs, basic fallback intelligence, Enterprise handoff artefacts, and a local demo/admin console. Private enterprise modules add the proprietary Enterprise Rust engine/vector DB, paid/private connectors, enterprise identity/governance, and customer-specific hardening where required.
+The flagship UCL workflow is: source systems -> UCL/Scout customer-owned data plane -> exact data items, relationships, attribution paths, comparable relationship sets, and outcomes -> governed JSON with evidence, ranked options, confidence, and caveats -> customer-owned apps, workflows, reporting tools, local LLMs, or agents. This public repo demonstrates the open-core data-plane mechanics: source access, selectors, semantic facts, exact linked records, provenance, masking, audit, APIs, SDKs, basic fallback intelligence, extension handoff artefacts, and a local demo/admin console. Private modules can add paid connectors, identity/governance, advanced analysis, and customer-specific hardening where required.
 
 For the seeded sales walkthrough, "authorised data" means subject-scoped data items approved for the customer data plane: normalised email address, CRM contact/account, account registration/profile, sales activity, email replies or meetings booked, web conversion and pricing-page events, open opportunities, support tickets, product usage summaries, billing health, and prior won/lost outcome signals. Those exact items, relationships, attribution paths, outcomes, citations, local JSON artefacts, connector credentials, selectors, facts, snapshots, and audit logs stay in the customer-controlled environment by default.
 
 Scout Cloud is optional commercial/control-plane support only. It can manage accounts, licences, downloads, support access, update channels, and optional aggregate usage metadata; it is not required to run the data plane and must not receive raw customer operational data or derived relationship intelligence by default.
-Clarity and Importance are separate KynticAI products. They are not required for UCL/Scout, Enterprise, or Cloud.
+Clarity and Importance are separate KynticAI products. They are not required for UCL/Scout or Cloud.
 
 ### Key Capabilities
 
@@ -110,7 +110,7 @@ Clarity and Importance are separate KynticAI products. They are not required for
 | **Context Snapshots** | Reusable business profiles with confidence, freshness, and provenance |
 | **GraphQL + REST APIs** | Every context surface available through both query styles |
 | **TypeScript & .NET SDKs** | Typed client libraries for integration teams |
-| **Relationship-Set Foundation** | Local/customer-data-plane exact linked records, relationships, attribution-path evidence, outcomes, basic fallback-only signals, citations, masking decisions, and governed JSON artefacts for approved consumers -- Scout does not need to call an AI model and does not claim canonical Enterprise analysis |
+| **Relationship-Set Foundation** | Local/customer-data-plane exact linked records, relationships, attribution-path evidence, outcomes, basic fallback-only signals, citations, masking decisions, and governed JSON artefacts for approved consumers -- Scout does not need to call an AI model |
 | **Connector Framework** | Generic SQL, REST, CSV, mock connectors + extension points for enterprise |
 | **Audit & Provenance** | Every read, recompute, and context access is traceable |
 | **Blueprint Import** | AI-generated configuration (from Codex, Claude, ChatGPT) validated and imported |
@@ -335,7 +335,7 @@ Systems that do not want GraphQL can use the deployment-oriented REST surface un
 | `GET` | `/api/v1/context/users/{id}/facts` | Semantic fact lookup with filters |
 | `GET` | `/api/v1/context/snapshots/{id}` | Context snapshot retrieval |
 | `POST` | `/api/v1/context/users/{id}/ai-safe-context-package` | Governed context package |
-| `POST` | `/api/v1/intelligence/next-action` | Exact linked records, relationships, attribution-path evidence, Scout fallback signals, Enterprise handoff JSON, and recommended next action |
+| `POST` | `/api/v1/intelligence/next-action` | Exact linked records, relationships, attribution-path evidence, Scout fallback signals, extension handoff JSON, and recommended next action |
 | `POST` | `/api/v1/context/recompute` | Queue recomputation |
 | `POST` | `/api/v1/selectors/preview` | Selector preview |
 | `POST` | `/api/v1/selectors/validate` | Selector validation |
@@ -395,7 +395,7 @@ Use `/api/platform/config` to inspect the effective mode and enabled feature fla
 
 ## Backend-Only Developer Quick Start
 
-Run the API without the React frontend when contributing to the source tree. This path uses repo-local or machine-local runtimes and is not the recommended investor/customer self-contained install.
+Run the API without the React frontend when contributing to the source tree. This path uses repo-local or machine-local runtimes and is not the recommended customer self-contained evaluation install.
 
 ```bash
 sh ./scripts/setup-backend.sh
@@ -501,7 +501,7 @@ This repository is the **public open-source core** of KynticAI Scout. It is desi
 
 # Commercial & Enterprise Solutions
 
-For organisations that need private connectors, managed deployment support, stronger governance controls, Enterprise Rust engine/vector DB analysis, or production support, KynticAI scopes commercial Scout packages around this open-source core. Formal SLA or customer-production commitments require a signed support process, named owners, and deployment evidence.
+For organisations that need private connectors, managed deployment support, stronger governance controls, advanced private analysis, or production support, KynticAI scopes commercial Scout packages around this open-source core. Formal SLA or customer-production commitments require a signed support process, named owners, and deployment evidence.
 
 ## The Enterprise Advantage
 
@@ -518,7 +518,7 @@ Scoped paid/private connector modules and adapter work for enterprise systems su
 Private modules and extension points for SSO/SCIM integration, granular RBAC (Role-Based Access Control), and compliance/audit workflows where a customer deployment requires them.
 
 ### Contextual Intelligence
-Optional private modules for the proprietary Enterprise Rust engine/vector DB, relationship-set analysis, attribution-path analysis, outcome-pattern matching, and governed JSON handoff that build on the exact data items managed by Scout.
+Optional private modules for advanced relationship-set analysis, attribution-path analysis, outcome-pattern matching, and governed JSON handoff that build on the exact data items managed by Scout.
 
 ### Mission-Critical Support
 Implementation-led paid pilots with delivery support. Formal commercial SLAs for production-grade environments are a contracted support/process commitment, not an automatic README claim.
@@ -541,12 +541,12 @@ See [docs/open-core-boundary.md](docs/open-core-boundary.md) and [docs/enterpris
 
 ## Releases
 
-Scout uses coordinated [semantic versioning](https://semver.org/) across all three repositories (open-source, enterprise, cloud). Every release is tagged with the same `vX.Y.Z` version.
+Scout uses [semantic versioning](https://semver.org/) for public releases. Every public release is tagged with a `vX.Y.Z` version.
 
 | Resource | Description |
 |---|---|
-| [Release Process](docs/releases/release-process.md) | Full release workflow, checklists, and hotfix process |
-| [Cross-Repo Changelog](docs/releases/CHANGELOG.md) | Consolidated changelog across all three repos |
+| [Release Process](docs/releases/release-process.md) | Public release workflow, checklists, and hotfix process |
+| [Changelog](docs/releases/CHANGELOG.md) | Public Scout changelog |
 | [GitHub Releases](https://github.com/PaulJMaddison/scout/releases) | Published releases with auto-generated notes |
 
 ### Release Scripts

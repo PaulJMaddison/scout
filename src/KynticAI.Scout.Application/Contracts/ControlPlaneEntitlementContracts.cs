@@ -3,8 +3,8 @@ namespace KynticAI.Scout.Application.Contracts;
 public enum ControlPlaneCommercialTier
 {
     Scout = 0,
-    Fortress = 1,
-    Elite = 2
+    PrivateRuntime = 1,
+    AssistedPrivate = 2
 }
 
 public enum ControlPlaneEntitlementDecisionStatus
@@ -21,9 +21,9 @@ public enum ControlPlaneEntitlementDecisionStatus
 public static class ControlPlaneCapabilityKeys
 {
     public const string ScoutOpenCore = "scout-open-core";
-    public const string FortressRuntime = "fortress-runtime";
+    public const string PrivateRuntime = "private-runtime";
     public const string RelationshipSetEngine = "relationship-set-engine";
-    public const string EliteOperatorPack = "elite-operator-pack";
+    public const string OperatorPack = "operator-pack";
 }
 
 public sealed record ControlPlaneDeploymentMetadata(

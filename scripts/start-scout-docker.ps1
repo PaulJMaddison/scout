@@ -77,6 +77,38 @@ function Get-LanIPAddress {
     return ($addresses | Select-Object -First 1).IPAddress
 }
 
+function Get-ScoutBindAddress {
+    $processValue = [Environment]::GetEnvironmentVariable('SCOUT_BIND_ADDRESS', 'Process')
+    if (-not [string]::IsNullOrWhiteSpace($processValue)) {
+        return $processValue.Trim().Trim('"', "'")
+    }
+
+    $envPath = Join-Path $repoRoot '.env'
+    if (Test-Path $envPath) {
+        $line = Get-Content -LiteralPath $envPath |
+            Where-Object { $_ -match '^\s*SCOUT_BIND_ADDRESS\s*=' } |
+            Select-Object -First 1
+        if ($line -and $line -match '^\s*SCOUT_BIND_ADDRESS\s*=\s*(?<value>.+?)\s*$') {
+            return $Matches.value.Trim().Trim('"', "'")
+        }
+    }
+
+    return '127.0.0.1'
+}
+
+function Test-LanExposureEnabled {
+    param([AllowNull()][string]$BindAddress)
+
+    $normalised = if ([string]::IsNullOrWhiteSpace($BindAddress)) {
+        '127.0.0.1'
+    }
+    else {
+        $BindAddress.Trim().Trim('"', "'").ToLowerInvariant()
+    }
+
+    return $normalised -notin @('127.0.0.1', 'localhost', '::1')
+}
+
 function ConvertTo-HtmlText {
     param([AllowNull()][object]$Value)
     return [System.Net.WebUtility]::HtmlEncode([string]$Value)
@@ -91,7 +123,7 @@ function New-InstallReport {
     New-Item -ItemType Directory -Path $reportDir -Force | Out-Null
     $reportPath = Join-Path $reportDir 'scout-install-report.html'
 
-    $lanSection = if ($Report.LanIpAddress) {
+    $lanSection = if ($Report.LanExposureEnabled -and $Report.LanIpAddress) {
 @"
         <tr><th>LAN web</th><td><a href="http://$($Report.LanIpAddress):5173">http://$($Report.LanIpAddress):5173</a></td></tr>
         <tr><th>LAN API</th><td><a href="http://$($Report.LanIpAddress):5198">http://$($Report.LanIpAddress):5198</a></td></tr>
@@ -99,14 +131,24 @@ function New-InstallReport {
 "@
     }
     else {
-        '<tr><th>LAN webhook</th><td>No LAN IP detected. Use 127.0.0.1 locally or configure a private/static IP.</td></tr>'
+        '<tr><th>LAN webhook</th><td>LAN exposure is disabled. Docker ports are bound to localhost by default; set <code>SCOUT_BIND_ADDRESS=0.0.0.0</code> only on a trusted LAN/VPN.</td></tr>'
     }
 
     $lanTest = if ($Report.LanWebhookStatus) {
         "IP webhook test through <code>$($Report.LanApiUrl)</code>: event was <strong>$(ConvertTo-HtmlText $Report.LanWebhookStatus)</strong>, stored <strong>$(ConvertTo-HtmlText $Report.LanStoredSignalCount)</strong> signal, matched <strong>$(ConvertTo-HtmlText $Report.LanMatchedSelectorCount)</strong> selectors."
     }
+    elseif (-not $Report.LanExposureEnabled) {
+        'LAN/IP webhook smoke was skipped because published Docker ports are bound to localhost by default.'
+    }
     else {
         'LAN/IP webhook smoke was skipped because no LAN IP was detected or the private address was not reachable from this host.'
+    }
+
+    $lanSummary = if ($Report.LanExposureEnabled -and $Report.LanIpAddress) {
+        "printed LAN URL $(ConvertTo-HtmlText $Report.LanIpAddress)."
+    }
+    else {
+        "kept LAN/private-network endpoints disabled; published bind address is <code>$(ConvertTo-HtmlText $Report.BindAddress)</code>."
     }
 
     $html = @"
@@ -163,7 +205,7 @@ function New-InstallReport {
       <ul>
         <li><strong>Build:</strong> $(ConvertTo-HtmlText $Report.BuildStatus)</li>
         <li><strong>Docker stack:</strong> running; API and Postgres health checks are healthy.</li>
-        <li><strong>Start script:</strong> printed LAN URL $(ConvertTo-HtmlText $Report.LanIpAddress).</li>
+        <li><strong>Start script:</strong> $lanSummary</li>
         <li><strong>Demo context:</strong> User 123 returned $(ConvertTo-HtmlText $Report.DemoUser) / $(ConvertTo-HtmlText $Report.DemoCompany).</li>
         <li><strong>Connector test:</strong> mock CRM configuration validated, connector registered, health check returned $(ConvertTo-HtmlText $Report.ConnectorHealthStatus).</li>
         <li><strong>Local webhook test:</strong> event was $(ConvertTo-HtmlText $Report.LocalWebhookStatus), stored $(ConvertTo-HtmlText $Report.LocalStoredSignalCount) signal, matched $(ConvertTo-HtmlText $Report.LocalMatchedSelectorCount) selectors.</li>
@@ -180,6 +222,7 @@ function New-InstallReport {
         <tr><th>OpenAPI / Scalar</th><td><a href="http://127.0.0.1:5198/api-docs">http://127.0.0.1:5198/api-docs</a></td></tr>
         <tr><th>Grafana</th><td><a href="http://127.0.0.1:3000">http://127.0.0.1:3000</a> (<code>admin</code> / <code>admin</code>)</td></tr>
         <tr><th>Prometheus</th><td><a href="http://127.0.0.1:9090">http://127.0.0.1:9090</a></td></tr>
+        <tr><th>Published bind address</th><td><code>$(ConvertTo-HtmlText $Report.BindAddress)</code></td></tr>
         $lanSection
       </table>
     </section>
@@ -268,7 +311,9 @@ if (-not $contextResponse.fullName) {
     throw 'Startup smoke test failed: demo user 123 context was not returned.'
 }
 
-$lanIpAddress = Get-LanIPAddress
+$bindAddress = Get-ScoutBindAddress
+$lanExposureEnabled = Test-LanExposureEnabled -BindAddress $bindAddress
+$lanIpAddress = if ($lanExposureEnabled) { Get-LanIPAddress } else { $null }
 $buildStatus = if ($NoBuild) {
     'Skipped by -NoBuild; existing Docker images were reused.'
 }
@@ -379,7 +424,7 @@ $localWebhook = Invoke-RestMethod -Method Post `
     } | ConvertTo-Json -Depth 10)
 
 $lanWebhook = $null
-if ($lanIpAddress) {
+if ($lanExposureEnabled -and $lanIpAddress) {
     try {
         $lanApiUrl = "http://$($lanIpAddress):5198"
         Invoke-RestMethod -Method Get -Uri "$lanApiUrl/health/ready" -TimeoutSec 10 | Out-Null
@@ -412,6 +457,8 @@ $reportPath = New-InstallReport -Report @{
     DemoUser = $contextResponse.fullName
     DemoCompany = $contextResponse.companyName
     LanIpAddress = $lanIpAddress
+    BindAddress = $bindAddress
+    LanExposureEnabled = $lanExposureEnabled
     LanApiUrl = if ($lanIpAddress) { "http://$($lanIpAddress):5198" } else { $null }
     ConnectorHealthStatus = $connectorHealth.status
     LocalWebhookStatus = $localWebhook.status
@@ -430,13 +477,19 @@ Write-Host 'GraphQL:      http://127.0.0.1:5198/graphql'
 Write-Host 'OpenAPI:      http://127.0.0.1:5198/api-docs'
 Write-Host 'Grafana:      http://127.0.0.1:3000'
 Write-Host 'Prometheus:   http://127.0.0.1:9090'
-if ($lanIpAddress) {
+if ($lanExposureEnabled -and $lanIpAddress) {
     Write-Host ''
     Write-Host 'LAN / private-network endpoints:' -ForegroundColor Yellow
     Write-Host "LAN web app:  http://$($lanIpAddress):5173"
     Write-Host "LAN API:      http://$($lanIpAddress):5198"
     Write-Host "Webhook URL:  http://$($lanIpAddress):5198/api/v1/events/source-system?tenantSlug=demo"
     Write-Host 'Use the LAN webhook URL only on a trusted LAN/VPN, or put HTTPS/reverse-proxy/DNS in front of it.'
+}
+else {
+    Write-Host ''
+    Write-Host 'LAN / private-network endpoints are disabled by default.' -ForegroundColor Yellow
+    Write-Host "Published bind address: $bindAddress"
+    Write-Host 'Set SCOUT_BIND_ADDRESS=0.0.0.0 only when you intentionally expose the demo on a trusted LAN/VPN.'
 }
 Write-Host ''
 Write-Host 'Demo login:' -ForegroundColor Yellow

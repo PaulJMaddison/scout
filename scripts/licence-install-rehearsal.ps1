@@ -20,7 +20,7 @@ if (-not $resolvedLicencePath.StartsWith($repoRoot.Path, [System.StringCompariso
 if (-not (Test-Path $resolvedLicencePath)) {
     Write-Host "No local licence file found at $resolvedLicencePath"
     Write-Host "Download a development licence from the cloud portal, then place it here outside git."
-    Write-Host "Cloud doc: C:\scout-cloud\docs\licence-download-to-data-plane.md"
+    Write-Host "Cloud doc: use the private control-plane licence-download-to-data-plane guide."
     if ($CheckOnly) { exit 1 }
     New-Item -ItemType Directory -Force -Path (Split-Path -Parent $resolvedLicencePath) | Out-Null
     Write-Host "Directory created. Licence file still needs to be downloaded manually."

@@ -285,8 +285,6 @@ describe('scout_summarise_connectors', () => {
   it('does not expose enterprise internals in the description', () => {
     const result = summariseConnectors() as { description: string }
 
-    expect(result.description.toLowerCase()).not.toContain('fortress')
-    expect(result.description.toLowerCase()).not.toContain('lancedb')
     expect(result.description.toLowerCase()).not.toContain('salesforce')
     expect(result.description.toLowerCase()).not.toContain('hubspot')
   })

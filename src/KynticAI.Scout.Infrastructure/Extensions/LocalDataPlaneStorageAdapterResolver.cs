@@ -47,7 +47,7 @@ internal sealed class LocalDataPlaneStorageAdapterResolver(
             : string.Join(", ", RegisteredProviderKeys);
         throw new InvalidOperationException(
             $"Storage adapter provider '{selectedProviderKey}' is not registered. Registered providers: {registeredProviders}. " +
-            "Use 'scout-postgres' for the open-source Scout default or register a local Enterprise/Fortress adapter in the customer-owned environment.");
+            "Use 'scout-postgres' for the open-source Scout default or register a local private-runtime adapter in the customer-owned environment.");
     }
 
     private static IReadOnlyDictionary<string, ILocalDataPlaneStorageAdapter> BuildLookup(

@@ -4,11 +4,11 @@ Generated on 16 June 2026 and updated on 17 June 2026 for KynticAI Scout.
 
 ## Scope
 
-This local proof demonstrates exact-data relationship intelligence using synthetic operational data only. It covers B2B SaaS revenue/customer success, ecommerce conversion, support churn, recruitment, finance retention, and healthcare operations. Scout uses `BasicRelationshipEngine` for local/open-core fallback signals. Canonical relationship-set analysis, attribution-path comparison, and outcome matching belong to the Enterprise Rust engine/vector DB and are represented here through a proof-mode `EnterpriseRelationshipEngineHandoff` artefact.
+This local proof demonstrates exact-data relationship intelligence using synthetic operational data only. It covers B2B SaaS revenue/customer success, ecommerce conversion, support churn, recruitment, finance retention, and healthcare operations. Scout uses `BasicRelationshipEngine` for local/open-core fallback signals. Advanced relationship-set analysis, attribution-path comparison, and outcome matching belong to private extensions and are represented here through a proof-mode compatibility handoff artefact.
 
 These are proof fixtures, not customer production deployments. They do not contain customer data, patient data, candidate records, financial account data, credentials, vendor sandbox output, production SLA evidence, or customer traction claims.
 
-The source fixture is `samples/relationship-intelligence/exact-data-proof.synthetic.json`. The executable proof is `tests/KynticAI.Scout.IntegrationTests/RelationshipIntelligenceProofIntegrationTests.cs`. The Enterprise-consumable handoff sample is `samples/relationship-intelligence/enterprise-canonical-weighting-handoff.sample.json`.
+The source fixture is `samples/relationship-intelligence/exact-data-proof.synthetic.json`. The executable proof is `tests/KynticAI.Scout.IntegrationTests/RelationshipIntelligenceProofIntegrationTests.cs`. The private-extension-compatible handoff sample is `samples/relationship-intelligence/enterprise-canonical-weighting-handoff.sample.json`.
 
 B2B SaaS remains the primary demo path. Use `mara.singh@northstar-saas.example` / Northstar Analytics first when demonstrating the wedge because it combines revenue, customer-success, product-usage, support-history, billing-health, similar outcomes, governance, and next-best-action evidence in one commercial workflow.
 
@@ -25,7 +25,7 @@ The proof dataset includes:
 
 The scale proof generates 1,100 additional synthetic accounts with 1,100 contacts, 1,100 registrations, 2,200 email events, 2,200 web events, 1,100 usage summaries, 1,100 billing metrics, and 1,100 opportunities.
 
-Related private Enterprise fixtures were inspected during this proof pass to check shape alignment: a Scout evidence-adapter golden fixture, synthetic industry-demo summaries, connector safety fixtures, and the Rust pipeline synthetic dataset. Those remain private/in-memory or mock proof artefacts and are not copied here or represented as production deployments.
+Related private fixtures were inspected during this proof pass to check shape alignment. Those remain private/in-memory or mock proof artefacts and are not copied here or represented as production deployments.
 
 ## Functional proof output
 
@@ -38,7 +38,7 @@ The REST proof calls `/api/v1/intelligence/next-action` and verifies:
 - Governance masking: read-only access masks direct identifiers in local evidence and keeps cloud-control-plane payloads aggregate-only.
 - Stale, conflicting, and insufficient data: caveats are returned for stale recruitment evidence, support-churn conflicts, and the thin healthcare operations edge case.
 - Evidence-pack citations: recommended-action citations are asserted to exist in provenance.
-- Enterprise canonical analysis handoff: the response includes `evidencePack.enterpriseRelationshipEngineHandoffJson` with candidate relationships, provenance, `BasicRelationshipEngine` fallback scope, `requiresLiveEnterpriseService: false`, and `enterpriseOnlyInternalsIncluded: false`.
+- Private-extension analysis handoff: the response includes the legacy `evidencePack.enterpriseRelationshipEngineHandoffJson` compatibility envelope with candidate relationships, provenance, `BasicRelationshipEngine` fallback scope, `requiresLiveEnterpriseService: false`, and `enterpriseOnlyInternalsIncluded: false`.
 - Scale: the service returns bounded evidence from thousands of synthetic records rather than dumping raw records.
 
 ## Canonical Analysis Boundary
@@ -46,9 +46,9 @@ The REST proof calls `/api/v1/intelligence/next-action` and verifies:
 Scout/UCL is not the canonical relationship-set engine. In proof mode it produces two local customer-data-plane artefacts:
 
 - `UclEvidencePackV1`: existing implementation envelope containing exact linked records, citations, provenance, candidate relationships, attribution-path evidence, fallback weights, recommendations, caveats, and governance.
-- `UclEnterpriseRelationshipEngineHandoffV1`: a canonical-analysis handoff for Enterprise proof runners, generated by `EnterpriseRelationshipEngineHandoff`.
+- `UclEnterpriseRelationshipEngineHandoffV1`: a legacy-named analysis handoff for private proof runners, generated by `EnterpriseRelationshipEngineHandoff`.
 
-The handoff carries Scout fallback weights only as `scoutFallbackWeight` with `fallbackWeightScope: "basic-public-fallback-only"`. Enterprise is expected to return canonical relationship-set analysis, attribution-path matches, outcome-pattern matches, ranked action options, confidence, caveats, and a decision trace. The open-core proof does not call a live Enterprise service and does not include Enterprise-only formulae, scoring configuration, vector/index paths, embeddings, or private engine internals.
+The handoff carries Scout fallback weights only as `scoutFallbackWeight` with `fallbackWeightScope: "basic-public-fallback-only"`. Private proof runners can return advanced relationship-set analysis, attribution-path matches, outcome-pattern matches, ranked action options, confidence, caveats, and a decision trace. The open-core proof does not call a live private service and does not include private formulae, scoring configuration, vector/index paths, embeddings, or private engine internals.
 
 ## Validation
 

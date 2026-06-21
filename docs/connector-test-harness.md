@@ -109,5 +109,5 @@ The test harness uses only public Scout interfaces. It does not reference:
 
 - Enterprise connectors (Salesforce, Dynamics, SAP, etc.).
 - Private connector logic or vendor-specific adapters.
-- LanceDB, vector stores, or embedded LLM tooling.
+- private vector-store integrations, embedded model runtimes, or unrelated AI tooling.
 - Credential vaults or secret resolution.

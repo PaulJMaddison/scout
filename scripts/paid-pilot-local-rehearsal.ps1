@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
-    [string]$EnterpriseRepo = "C:\scout-enterprise",
-    [string]$CloudRepo = "C:\scout-cloud",
+    [string]$EnterpriseRepo = $env:SCOUT_PRIVATE_EXTENSION_REPO,
+    [string]$CloudRepo = $env:SCOUT_PRIVATE_CONTROL_REPO,
     [switch]$BuildMissing,
     [switch]$SkipEnterpriseConnectorSmoke
 )
@@ -15,6 +15,14 @@ function Require-Path {
         throw "Missing $Purpose`: $Path"
     }
     Write-Host "OK: $Purpose"
+}
+
+function Require-ConfiguredRepo {
+    param([string]$Path, [string]$Purpose, [string]$EnvName)
+    if ([string]::IsNullOrWhiteSpace($Path)) {
+        throw "$Purpose path is not configured. Pass the script parameter or set $EnvName."
+    }
+    Require-Path $Path $Purpose
 }
 
 function Invoke-Step {
@@ -44,6 +52,7 @@ Invoke-Step {
 } "Public repo checks"
 
 Invoke-Step {
+    Require-ConfiguredRepo $CloudRepo "private control-plane repo" "SCOUT_PRIVATE_CONTROL_REPO"
     Require-Path (Join-Path $CloudRepo "apps\cloud-portal\package.json") "cloud portal package"
     Require-Path (Join-Path $CloudRepo "scripts\live-hosting-preflight.ps1") "cloud live-hosting preflight"
     Require-Path (Join-Path $CloudRepo "scripts\apply-cloud-migrations.ps1") "cloud migration script"
@@ -61,6 +70,7 @@ Invoke-Step {
 } "Cloud repo checks"
 
 Invoke-Step {
+    Require-ConfiguredRepo $EnterpriseRepo "private extension repo" "SCOUT_PRIVATE_EXTENSION_REPO"
     Require-Path (Join-Path $EnterpriseRepo "docs\postgres-disposable-proof.md") "enterprise disposable Postgres proof"
     Require-Path (Join-Path $EnterpriseRepo "scripts\connector-smoke-test.ps1") "enterprise connector smoke script"
     Require-Path (Join-Path $EnterpriseRepo "scripts\start-postgres-proof.ps1") "enterprise Postgres proof script"

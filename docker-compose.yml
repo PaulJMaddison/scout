@@ -11,7 +11,7 @@ services:
       CUSTOMER_OPS_DB: ${CUSTOMER_OPS_DB:-customer_ops_db}
       SCOUT_DB: ${SCOUT_DB:-scout_context_db}
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${SCOUT_BIND_ADDRESS:-127.0.0.1}:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - scout-postgres:/var/lib/postgresql/data
       - ./deploy/docker/postgres/init:/docker-entrypoint-initdb.d:ro
@@ -30,9 +30,9 @@ services:
     volumes:
       - ./deploy/otel-collector/config.yml:/etc/otelcol-contrib/config.yml:ro
     ports:
-      - "4317:4317"
-      - "4318:4318"
-      - "9464:9464"
+      - "${SCOUT_BIND_ADDRESS:-127.0.0.1}:4317:4317"
+      - "${SCOUT_BIND_ADDRESS:-127.0.0.1}:4318:4318"
+      - "${SCOUT_BIND_ADDRESS:-127.0.0.1}:9464:9464"
 
   prometheus:
     image: prom/prometheus:v3.3.1
@@ -46,7 +46,7 @@ services:
       - ./deploy/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - scout-prometheus:/prometheus
     ports:
-      - "9090:9090"
+      - "${SCOUT_BIND_ADDRESS:-127.0.0.1}:9090:9090"
     depends_on:
       - otel-collector
 
@@ -59,7 +59,7 @@ services:
       - ./deploy/tempo/tempo.yml:/etc/tempo/tempo.yml:ro
       - scout-tempo:/var/tempo
     ports:
-      - "3200:3200"
+      - "${SCOUT_BIND_ADDRESS:-127.0.0.1}:3200:3200"
 
   grafana:
     image: grafana/grafana:11.6.0
@@ -75,7 +75,7 @@ services:
       - ./deploy/grafana/dashboards:/var/lib/grafana/dashboards:ro
       - scout-grafana:/var/lib/grafana
     ports:
-      - "3000:3000"
+      - "${SCOUT_BIND_ADDRESS:-127.0.0.1}:3000:3000"
     depends_on:
       - prometheus
       - tempo
@@ -115,7 +115,7 @@ services:
       Llm__LowConfidenceThreshold: ${Llm__LowConfidenceThreshold:-0.75}
       Llm__MinimumStrongFacts: ${Llm__MinimumStrongFacts:-3}
     ports:
-      - "5198:8080"
+      - "${SCOUT_BIND_ADDRESS:-127.0.0.1}:5198:8080"
     volumes:
       - scout-api-data-protection:/var/lib/scout/data-protection-keys
     depends_on:
@@ -141,7 +141,7 @@ services:
     container_name: scout-web
     restart: unless-stopped
     ports:
-      - "5173:8080"
+      - "${SCOUT_BIND_ADDRESS:-127.0.0.1}:5173:8080"
     depends_on:
       api:
         condition: service_started

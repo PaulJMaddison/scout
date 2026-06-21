@@ -20,7 +20,7 @@ esac
 if [ ! -f "$RESOLVED_LICENCE_PATH" ]; then
   echo "No local licence file found at $RESOLVED_LICENCE_PATH"
   echo "Download a development licence from the cloud portal, then place it here outside git."
-  echo "Cloud doc: see scout-cloud/docs/licence-download-to-data-plane.md"
+  echo "Cloud doc: use the private control-plane licence-download-to-data-plane guide."
   if [ "$CHECK_ONLY" = "true" ]; then exit 1; fi
   mkdir -p "$(dirname "$RESOLVED_LICENCE_PATH")"
   echo "Directory created. Licence file still needs to be downloaded manually."

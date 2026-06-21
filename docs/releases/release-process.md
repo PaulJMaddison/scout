@@ -1,14 +1,14 @@
 # Release Process
 
-This document describes the coordinated release process for the three KynticAI Scout repositories:
+This document describes the public KynticAI Scout release process and the coordination points for any private packages that are released alongside it.
 
-| Repository | Visibility | Purpose |
+| Area | Visibility | Purpose |
 |---|---|---|
 | [scout](https://github.com/PaulJMaddison/scout) | Public | Open-source core: domain, APIs, SDKs, React frontend |
-| [scout-enterprise](https://github.com/PaulJMaddison/scout-enterprise) | Private | Enterprise extensions: connectors, governance, identity, deployment |
-| [scout-cloud](https://github.com/PaulJMaddison/scout-cloud) | Private | Hosted control plane: accounts, licensing, billing, portal |
+| Private extensions | Private | Enterprise extensions: connectors, governance, identity, deployment |
+| Private control plane | Private | Hosted control plane: accounts, licensing, billing, portal |
 
-All three repositories **must** be versioned together. A release is not complete until every repo has been tagged with the same version.
+Private package releases should be coordinated deliberately when they depend on the same public Scout version.
 
 ---
 
@@ -31,25 +31,25 @@ vMAJOR.MINOR.PATCH
 1. The version string always takes the form `vX.Y.Z` (with the `v` prefix) for git tags and GitHub Releases.
 2. Internal file references (`.csproj`, `package.json`, `Chart.yaml`) use `X.Y.Z` without the `v` prefix.
 3. Pre-release versions (e.g. `v2.8.0-rc.1`) may be used for release candidates but are not covered by the standard release flow below.
-4. All three repos share the same version number. There is no independent versioning.
+4. Private packages may align to the public version when they are released as part of the same customer delivery.
 
 ---
 
 ## Cross-Repo Versioning
 
-The open-source, enterprise, and cloud repositories are released as a coordinated set:
+The public repository may be released on its own or as part of a coordinated private delivery:
 
-- **Same version**: All three repos carry the same `vX.Y.Z` tag for every release.
-- **Open-source first**: The public repo is always tagged first so the GitHub Release workflow runs and creates the release artefact before the private repos are tagged.
-- **No partial releases**: If a release cannot be completed across all three repos, it must be rolled back or held until all repos are ready.
+- **Public version**: the public repo carries a `vX.Y.Z` tag for every public release.
+- **Open-source first**: tag the public repo first so the GitHub Release workflow runs and creates the release artefact before any private package alignment.
+- **No accidental private claims**: public release notes must not claim private connector, hosted control-plane, or customer-production capabilities unless those are explicitly public.
 
 ### Where version numbers live
 
-| Repository | Files |
+| Area | Files |
 |---|---|
 | Open-source | `Directory.Build.props` (`<Version>`, `<AssemblyVersion>`, `<FileVersion>`, `<InformationalVersion>`), `apps/web/package.json`, `packages/typescript/scout-sdk/package.json` |
-| Enterprise | `Directory.Build.props` (same properties) |
-| Cloud | `Directory.Build.props` (same properties), `apps/cloud-portal/package.json`, `deploy/helm/Chart.yaml` |
+| Private extensions | Private package version files |
+| Private control plane | Private package version files |
 
 Use `scripts/bump-version.sh` to update all version references in a given repo.
 
@@ -59,17 +59,15 @@ Use `scripts/bump-version.sh` to update all version references in a given repo.
 
 Before starting the release process, verify **every** item:
 
-- [ ] All tests pass in the open-source repo (73 tests)
-- [ ] All tests pass in the enterprise repo (132 tests)
-- [ ] All tests pass in the cloud repo (55 tests)
+- [ ] All tests pass in the open-source repo
+- [ ] Any coordinated private package tests pass in their private repositories
 - [ ] Run `scripts/check-release-alignment.sh` in the open-source repo -- no warnings
 - [ ] No secret leaks: review `git diff` for API keys, signing keys, connection strings, or customer data
-- [ ] Version numbers updated in all relevant files across all three repos
-- [ ] `CHANGELOG.md` updated in all three repos (root-level changelog)
-- [ ] `docs/releases/CHANGELOG.md` updated in the open-source repo (cross-repo changelog)
-- [ ] Docker images build successfully for enterprise and cloud
-- [ ] No uncommitted changes in any repo (`git status` is clean)
-- [ ] All branches are up to date with their respective `main` branches
+- [ ] Version numbers updated in all relevant public files
+- [ ] `CHANGELOG.md` and `docs/releases/CHANGELOG.md` updated in the open-source repo
+- [ ] Any private package artefacts build successfully where a coordinated private delivery is planned
+- [ ] No uncommitted changes in the public repo (`git status` is clean)
+- [ ] Public branch is up to date with `main`
 
 ---
 
@@ -79,7 +77,7 @@ Follow these steps **in order**. Do not skip or reorder.
 
 ### 1. Create release branches
 
-In each of the three repos:
+In the public repo:
 
 ```bash
 git checkout main
@@ -89,42 +87,27 @@ git checkout -b release/vX.Y.Z
 
 ### 2. Update version numbers
 
-In each repo, run the version bump script:
+In the public repo, run the version bump script:
 
 ```bash
-# Open-source
-./scripts/bump-version.sh X.Y.Z
-
-# Enterprise (from enterprise repo root)
-./scripts/bump-version.sh X.Y.Z
-
-# Cloud (from cloud repo root)
 ./scripts/bump-version.sh X.Y.Z
 ```
 
-If a repo does not yet have a `bump-version.sh` script, manually update the version in `Directory.Build.props` and any `package.json` or `Chart.yaml` files.
+Coordinate any private package version updates in private working notes, not in this public release document.
 
 ### 3. Update changelogs
 
 Update the following files with the new version entry:
 
 - **Open-source**: `CHANGELOG.md` (root) and `docs/releases/CHANGELOG.md`
-- **Enterprise**: `CHANGELOG.md`
-- **Cloud**: `CHANGELOG.md`
+- **Private packages**: update private changelogs where a coordinated private delivery is planned
 
 Follow the [Keep a Changelog](https://keepachangelog.com/) format with categories: Added, Changed, Fixed, Removed, Security, Breaking Changes.
 
 ### 4. Run the full test suite
 
 ```bash
-# Open-source
 dotnet test KynticAI.Scout.slnx --configuration Release
-
-# Enterprise
-dotnet test KynticAIScout.Enterprise.slnx --configuration Release
-
-# Cloud
-dotnet test ScoutCloudControlPlane.slnx --configuration Release
 ```
 
 All tests must pass. Do not proceed if any test fails.
@@ -139,7 +122,7 @@ git merge release/vX.Y.Z --no-ff -m "Merge release/vX.Y.Z"
 git push origin main
 ```
 
-Repeat for all three repos.
+Repeat private package release steps only in the relevant private repositories.
 
 ### 6. Tag the open-source repo first
 
@@ -154,18 +137,18 @@ This creates an annotated tag and pushes it to origin. The GitHub Actions `relea
 
 **Wait** for the GitHub Release to appear before proceeding.
 
-### 7. Tag the enterprise repo
+### 7. Coordinate private extension package tags
 
 ```bash
-cd /path/to/scout-enterprise
+cd <private-extension-repo>
 git tag -a vX.Y.Z -m "Release vX.Y.Z"
 git push origin vX.Y.Z
 ```
 
-### 8. Tag the cloud repo
+### 8. Coordinate private control-plane package tags
 
 ```bash
-cd /path/to/scout-cloud
+cd <private-control-plane-repo>
 git tag -a vX.Y.Z -m "Release vX.Y.Z"
 git push origin vX.Y.Z
 ```
@@ -177,28 +160,20 @@ git push origin vX.Y.Z
 - Review the auto-generated release notes
 - Edit the release notes if needed to add cross-repo context
 
-### 10. Build and push Docker images (enterprise and cloud)
+### 10. Build and push private Docker images where applicable
 
 ```bash
-# Enterprise
-docker build -t scout-enterprise:vX.Y.Z .
-docker tag scout-enterprise:vX.Y.Z <registry>/scout-enterprise:vX.Y.Z
-docker tag scout-enterprise:vX.Y.Z <registry>/scout-enterprise:latest
-docker push <registry>/scout-enterprise:vX.Y.Z
-docker push <registry>/scout-enterprise:latest
-
-# Cloud
-docker build -t scout-cloud-api:vX.Y.Z -f src/Scout.Cloud.Api/Dockerfile .
-docker tag scout-cloud-api:vX.Y.Z <registry>/scout-cloud-api:vX.Y.Z
-docker tag scout-cloud-api:vX.Y.Z <registry>/scout-cloud-api:latest
-docker push <registry>/scout-cloud-api:vX.Y.Z
-docker push <registry>/scout-cloud-api:latest
+docker build -t <private-image>:vX.Y.Z .
+docker tag <private-image>:vX.Y.Z <registry>/<private-image>:vX.Y.Z
+docker tag <private-image>:vX.Y.Z <registry>/<private-image>:latest
+docker push <registry>/<private-image>:vX.Y.Z
+docker push <registry>/<private-image>:latest
 ```
 
 ### 11. Verify packages are accessible
 
 - [ ] GitHub Release page shows the correct tag and release notes
-- [ ] Docker images are pullable: `docker pull <registry>/scout-enterprise:vX.Y.Z`
+- [ ] Private Docker images are pullable where applicable
 - [ ] NuGet packages (if published) are available
 - [ ] npm packages (if published) are available
 
@@ -207,7 +182,7 @@ docker push <registry>/scout-cloud-api:latest
 ## Post-Release Checklist
 
 - [ ] GitHub Releases created with notes for open-source repo
-- [ ] Docker images tagged and pullable for enterprise and cloud
+- [ ] Private Docker images tagged and pullable where applicable
 - [ ] Marketing site version references updated (README badges, landing page)
 - [ ] `docs/roadmap.md` updated if the release closes planned milestones
 - [ ] Announce the release internally and to any active pilot customers

@@ -9,7 +9,7 @@ public sealed class BasicRelationshipEngine
     public const string EngineName = "BasicRelationshipEngine";
     public const string RelationshipWeightingScope = UclDataItemAttributionContractVersions.BasicFallbackOnlyScope;
     public const string CanonicalRelationshipWeightingOwner = "Enterprise";
-    public const string CanonicalRelationshipWeightingEngine = "Enterprise Rust relationship/weighting/traversal engine";
+    public const string CanonicalRelationshipWeightingEngine = "private relationship weighting/traversal engine";
 
     public UclRelationshipWeightingV1 BuildWeightingContract()
         => new(

@@ -8,12 +8,12 @@ This repository is public-facing. It must not contain private strategy, customer
 
 The intended long-term structure is:
 
-- `scout`
+- this public repository
   The public customer data-plane core, demo/admin console, SDKs, extension contracts, GraphQL and REST APIs, and local/backend-only runtime.
-- `scout-enterprise`
-  A future private repository for paid enterprise extensions such as the proprietary Enterprise Rust engine/vector DB, relationship-set analysis, attribution-path analysis, enterprise connectors, SSO, advanced governance, and managed deployment assets
-- `universalcontextlayer-cloud`
-  The private Cloud/control-plane repository for commercial concerns such as account management, billing seams, licences, entitlements, downloads, support access, update channels, aggregate usage metadata, data-plane registration, audit, and cloud operations.
+- private extension repositories
+  Paid extension implementations such as advanced relationship-set analysis, attribution-path analysis, enterprise connectors, SSO, advanced governance, and managed deployment assets.
+- private control-plane repositories
+  Commercial concerns such as account management, billing seams, licences, entitlements, downloads, support access, update channels, aggregate usage metadata, data-plane registration, audit, and cloud operations.
 
 The public repo should define the stable contracts and composition points that let those future codebases depend on the open core without copying it.
 
@@ -90,7 +90,7 @@ The key rule is that public code may define a stable contract and a safe generic
 
 These should normally live in a future private enterprise repository, optional commercial Cloud/control-plane codebase, or professional services delivery materials:
 
-- Enterprise Rust engine/vector DB implementation modules and private relationship-engine internals
+- private relationship-analysis implementation modules and private relationship-engine internals
 - real enterprise connectors such as Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, NetSuite, Microsoft 365 / Outlook, Gmail / Google Workspace, Slack, Microsoft Teams, Outlook Calendar, Google Calendar, Segment, Amplitude, Mixpanel, PostHog, Jira, Linear, Confluence, Notion, SharePoint, Google Drive, SAP, ServiceNow, customer data warehouses, or other paid packaged integrations
 - SSO or SAML implementations
 - hosted SaaS control-plane implementation
@@ -111,7 +111,7 @@ These should normally live in a future private enterprise repository, optional c
 Do not implement these publicly:
 
 1. Real enterprise connectors.
-2. Private Rust relationship/vector analysis modules.
+2. Private relationship/vector analysis modules.
 3. SSO/SAML.
 4. Stripe/Paddle billing.
 5. Customer specific deployment templates.
@@ -163,7 +163,7 @@ If a connector knows the business semantics of a named vendor or a named custome
 
 Public code can include simple local authentication, API client metadata, provider-neutral usage records, no-op policy evaluators, mock audit exporters, and interfaces that describe how enterprise modules plug in.
 
-Private code should implement Enterprise Rust engine/vector DB analysis, enterprise SSO/SAML, billing provider integration, commercial licence/entitlement enforcement, policy engines, compliance exporters, vault integrations, private cloud automation, Cloud commercial-control workflows, and customer-specific deployment packs.
+Private code should implement advanced relationship analysis, enterprise SSO/SAML, billing provider integration, commercial licence/entitlement enforcement, policy engines, compliance exporters, vault integrations, private cloud automation, Cloud commercial-control workflows, and customer-specific deployment packs.
 
 Cloud commercial-control code must still respect the customer data-plane boundary: it may receive account, licence, entitlement, download/update, support, deployment registration, health, audit, and aggregate usage metadata, but not raw customer records or derived relationship intelligence by default. See [Cloud Commercial Control Contract](cloud-commercial-control.md).
 

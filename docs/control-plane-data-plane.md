@@ -18,31 +18,31 @@ Typical data-plane components:
 - audit events, source events, recompute jobs, and governance policies
 - GraphQL, REST, SDK, and webhook/event ingestion endpoints
 
-The public repository includes safe generic connectors, mock connectors, and paid/private connector placeholders only. Paid enterprise connector code, customer-specific mappings, the proprietary Enterprise Rust engine/vector DB, and private deployment packs should live outside this repo.
+The public repository includes safe generic connectors, mock connectors, and paid/private connector placeholders only. Paid connector code, customer-specific mappings, advanced private analysis, and private deployment packs should live outside this repo.
 
 ## Cloud Commercial Control Plane
 
 The Cloud commercial control plane is an optional commercial seam, not a requirement for the open-core product. It may manage accounts, subscriptions, licences, entitlements, private download metadata, update channels, support access, data-plane registration, deployment heartbeat metadata, and optional aggregate usage reporting.
 
-The canonical Cloud implementation lives outside this public repo at `C:\Kyntic\universalcontextlayer-cloud`. Its WP1 contract defines Cloud as commercial/control-plane metadata only. Scout open-core use must remain runnable without Cloud.
+Any optional commercial control-plane implementation lives outside this public repo. Scout open-core use must remain runnable without Cloud.
 
 Canonical tier alignment:
 
-| Tier | Scout-side meaning | Cloud-side role |
+| Public category | Scout-side meaning | Cloud-side role |
 | --- | --- | --- |
 | Scout | Public/open-core customer-owned data plane. | Optional registration, support/update metadata, and aggregate-only usage where configured. |
-| Fortress | Paid private runtime around Scout/UCL. | Subscription/licence entitlement, private download/update metadata, support, data-plane registration, and aggregate-only health/usage. |
-| Elite | Operator-assisted strategic tier on top of Fortress. | Elite entitlement and operator/support metadata while raw outcomes remain in the customer data plane by default. |
+| Private runtime | Paid private extension runtime around Scout/UCL. | Subscription/licence entitlement, private download/update metadata, support, data-plane registration, and aggregate-only health/usage. |
+| Assisted private tier | Operator-assisted strategic tier on top of the private runtime. | Operator/support metadata while raw outcomes remain in the customer data plane by default. |
 
 Control-plane metadata should be limited to operational account information, licence state, package/update metadata, support access, entitlement metadata, and optional aggregate usage. It must not require raw CRM records, ERP records, support tickets, product usage, billing events, customer emails, chat messages, calendar descriptions, issue descriptions, documents, attachments, warehouse rows, analytics event payloads, local evidence-pack JSON, exact linked records, context facts, citations, weighted signals, recommendations, confidence, caveats, or per-entity relationship metadata to leave the customer environment.
 
-See [Cloud Commercial Control Contract](cloud-commercial-control.md) for the Scout-side contract notes that mirror the Cloud WP1 artefacts.
+See [Cloud Commercial Control Contract](cloud-commercial-control.md) for the Scout-side contract notes.
 
 ## Relationship JSON Boundary
 
 When Scout generates next-action relationship JSON, the local customer data plane may use exact authorised data items such as normalised email address, CRM contact/account, account registration/profile, sales activity, opportunities, email replies, meetings booked, web conversion and pricing-page events, support tickets, product usage summaries, billing health, and won/lost outcome signals.
 
-The customer data plane may build relationships, attribution paths, comparable relationship-set candidates, and local proof artefacts. Enterprise owns canonical analysis of those relationship sets through the proprietary Rust engine/vector DB and returns governed JSON for the customer-owned LLM or KynticAI open-source/private LLM runtime.
+The customer data plane may build relationships, attribution paths, comparable relationship-set candidates, and local proof artefacts. Optional private extensions can add advanced analysis and return governed JSON for customer-owned apps, workflows, local LLMs, or agents.
 
 The optional Cloud/control-plane payload for next-action usage is a Cloud aggregate usage payload only. It may carry tenant/control-plane identifiers, package version, feature usage counters, health/status, timestamps, and audit/control-plane event metadata. It must not carry raw records, context facts or snapshots, local evidence packs, prompts, generated content, recommendations, citation IDs, weighted signals, relationship type names, attribution paths, confidence, caveats, hashed subject/account identifiers, or per-entity relationship metadata.
 
@@ -97,4 +97,4 @@ flowchart LR
 
 ## Future Private Work
 
-Future paid or private repositories may add the proprietary Enterprise Rust engine/vector DB, canonical relationship-set analysis, attribution-path analysis, SSO, enterprise connectors, commercial licence signing, hosted account management, private cloud deployment packs, compliance reporting, support bundles, and SLA tooling. Those modules should plug into the public extension interfaces without turning the open-core repo into a crippled teaser.
+Future paid or private repositories may add advanced relationship-set analysis, attribution-path analysis, SSO, enterprise connectors, commercial licence signing, hosted account management, private cloud deployment packs, compliance reporting, support bundles, and SLA tooling. Those modules should plug into the public extension interfaces without turning the open-core repo into a crippled teaser.

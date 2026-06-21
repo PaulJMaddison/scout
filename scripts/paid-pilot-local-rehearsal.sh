@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ENTERPRISE_REPO="${1:-../scout-enterprise}"
-CLOUD_REPO="${2:-../scout-cloud}"
+ENTERPRISE_REPO="${SCOUT_PRIVATE_EXTENSION_REPO:-${1:-}}"
+CLOUD_REPO="${SCOUT_PRIVATE_CONTROL_REPO:-${2:-}}"
 BUILD_MISSING="${BUILD_MISSING:-false}"
 SKIP_ENTERPRISE_CONNECTOR_SMOKE="${SKIP_ENTERPRISE_CONNECTOR_SMOKE:-false}"
 
@@ -15,6 +15,15 @@ require_path() {
     exit 1
   fi
   echo "OK: $purpose"
+}
+
+require_configured_repo() {
+  local path="$1" purpose="$2" env_name="$3"
+  if [ -z "$path" ]; then
+    echo "$purpose path is not configured. Pass it as an argument or set $env_name." >&2
+    exit 1
+  fi
+  require_path "$path" "$purpose"
 }
 
 require_opt_in() {
@@ -43,6 +52,7 @@ public_repo_checks() {
 }
 
 cloud_repo_checks() {
+  require_configured_repo "$CLOUD_REPO" "private control-plane repo" "SCOUT_PRIVATE_CONTROL_REPO"
   require_path "$CLOUD_REPO/apps/cloud-portal/package.json" "cloud portal package"
   require_path "$CLOUD_REPO/scripts/live-hosting-preflight.ps1" "cloud live-hosting preflight"
   require_path "$CLOUD_REPO/scripts/apply-cloud-migrations.ps1" "cloud migration script"
@@ -57,6 +67,7 @@ cloud_repo_checks() {
 }
 
 enterprise_repo_checks() {
+  require_configured_repo "$ENTERPRISE_REPO" "private extension repo" "SCOUT_PRIVATE_EXTENSION_REPO"
   require_path "$ENTERPRISE_REPO/docs/postgres-disposable-proof.md" "enterprise disposable Postgres proof"
   require_path "$ENTERPRISE_REPO/scripts/connector-smoke-test.ps1" "enterprise connector smoke script"
   require_path "$ENTERPRISE_REPO/scripts/start-postgres-proof.ps1" "enterprise Postgres proof script"

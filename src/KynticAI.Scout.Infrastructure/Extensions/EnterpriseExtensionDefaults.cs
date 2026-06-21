@@ -479,7 +479,7 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
             [
                 "Scout uses the existing EF-backed relational store for tenant/context metadata, source events, signals, selectors, selector outputs, context facts, provenance, and audit.",
                 "Scout can export current relational migration records in the storage-portable v1 contract.",
-                "The open source default does not import into Enterprise/Fortress or write vectors. Configure a local Enterprise/Fortress storage adapter for those paths."
+                "The open source default does not import into a private runtime or write vectors. Configure a local private-runtime storage adapter for those paths."
             ]));
     }
 
@@ -640,7 +640,7 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
             AdapterKey,
             request.Record.Id,
             WrittenRecords: 0,
-            "Scout open source storage does not write vectors. Configure a local Enterprise/Fortress adapter for vector writes.",
+            "Scout open source storage does not write vectors. Configure a local private-runtime adapter for vector writes.",
             [new ExtensionError(
                 ExtensionErrorCode.NotConfigured,
                 "No vector storage provider is configured in the Scout open source default.",
@@ -696,7 +696,7 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
                 errors,
                 StorageMigrationValidationSeverity.Error,
                 "scope.unsupported_by_scout_export",
-                "The Scout open-source adapter can export current relational records only. Relationship sets, attribution paths, outcome events, data items, vectors, and private Enterprise/Fortress imports require a local private adapter contract.",
+                "The Scout open-source adapter can export current relational records only. Relationship sets, attribution paths, outcome events, data items, vectors, and private runtime imports require a local private adapter contract.",
                 target: unsupportedScopes.ToString());
         }
 
@@ -1352,7 +1352,7 @@ internal sealed class ScoutPostgresStorageAdapter(IScoutDbContext dbContext) : I
                 ["tenantSlug"] = tenant.Slug,
                 ["layer"] = tenant.Slug
             },
-            ["fortressAnchor"] = new JsonObject
+            ["portableAnchor"] = new JsonObject
             {
                 ["entity_type"] = entityType,
                 ["postgres_pk"] = $"{sourceTable}:{recordId}",

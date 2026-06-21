@@ -20,19 +20,19 @@ public sealed class CloudControlPlaneEntitlementClientTests
         var scoutDecision = await client.CheckAsync(new ControlPlaneEntitlementCheckRequest(
             ControlPlaneCapabilityKeys.ScoutOpenCore,
             ControlPlaneCommercialTier.Scout));
-        var fortressDecision = await client.CheckAsync(new ControlPlaneEntitlementCheckRequest(
-            ControlPlaneCapabilityKeys.FortressRuntime,
-            ControlPlaneCommercialTier.Fortress));
+        var privateRuntimeDecision = await client.CheckAsync(new ControlPlaneEntitlementCheckRequest(
+            ControlPlaneCapabilityKeys.PrivateRuntime,
+            ControlPlaneCommercialTier.PrivateRuntime));
 
         Assert.True(scoutDecision.IsAllowed);
-        Assert.False(fortressDecision.IsAllowed);
+        Assert.False(privateRuntimeDecision.IsAllowed);
         Assert.False(scoutDecision.CloudWasContacted);
         Assert.Equal(ControlPlaneEntitlementDecisionStatus.NotChecked, scoutDecision.Status);
         Assert.Empty(handler.Captures);
     }
 
     [Fact]
-    public async Task Active_fortress_response_allows_fortress_capability_and_sends_only_safe_metadata()
+    public async Task Active_private_runtime_response_allows_private_runtime_capability_and_sends_only_safe_metadata()
     {
         var handler = new CapturingHandler(_ => JsonResponse(new
         {
@@ -44,12 +44,12 @@ public sealed class CloudControlPlaneEntitlementClientTests
                 plan = 2,
                 maxUsers = 25,
                 updateChannel = 0,
-                enterpriseFeatures = new[] { "fortress-runtime", "private-deployment-pack" }
+                enterpriseFeatures = new[] { "private-runtime", "private-deployment-pack" }
             },
             message = "Licence validation completed.",
             effectivePlan = 2,
             canonicalTier = 1,
-            canonicalTierName = "Fortress",
+            canonicalTierName = "PrivateRuntime",
             canonicalTierRank = 1
         }));
         var client = CreateClient(handler, new ControlPlaneOptions
@@ -66,14 +66,14 @@ public sealed class CloudControlPlaneEntitlementClientTests
         });
 
         var decision = await client.CheckAsync(new ControlPlaneEntitlementCheckRequest(
-            ControlPlaneCapabilityKeys.FortressRuntime,
-            ControlPlaneCommercialTier.Fortress,
+            ControlPlaneCapabilityKeys.PrivateRuntime,
+            ControlPlaneCommercialTier.PrivateRuntime,
             LicenceKey: "Scout-20260619-ABCDEF123456"));
 
         Assert.True(decision.IsAllowed);
         Assert.Equal(ControlPlaneEntitlementDecisionStatus.Allowed, decision.Status);
-        Assert.Equal(ControlPlaneCommercialTier.Fortress, decision.EffectiveTier);
-        Assert.Contains("fortress-runtime", decision.EnterpriseFeatures);
+        Assert.Equal(ControlPlaneCommercialTier.PrivateRuntime, decision.EffectiveTier);
+        Assert.Contains("private-runtime", decision.EnterpriseFeatures);
         Assert.DoesNotContain("Scout-20260619-ABCDEF123456", decision.LicenceKeyFingerprint);
         Assert.Single(handler.Captures);
 
@@ -90,7 +90,7 @@ public sealed class CloudControlPlaneEntitlementClientTests
     }
 
     [Fact]
-    public async Task Fortress_response_does_not_allow_elite_only_capability()
+    public async Task Private_runtime_response_does_not_allow_assisted_private_only_capability()
     {
         var handler = new CapturingHandler(_ => JsonResponse(new
         {
@@ -99,21 +99,21 @@ public sealed class CloudControlPlaneEntitlementClientTests
             entitlements = new
             {
                 plan = 2,
-                enterpriseFeatures = new[] { "fortress-runtime" }
+                enterpriseFeatures = new[] { "private-runtime" }
             },
-            canonicalTierName = "Fortress",
+            canonicalTierName = "PrivateRuntime",
             canonicalTierRank = 1
         }));
         var client = CreateClient(handler, EnabledOptions());
 
         var decision = await client.CheckAsync(new ControlPlaneEntitlementCheckRequest(
-            ControlPlaneCapabilityKeys.EliteOperatorPack,
-            ControlPlaneCommercialTier.Elite,
+            ControlPlaneCapabilityKeys.OperatorPack,
+            ControlPlaneCommercialTier.AssistedPrivate,
             LicenceKey: "Scout-20260619-ABCDEF123456"));
 
         Assert.False(decision.IsAllowed);
         Assert.Equal(ControlPlaneEntitlementDecisionStatus.Denied, decision.Status);
-        Assert.Equal(ControlPlaneCommercialTier.Fortress, decision.EffectiveTier);
+        Assert.Equal(ControlPlaneCommercialTier.PrivateRuntime, decision.EffectiveTier);
         Assert.True(decision.CloudWasContacted);
     }
 
@@ -128,9 +128,9 @@ public sealed class CloudControlPlaneEntitlementClientTests
             {
                 plan = 4,
                 updateChannel = 0,
-                enterpriseFeatures = new[] { "elite-operator-pack" }
+                enterpriseFeatures = new[] { "operator-pack" }
             },
-            canonicalTierName = "Elite",
+            canonicalTierName = "AssistedPrivate",
             canonicalTierRank = 2
         }));
         var options = EnabledOptions();
@@ -138,14 +138,14 @@ public sealed class CloudControlPlaneEntitlementClientTests
         var client = CreateClient(handler, options);
 
         var decision = await client.CheckAsync(new ControlPlaneEntitlementCheckRequest(
-            ControlPlaneCapabilityKeys.EliteOperatorPack,
-            ControlPlaneCommercialTier.Elite,
+            ControlPlaneCapabilityKeys.OperatorPack,
+            ControlPlaneCommercialTier.AssistedPrivate,
             LicenceKey: "Scout-20260619-ABCDEF123456"));
 
         Assert.True(decision.IsAllowed);
         Assert.True(decision.IsInGrace);
         Assert.Equal(14, decision.OfflineGracePeriodDays);
-        Assert.Equal(ControlPlaneCommercialTier.Elite, decision.EffectiveTier);
+        Assert.Equal(ControlPlaneCommercialTier.AssistedPrivate, decision.EffectiveTier);
     }
 
     [Fact]
@@ -157,8 +157,8 @@ public sealed class CloudControlPlaneEntitlementClientTests
         var client = CreateClient(handler, options);
 
         var decision = await client.CheckAsync(new ControlPlaneEntitlementCheckRequest(
-            ControlPlaneCapabilityKeys.FortressRuntime,
-            ControlPlaneCommercialTier.Fortress,
+            ControlPlaneCapabilityKeys.PrivateRuntime,
+            ControlPlaneCommercialTier.PrivateRuntime,
             LicenceKey: "Scout-20260619-ABCDEF123456"));
 
         Assert.False(decision.IsAllowed);
@@ -187,7 +187,7 @@ public sealed class CloudControlPlaneEntitlementClientTests
     [Fact]
     public async Task Missing_request_licence_key_can_be_loaded_from_local_signed_envelope_without_echoing_raw_key()
     {
-        var licencePath = Path.Combine(Path.GetTempPath(), $"scout-cloud-client-{Guid.NewGuid():N}.json");
+        var licencePath = Path.Combine(Path.GetTempPath(), $"scout-control-plane-client-{Guid.NewGuid():N}.json");
         await File.WriteAllTextAsync(licencePath, JsonSerializer.Serialize(new
         {
             format = "Scout-LICENCE-v1",
@@ -208,16 +208,16 @@ public sealed class CloudControlPlaneEntitlementClientTests
                 entitlements = new
                 {
                     plan = 2,
-                    enterpriseFeatures = new[] { "fortress-runtime" }
+                    enterpriseFeatures = new[] { "private-runtime" }
                 },
-                canonicalTierName = "Fortress",
+                canonicalTierName = "PrivateRuntime",
                 canonicalTierRank = 1
             }));
             var client = CreateClient(handler, EnabledOptions(), new LicenceOptions { FilePath = licencePath });
 
             var decision = await client.CheckAsync(new ControlPlaneEntitlementCheckRequest(
-                ControlPlaneCapabilityKeys.FortressRuntime,
-                ControlPlaneCommercialTier.Fortress));
+                ControlPlaneCapabilityKeys.PrivateRuntime,
+                ControlPlaneCommercialTier.PrivateRuntime));
 
             Assert.True(decision.IsAllowed);
             Assert.Equal("https://cloud.example.invalid/api/v1/licences/Scout-20260619-FROMFILE/status", handler.Captures.Single().RequestUri);

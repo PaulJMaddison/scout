@@ -199,8 +199,6 @@ describe('scout_summarise_metadata', () => {
   it('does not expose enterprise internals in the description', () => {
     const result = summariseMetadata() as { description: string }
 
-    expect(result.description.toLowerCase()).not.toContain('fortress')
-    expect(result.description.toLowerCase()).not.toContain('lancdb')
     expect(result.description.toLowerCase()).not.toContain('salesforce')
     expect(result.description.toLowerCase()).not.toContain('hubspot')
   })

@@ -2,7 +2,7 @@
 
 Use this package for fast buyer proof before a scoping call. It is designed to prove a real operational pattern without claiming self-serve SaaS or vendor-certified connector coverage.
 
-Connector marketplace and n8n status should be taken from [Connector Marketplace Investor Story](connector-marketplace-investor-story.md). The safe public position is: generic Scout connector proof is implemented, the n8n node is local-package partial, Enterprise connectors are scoped privately, and no public marketplace or published connector is claimed.
+Connector marketplace and n8n status should be taken from [Connector Catalogue](connector-marketplace.md) and [KynticAI n8n Node](n8n-node.md). The safe public position is: generic Scout connector proof is implemented, the n8n node is local-package partial, private connectors are scoped separately, and no public marketplace or published connector is claimed.
 
 ## Two-Minute Demo Video Script
 
@@ -40,12 +40,12 @@ Boundary:
 - no unscoped vendor connector promises
 - private connector modules are scoped and validated per customer/vendor environment
 
-Commercial anchor:
+Commercial boundary:
 
-- discovery workshop: GBP 1,500-3,000
-- starter paid pilot: GBP 7,500-15,000
-- production pilot: GBP 20,000-45,000
-- enterprise rollout: scoped from GBP 50,000
+- commercial scope is agreed privately after discovery
+- public material should not publish private commercial terms
+- pilot commitments must be tied to a named workflow, source boundary, security review, and support model
+- enterprise rollout, managed operations, and private connector work require separate scoping
 
 Recommended next step:
 

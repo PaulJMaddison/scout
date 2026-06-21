@@ -116,4 +116,4 @@ All tests use fake/local data. No external services or enterprise internals are 
 
 ## Open-Core Boundary
 
-This package is public-safe. It uses only the public Scout connector catalogue (6 connector types, 13 semantic attribute keys, 4 data source kinds, 8 capabilities). It does not reference enterprise connectors, Fortress features, LanceDB, embedded LLMs, or customer data.
+This package is public-safe. It uses only the public Scout connector catalogue (6 connector types, 13 semantic attribute keys, 4 data source kinds, 8 capabilities). It does not reference enterprise connectors, private runtime features, private vector-store integrations, embedded LLMs, or customer data.

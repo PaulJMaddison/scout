@@ -14,7 +14,7 @@ Most companies already have valuable operational data, but it is trapped across 
 
 ### Are we buying an AI tool?
 
-No. We do not build the brain. We build the customer-owned data plane. Customers can bring their own local/open-source AI stack, workflow engine, reporting layer, or internal apps. Scout supplies governed exact items, relationships, attribution paths, and context; Enterprise supplies canonical relationship-set analysis when included.
+No. We do not build the brain. We build the customer-owned data plane. Customers can bring their own local/open-source AI stack, workflow engine, reporting layer, or internal apps. Scout supplies governed exact items, relationships, attribution paths, and context; private extensions can add advanced relationship analysis when included.
 
 ### What can we buy now?
 
@@ -48,7 +48,7 @@ Pick one workflow where existing data already affects a decision but is hard to 
 
 ### How does this help an AI feature?
 
-The AI or workflow receives scoped facts with confidence, freshness, evidence, exact-record citations, similar-pattern references, relationships, attribution paths, masking decisions, and guardrails instead of a heap of raw records. Scout can retrieve a governed context package or next-action relationship JSON without calling an AI model itself. Enterprise can compare similar relationship sets and return governed JSON for an LLM explanation.
+The AI or workflow receives scoped facts with confidence, freshness, evidence, exact-record citations, similar-pattern references, relationships, attribution paths, masking decisions, and guardrails instead of a heap of raw records. Scout can retrieve a governed context package or next-action relationship JSON without calling an AI model itself. Private extensions can compare similar relationship sets and return governed JSON for an LLM explanation.
 
 ### What does success look like?
 
@@ -62,7 +62,7 @@ Scout has a customer data plane beside source systems and an optional Cloud/cont
 
 ### How do we handle vendor connectors?
 
-The public repo includes generic SQL, REST, CSV, mock connectors, catalogue metadata, extension points, `BasicRelationshipEngine` fallback signals, and proof-mode Enterprise relationship handoff artefacts. Real paid vendor connector implementations, proprietary Enterprise Rust engine/vector DB analysis, and customer-specific mappings belong in private enterprise scope and should be commercially agreed per customer.
+The public repo includes generic SQL, REST, CSV, mock connectors, catalogue metadata, extension points, `BasicRelationshipEngine` fallback signals, and proof-mode private-extension handoff artefacts. Real paid vendor connector implementations, advanced private analysis, and customer-specific mappings belong in private scope and should be commercially agreed per customer.
 
 ### What should not be promised yet?
 

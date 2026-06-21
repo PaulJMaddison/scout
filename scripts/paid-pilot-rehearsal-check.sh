@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ENTERPRISE_REPO="${1:-../scout-enterprise}"
-CLOUD_REPO="${2:-../scout-cloud}"
+ENTERPRISE_REPO="${SCOUT_PRIVATE_EXTENSION_REPO:-${1:-}}"
+CLOUD_REPO="${SCOUT_PRIVATE_CONTROL_REPO:-${2:-}}"
 SKIP_ENTERPRISE_CONNECTOR_SMOKE="${SKIP_ENTERPRISE_CONNECTOR_SMOKE:-false}"
 
 PUBLIC_REPO="$(cd "$(dirname "$0")/.." && pwd)"
@@ -13,6 +13,15 @@ require_path() {
     echo "Required rehearsal path is missing: $path" >&2
     exit 1
   fi
+}
+
+require_configured_repo() {
+  local path="$1" purpose="$2" env_name="$3"
+  if [ -z "$path" ]; then
+    echo "$purpose path is not configured. Pass it as an argument or set $env_name." >&2
+    exit 1
+  fi
+  require_path "$path"
 }
 
 require_opt_in() {
@@ -34,18 +43,28 @@ invoke_repo_script() {
 
 echo "Paid pilot end-to-end local rehearsal check"
 echo "Public repo: $PUBLIC_REPO"
-echo "Enterprise repo: $ENTERPRISE_REPO"
-echo "Cloud repo: $CLOUD_REPO"
+if [ -n "$ENTERPRISE_REPO" ]; then
+  echo "Private extension repo: <configured>"
+else
+  echo "Private extension repo: <not configured>"
+fi
+if [ -n "$CLOUD_REPO" ]; then
+  echo "Private control-plane repo: <configured>"
+else
+  echo "Private control-plane repo: <not configured>"
+fi
 
 require_path "$PUBLIC_REPO/docs/paid-pilot-end-to-end-rehearsal.md"
 require_path "$PUBLIC_REPO/docs/commercial-readiness-summary.md"
 require_path "$PUBLIC_REPO/scripts/check-release-alignment.sh"
 require_path "$PUBLIC_REPO/scripts/check-production-env.sh"
 
+require_configured_repo "$ENTERPRISE_REPO" "private extension repo" "SCOUT_PRIVATE_EXTENSION_REPO"
 require_path "$ENTERPRISE_REPO/docs/live-connector-proof-pack.md"
 require_path "$ENTERPRISE_REPO/scripts/connector-smoke-test.ps1"
 require_path "$ENTERPRISE_REPO/scripts/check-package-readiness.ps1"
 
+require_configured_repo "$CLOUD_REPO" "private control-plane repo" "SCOUT_PRIVATE_CONTROL_REPO"
 require_path "$CLOUD_REPO/docs/live-hosting-preflight.md"
 require_path "$CLOUD_REPO/scripts/check-cloud-production-env.ps1"
 require_path "$CLOUD_REPO/scripts/live-hosting-preflight.ps1"

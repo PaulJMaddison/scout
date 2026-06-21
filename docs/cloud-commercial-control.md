@@ -2,7 +2,7 @@
 
 KynticAI Scout is the public/open-core UCL data plane. KynticAI Cloud is the optional commercial/control-plane layer that manages account, licence, entitlement, download, support, update, registration, and aggregate usage metadata for paid/private deployments.
 
-This document aligns the public Scout repo with the Cloud WP1 control-plane contract in `C:\Kyntic\universalcontextlayer-cloud\docs\work-packages\wp1-cloud-control-plane\`.
+This document records the public Scout-side boundary for optional commercial/control-plane integration. Private Cloud planning artefacts and implementation details are deliberately not referenced from this public repo.
 
 ## Boundary Summary
 
@@ -36,13 +36,13 @@ In customer environments, the same data-plane rule applies:
 
 Cloud can issue, validate, revoke, suspend, or reactivate commercial licences when those endpoints exist in the Cloud control plane. It can also expose entitlement summaries, private download metadata, update-channel metadata, and safe data-plane heartbeat/config metadata.
 
-The current Cloud compatibility model keeps legacy plan values while exposing canonical commercial tiers:
+The current Cloud compatibility model keeps legacy plan values while exposing public tier categories:
 
-| Canonical tier | Legacy compatibility values | Role |
+| Public category | Legacy compatibility values | Role |
 | --- | --- | --- |
 | Scout | `Free`; deprecated `Pro` | Public/open-core data-plane tier. |
-| Fortress | `Business`; `Enterprise` | Paid private runtime and Enterprise/Fortress extension tier. |
-| Elite | `PrivateCloud` as highest-rank compatibility alias pending contract review | Operator-assisted strategic tier above Fortress. |
+| Private runtime | `Business`; `Enterprise` | Paid private extension tier. |
+| Assisted private tier | `PrivateCloud` as highest-rank compatibility alias pending contract review | Operator-assisted strategic tier above the private runtime. |
 
 Scout open-core use must not require a Cloud licence. Cloud licences gate private paid artefacts, paid support paths, update metadata, and private runtime entitlements.
 
@@ -63,8 +63,8 @@ Allowed Cloud payloads are commercial/control-plane metadata and aggregate count
 
 | Path | Scout-side behaviour | Cloud-side role |
 | --- | --- | --- |
-| Scout to Fortress | Keep the data plane customer-owned; add private connector/runtime packages, private deployment support, and Enterprise/Fortress analysis outside the public repo. | Record subscription/licence entitlement, expose private download/update metadata, register deployment metadata, and accept aggregate-only usage/health. |
-| Fortress to Elite | Keep Fortress runtime and raw outcome data in the customer environment; add approved Elite model/operator packs and outcome-review governance. | Record Elite entitlement and operator/support metadata without ingesting raw outcome records or derived relationship intelligence by default. |
+| Scout to private runtime | Keep the data plane customer-owned; add private connector/runtime packages, private deployment support, and advanced analysis outside the public repo. | Record subscription/licence entitlement, expose private download/update metadata, register deployment metadata, and accept aggregate-only usage/health. |
+| Private runtime to assisted private tier | Keep private runtime and raw outcome data in the customer environment; add approved operator packs and outcome-review governance. | Record operator/support metadata without ingesting raw outcome records or derived relationship intelligence by default. |
 | Paid tier to Scout/open-core | Remove or expire private runtime entitlements and private artefact access while preserving open-core Scout use and customer-owned data. | Keep commercial audit/account history and deny private downloads/update checks where entitlement no longer applies. |
 
 Upgrades and downgrades should be auditable, additive where possible, and never require moving customer operational data into Cloud.
@@ -73,4 +73,4 @@ Upgrades and downgrades should be auditable, additive where possible, and never 
 
 Scout docs should describe Cloud as optional commercial control. They should not describe Cloud as a hosted Scout data plane, a required runtime dependency, a raw customer-data store, a complete self-serve SaaS, or a store for derived customer intelligence.
 
-When in doubt, use the naming source of truth at `C:\Kyntic\docs\source-of-truth-naming-map.md` and the Cloud WP1 catalogue at `C:\Kyntic\universalcontextlayer-cloud\docs\work-packages\wp1-cloud-control-plane\product-catalogue.md`.
+When in doubt, keep public Scout wording limited to the open-core data plane, optional commercial-control metadata, and customer-owned data boundaries documented in this repository.

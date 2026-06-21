@@ -1,6 +1,6 @@
 # Getting Started with KynticAI Scout
 
-This guide covers the recommended Scout evaluation install: a Docker-contained stack with PostgreSQL, API, web console, and observability. Local .NET/Node scripts still exist for contributors, but the customer/investor install path should stay Docker-first so the data plane is self-contained.
+This guide covers the recommended Scout evaluation install: a Docker-contained stack with PostgreSQL, API, web console, and observability. Local .NET/Node scripts still exist for contributors, but the customer evaluation install path should stay Docker-first so the data plane is self-contained.
 
 ---
 

@@ -4,26 +4,20 @@ This is a local-only rehearsal runbook. It proves the supported paid pilot flow 
 
 ## Repositories
 
-- Public open-core/customer data plane: `C:\Scout`
-- Private enterprise extensions: `C:\scout-enterprise`
-- Private cloud control plane: `C:\scout-cloud`
+- Public open-core/customer data plane: this repository.
+- Private extension repository: provide a local path with `SCOUT_PRIVATE_EXTENSION_REPO` or the script parameter.
+- Private control-plane repository: provide a local path with `SCOUT_PRIVATE_CONTROL_REPO` or the script parameter.
 
 ## Preflight
 
 ```powershell
-cd C:\Scout
+$env:SCOUT_PRIVATE_EXTENSION_REPO = "<local-private-extension-repo>"
+$env:SCOUT_PRIVATE_CONTROL_REPO = "<local-private-control-plane-repo>"
+
 .\scripts\paid-pilot-local-rehearsal.ps1
 .\scripts\paid-pilot-rehearsal-check.ps1
 .\scripts\check-release-alignment.ps1
 .\scripts\check-production-env.ps1 -EnvFile .env.production.local
-
-cd C:\scout-cloud
-.\scripts\check-release-alignment.ps1
-.\scripts\check-cloud-production-env.ps1 -EnvFile .env.production.local
-.\scripts\live-hosting-preflight.ps1 -SkipApiCheck
-
-cd C:\scout-enterprise
-.\scripts\check-release-alignment.ps1
 ```
 
 Use placeholder local files only. Do not paste real customer credentials into these repos.
@@ -67,7 +61,7 @@ Use placeholder local files only. Do not paste real customer credentials into th
 
 9. SQL/PostgreSQL connector dry-run runs.
    - Use fictional local configs.
-   - Run `C:\scout-enterprise\scripts\connector-smoke-test.ps1`.
+   - Run the private extension connector smoke script from the explicitly configured private extension repository.
    - Never print connection strings or inline credentials.
 
 10. Selector/context snapshot path is exercised.

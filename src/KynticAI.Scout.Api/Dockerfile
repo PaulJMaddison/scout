@@ -34,7 +34,7 @@ ENV Bootstrap__ApplyMigrationsOnStartup=false
 ENV Bootstrap__SeedDemoData=false
 ENV Platform__EnableGraphQl=true
 ENV Platform__EnableRest=true
-ENV Platform__EnableOpenApi=true
+ENV Platform__EnableOpenApi=false
 EXPOSE 8080
 
 COPY --from=build /app/publish .

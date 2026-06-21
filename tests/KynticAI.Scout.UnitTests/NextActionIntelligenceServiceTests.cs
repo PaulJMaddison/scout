@@ -132,7 +132,7 @@ public sealed class NextActionIntelligenceServiceTests
         Assert.Equal("basic-public-fallback-only", weighting.Scope);
         Assert.False(weighting.ScoutWeightsAreCanonical);
         Assert.Equal("Enterprise", weighting.CanonicalOwner);
-        Assert.Contains("Enterprise Rust", weighting.CanonicalEngine, StringComparison.Ordinal);
+        Assert.Contains("private relationship weighting", weighting.CanonicalEngine, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -282,7 +282,7 @@ public sealed class NextActionIntelligenceServiceTests
         Assert.False(ownership["scoutWeightsAreCanonical"]!.GetValue<bool>());
         Assert.Equal("Enterprise", ownership["canonicalOwner"]!.GetValue<string>());
         Assert.Equal(
-            "Enterprise Rust relationship/weighting/traversal engine",
+            "private relationship weighting/traversal engine",
             ownership["canonicalEngine"]!.GetValue<string>());
         Assert.DoesNotContain("UCL owns canonical relationship weighting", localPackage, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("Scout canonical weighting", localPackage, StringComparison.OrdinalIgnoreCase);

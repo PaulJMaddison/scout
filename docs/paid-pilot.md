@@ -1,152 +1,91 @@
-# Paid Pilot
+# Supported Pilot
 
-KynticAI Scout can be sold today as a supported paid pilot for teams that want to turn authorised customer data into exact data items, relationships, attribution paths, and governed JSON without replacing their current systems.
+KynticAI Scout can be evaluated through a supported pilot for teams that want to turn authorised operational data into governed context for their own AI-enabled products, workflows, apps, reports, and agents.
 
-The strongest first commercial motion is not a hands-off SaaS signup. It is an implementation-led pilot where the customer runs the Scout data plane in their own environment, keeps operational data local, and receives hands-on support to prove one valuable workflow.
+This page is intentionally public-safe. It describes the shape of a pilot without publishing private pricing anchors, internal sales strategy, customer-specific delivery plans, or private enterprise implementation details.
 
 ## Who It Is For
 
-This pilot is for teams that already have useful data spread across CRM, support, product usage, billing, warehouse, spreadsheets, or legacy SQL systems, but cannot easily expose that data to AI tools, workflow automation, reporting, or internal products in a trusted way.
+A pilot is a good fit for teams that already have useful data in CRM, support, product usage, billing, warehouse, spreadsheets, legacy SQL systems, or internal applications, but need a safer way to expose business meaning to downstream systems.
 
-Good first buyers include:
+Common sponsors include:
 
-- CTOs who need an integration layer before rolling out AI-enabled systems
-- product leaders adding AI or automation to an existing product
-- revenue leaders who need account intelligence without replacing CRM
-- customer success or support leaders who need clearer customer context
-- data and integration teams who want reusable semantic contracts instead of point-to-point joins
+- technical leaders who need an integration layer before rolling out AI-enabled systems
+- product teams adding context-aware workflows to an existing product
+- revenue, success, or support leaders who need clearer account or user context
+- data and integration teams who want reusable semantic contracts rather than point-to-point joins
 
 ## What The Pilot Delivers
 
-The recommended pilot delivers:
+A supported pilot normally focuses on one valuable workflow and one customer-owned Scout data plane.
 
-- a self-hosted Scout data-plane deployment in the customer's environment
+Typical deliverables include:
+
+- a Scout deployment in a customer-controlled or agreed evaluation environment
 - one tenant and one primary workspace configured for the pilot
-- one to three connected source systems or safe exported source datasets
+- selected source paths, such as generic SQL, REST, CSV, or approved exported datasets
 - a first semantic schema for the chosen workflow
-- selector definitions that map raw source data into canonical context facts
-- context snapshots and local relationship state with confidence, freshness, provenance, masking, and auditability
-- REST, GraphQL, or SDK access for one downstream consumer
-- an executive walkthrough showing the before and after business value
-- technical handover documentation for the customer's team
+- selector definitions that map source data into context facts
+- context snapshots with confidence, freshness, provenance, masking, and auditability
+- REST, GraphQL, SDK, or export access for one downstream consumer
+- a technical handover for the customer's team
 
-The customer can bring their own AI tools, agents, apps, reports, or workflow engine. Scout creates the governed context those systems consume.
+The customer can bring their own AI tools, workflow engine, internal app, reporting layer, or agent runtime. Scout provides the governed context those systems consume.
 
-## Recommended Timeline
+## Scope Boundaries
 
-Most first pilots should run for two to six weeks, depending on source-system access and the number of downstream consumers.
+Pilot scope should be agreed before work starts. The public repo should not imply unlimited delivery, hands-off operations, or customer-specific connector coverage.
 
-1. Week 0 to 1: discovery, data access, architecture review, and success criteria.
-2. Week 1 to 2: customer data-plane setup, source onboarding, and first semantic schema.
-3. Week 2 to 4: selector implementation, provenance review, masking review, and first consumer integration.
-4. Week 4 to 6: operational hardening, stakeholder playback, handover, and rollout recommendation.
+Typical scope includes:
 
-## Commercial Scope
+- a named workflow and success criteria
+- a limited set of source systems or safe exported datasets
+- an agreed data-handling and credential route
+- a defined downstream consumer
+- production-readiness review where a production-style environment is in scope
+- written handover and next-step recommendations
 
-The paid pilot should be scoped as a services-backed platform pilot, not a self-serve subscription.
-
-Commercial scope normally includes:
-
-- fixed pilot duration
-- named business workflow
-- named technical sponsor
-- limited number of source systems or exported datasets
-- limited number of downstream consumers
-- agreed support channel and response expectations
-- written handover and next-step recommendation
-
-Commercial scope normally excludes:
+Typical exclusions include:
 
 - unlimited connector delivery
 - unmanaged production support
-- formal compliance certification
 - customer-specific long-term hosting operations
 - live payment-provider billing
 - full hosted SaaS account management
+- formal compliance certification
+- vendor-certified connector claims unless separately validated
 
-Recommended founder-led price anchors:
+## Technical Checklist
 
-- discovery workshop: GBP 1,500-3,000, usually credited against a paid pilot agreed within 30 days
-- starter paid pilot: GBP 7,500-15,000
-- production pilot: GBP 20,000-45,000
-- enterprise rollout: scoped from GBP 50,000
-
-Final pricing can still be bespoke, but ranges help filter enquiries before scoping time is spent.
-
-## Technical Scope
-
-Technical scope should be explicit before work starts:
+Before a pilot moves beyond local evaluation, confirm:
 
 - deployment mode and environment ownership
-- PostgreSQL or approved production-style database
+- PostgreSQL or another approved production-style database where applicable
 - source systems and access method
-- credential handling and customer secret store
-- data categories and PII expectations
+- customer secret storage and credential handling
+- data categories, PII expectations, masking, and retention
 - tenant and workspace structure
 - semantic attributes and selectors
 - downstream consumer API path
-- audit, masking, provenance, and retention expectations
+- audit, provenance, observability, backup, and restore expectations
 - support bundle and log redaction boundaries
 
-## What The Customer Provides
+## Success Criteria
 
-- business owner and technical owner
-- source-system access or safe exported datasets
-- sandbox or non-production access where possible
-- approved secret storage route
-- sample records that can be used without breaching confidentiality
-- data protection and security requirements
-- target workflow and success criteria
-- access to the downstream consumer team
+A pilot is successful when:
 
-## What We Provide
-
-- architecture and workflow discovery
-- Scout data-plane setup guidance
-- semantic schema and selector implementation support
-- connector configuration support for generic SQL, REST, CSV, or commercially scoped private connectors
-- provenance, confidence, freshness, and masking review
-- API or SDK integration support for one first consumer
-- production-readiness checklist review
-- executive playback and technical handover
-
-## Recommended Pilot Workflow
-
-The sharpest first vertical wedge is energy buying and pricing: contract records, supplier terms, usage signals, pricing spreadsheets, ERP exports, and support context are often scattered across systems, yet pricing and procurement decisions need trustworthy context. Scout can still serve the general platform story, but paid adverts should lead with a concrete workflow such as trusted context for energy pricing, procurement, and operational AI workflows.
-
-1. Discovery workshop
-
-   Map the business workflow, source systems, key entities, data quality risks, privacy constraints, and expected commercial outcome.
-
-2. Data-plane setup
-
-   Deploy Scout locally, in the customer's cloud, or in a private environment. Disable demo fallback, configure production secrets, and use PostgreSQL for production-style pilots.
-
-3. Source onboarding
-
-   Connect generic SQL, REST, CSV, or safe exported datasets first. Paid enterprise connectors can be added from the private enterprise repo when commercially agreed.
-
-4. Semantic model design
-
-   Define the first attributes, such as conversion probability, churn risk, product fit, budget readiness, support risk, onboarding status, renewal risk, similar successful pattern, or recommended next action.
-
-5. Selector implementation
-
-   Create selectors, preview transformations, validate confidence and freshness scoring, and confirm provenance is readable by business users.
-
-6. Downstream integration
-
-   Expose context to one consumer through REST, GraphQL, the TypeScript SDK, the .NET SDK, or a governed relationship/context JSON export.
-
-7. Business review
-
-   Show how existing data became reusable context and how the downstream workflow improved because it had business meaning rather than raw records.
+- the customer can explain what the Scout data plane does
+- source systems remain in place
+- at least one useful business entity resolves into a semantic profile
+- every context fact has provenance, confidence, freshness, and audit history
+- a downstream system can consume context without joining raw source tables itself
+- the customer can identify the next operational step from evidence, not guesswork
 
 ## What Is Not Included By Default
 
-The public open-core repo does not include:
+The open source repo does not include:
 
-- live Stripe, Paddle, or payment-provider billing
+- live payment-provider billing
 - hosted SaaS account management
 - a production licence portal
 - real paid vendor connector implementations
@@ -154,80 +93,9 @@ The public open-core repo does not include:
 - customer-specific deployment automation
 - formal compliance certification
 
-Those belong in private enterprise or cloud/control-plane work and should be scoped separately.
+Those paths require separate commercial, legal, security, and delivery review.
 
-## First Pilot Success Criteria
-
-A pilot is successful when:
-
-- the customer can explain what the Scout data plane does
-- source systems remain in place
-- at least one business entity resolves into a useful semantic profile
-- every context fact has provenance, confidence, freshness, and audit history
-- a downstream system can consume the context without joining raw source tables itself
-- the customer can identify at least one workflow that becomes more valuable with governed context, relationships, and attribution-path evidence
-
-## Example Pilot Packages
-
-Use these as packaging guides rather than hard public pricing.
-
-### Discovery Workshop
-
-Best for a buyer who understands the problem but has not selected the first workflow.
-
-- one to two workshops
-- source-system and workflow mapping
-- privacy and governance review
-- pilot recommendation
-- indicative implementation plan
-
-Pricing language: GBP 1,500-3,000, credited against pilot where commercially agreed.
-
-### Starter Pilot
-
-Best for proving the architectural pattern quickly.
-
-- two to four week implementation
-- one workflow
-- one environment
-- up to three source systems or exported datasets
-- one downstream consumer
-- one executive playback
-- one technical handover
-
-Pricing language: GBP 7,500-15,000 depending source access and consumer scope.
-
-### Production Pilot
-
-Best for teams that want a production-style customer data plane with stronger operational readiness.
-
-- four to six week implementation
-- PostgreSQL
-- production secrets checklist
-- backup and restore review
-- API-client and scope review
-- masking and audit review
-- one or two downstream consumers
-- go-forward support model
-
-Pricing language: GBP 20,000-45,000 depending hardening and stakeholder scope.
-
-### Enterprise Rollout Design
-
-Best after a successful pilot or for larger estates.
-
-- workspace and tenant design
-- private connector scope
-- governance and retention design
-- support and operational ownership model
-- private enterprise module plan
-- future cloud/control-plane alignment
-
-Pricing language: scoped from GBP 50,000 after discovery and pilot evidence.
-
-Convert to ongoing support, enterprise connectors, private cloud, or managed operations once the customer has seen the value.
-
-## Related Pilot Documents
+## Related Documents
 
 - [First Paid Pilot One-Pager](first-paid-pilot-one-pager.md)
 - [Pilot SOW Template](pilot-sow-template.md)

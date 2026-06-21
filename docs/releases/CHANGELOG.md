@@ -1,13 +1,12 @@
-# Cross-Repository Changelog
+# Changelog
 
-All notable changes across the three KynticAI Scout repositories are documented in this file.
+Public KynticAI Scout changes are documented in this file. Private package changes should stay in private changelogs.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 > **Note:** Each repository also maintains its own root-level `CHANGELOG.md` with
-> repo-specific detail. This file provides a consolidated cross-repo view for
-> coordinated releases.
+> repo-specific detail. This file provides the public Scout release view.
 
 ---
 
@@ -33,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.7.0] - 2026-05-13
 
-Coordinated release across all three repositories.
+Public Scout release.
 
 ### Open-Source (`scout`)
 
@@ -51,45 +50,15 @@ Coordinated release across all three repositories.
 #### Security
 - Reconfirmed that the public repo does not include paid enterprise implementations, private cloud/control-plane implementation, real licence signing keys, customer-specific code, or raw customer operational data.
 
-### Enterprise (`scout-enterprise`)
+### Private Package Coordination
 
-#### Added
-- 25+ vendor adapter seams for connectors: SQL Server, PostgreSQL, REST/CRM, email, chat, calendar, product analytics, work management, and knowledge systems.
-- OIDC, SAML, and SCIM identity integrations.
-- Credential vault abstractions for Azure Key Vault, AWS Secrets Manager, and HashiCorp Vault.
-- Governance modules: data masking, retention policies, compliance exports.
-- Deployment packs and observability instrumentation via OpenTelemetry.
-
-#### Changed
-- Updated enterprise release metadata to `2.7.0`.
-- Expanded commercial readiness and relational query plan validation test coverage to 132 tests.
-
-#### Security
-- Maintained metadata-first ingestion defaults across all connector families.
-- Ensured support bundles are PII-redacted and secret-free.
-
-### Cloud (`scout-cloud`)
-
-#### Added
-- Account management, licensing, and subscription workflows.
-- Data-plane registration and heartbeat monitoring.
-- Mini CRM for pilot lead tracking.
-- React-based cloud portal (`apps/cloud-portal`) for administrative operations.
-- Stripe billing integration foundations.
-- RSA licence entitlement signing and validation.
-
-#### Changed
-- Updated cloud release metadata to `2.7.0`.
-- Expanded operations readiness and commercial validation test coverage to 55 tests.
-
-#### Security
-- Strict data boundary enforced: no raw customer records, connector credentials, context facts, or operational source data cross into the control plane.
+- Private package changes are tracked in private changelogs and are not documented in the public repo.
 
 ---
 
 ## [2.3.0] - 2026-05-12
 
-Coordinated release across all three repositories.
+Public Scout release.
 
 ### Open-Source (`scout`)
 
@@ -107,25 +76,9 @@ Coordinated release across all three repositories.
 - Kept the public repository limited to open-core code, public interfaces, and fictional data.
 - Extended local artefact ignore coverage for runtime data, logs, keys, and certificates.
 
-### Enterprise (`scout-enterprise`)
+### Private Package Coordination
 
-#### Added
-- SQL Server and PostgreSQL connector implementations with query plan validation.
-- Support bundle generation with automatic PII redaction.
-- Entitlement flow verification for licence-gated features.
-
-#### Changed
-- Standardised selector contract definitions with provenance and freshness metadata.
-
-### Cloud (`scout-cloud`)
-
-#### Added
-- Account provisioning and subscription lifecycle APIs.
-- Data-plane heartbeat endpoints for health monitoring.
-- Update channel management (Stable/Beta release tracks).
-
-#### Changed
-- Migrated authentication to CloudAuth scheme for users and data-plane agents.
+- Private package changes are tracked in private changelogs and are not documented in the public repo.
 
 ---
 
@@ -136,7 +89,7 @@ Use this template when adding a new release entry:
 ```markdown
 ## [X.Y.Z] - YYYY-MM-DD
 
-Coordinated release across all three repositories.
+Public Scout release.
 
 ### Open-Source (`scout`)
 
@@ -158,33 +111,8 @@ Coordinated release across all three repositories.
 #### Breaking Changes
 - Description of breaking changes with migration guidance.
 
-### Enterprise (`scout-enterprise`)
-
-#### Added
--
-
-#### Changed
--
-
-#### Fixed
--
-
-#### Security
--
-
-### Cloud (`scout-cloud`)
-
-#### Added
--
-
-#### Changed
--
-
-#### Fixed
--
-
-#### Security
--
+### Private Package Coordination
+- Keep private package details in private changelogs.
 ```
 
 ### Categories

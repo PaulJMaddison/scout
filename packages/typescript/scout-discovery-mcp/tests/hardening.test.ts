@@ -392,8 +392,6 @@ describe('deterministic output ordering', () => {
 
 describe('no enterprise internals leaked', () => {
   const enterpriseTerms = [
-    'fortress',
-    'lancedb',
     'salesforce',
     'hubspot',
     'dynamics365',

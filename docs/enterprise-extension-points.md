@@ -6,13 +6,13 @@ This document describes those extension points and the boundary around them.
 
 For the full public/private product boundary, see [open-core-boundary.md](open-core-boundary.md).
 
-Commercial enterprise implementations include the proprietary Enterprise Rust engine/vector DB for relationship sets, attribution paths, comparable examples, outcome matching, and governed JSON handoff; real Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, NetSuite, Microsoft 365 / Outlook, Gmail / Google Workspace, Slack, Microsoft Teams, Outlook Calendar, Google Calendar, Segment, Amplitude, Mixpanel, PostHog, Jira, Linear, Confluence, Notion, SharePoint, and Google Drive connectors; SSO/SAML; SCIM; credential vault integrations; advanced governance; compliance exports; private deployment packs; and SLA tooling. Those implementations are paid/private and are not included in this public repo.
+Commercial enterprise implementations can include advanced relationship-set analysis, attribution-path analysis, comparable examples, outcome matching, governed JSON handoff; real Salesforce, HubSpot, Dynamics, Snowflake, BigQuery, Zendesk, NetSuite, Microsoft 365 / Outlook, Gmail / Google Workspace, Slack, Microsoft Teams, Outlook Calendar, Google Calendar, Segment, Amplitude, Mixpanel, PostHog, Jira, Linear, Confluence, Notion, SharePoint, and Google Drive connectors; SSO/SAML; SCIM; credential vault integrations; advanced governance; compliance exports; private deployment packs; and SLA tooling. Those implementations are paid/private and are not included in this public repo.
 
 ## Principles
 
 - The public repo defines contracts, DTOs, DI hooks, and safe defaults.
-- Enterprise packages can implement those contracts in a separate private repo, expected to be called `scout-enterprise`.
-- The public repo must not contain paid implementations for the Enterprise Rust engine/vector DB, relationship-set analysis, attribution-path analysis, commercial connectors, enterprise auth, billing, credential vaults, enterprise policy engines, compliance exporters, or commercial deployment packs.
+- Enterprise packages can implement those contracts in a separate private repository.
+- The public repo must not contain paid implementations for advanced relationship-set analysis, attribution-path analysis, commercial connectors, enterprise auth, billing, credential vaults, enterprise policy engines, compliance exporters, or commercial deployment packs.
 - Public code can describe the contract. Private code should own the enterprise implementation.
 
 ## Current extension points
@@ -54,7 +54,7 @@ The public repo should keep the semantic engine, exact linked records, local rel
 
 Enterprise packages may later provide:
 
-- Canonical Rust relationship weighting/traversal, outcome-pattern scoring, and private relationship-engine hardening
+- Advanced relationship weighting/traversal, outcome-pattern scoring, and private relationship-engine hardening
 - real enterprise connectors, including email, chat, calendar, analytics, issue, project, document, and knowledge-system adapters
 - SSO/SAML implementations
 - Stripe, Paddle, or other billing-provider integrations
@@ -66,14 +66,14 @@ Enterprise packages may later provide:
 - promotion workflows and private deployment packs
 - usage metering sinks tied to commercial packaging or hosted entitlements
 
-Those private packages should consume public contracts from `scout` rather than copying public source files into the enterprise repo.
+Those private packages should consume public contracts from Scout rather than copying public source files into private repositories.
 
 ## Do not implement publicly
 
 These features may have public interfaces, DTOs, docs, or no-op defaults, but their real implementations should not be committed to this repository:
 
 1. Real enterprise connectors.
-2. Rust relationship-weighting modules.
+2. Private relationship-weighting modules.
 3. SSO/SAML.
 4. Stripe/Paddle billing.
 5. Customer specific deployment templates.

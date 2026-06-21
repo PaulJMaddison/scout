@@ -23,7 +23,7 @@ services:
       Platform__Mode: ${PLATFORM_MODE:-BackendOnly}
       Platform__EnableGraphQl: "true"
       Platform__EnableRest: "true"
-      Platform__EnableOpenApi: "true"
+      Platform__EnableOpenApi: ${ENABLE_OPENAPI:-false}
       Database__Provider: Sqlite
       ConnectionStrings__Scout: Data Source=/var/lib/scout/scout_context.db
       ConnectionStrings__CustomerOps: Data Source=/var/lib/scout/customer_ops.db
@@ -38,7 +38,7 @@ services:
       DataProtection__RequirePersistentKeys: "false"
       Llm__DefaultProvider: mock
     ports:
-      - "${SCOUT_PORT:-8080}:8080"
+      - "${SCOUT_BIND_ADDRESS:-127.0.0.1}:${SCOUT_PORT:-8080}:8080"
     volumes:
       - scout-data-protection-keys:/var/lib/scout/data-protection-keys
     healthcheck:
@@ -77,7 +77,7 @@ services:
       ConnectionStrings__CustomerOps: Host=postgres;Port=5432;Database=${CUSTOMER_OPS_DB:-customer_ops_db};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres}
       Llm__DefaultProvider: mock
     ports:
-      - "${SCOUT_PORT:-8080}:8080"
+      - "${SCOUT_BIND_ADDRESS:-127.0.0.1}:${SCOUT_PORT:-8080}:8080"
     volumes:
       - scout-pg-data-protection-keys:/var/lib/scout/data-protection-keys
     depends_on:
@@ -103,7 +103,7 @@ services:
       CUSTOMER_OPS_DB: ${CUSTOMER_OPS_DB:-customer_ops_db}
       SCOUT_DB: ${SCOUT_DB:-scout_context_db}
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "${SCOUT_BIND_ADDRESS:-127.0.0.1}:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - scout-postgres-data:/var/lib/postgresql/data
       - ../deploy/docker/postgres/init:/docker-entrypoint-initdb.d:ro

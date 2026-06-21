@@ -4,7 +4,7 @@ The connector catalogue explains which Scout integration paths are public open-c
 
 Scout is the nervous system, not the brain. Connectors bring approved operational signals into the customer data plane so selectors can create semantic context for customer-owned AI tools, workflows, apps, reports, and agents. This public repository must therefore show the integration shape without shipping paid enterprise connector logic.
 
-For the investor/data-room version of this story, including implemented/partial/planned status, replayable proof commands, n8n caveats, and a connector-data-to-output demo flow, see [Connector Marketplace Investor Story](connector-marketplace-investor-story.md).
+This page is the public connector status record. Keep it factual, replayable, and free of customer-specific delivery plans or private commercial strategy.
 
 ## Labels
 

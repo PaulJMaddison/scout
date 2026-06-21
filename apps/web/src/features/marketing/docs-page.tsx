@@ -77,7 +77,7 @@ export function DocsPage() {
               ['docs/billing-metering.md', 'Plan catalogue, usage recording, limit enforcement, and future payment-provider integration.'],
               ['docs/webhook-events.md', 'Provider-neutral event contract, signatures, idempotency, recompute triggers, and dead letters.'],
               ['docs/connector-marketplace.md', 'Connector catalogue, availability labels, safe mock connectors, and enterprise placeholders.'],
-              ['docs/paid-pilot.md', 'Paid pilot buyer profile, scope, packages, success criteria, and implementation-led commercial path.'],
+              ['docs/paid-pilot.md', 'Supported pilot scope, data boundaries, success criteria, and public-safe delivery expectations.'],
               ['docs/first-real-connector-proof.md', 'Verified generic SQL connector proof from source data to selectors, facts, snapshots, API response, and provenance.'],
               ['docs/production-install-checklist.md', 'Production mode, PostgreSQL, secrets, demo fallback, backups, audit, observability, and support boundaries.'],
               ['docs/anonymised-erp-platform-pattern.md', 'Anonymised ERP platform implementation pattern showing why semantic context beats raw records.'],

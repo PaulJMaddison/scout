@@ -14,7 +14,7 @@ POST /api/v1/events/source-system?tenantSlug=<tenant>
 
 The node does not read data back from Scout, publish packages, add release automation, or submit anything to the n8n marketplace.
 
-For investor/data-room wording, keep this status as **partial**: local package readiness exists, but npm publication and n8n marketplace submission are not claimed. See [Connector Marketplace Investor Story](connector-marketplace-investor-story.md).
+Public status: local package readiness exists, but npm publication and n8n marketplace submission are not claimed.
 
 ## Local Build
 

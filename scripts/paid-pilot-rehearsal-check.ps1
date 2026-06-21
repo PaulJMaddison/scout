@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
-    [string]$EnterpriseRepo = "C:\scout-enterprise",
-    [string]$CloudRepo = "C:\scout-cloud",
+    [string]$EnterpriseRepo = $env:SCOUT_PRIVATE_EXTENSION_REPO,
+    [string]$CloudRepo = $env:SCOUT_PRIVATE_CONTROL_REPO,
     [switch]$SkipEnterpriseConnectorSmoke
 )
 
@@ -13,6 +13,14 @@ function Require-Path {
     if (-not (Test-Path $Path)) {
         throw "Required rehearsal path is missing: $Path"
     }
+}
+
+function Require-ConfiguredRepo {
+    param([string]$Path, [string]$Purpose, [string]$EnvName)
+    if ([string]::IsNullOrWhiteSpace($Path)) {
+        throw "$Purpose path is not configured. Pass the script parameter or set $EnvName."
+    }
+    Require-Path $Path
 }
 
 function Invoke-RepoScript {
@@ -38,18 +46,20 @@ function Require-OptIn([string]$Name, [string]$Purpose) {
 
 Write-Host "Paid pilot end-to-end local rehearsal check"
 Write-Host "Public repo: $publicRepo"
-Write-Host "Enterprise repo: $EnterpriseRepo"
-Write-Host "Cloud repo: $CloudRepo"
+Write-Host "Private extension repo: $(if ([string]::IsNullOrWhiteSpace($EnterpriseRepo)) { '<not configured>' } else { '<configured>' })"
+Write-Host "Private control-plane repo: $(if ([string]::IsNullOrWhiteSpace($CloudRepo)) { '<not configured>' } else { '<configured>' })"
 
 Require-Path (Join-Path $publicRepo "docs\paid-pilot-end-to-end-rehearsal.md")
 Require-Path (Join-Path $publicRepo "docs\commercial-readiness-summary.md")
 Require-Path (Join-Path $publicRepo "scripts\check-release-alignment.ps1")
 Require-Path (Join-Path $publicRepo "scripts\check-production-env.ps1")
 
+Require-ConfiguredRepo $EnterpriseRepo "private extension repo" "SCOUT_PRIVATE_EXTENSION_REPO"
 Require-Path (Join-Path $EnterpriseRepo "docs\live-connector-proof-pack.md")
 Require-Path (Join-Path $EnterpriseRepo "scripts\connector-smoke-test.ps1")
 Require-Path (Join-Path $EnterpriseRepo "scripts\check-package-readiness.ps1")
 
+Require-ConfiguredRepo $CloudRepo "private control-plane repo" "SCOUT_PRIVATE_CONTROL_REPO"
 Require-Path (Join-Path $CloudRepo "docs\live-hosting-preflight.md")
 Require-Path (Join-Path $CloudRepo "scripts\check-cloud-production-env.ps1")
 Require-Path (Join-Path $CloudRepo "scripts\live-hosting-preflight.ps1")

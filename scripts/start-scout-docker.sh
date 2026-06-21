@@ -160,12 +160,47 @@ detect_lan_ip() {
   fi
 }
 
-LAN_IP=$(detect_lan_ip || true)
+get_scout_bind_address() {
+  if [ -n "${SCOUT_BIND_ADDRESS:-}" ]; then
+    printf '%s\n' "$SCOUT_BIND_ADDRESS" | sed "s/^[\"']//;s/[\"']$//"
+    return 0
+  fi
+
+  if [ -f "$REPO_ROOT/.env" ]; then
+    ENV_BIND_ADDRESS=$(sed -n 's/^[[:space:]]*SCOUT_BIND_ADDRESS[[:space:]]*=[[:space:]]*//p' "$REPO_ROOT/.env" | sed -n '1p')
+    if [ -n "$ENV_BIND_ADDRESS" ]; then
+      printf '%s\n' "$ENV_BIND_ADDRESS" | sed "s/^[\"']//;s/[\"']$//"
+      return 0
+    fi
+  fi
+
+  printf '%s\n' "127.0.0.1"
+}
+
+is_lan_exposure_enabled() {
+  NORMALISED_BIND=$(printf '%s' "${1:-127.0.0.1}" | sed "s/^[\"']//;s/[\"']$//" | tr '[:upper:]' '[:lower:]')
+  case "$NORMALISED_BIND" in
+    ""|"127.0.0.1"|"localhost"|"::1")
+      return 1
+      ;;
+    *)
+      return 0
+      ;;
+  esac
+}
+
+BIND_ADDRESS=$(get_scout_bind_address)
+LAN_EXPOSURE_ENABLED=false
+LAN_IP=""
+if is_lan_exposure_enabled "$BIND_ADDRESS"; then
+  LAN_EXPOSURE_ENABLED=true
+  LAN_IP=$(detect_lan_ip || true)
+fi
 LAN_API_URL=""
 LAN_WEBHOOK_STATUS=""
 LAN_STORED_SIGNAL_COUNT=""
 LAN_MATCHED_SELECTOR_COUNT=""
-if [ -n "$LAN_IP" ]; then
+if [ "$LAN_EXPOSURE_ENABLED" = "true" ] && [ -n "$LAN_IP" ]; then
   LAN_API_URL="http://$LAN_IP:5198"
   if curl -fsS "$LAN_API_URL/health/ready" >/dev/null 2>&1; then
     LAN_EVENT_ID="install-report-lan-$(date +%Y%m%d%H%M%S)"
@@ -186,16 +221,24 @@ REPORT_DIR="$REPO_ROOT/.local"
 REPORT_PATH="$REPORT_DIR/scout-install-report.html"
 mkdir -p "$REPORT_DIR"
 
-if [ -n "$LAN_IP" ]; then
+if [ "$LAN_EXPOSURE_ENABLED" = "true" ] && [ -n "$LAN_IP" ]; then
   LAN_ROWS="<tr><th>LAN web</th><td><a href=\"http://$LAN_IP:5173\">http://$LAN_IP:5173</a></td></tr><tr><th>LAN API</th><td><a href=\"http://$LAN_IP:5198\">http://$LAN_IP:5198</a></td></tr><tr><th>LAN webhook</th><td><code>http://$LAN_IP:5198/api/v1/events/source-system?tenantSlug=demo</code></td></tr>"
 else
-  LAN_ROWS="<tr><th>LAN webhook</th><td>No LAN IP detected. Use 127.0.0.1 locally or configure a private/static IP.</td></tr>"
+  LAN_ROWS="<tr><th>Published bind address</th><td><code>$BIND_ADDRESS</code></td></tr><tr><th>LAN webhook</th><td>LAN exposure is disabled. Docker ports are bound to localhost by default; set <code>SCOUT_BIND_ADDRESS=0.0.0.0</code> only on a trusted LAN/VPN.</td></tr>"
 fi
 
 if [ -n "$LAN_WEBHOOK_STATUS" ]; then
   LAN_TEST="IP webhook test through <code>$LAN_API_URL</code>: event was <strong>$LAN_WEBHOOK_STATUS</strong>, stored <strong>$LAN_STORED_SIGNAL_COUNT</strong> signal, matched <strong>$LAN_MATCHED_SELECTOR_COUNT</strong> selectors."
+elif [ "$LAN_EXPOSURE_ENABLED" != "true" ]; then
+  LAN_TEST="LAN/IP webhook smoke was skipped because published Docker ports are bound to localhost by default."
 else
   LAN_TEST="LAN/IP webhook smoke was skipped because no LAN IP was detected or the private address was not reachable from this host."
+fi
+
+if [ "$LAN_EXPOSURE_ENABLED" = "true" ] && [ -n "$LAN_IP" ]; then
+  LAN_SUMMARY="printed LAN URL $LAN_IP."
+else
+  LAN_SUMMARY="kept LAN/private-network endpoints disabled; published bind address is <code>$BIND_ADDRESS</code>."
 fi
 
 cat > "$REPORT_PATH" <<EOF
@@ -248,7 +291,7 @@ cat > "$REPORT_PATH" <<EOF
       <ul>
         <li><strong>Build:</strong> $BUILD_STATUS</li>
         <li><strong>Docker stack:</strong> running; API and Postgres health checks are healthy.</li>
-        <li><strong>Start script:</strong> printed LAN URL $LAN_IP.</li>
+        <li><strong>Start script:</strong> $LAN_SUMMARY</li>
         <li><strong>Demo context:</strong> User 123 returned $DEMO_USER / $DEMO_COMPANY.</li>
         <li><strong>Connector test:</strong> mock CRM configuration validated, connector registered, health check returned $CONNECTOR_HEALTH_STATUS.</li>
         <li><strong>Local webhook test:</strong> event was $LOCAL_WEBHOOK_STATUS, stored $LOCAL_STORED_SIGNAL_COUNT signal, matched $LOCAL_MATCHED_SELECTOR_COUNT selectors.</li>
@@ -334,13 +377,18 @@ echo "GraphQL:      http://127.0.0.1:5198/graphql"
 echo "OpenAPI:      http://127.0.0.1:5198/api-docs"
 echo "Grafana:      http://127.0.0.1:3000"
 echo "Prometheus:   http://127.0.0.1:9090"
-if [ -n "$LAN_IP" ]; then
+if [ "$LAN_EXPOSURE_ENABLED" = "true" ] && [ -n "$LAN_IP" ]; then
   echo
   echo "LAN / private-network endpoints:"
   echo "LAN web app:  http://$LAN_IP:5173"
   echo "LAN API:      http://$LAN_IP:5198"
   echo "Webhook URL:  http://$LAN_IP:5198/api/v1/events/source-system?tenantSlug=demo"
   echo "Use the LAN webhook URL only on a trusted LAN/VPN, or put HTTPS/reverse-proxy/DNS in front of it."
+else
+  echo
+  echo "LAN / private-network endpoints are disabled by default."
+  echo "Published bind address: $BIND_ADDRESS"
+  echo "Set SCOUT_BIND_ADDRESS=0.0.0.0 only when you intentionally expose the demo on a trusted LAN/VPN."
 fi
 echo
 echo "Demo login:"

@@ -263,9 +263,9 @@ export function PilotPage() {
         ))}
       </section>
 
-      <Panel eyebrow="Why now" title="Trusted context for energy pricing, procurement, and operational AI workflows">
+      <Panel eyebrow="Why now" title="Trusted context for operational AI workflows">
         <p className="max-w-5xl text-sm leading-7 text-ink-700">
-          The sharpest first wedge is energy buying and pricing: contract data, usage signals, supplier terms, ERP records, pricing spreadsheets, and support context already exist, but they are often too fragmented for reliable workflow automation. Scout gives those systems a shared semantic layer so pricing reviews, procurement decisions, renewals, and AI-assisted operations can work from governed facts rather than scattered extracts.
+          Most organisations already have useful operational data, but it is spread across systems and too fragmented for reliable workflow automation. Scout gives those systems a shared semantic layer so reviews, renewals, support decisions, and AI-assisted operations can work from governed facts rather than scattered extracts.
         </p>
       </Panel>
 

@@ -12,25 +12,25 @@ const plans = [
   },
   {
     name: 'Discovery workshop',
-    label: 'GBP 1,500-3,000',
-    body: 'Map the first workflow, source systems, governance constraints, customer data-plane shape, and pilot success criteria before implementation starts. Usually credited against a paid pilot agreed within 30 days.',
+    label: 'Scoped privately',
+    body: 'Map the first workflow, source systems, governance constraints, customer data-plane shape, and pilot success criteria before implementation starts.',
     bestFor: 'Buyers deciding where the first pilot should land',
   },
   {
     name: 'Starter paid pilot',
-    label: 'GBP 7,500-15,000',
+    label: 'Scoped privately',
     body: 'Implementation-led pilot for one workflow, one environment, selected source systems or safe exports, and one downstream consumer.',
     bestFor: 'Teams proving value in two to four weeks',
   },
   {
     name: 'Production pilot',
-    label: 'GBP 20,000-45,000',
+    label: 'Scoped privately',
     body: 'Production-style customer data plane with PostgreSQL, production secrets, backup/restore review, scoped API clients, masking, audit, and handover.',
     bestFor: 'Teams preparing for real operational use',
   },
   {
     name: 'Enterprise/private deployment',
-    label: 'Scoped from GBP 50,000',
+    label: 'Scoped privately',
     body: 'Private enterprise connector modules, Rust relationship weighting, governance hardening, customer-specific deployment design, and support model through a paid agreement.',
     bestFor: 'Larger or regulated estates',
   },
@@ -53,7 +53,7 @@ export function PricingPage() {
           <>
             <Link to="/docs">
               <Button>
-                See billing foundations
+                See deployment docs
                 <ArrowRight className="size-4" />
               </Button>
             </Link>
@@ -67,9 +67,9 @@ export function PricingPage() {
       <Panel eyebrow="What you can buy now" title="The practical commercial motion is implementation-led">
         <div className="grid gap-4 md:grid-cols-3">
           {[
-            ['Discovery workshop', 'GBP 1,500-3,000 to pick the first workflow, source systems, customer data-plane shape, and success criteria.'],
-            ['Starter paid pilot', 'GBP 7,500-15,000 for one workflow, selected source systems or safe exports, and one useful consumer.'],
-            ['Production pilot', 'GBP 20,000-45,000 for PostgreSQL, secrets, backups, audit, masking, and customer handover.'],
+            ['Discovery workshop', 'Pick the first workflow, source systems, customer data-plane shape, and success criteria.'],
+            ['Starter paid pilot', 'Prove one workflow with selected source systems or safe exports and one useful consumer.'],
+            ['Production pilot', 'Add PostgreSQL, secrets, backups, audit, masking, and customer handover expectations.'],
           ].map(([title, body]) => (
             <Card key={title} className="bg-ivory-25">
               <p className="font-semibold text-ink-950">{title}</p>
@@ -124,7 +124,7 @@ export function PricingPage() {
             after={[
               'Clean billing-provider interfaces and no-op provider defaults are present.',
               'Connector, credential, health-check, and catalogue extension points are safe to build against.',
-              'The open core remains credible while paid pilot delivery, private connector modules, Rust relationship weighting, and optional control-plane work can live outside the public repository.',
+              'The open core remains credible while private delivery, private connector modules, and optional control-plane work can live outside the public repository.',
             ]}
           />
         </Panel>

@@ -177,7 +177,7 @@ public sealed class StorageAdapterBoundaryTests
 
         var sourceEvent = batch.Records.Single(record => record.RecordKind == "source_system_event");
         var tenantContext = sourceEvent.Metadata["tenantContext"]!.AsObject();
-        var anchor = sourceEvent.Metadata["fortressAnchor"]!.AsObject();
+        var anchor = sourceEvent.Metadata["portableAnchor"]!.AsObject();
         Assert.Equal("crm", sourceEvent.SourceSystem);
         Assert.Equal("evt-001", sourceEvent.SourceRecordId);
         Assert.Equal(tenant.Slug, tenantContext["layer"]!.GetValue<string>());

@@ -46,7 +46,7 @@ import { authStore } from '@/lib/auth'
 import { prettyJson, safeJsonParse } from '@/lib/utils'
 import { sampleBlueprint } from '@/features/bootstrap/bootstrap-studio-data'
 
-type OperationName =
+export type OperationName =
   | 'GetUserProfiles'
   | 'GetDataSources'
   | 'GetSemanticAttributes'

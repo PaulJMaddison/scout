@@ -16,7 +16,7 @@ public sealed class LocalLicenceServiceTests
     public async Task Loads_and_verifies_cloud_signed_licence_envelope()
     {
         using var rsa = RSA.Create(2048);
-        var licencePath = Path.Combine(Path.GetTempPath(), $"scout-cloud-envelope-{Guid.NewGuid():N}.json");
+        var licencePath = Path.Combine(Path.GetTempPath(), $"scout-control-plane-envelope-{Guid.NewGuid():N}.json");
         await File.WriteAllTextAsync(licencePath, CreateCloudEnvelope(rsa));
         await using var db = NewDb();
         var service = new LocalLicenceService(
@@ -48,7 +48,7 @@ public sealed class LocalLicenceServiceTests
     {
         using var signer = RSA.Create(2048);
         using var verifier = RSA.Create(2048);
-        var licencePath = Path.Combine(Path.GetTempPath(), $"scout-cloud-envelope-bad-{Guid.NewGuid():N}.json");
+        var licencePath = Path.Combine(Path.GetTempPath(), $"scout-control-plane-envelope-bad-{Guid.NewGuid():N}.json");
         await File.WriteAllTextAsync(licencePath, CreateCloudEnvelope(signer));
         await using var db = NewDb();
         var service = new LocalLicenceService(

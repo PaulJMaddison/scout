@@ -84,7 +84,7 @@ Error messages are sanitised — they never contain absolute file paths, credent
 ### Output Guarantees
 
 - **Deterministic ordering**: all array outputs (connector lists, aliases, capabilities, data source kinds) are sorted alphabetically. Calling the same tool twice always yields identical output.
-- **No enterprise internals**: outputs never reference Fortress, LanceDB, vendor-specific connectors (Salesforce, HubSpot, Dynamics, SAP, SharePoint), embedded LLMs, or vector pipelines.
+- **No enterprise internals**: outputs never reference private runtime names, private vector-store integrations, vendor-specific connectors (Salesforce, HubSpot, Dynamics, SAP, SharePoint), embedded LLMs, or vector pipelines.
 - **No secret leakage**: absolute paths, credential-like values, and Bearer tokens are redacted from error messages and report output.
 
 ### Example: List Available Connectors
@@ -217,7 +217,7 @@ This mirrors the server-side `ConnectorMetadataValidator` in the .NET codebase.
 This package is part of the **public open-core** Scout repository.
 
 - **Included:** Generic protocol connectors (SQL, REST, CSV, mock), example connectors, public semantic attribute keys, data source kinds, and connector capabilities.
-- **Not included:** Enterprise vendor-specific connectors (Salesforce, HubSpot, Dynamics, SAP, etc.), Fortress features, LanceDB, embedded LLMs, vector pipelines, or customer data.
+- **Not included:** Enterprise vendor-specific connectors (Salesforce, HubSpot, Dynamics, SAP, etc.), private runtime features, private vector-store integrations, embedded LLMs, vector pipelines, or customer data.
 
 See [connector-authoring.md](../../docs/connector-authoring.md) and [connector-plugin-model.md](../../docs/connector-plugin-model.md) for the full connector contract documentation.
 

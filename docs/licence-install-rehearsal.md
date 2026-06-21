@@ -4,14 +4,14 @@ This is a local proof for the paid-pilot licence handoff. It does not use produc
 
 ## Flow
 
-1. Start the cloud API/portal in `C:\scout-cloud`.
+1. Start the private control-plane API/portal from an explicitly configured local checkout.
 2. Sign in with seeded local credentials.
 3. Issue a development licence for a fictional account.
 4. Download the `.scout-licence.json` file.
 5. Place it outside tracked source, for example:
 
 ```text
-C:\Scout\.local\licences\pilot.scout-licence.json
+<repo>\.local\licences\pilot.scout-licence.json
 ```
 
 6. Run:
@@ -24,7 +24,7 @@ C:\Scout\.local\licences\pilot.scout-licence.json
 
 ```text
 Licence__Mode=Licensed
-Licence__FilePath=C:\Scout\.local\licences\pilot.scout-licence.json
+Licence__FilePath=<repo>\.local\licences\pilot.scout-licence.json
 Licence__PublicKeyPem=<cloud licence public verification key from local config or secret store>
 ```
 
