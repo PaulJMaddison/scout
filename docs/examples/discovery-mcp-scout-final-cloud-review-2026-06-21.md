@@ -1,6 +1,6 @@
 # Discovery MCP Scout Final Cloud Review - 2026-06-21
 
-Mode: Scout-side local/cloud verification for the KynticAI Discovery MCP product. No packages were published, no live vendor systems were called, and no real customer data was used.
+Mode: Scout-side Codex Cloud verification for the KynticAI Discovery MCP product. Verification was run on 2026-06-21 at approximately 02:03-02:05 UTC. No packages were published, no live vendor systems were called, and no real customer data was used.
 
 ## Commands run
 
@@ -20,15 +20,17 @@ Mode: Scout-side local/cloud verification for the KynticAI Discovery MCP product
 
 ## Test results
 
-- Discovery Agent install: passed. `npm install` completed; npm reported two high-severity audit advisories.
+- Initial working tree check: `git status --short` showed only the pre-existing untracked `.codex-cloud/` toolchain directory before edits; no tracked source changes were present.
+- Discovery Agent install: passed. `npm install` completed; npm reported two high-severity audit advisories and the environment warning `Unknown env config "http-proxy"`.
 - Discovery Agent build: passed. The nested `scout-discovery-mcp`, `scout-connector-validator`, and `scout-metadata-audit` prebuilds also passed.
 - Discovery Agent tests: passed. `3` files, `16` tests.
-- Tier 3 Scout repo audit: passed. The audit returned project `KynticAI.Scout`, tier `3`, and scanned the updated tree.
-- Scout Discovery MCP install: passed. `npm install` completed; npm reported two high-severity audit advisories.
+- Tier 3 Scout repo audit: passed. The audit returned project `KynticAI.Scout`, tier `3`, audit timestamp `2026-06-21T02:03:31.855Z`, `3161` files, `457` directories, `689` scanned files, and `2472` skipped files. The scan completed without network or vendor calls; the untracked `.codex-cloud/` toolchain directory was visible to the file-tree audit because it exists in the Cloud workspace.
+- Scout Discovery MCP install: passed. `npm install` completed; npm reported two high-severity audit advisories and the environment warning `Unknown env config "http-proxy"`.
 - Scout Discovery MCP build: passed, including nested validator and metadata-audit builds.
 - Scout Discovery MCP tests: passed. `3` files, `118` tests.
 - Scout Connector Validator build: passed.
 - Scout Connector Validator tests: passed. `2` files, `110` tests.
+- Discovery Signature CLI smoke: passed and printed a valid metadata-only signature.
 - `git diff --check`: passed with no whitespace errors.
 
 ## Manifest validation results
@@ -39,13 +41,13 @@ The new metadata-only prospect fixtures validate through the built connector-val
 - `prospectWebAnalytics`: pass
 - `prospectConversionEvents`: pass
 
-CLI result: `3 manifest(s) checked. All valid.`
+CLI result: each prospect manifest printed `[PASS]`, followed by `3 manifest(s) checked. All valid.`
 
 The fixtures are synthetic, provider-neutral, and metadata-only. They do not contain credentials, tokens, connection strings, local paths, raw records, source rows, prompt packages, analytics payloads, or customer data.
 
 ## Discovery Signature summary
 
-The built Discovery MCP CLI generated a valid `kynticai.discovery-signature.v1` object from `apps/discovery-agent/examples/synthetic-approved-metadata.json`.
+The built Discovery MCP CLI generated a valid `kynticai.discovery-signature.v1` object from `apps/discovery-agent/examples/synthetic-approved-metadata.json` during this Cloud run.
 
 Observed signature summary:
 
@@ -94,4 +96,7 @@ No Enterprise internals, private connector implementations, LanceDB, embedded mo
 
 None for the requested Scout-side build/test/smoke gates.
 
-Non-blocking follow-up: `npm install` in `apps/discovery-agent` and `packages/typescript/scout-discovery-mcp` reports two high-severity npm audit advisories. The requested build/test/smoke verification passes; dependency-audit remediation was not part of this scoped review.
+Non-blocking follow-ups:
+
+- `npm install` in `apps/discovery-agent` and `packages/typescript/scout-discovery-mcp` reports two high-severity npm audit advisories. The requested build/test/smoke verification passes; dependency-audit remediation was not part of this scoped review.
+- The Cloud workspace contains an untracked `.codex-cloud/` local toolchain directory. It was not added to git and is not part of the proof artefact.
